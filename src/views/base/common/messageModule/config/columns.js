@@ -1,110 +1,86 @@
 export const columns = [
   {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'title',
-    label: '模版名称',
-    searchable: {
-      type: 'input',
-      fieldName: 'username',
-      placeholder: '输入用户名搜索',
-      label: '关键字',
-      order: 1,
-    },
-  }, 
-  {
     fieldName: 'name',
     label: '模版标识',
+    width: "10%",
+    minWidth: 150,
+  },
+  {
+    fieldName: 'title',
+    label: '模版名称',
+    width: "65%",
+    minWidth: 300,
+    searchable: {
+      type: 'input',
+      fieldName: 'title',
+      placeholder: '请输入',
+      label: '关键字',
+      order: 1,
+    },
+  },
+  {
+    fieldName: 'adminId',
+    label: '创建人',
+    width: "10%",
+    minWidth: 150,
+  },
+  {
+    fieldName: 'createTime',
+    label: '创建时间',
+    width: "10%",
+    minWidth: 150,
+  },
+  {
+    fieldName: 'status',
+    label: '状态',
+    width: "5%",
+    minWidth: 100,
+    align: 'center',
   },
 ];
 
 export const operationColumn = {
   label: '操作',
-  width: 140,
+  width: 360,
   fixed: 'right',
   show: true,
   actions: [
     {
       label: '编辑',
-      type: 'primary',
+      type: 'success',
+      size: 'small',
       onClick: (row) => {
         console.log('===编辑', row)
       },
-      disabled: (row) => row.status === 1,
-      isShow: (row) => row.status === 1,
       icon: 'edit',
     },
     {
-      label: '删除',
-      type: 'danger',
+      label: '查看',
+      type: 'primary',
+      size: 'small',
       onClick: (row) => {
-        console.log('===删除', row)
+        console.log('===查看', row)
       },
-      disabled: (row) => row.status === 1,
+      isShow: (row) => row.status === 1,
+      icon: 'eye-open',
+    },
+    {
+      label: '禁用',
+      type: 'danger',
+      size: 'small',
+      onClick: (row) => {
+        console.log('===禁用', row)
+      },
+      icon: 'lock',
+    },
+    {
+      label: '复制',
+      type: 'primary',
+      size: 'small',
+      onClick: (row) => {
+        console.log('===复制', row)
+      },
+      icon: 'clipboard',
     },
   ],
 };

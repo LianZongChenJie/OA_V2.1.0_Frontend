@@ -8,7 +8,7 @@
       @reset="resetSearch"
       @toggle-expand="handleToggleExpand"
     />
-    <div class="table-container" :style="tableContainerStyle">
+    <div class="table-container" ref="tableContainerRef" :style="tableContainerStyle">
       <el-table
         ref="table"
         class="table-box"
@@ -21,7 +21,7 @@
       >
         <!-- 数据列 -->
         <el-table-column
-          v-for="column in columns"
+          v-for="column in processedColumns"
           :key="column.fieldName"
           :prop="column.fieldName"
           :label="column.label"
@@ -66,7 +66,8 @@
                   :disabled="action.disabled?.(row)"
                   @click="action.onClick(row)"
                 >
-                  {{ action.label }}
+                  <svg-icon v-if="action.icon" :icon-class="action.icon" class="btn-icon" />
+                  <span>{{ action.label }}</span>
                 </el-button>
               </div>
             </slot>
@@ -92,7 +93,7 @@
 <script></script>
 
 <script setup>
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import SearchBar from "./SearchBar.vue";
 
 /**
@@ -121,6 +122,7 @@ import SearchBar from "./SearchBar.vue";
  * @property {string} label - 按钮文字
  * @property {'primary'|'success'|'warning'|'danger'|'info'} [type] - 按钮类型
  * @property {'large'|'default'|'small'} [size] - 按钮尺寸
+ * @property {string} [icon] - 图标名称（使用 svg-icon 组件）
  * @property {Function} onClick - 点击事件
  * @property {Function} [disabled] - 是否禁用
  * @property {Function} [isShow] - 是否显示
@@ -223,6 +225,14 @@ const props = defineProps({
 const searchParams = ref({});
 // 搜索栏展开状态
 const isSearchExpanded = ref(false);
+// 表格容器宽度
+const tableContainerWidth = ref(0);
+// 表格ref
+const table = ref(null);
+// 表格容器ref
+const tableContainerRef = ref(null);
+// ResizeObserver 实例
+let resizeObserver = null;
 
 // API 模式相关状态
 const loading = ref(false);
@@ -264,6 +274,79 @@ const searchableColumns = computed(() => {
       ...column.searchable,
       fieldName: column.fieldName,
     }));
+});
+
+/**
+ * 计算可用宽度（扣除操作列后的宽度）
+ * @returns {number} - 可用于数据列的宽度
+ */
+const getAvailableWidth = () => {
+  let availableWidth = tableContainerWidth.value;
+  // 如果有操作列，扣除操作列宽度
+  if (showOperationColumn.value && operationColumnConfig.value.width) {
+    availableWidth -= operationColumnConfig.value.width;
+  }
+  return availableWidth;
+};
+
+/**
+ * 计算列宽，支持百分比转换为像素值
+ * @param {number|string} width - 列宽度，可以是数字或百分比字符串（如 "20%"）
+ * @param {number} availableWidth - 可用宽度
+ * @returns {number|undefined} - 转换后的像素宽度
+ */
+const calculateColumnWidth = (width, availableWidth) => {
+  if (width === undefined || width === null) return undefined;
+
+  // 如果是字符串且以 % 结尾，则按照可用宽度计算
+  if (typeof width === 'string' && width.endsWith('%')) {
+    const percentage = parseFloat(width) / 100;
+    return Math.floor(availableWidth * percentage);
+  }
+
+  // 否则直接返回原值
+  return width;
+};
+
+// 计算处理后的列配置
+const processedColumns = computed(() => {
+  if (props.columns.length === 0) return [];
+
+  const availableWidth = getAvailableWidth();
+
+  // 计算所有百分比宽度列的总百分比
+  let totalPercentage = 0;
+  props.columns.forEach((column) => {
+    if (typeof column.width === 'string' && column.width.endsWith('%')) {
+      totalPercentage += parseFloat(column.width);
+    }
+  });
+
+  // 如果总和小于100%，计算剩余百分比
+  const remainingPercentage = totalPercentage < 100 ? 100 - totalPercentage : 0;
+
+  // 处理列配置
+  return props.columns.map((column, index) => {
+    const isLastColumn = index === props.columns.length - 1;
+    let width = column.width;
+
+    // 如果是最后一列且总百分比小于100%，且该列没有设置固定宽度（数字）
+    if (isLastColumn && remainingPercentage > 0 && !(typeof column.width === 'number')) {
+      // 如果最后一列已经有百分比宽度，则加上剩余百分比
+      if (typeof column.width === 'string' && column.width.endsWith('%')) {
+        const currentPercentage = parseFloat(column.width);
+        width = `${currentPercentage + remainingPercentage}%`;
+      } else if (column.width === undefined || column.width === null) {
+        // 如果最后一列没有设置宽度，则直接使用剩余百分比
+        width = `${remainingPercentage}%`;
+      }
+    }
+
+    return {
+      ...column,
+      width: calculateColumnWidth(width, availableWidth),
+    };
+  });
 });
 
 // 检查是否有可搜索的列
@@ -434,10 +517,47 @@ watch(
   { deep: true }
 );
 
+// 初始化 ResizeObserver
+const initResizeObserver = () => {
+  // 清理已有的 observer
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
+
+  const tableContainer = tableContainerRef.value;
+  if (tableContainer) {
+    const updateWidth = () => {
+      tableContainerWidth.value = tableContainer.offsetWidth;
+    };
+
+    updateWidth();
+
+    // 使用 ResizeObserver 监听容器尺寸变化
+    resizeObserver = new ResizeObserver(() => {
+      updateWidth();
+    });
+    resizeObserver.observe(tableContainer);
+  }
+};
+
 // 组件挂载时加载数据
 onMounted(() => {
   if (isApiMode.value) {
     fetchRemoteData();
+  }
+
+  // 监听表格容器宽度变化
+  nextTick(() => {
+    initResizeObserver();
+  });
+});
+
+// 组件卸载时清理 ResizeObserver
+onBeforeUnmount(() => {
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
   }
 });
 </script>
@@ -449,6 +569,11 @@ onMounted(() => {
   justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.btn-icon {
+  margin-right: 4px;
+  vertical-align: -2px;
 }
 
 :deep(.el-button + .el-button) {
