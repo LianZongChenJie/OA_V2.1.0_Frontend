@@ -8,7 +8,44 @@
       @reset="resetSearch"
       @toggle-expand="handleToggleExpand"
     />
-    <div class="table-container" ref="tableContainerRef" :style="tableContainerStyle">
+    <div
+      class="table-container"
+      ref="tableContainerRef"
+      :style="tableContainerStyle"
+    >
+      <div class="table-header">
+        <div class="table-button-left-box">
+          <el-button
+            v-for="(btn, index) in toolbarButtons"
+            :key="index"
+            :type="btn.type || 'primary'"
+            :size="btn.size || 'small'"
+            :icon="btn.icon"
+            :disabled="btn.disabled"
+            @click="btn.onClick"
+            plain
+          >
+            {{ btn.label }}
+          </el-button>
+        </div>
+        <div class="table-button-right-box">
+          <el-tooltip
+            class="box-item"
+            effect="dark"
+            content="刷新"
+            placement="top"
+          >
+            <el-button
+              type="default"
+              :icon="RefreshRight"
+              :loading="loading"
+              circle
+              @click="refresh"
+            >
+            </el-button>
+          </el-tooltip>
+        </div>
+      </div>
       <el-table
         ref="table"
         class="table-box"
@@ -66,7 +103,11 @@
                   :disabled="action.disabled?.(row)"
                   @click="action.onClick(row)"
                 >
-                  <svg-icon v-if="action.icon" :icon-class="action.icon" class="btn-icon" />
+                  <svg-icon
+                    v-if="action.icon"
+                    :icon-class="action.icon"
+                    class="btn-icon"
+                  />
                   <span>{{ action.label }}</span>
                 </el-button>
               </div>
@@ -75,7 +116,10 @@
         </el-table-column>
       </el-table>
       <!-- 分页组件 -->
-      <div v-if="isApiMode && pagination && total > 0" class="pagination-container">
+      <div
+        v-if="isApiMode && pagination && total > 0"
+        class="pagination-container"
+      >
         <el-pagination
           v-model:current-page="currentPage"
           v-model:page-size="currentPageSize"
@@ -93,7 +137,15 @@
 <script></script>
 
 <script setup>
-import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
+import {
+  ref,
+  computed,
+  watch,
+  onMounted,
+  onBeforeUnmount,
+  nextTick,
+} from "vue";
+import { RefreshRight } from "@element-plus/icons-vue";
 import SearchBar from "./SearchBar.vue";
 
 /**
@@ -219,6 +271,14 @@ const props = defineProps({
       show: true,
     }),
   },
+  /** 工具栏按钮配置
+   * @type {Array}
+   * @description 父组件传入的工具栏按钮配置
+   */
+  toolbarButtons: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 // 搜索相关逻辑
@@ -254,7 +314,35 @@ const tableData = computed(() => {
 
 // 计算操作列配置
 const operationColumnConfig = computed(() => {
-  return { ...props.operationColumn };
+  const config = { ...props.operationColumn };
+
+  // 智能处理操作列的 min-width 约束
+  if (config.width !== undefined && config.width !== null) {
+    const availableWidth = tableContainerWidth.value;
+    const calculatedWidth =
+      typeof config.width === "string"
+        ? calculateColumnWidth(config.width, availableWidth)
+        : config.width;
+
+    // 如果设置了 minWidth 且计算出的宽度小于 minWidth，则使用 minWidth
+    if (config.minWidth !== undefined && config.minWidth !== null) {
+      const minWidth =
+        typeof config.minWidth === "string"
+          ? calculateColumnWidth(config.minWidth, availableWidth)
+          : config.minWidth;
+
+      if (
+        calculatedWidth !== undefined &&
+        calculatedWidth !== null &&
+        minWidth !== undefined &&
+        calculatedWidth < minWidth
+      ) {
+        config.width = minWidth;
+      }
+    }
+  }
+
+  return config;
 });
 
 // 是否显示操作列
@@ -299,7 +387,7 @@ const calculateColumnWidth = (width, availableWidth) => {
   if (width === undefined || width === null) return undefined;
 
   // 如果是字符串且以 % 结尾，则按照可用宽度计算
-  if (typeof width === 'string' && width.endsWith('%')) {
+  if (typeof width === "string" && width.endsWith("%")) {
     const percentage = parseFloat(width) / 100;
     return Math.floor(availableWidth * percentage);
   }
@@ -317,7 +405,7 @@ const processedColumns = computed(() => {
   // 计算所有百分比宽度列的总百分比
   let totalPercentage = 0;
   props.columns.forEach((column) => {
-    if (typeof column.width === 'string' && column.width.endsWith('%')) {
+    if (typeof column.width === "string" && column.width.endsWith("%")) {
       totalPercentage += parseFloat(column.width);
     }
   });
@@ -331,9 +419,13 @@ const processedColumns = computed(() => {
     let width = column.width;
 
     // 如果是最后一列且总百分比小于100%，且该列没有设置固定宽度（数字）
-    if (isLastColumn && remainingPercentage > 0 && !(typeof column.width === 'number')) {
+    if (
+      isLastColumn &&
+      remainingPercentage > 0 &&
+      !(typeof column.width === "number")
+    ) {
       // 如果最后一列已经有百分比宽度，则加上剩余百分比
-      if (typeof column.width === 'string' && column.width.endsWith('%')) {
+      if (typeof column.width === "string" && column.width.endsWith("%")) {
         const currentPercentage = parseFloat(column.width);
         width = `${currentPercentage + remainingPercentage}%`;
       } else if (column.width === undefined || column.width === null) {
@@ -342,9 +434,31 @@ const processedColumns = computed(() => {
       }
     }
 
+    // 计算最终宽度
+    const calculatedWidth = calculateColumnWidth(width, availableWidth);
+
+    // 智能处理 min-width 约束：如果设置了 minWidth 且计算出的宽度小于 minWidth，则使用 minWidth
+    let finalWidth = calculatedWidth;
+    if (column.minWidth !== undefined && column.minWidth !== null) {
+      const minWidth =
+        typeof column.minWidth === "string"
+          ? calculateColumnWidth(column.minWidth, availableWidth)
+          : column.minWidth;
+
+      // 如果有计算出的宽度且小于最小宽度，则使用最小宽度
+      if (
+        finalWidth !== undefined &&
+        finalWidth !== null &&
+        minWidth !== undefined &&
+        finalWidth < minWidth
+      ) {
+        finalWidth = minWidth;
+      }
+    }
+
     return {
       ...column,
-      width: calculateColumnWidth(width, availableWidth),
+      width: finalWidth,
     };
   });
 });
@@ -371,9 +485,9 @@ const fetchRemoteData = async () => {
       ...props.params,
       ...searchParams.value,
     };
-    
+
     const res = await props.api(params);
-    
+
     // 处理返回数据
     if (res.code === 200 && res.success) {
       remoteData.value = res.rows || [];
@@ -429,7 +543,7 @@ const tableContainerStyle = computed(() => {
   const effectiveRows = isSearchExpanded.value ? searchRowsCount.value : 1;
   const offsetHeight = effectiveRows * 80 + 50;
   return {
-    height: `calc(100% - ${offsetHeight}px)`
+    height: `calc(100% - ${offsetHeight}px)`,
   };
 });
 
@@ -514,7 +628,7 @@ watch(
       fetchRemoteData();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 // 初始化 ResizeObserver
@@ -579,7 +693,7 @@ onBeforeUnmount(() => {
 :deep(.el-button + .el-button) {
   margin-left: 0px;
 }
-.table-pro{
+.table-pro {
   height: 100%;
 }
 .table-container {
@@ -587,6 +701,20 @@ onBeforeUnmount(() => {
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+}
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+}
+.table-button-left-box {
+  display: flex;
+  gap: 8px;
+}
+.table-button-right-box {
+  display: flex;
+  gap: 8px;
 }
 .pagination-container {
   padding: 16px;

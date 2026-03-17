@@ -7,4 +7,13 @@ export function getPageList(query) {
     method: 'get',
     params: query
   })
+}
+
+// 新增消息模板
+export function addMessageModule(data) {
+  return request({
+    url: '/basicdata/template',
+    method: 'post',
+    data: data
+  })
 } 

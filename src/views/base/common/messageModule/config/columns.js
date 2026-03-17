@@ -1,3 +1,7 @@
+const handleAdd = () => {
+  console.log('==新增==>')
+}
+
 export const columns = [
   {
     fieldName: 'name',
@@ -8,7 +12,7 @@ export const columns = [
   {
     fieldName: 'title',
     label: '模版名称',
-    width: "65%",
+    width: "50%",
     minWidth: 300,
     searchable: {
       type: 'input',
@@ -85,7 +89,16 @@ export const operationColumn = {
   ],
 };
 
+export const getHeaderButs = (onAdd) => [
+  { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
+];
+
+export const headerButs = getHeaderButs(handleAdd);
+
+
 export default {
   columns,
   operationColumn,
+  headerButs,
+  getHeaderButs
 };
