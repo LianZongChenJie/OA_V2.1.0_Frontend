@@ -1,21 +1,15 @@
 export const columns = [
   {
     fieldName: 'id',
-    label: '模版ID',
+    label: 'ID',
     width: "5%",
     minWidth: 100,
     align: 'center',
   },
   {
-    fieldName: 'name',
-    label: '模版标识',
-    width: "15%",
-    minWidth: 150, 
-  },
-  {
     fieldName: 'title',
-    label: '模版名称',
-    width: "50%",
+    label: '模块名称',
+    width: "40%",
     minWidth: 300,
     searchable: {
       type: 'input',
@@ -26,21 +20,16 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminId',
-    label: '创建人',
+    fieldName: 'sort',
+    label: '排序',
     width: "10%",
-    minWidth: 150,
-  },
-  {
-    fieldName: 'createTime',
-    label: '创建时间',
-    width: "10%",
-    minWidth: 150,
+    minWidth: 100,
+    align: 'center',
   },
   {
     fieldName: 'status',
     label: '状态',
-    width: "5%",
+    width: "10%",
     minWidth: 100,
     align: 'center',
   },
@@ -48,7 +37,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 360,
+  width: 200,
   fixed: 'right',
   show: true,
   actions: [
@@ -62,16 +51,6 @@ export const operationColumn = {
       icon: 'edit',
     },
     {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===查看', row)
-      },
-      isShow: (row) => row.status === 1,
-      icon: 'eye-open',
-    },
-    {
       label: '禁用',
       type: 'danger',
       size: 'small',
@@ -79,15 +58,17 @@ export const operationColumn = {
         console.log('===禁用', row)
       },
       icon: 'lock',
+      isShow: (row) => row.status === 1,
     },
     {
-      label: '复制',
+      label: '启用',
       type: 'primary',
       size: 'small',
       onClick: (row) => {
-        console.log('===复制', row)
+        console.log('===启用', row)
       },
-      icon: 'clipboard',
+      icon: 'unlock',
+      isShow: (row) => row.status === 0,
     },
   ],
 };
@@ -96,10 +77,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView) => {
+export const getOperationColumn = (onEdit, onDisable) => {
   return {
     label: '操作',
-    width: 360,
+    width: 200,
     fixed: 'right',
     show: true,
     actions: [
@@ -113,32 +94,24 @@ export const getOperationColumn = (onEdit, onView) => {
         icon: 'edit',
       },
       {
-        label: '查看',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onView && onView(row);
-        },
-        isShow: (row) => row.status === 1,
-        icon: 'eye-open',
-      },
-      {
         label: '禁用',
         type: 'danger',
         size: 'small',
         onClick: (row) => {
-          console.log('===禁用', row)
+          onDisable && onDisable(row);
         },
         icon: 'lock',
+        isShow: (row) => row.status === 1,
       },
       {
-        label: '复制',
+        label: '启用',
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          console.log('===复制', row)
+          onDisable && onDisable(row);
         },
-        icon: 'clipboard',
+        icon: 'unlock',
+        isShow: (row) => row.status === 0,
       },
     ],
   };

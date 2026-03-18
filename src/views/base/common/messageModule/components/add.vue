@@ -7,16 +7,16 @@
     class="message-module-dialog"
     @close="handleClose"
   >
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="140px">
+    <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="140px">
       <el-divider  class="divider" content-position="left">基础信息</el-divider>
       <el-form-item label="模板名称" prop="title">
-        <el-input v-model="form.title" placeholder="请输入模板名称" />
+        <el-input v-model="form.title" placeholder="请输入模板名称" :disabled="isView" />
       </el-form-item>
       <el-form-item label="模版标识" prop="name">
-        <el-input v-model="form.name" placeholder="请输入模版标识" />
+        <el-input v-model="form.name" placeholder="请输入模版标识" :disabled="isView" />
       </el-form-item>
       <el-form-item label="消息类型" prop="types">
-        <el-radio-group v-model="form.types">
+        <el-radio-group v-model="form.types" :disabled="isView">
           <el-radio
             v-for="item in message_module_types"
             :key="item.value"
@@ -27,13 +27,14 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="消息链接" prop="msgLink">
-        <el-input v-model="form.msgLink" placeholder="请输入消息链接" />
+        <el-input v-model="form.msgLink" placeholder="请输入消息链接" :disabled="isView" />
       </el-form-item>
       <div v-if="form.types === 1">
         <el-form-item label="模板标题" prop="msgTitle0">
           <el-input
             v-model="form.msgTitle0"
             placeholder="请输入审批中的消息模板标题"
+            :disabled="isView"
           />
         </el-form-item>
         <el-form-item label="模板内容" prop="msgContent0">
@@ -42,6 +43,7 @@
             type="textarea"
             :rows="4"
             placeholder="请输入审批中的消息模板内容"
+            :disabled="isView"
           />
         </el-form-item>
       </div>
@@ -53,6 +55,7 @@
           <el-input
             v-model="form.msgTitle0"
             placeholder="请输入审批中的消息模板标题"
+            :disabled="isView"
           />
         </el-form-item>
         <el-form-item label="模板内容" prop="msgContent0">
@@ -61,6 +64,7 @@
             type="textarea"
             :rows="4"
             placeholder="请输入审批中的消息模板内容"
+            :disabled="isView"
           />
         </el-form-item>
 
@@ -71,6 +75,7 @@
           <el-input
             v-model="form.msgTitle1"
             placeholder="请输入审批通过的消息模板标题"
+            :disabled="isView"
           />
         </el-form-item>
         <el-form-item label="模板内容" prop="msgContent1">
@@ -79,6 +84,7 @@
             type="textarea"
             :rows="4"
             placeholder="请输入审批通过的消息模板内容"
+            :disabled="isView"
           />
         </el-form-item>
         <el-divider class="divider" content-position="left"
@@ -88,6 +94,7 @@
           <el-input
             v-model="form.msgTitle2"
             placeholder="请输入审批拒绝的消息模板标题"
+            :disabled="isView"
           />
         </el-form-item>
         <el-form-item label="模板内容" prop="msgContent2">
@@ -96,6 +103,7 @@
             type="textarea"
             :rows="4"
             placeholder="请输入审批拒绝的消息模板内容"
+            :disabled="isView"
           />
         </el-form-item>
         <el-divider class="divider" content-position="left"
@@ -105,6 +113,7 @@
           <el-input
             v-model="form.msgTitle3"
             placeholder="请输入通过抄送人的消息模板标题"
+            :disabled="isView"
           />
         </el-form-item>
         <el-form-item label="模板内容" prop="msgContent3">
@@ -113,6 +122,7 @@
             type="textarea"
             :rows="4"
             placeholder="请输入通过抄送人的消息模板内容"
+            :disabled="isView"
           />
         </el-form-item>
       </div>
@@ -122,13 +132,14 @@
           type="textarea"
           :rows="2"
           placeholder="请输入备注"
+          :disabled="isView"
         />
       </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">确 定</el-button>
-        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button v-if="!isView" type="primary" @click="handleSubmit">确 定</el-button>
+        <el-button @click="dialogVisible = false">{{ isView ? '关 闭' : '取 消' }}</el-button>
       </div>
     </template>
   </el-dialog>
@@ -144,6 +155,7 @@ const { message_module_types } = proxy.useDict("message_module_types");
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false); // 是否为编辑模式
+const isView = ref(false); // 是否为查看模式
 
 const form = reactive({
   id: undefined,
@@ -164,6 +176,7 @@ const form = reactive({
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
+  if (isView.value) return "查看消息模版";
   return isEdit.value ? "编辑消息模版" : "新增消息模版";
 });
 
@@ -238,6 +251,7 @@ function reset() {
   form.msgTitle3 = "";
   form.msgContent3 = "";
   isEdit.value = false;
+  isView.value = false;
   proxy.resetForm("formRef");
 }
 
@@ -275,6 +289,29 @@ function openEdit(data) {
   dialogVisible.value = true;
 }
 
+/** 显示弹窗 - 查看模式 */
+function openView(data) {
+  reset();
+  // 填充表单数据
+  form.id = data.id;
+  form.title = data.title;
+  form.name = data.name;
+  form.types = data.types;
+  form.remark = data.remark || "";
+  form.msgLink = data.msgLink || "";
+  form.msgTitle0 = data.msgTitle0 || "";
+  form.msgContent0 = data.msgContent0 || "";
+  form.msgTitle1 = data.msgTitle1 || "";
+  form.msgContent1 = data.msgContent1 || "";
+  form.msgTitle2 = data.msgTitle2 || "";
+  form.msgContent2 = data.msgContent2 || "";
+  form.msgTitle3 = data.msgTitle3 || "";
+  form.msgContent3 = data.msgContent3 || "";
+
+  isView.value = true;
+  dialogVisible.value = true;
+}
+
 /** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
@@ -296,6 +333,7 @@ const emit = defineEmits(["success"]);
 defineExpose({
   open,
   openEdit,
+  openView,
 });
 </script>
 
