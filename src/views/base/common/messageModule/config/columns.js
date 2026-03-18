@@ -1,13 +1,16 @@
-const handleAdd = () => {
-  console.log('==新增==>')
-}
-
 export const columns = [
+  {
+    fieldName: 'id',
+    label: '模版ID',
+    width: "5%",
+    minWidth: 100,
+    align: 'center',
+  },
   {
     fieldName: 'name',
     label: '模版标识',
-    width: "10%",
-    minWidth: 150,
+    width: "15%",
+    minWidth: 150, 
   },
   {
     fieldName: 'title',
@@ -53,8 +56,8 @@ export const operationColumn = {
       label: '编辑',
       type: 'success',
       size: 'small',
-      onClick: (row) => {
-        console.log('===编辑', row)
+      onClick: (row, onEdit) => {
+        onEdit && onEdit(row);
       },
       icon: 'edit',
     },
@@ -93,12 +96,56 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const headerButs = getHeaderButs(handleAdd);
-
+export const getOperationColumn = (onEdit) => {
+  return {
+    label: '操作',
+    width: 360,
+    fixed: 'right',
+    show: true,
+    actions: [
+      {
+        label: '编辑',
+        type: 'success',
+        size: 'small',
+        onClick: (row) => {
+          onEdit && onEdit(row);
+        },
+        icon: 'edit',
+      },
+      {
+        label: '查看',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          console.log('===查看', row)
+        },
+        isShow: (row) => row.status === 1,
+        icon: 'eye-open',
+      },
+      {
+        label: '禁用',
+        type: 'danger',
+        size: 'small',
+        onClick: (row) => {
+          console.log('===禁用', row)
+        },
+        icon: 'lock',
+      },
+      {
+        label: '复制',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          console.log('===复制', row)
+        },
+        icon: 'clipboard',
+      },
+    ],
+  };
+};
 
 export default {
   columns,
   operationColumn,
-  headerButs,
   getHeaderButs
 };

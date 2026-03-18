@@ -19,8 +19,8 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList } from "@/api/base/common/messageModule/index.js";
-import { columns, operationColumn, getHeaderButs } from "./config/columns";
+import { getPageList, getMessageModuleDetail } from "@/api/base/common/messageModule/index.js";
+import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
@@ -36,11 +36,21 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
+/** 编辑按钮操作 */
+async function handleEdit(row) {
+  // 获取详情数据
+  const res = await getMessageModuleDetail(row.id);
+  if (res) {
+    addDialogRef.value.openEdit(res.data || res);
+  }
+}
+
 /** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
 }
 
 const headerButs = getHeaderButs(handleAdd);
+const operationColumn = getOperationColumn(handleEdit);
 </script>
 <style lang="scss" scoped></style>

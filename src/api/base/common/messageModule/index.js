@@ -12,8 +12,34 @@ export function getPageList(query) {
 // 新增消息模板
 export function addMessageModule(data) {
   return request({
-    url: '/basicdata/template',
+    url: '/basicdata/template/add',
     method: 'post',
     data: data
   })
-} 
+}
+
+// 获取模板详情
+export function getMessageModuleDetail(id) {
+  return request({
+    url: `/basicdata/template/detail/${id}`,
+    method: 'get'
+  })
+}
+
+// 更新模板接口
+export function updateMessageModule(data) {
+  return request({
+    url: '/basicdata/template/update',
+    method: 'post',
+    data: data
+  })
+}
+
+// 删除模板接口
+export function deleteMessageModule(id) {
+  return request({
+    url: `/basicdata/template/delete/${id}`,
+    method: 'get'
+  })
+}
+
