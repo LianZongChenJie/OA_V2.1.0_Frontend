@@ -279,6 +279,14 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  /** 行过滤函数
+   * @type {Function}
+   * @description 接收一个 row 参数，返回 true 显示该行，false 隐藏该行
+   */
+  rowFilter: {
+    type: Function,
+    default: null,
+  },
 });
 
 // 搜索相关逻辑
@@ -306,10 +314,19 @@ const isApiMode = computed(() => !!props.api);
 
 // 实际展示的表格数据
 const tableData = computed(() => {
+  let data = [];
   if (isApiMode.value) {
-    return remoteData.value;
+    data = remoteData.value;
+  } else {
+    data = filteredData.value;
   }
-  return filteredData.value;
+
+  // 应用行过滤函数
+  if (props.rowFilter && typeof props.rowFilter === 'function') {
+    data = data.filter(row => props.rowFilter(row));
+  }
+
+  return data;
 });
 
 // 计算操作列配置
@@ -539,12 +556,18 @@ const searchRowsCount = computed(() => {
 
 // 计算 table-container 的动态高度
 const tableContainerStyle = computed(() => {
-  // 如果搜索栏未展开，默认按1行计算
-  const effectiveRows = isSearchExpanded.value ? searchRowsCount.value : 1;
-  const offsetHeight = effectiveRows * 80 + 50;
-  return {
-    height: `calc(100% - ${offsetHeight}px)`,
-  };
+  if (hasSearchableColumns.value) {
+    // 如果搜索栏未展开，默认按1行计算
+    const effectiveRows = isSearchExpanded.value ? searchRowsCount.value : 1;
+    const offsetHeight = effectiveRows * 80 + 50;
+    return {
+      height: `calc(100% - ${offsetHeight}px)`,
+    };
+  } else {
+    return {
+      height: `100%`,
+    };
+  }
 });
 
 // 过滤后的数据
