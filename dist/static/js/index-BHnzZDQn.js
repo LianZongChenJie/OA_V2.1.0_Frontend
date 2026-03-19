@@ -1,0 +1,1 @@
+import{r as o,o as t,c as a,g as n}from"./index-1CHzVFez.js";const i={__name:"index",setup(r){return o("http://pyoa.api.bjlianzong.com/druid/login.html"),(l,e)=>(t(),a("div",null,[...e[0]||(e[0]=[n("div",null,"我是数据监控",-1)])]))}};export{i as default};
