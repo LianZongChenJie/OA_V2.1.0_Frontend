@@ -9,22 +9,15 @@ export const columns = [
   {
     fieldName: 'title',
     label: '模块名称',
-    width: "40%",
+    width: "80%",
     minWidth: 300,
-    searchable: {
-      type: 'input',
-      fieldName: 'title',
-      placeholder: '请输入',
-      label: '关键字',
-      order: 1,
-    },
   },
   {
     fieldName: 'sort',
     label: '排序',
-    width: "10%",
+    width: "5%",
     minWidth: 100,
-    align: 'center',
+    align: 'center', 
   },
   {
     fieldName: 'status',

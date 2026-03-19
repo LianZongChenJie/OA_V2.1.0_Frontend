@@ -35,7 +35,7 @@ export const columns = [
     fieldName: 'createTime',
     label: '创建时间',
     width: "10%",
-    minWidth: 150,
+    minWidth: 160,
   },
   {
     fieldName: 'status',

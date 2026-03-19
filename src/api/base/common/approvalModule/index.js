@@ -43,3 +43,12 @@ export function deleteMessageModule(id) {
   })
 }
 
+// 修改审批模块状态
+export function updateStatus(data) {
+  return request({
+    url: `/basicdata/flowModule/changeStatus`,
+    method: 'put',
+    data: data
+  })
+}
+
