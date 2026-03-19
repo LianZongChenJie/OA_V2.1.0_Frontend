@@ -30,7 +30,7 @@ export function getMessageModuleDetail(id) {
 export function updateMessageModule(data) {
   return request({
     url: '/basicdata/template/update',
-    method: 'post',
+    method: 'put',
     data: data
   })
 }

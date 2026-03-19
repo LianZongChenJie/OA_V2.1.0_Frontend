@@ -1,0 +1,1 @@
+import{r as n,o as r,c as t,g as o}from"./index-K85eM9ro.js";const d={__name:"index",setup(a){return n("undefined/druid/login.html"),(l,e)=>(r(),t("div",null,[...e[0]||(e[0]=[o("div",null,"我是数据监控",-1)])]))}};export{d as default};

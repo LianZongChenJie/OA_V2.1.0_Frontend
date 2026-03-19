@@ -30,7 +30,7 @@ export function addMessageModule(data) {
 export function updateMessageModule(data) {
   return request({
     url: `/basicdata/flowModule/update`,
-    method: 'get',
+    method: 'put',
     data: data
   })
 }
