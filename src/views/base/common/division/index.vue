@@ -140,13 +140,15 @@ const idPlaceholder = computed(() => {
 // 级别标签
 const levelLabel = computed(() => {
   const levelMap = { 1: '省', 2: '市', 3: '区' };
-  return levelMap[form.value.level] || '';
+  const numLevel = Number(form.value.level);
+  return levelMap[numLevel] || '';
 });
 
 // 级别标签类型
 const levelTagType = computed(() => {
   const typeMap = { 1: 'danger', 2: 'warning', 3: 'success' };
-  return typeMap[form.value.level] || 'info';
+  const numLevel = Number(form.value.level);
+  return typeMap[numLevel] || 'info';
 });
 
 // 表单重置

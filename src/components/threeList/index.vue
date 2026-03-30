@@ -283,13 +283,19 @@ const tableColumns = computed(() => {
  * 获取级别对应的标签类型
  */
 const getLevelType = (level) => {
+  if (level === undefined || level === null || level === '') {
+    return 'info';
+  }
   const typeMap = {
-    1: "primary",
-    2: "success",
-    3: "warning",
-    4: "info",
+    1: 'success',
+    2: 'success',
+    3: 'warning',
+    4: 'info',
   };
-  return typeMap[level] || "info";
+  const numLevel = Number(level);
+  const type = typeMap[numLevel];
+  // 确保返回有效的type值
+  return type || 'info';
 };
 
 /**
