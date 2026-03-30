@@ -6,8 +6,11 @@
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
       row-key="name"
-      ref="tableList"
+      ref="tableList" 
     >
+      <template #checkType="{ row }">
+        <dict-tag :options="approval_flow_type" :value="row.checkType" />
+      </template>
       <template #status="{ row }">
         <dict-tag :options="message_module_status" :value="row.status" />
       </template>
@@ -28,7 +31,7 @@ import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { message_module_status } = proxy.useDict("message_module_status");
+const { message_module_status,approval_flow_type } = proxy.useDict("message_module_status","approval_flow_type");
 
 const route = useRoute();
 const router = useRouter();

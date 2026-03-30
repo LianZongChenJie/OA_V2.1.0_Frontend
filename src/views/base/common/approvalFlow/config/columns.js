@@ -14,14 +14,14 @@ export const columns = [
   },
   {
     fieldName: 'cateId',
-    label: '审批流类型',
+    label: '关联审批类型',
     width: "15%",
     minWidth: 200,
     align: 'center', 
   },
   {
     fieldName: 'checkType',
-    label: '关联审批类型',
+    label: '流程类型',
     width: "15%",
     minWidth: 200,
     align: 'center', 
