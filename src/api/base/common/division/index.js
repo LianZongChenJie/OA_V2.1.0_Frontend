@@ -25,3 +25,30 @@ export function exportAreaData(level) {
     method: 'get',
   })
 }
+
+// 新增区域
+export function addArea(data) {
+  return request({
+    url: '/basicdata/public/area',
+    method: 'post',
+    data
+  })
+}
+
+// 修改区域
+export function updateArea(data) {
+  return request({
+    url: '/basicdata/public/area/add',
+    method: 'put',
+    data
+  })
+}
+
+// 修改区域状态
+export function delArea(data) {
+  return request({
+    url: '/basicdata/public/changeStatus/',
+    method: 'put',
+    data
+  })
+}

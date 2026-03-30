@@ -26,6 +26,7 @@ export const getOperationColumn = (onAdd, onEdit, onDel) => {
         onClick: (row) => {
           onAdd && onAdd(row);
         },
+        isShow: (row) => row.level < 3,
         icon: 'add',
       },
       {
