@@ -15,21 +15,42 @@
         <el-form-item label="上级节点" prop="pid">
           <el-input v-model="form.parentName" disabled placeholder="上级节点" />
         </el-form-item>
-        <el-form-item label="区划ID" prop="idSuffix">
-          <el-input 
-            v-model="form.idSuffix" 
-            :placeholder="idPlaceholder"
-            :maxlength="2"
-            :disabled="!form.level"
-          >
-            <template #prefix>
-              <span v-if="idPrefix" class="id-prefix">{{ idPrefix }}</span>
-            </template>
-            <template #suffix>
-              <span v-if="showIdSuffix" class="id-suffix">{{ idSuffixValue }}</span>
-            </template>
-          </el-input>
+        <!-- 编辑模式下显示ID（不可编辑） -->
+        <el-form-item v-if="isEdit" label="区划ID" prop="id">
+          <el-input v-model="form.id" disabled />
         </el-form-item>
+        <template v-else>
+          <el-form-item label="ID模式" prop="idMode">
+            <el-radio-group v-model="form.idMode" @change="handleIdModeChange">
+              <el-radio label="prefix">前缀模式</el-radio>
+              <el-radio label="custom">自定义</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <!-- 前缀模式 -->
+          <el-form-item v-if="form.idMode === 'prefix'" label="区划ID" prop="idSuffix">
+            <el-input
+              v-model="form.idSuffix"
+              :placeholder="idPlaceholder"
+              :maxlength="2"
+              :disabled="!form.level"
+            >
+              <template #prefix>
+                <span v-if="idPrefix" class="id-prefix">{{ idPrefix }}</span>
+              </template>
+              <template #suffix>
+                <span v-if="showIdSuffix" class="id-suffix">{{ idSuffixValue }}</span>
+              </template>
+            </el-input>
+          </el-form-item>
+          <!-- 自定义模式 -->
+          <el-form-item v-else label="区划ID" prop="customId">
+            <el-input
+              v-model="form.customId"
+              placeholder="请输入区划ID"
+              :maxlength="6"
+            />
+          </el-form-item>
+        </template>
         <el-form-item label="区划名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入区划名称" />
         </el-form-item>
@@ -62,7 +83,7 @@
 <script setup>
 import { ref, reactive, toRefs, getCurrentInstance, computed } from "vue";
 import ThreeList from "@/components/threeList/index.vue";
-import { getThreeList, exportAreaData, addArea } from "@/api/base/common/division";
+import { getThreeList, exportAreaData, addArea, updateArea } from "@/api/base/common/division";
 import { exportExcel } from "@/utils/export";
 import { columns, getOperationColumn } from "./config/columns";
 
@@ -73,13 +94,15 @@ const threeListRef = ref(null);
 const open = ref(false);
 const title = ref("");
 const formRef = ref(null);
+const isEdit = ref(false);
 
 const data = reactive({
-  form: {},
+  form: { idMode: 'prefix' },
   rules: {
     name: [{ required: true, message: "区划名称不能为空", trigger: "blur" }],
     level: [{ required: true, message: "请选择级别", trigger: "change" }],
     idSuffix: [{ required: true, message: "区划ID不能为空", trigger: "blur" }],
+    customId: [{ required: true, message: "区划ID不能为空", trigger: "blur" }],
   },
 });
 const { form, rules } = toRefs(data);
@@ -131,6 +154,8 @@ function reset() {
   form.value = {
     id: undefined,
     idSuffix: undefined,
+    customId: undefined,
+    idMode: 'prefix',
     pid: undefined,
     parentName: undefined,
     name: undefined,
@@ -140,6 +165,7 @@ function reset() {
     latitude: undefined,
     sort: 0,
   };
+  isEdit.value = false;
   formRef.value?.resetFields();
 }
 
@@ -152,13 +178,47 @@ const add = (row) => {
   if (row.level && row.level < 3) {
     form.value.level = row.level + 1;
   }
+  isEdit.value = false;
   open.value = true;
   title.value = "添加子节点";
 };
 
 //编辑子节点
 const edit = (row) => {
-  console.log("====edit===>", row);
+  reset();
+  // 填充表单数据
+  form.value = {
+    id: row.id,
+    pid: row.pid,
+    parentName: row.parentName || row.parent?.name || '根节点',
+    name: row.name,
+    shortname: row.shortname,
+    level: row.level,
+    longitude: row.longitude,
+    latitude: row.latitude,
+    sort: row.sort || 0,
+    idMode: 'prefix',
+    idSuffix: undefined,
+    customId: undefined,
+  };
+
+  // 判断ID模式：如果ID符合前缀规则则用前缀模式，否则用自定义模式
+  const pid = String(row.pid || '');
+  const id = String(row.id || '');
+  if (row.level === 2 && id.startsWith(pid.substring(0, 2)) && id.endsWith('00')) {
+    form.value.idMode = 'prefix';
+    form.value.idSuffix = id.substring(pid.length, pid.length + 2);
+  } else if (row.level === 3 && id.startsWith(pid.substring(0, 4))) {
+    form.value.idMode = 'prefix';
+    form.value.idSuffix = id.substring(4);
+  } else {
+    form.value.idMode = 'custom';
+    form.value.customId = id;
+  }
+
+  isEdit.value = true;
+  open.value = true;
+  title.value = "编辑节点";
 };
 
 //删除子节点
@@ -172,32 +232,54 @@ function cancel() {
   reset();
 }
 
+// ID模式切换处理
+function handleIdModeChange() {
+  form.value.idSuffix = undefined;
+  form.value.customId = undefined;
+}
+
 // 提交按钮
 function submitForm() {
   formRef.value.validate((valid) => {
     if (valid) {
-      // 拼接完整的区划ID
-      // 市级别：前缀(2位) + 用户输入(2位) + 00
-      // 区级别：前缀(4位) + 用户输入(2位)
-      const suffix = form.value.idSuffix.padStart(2, '0');
       let fullId = '';
-      if (form.value.level === 2) {
-        fullId = `${idPrefix.value}${suffix}00`;
-      } else if (form.value.level === 3) {
-        fullId = `${idPrefix.value}${suffix}`;
+
+      if (form.value.idMode === 'prefix') {
+        // 前缀模式：自动拼接
+        const suffix = String(form.value.idSuffix).padStart(2, '0');
+        if (form.value.level === 2) {
+          fullId = `${idPrefix.value}${suffix}00`;
+        } else if (form.value.level === 3) {
+          fullId = `${idPrefix.value}${suffix}`;
+        } else {
+          fullId = form.value.idSuffix;
+        }
       } else {
-        fullId = form.value.idSuffix;
+        // 自定义模式：直接使用用户输入的ID
+        fullId = form.value.customId;
       }
-      
+
       const submitData = {
         ...form.value,
         id: fullId,
       };
-      addArea(submitData).then(() => {
-        proxy.$modal.msgSuccess("新增成功");
-        open.value = false;
-        threeListRef.value?.refresh();
-      });
+      delete submitData.idMode;
+      delete submitData.customId;
+      if (isEdit.value) {
+        // 编辑模式
+        updateArea(submitData).then(() => {
+          proxy.$modal.msgSuccess("修改成功");
+          open.value = false;
+          threeListRef.value?.refresh();
+        });
+      } else {
+        // 新增模式
+        addArea(submitData).then(() => {
+          proxy.$modal.msgSuccess("新增成功");
+          open.value = false;
+          threeListRef.value?.refresh();
+        });
+      }
     }
   });
 }

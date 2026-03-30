@@ -29,7 +29,7 @@ export function exportAreaData(level) {
 // 新增区域
 export function addArea(data) {
   return request({
-    url: '/basicdata/public/area',
+    url: '/basicdata/public/area/add',
     method: 'post',
     data
   })
@@ -38,7 +38,7 @@ export function addArea(data) {
 // 修改区域
 export function updateArea(data) {
   return request({
-    url: '/basicdata/public/area/add',
+    url: '/basicdata/public/area/update',
     method: 'put',
     data
   })
