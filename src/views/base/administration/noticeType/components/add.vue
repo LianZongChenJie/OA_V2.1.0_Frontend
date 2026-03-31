@@ -8,20 +8,8 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="品牌名称" prop="title">
-        <el-input v-model="form.title" placeholder="请输入品牌名称" :disabled="isView" />
-      </el-form-item>
-       <el-form-item label="排序" prop="sort">
-        <el-input v-model="form.sort" placeholder="请输入排序" :disabled="isView" />
-      </el-form-item>
-      <el-form-item label="描述" prop="desc">
-        <el-input
-          v-model="form.desc"
-          type="textarea"
-          :rows="2"
-          placeholder="请输入描述"
-          :disabled="isView"
-        />
+      <el-form-item label="类型" prop="title">
+        <el-input v-model="form.title" placeholder="请输入类型" :disabled="isView" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -35,7 +23,7 @@
 
 <script setup name="AddassetBrand">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/administration/assetBrand/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/administration/noticeType/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -47,27 +35,23 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-  sort: "",
-  desc: "",
-  status: "1",
+  status: "1"
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看资产品牌";
-  return isEdit.value ? "编辑资产品牌" : "新增资产品牌";
+  if (isView.value) return "查看公告";
+  return isEdit.value ? "编辑类型" : "新增类型";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入品牌名称", trigger: "blur" }],
+  title: [{ required: true, message: "请输入类型", trigger: "blur" }],
  };
 
 /** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.sort = "";
-  form.desc = "";
   form.status = "1";
 
   isEdit.value = false;
@@ -92,8 +76,6 @@ function openEdit(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.sort = data.sort;
-  form.desc = data.desc;
   form.status = data.status;
   
   isEdit.value = true;
@@ -106,8 +88,6 @@ function openView(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.sort = data.sort;
-  form.desc = data.desc;
   form.status = data.status;
 
   isView.value = true;

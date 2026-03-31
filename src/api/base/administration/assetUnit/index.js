@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 获取资产品牌分页列表
+// 获取资产单位分页列表
 export function getPageList(query) {
   return request({
     url: '/system/propertyUnit/list',
@@ -9,7 +9,7 @@ export function getPageList(query) {
   })
 }
 
-// 获取资产品牌详情
+// 获取资产单位详情
 export function getDetail(id) {
   return request({
     url: `/system/propertyUnit/${id}`,
@@ -17,7 +17,7 @@ export function getDetail(id) {
   })
 }
 
-// 新增资产品牌
+// 新增资产单位
 export function addenterPrise(data) {
   return request({
     url: '/system/propertyUnit',
@@ -26,7 +26,7 @@ export function addenterPrise(data) {
   })
 }
 
-// 更新资产品牌
+// 更新资产单位
 export function updateenterPrise(data) {
   return request({
     url: `/system/propertyUnit`,
@@ -36,8 +36,8 @@ export function updateenterPrise(data) {
 }
 
 
-// 修改资产品牌状态
-export function updateStatus(data) {
+// 修改资产单位状态
+export function updateStatus(id,data) {
   return request({
     url: `/system/propertyBrand/${id}`,
     method: 'delete',

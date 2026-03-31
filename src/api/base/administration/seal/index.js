@@ -1,47 +1,46 @@
 import request from '@/utils/request'
 
-// 获取资产单位分页列表
+// 获取印章分页列表
 export function getPageList(query) {
   return request({
-    url: '/system/propertyUnit/list',
+    url: '/system/sealCate/list',
     method: 'get',
     params: query
   })
 }
 
-// 获取资产单位详情
+// 获取印章详情
 export function getDetail(id) {
   return request({
-    url: `/system/propertyUnit/${id}`,
+    url: `/system/sealCate/${id}`,
     method: 'get'
   })
 }
 
-// 新增资产单位
+// 新增印章
 export function addenterPrise(data) {
   return request({
-    url: '/system/propertyUnit',
+    url: '/system/sealCate',
     method: 'post',
     data: data
   })
 }
 
-// 更新资产单位
+// 更新印章
 export function updateenterPrise(data) {
   return request({
-    url: `/system/propertyUnit`,
+    url: `/system/sealCate`,
     method: 'put',
     data: data
   })
 }
 
 
-// 修改资产单位状态
+// 修改印章状态
 export function updateStatus(id,data) {
   return request({
-    url: `/system/propertyBrand/${id}`,
+    url: `/system/sealCate/${id}`,
     method: 'delete',
-    data: data
   })
 }
 

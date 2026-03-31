@@ -8,18 +8,34 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="品牌名称" prop="title">
-        <el-input v-model="form.title" placeholder="请输入品牌名称" :disabled="isView" />
+      <el-form-item label="印章名称" prop="title">
+        <el-input v-model="form.title" placeholder="请输入印章名称" :disabled="isView" />
       </el-form-item>
-       <el-form-item label="排序" prop="sort">
-        <el-input v-model="form.sort" placeholder="请输入排序" :disabled="isView" />
+       <el-form-item label="保管人" prop="keepUid">
+        <el-input v-model="form.keepUid" placeholder="请输入保管人" :disabled="isView" />
       </el-form-item>
-      <el-form-item label="描述" prop="desc">
+      <el-form-item label="应用部门" prop="departmentIds">
+        <el-tree-select
+          v-model="form.departmentIds"
+          :data="deptOptions"
+          :props="{ value: 'id', label: 'label', children: 'children' }"
+          :render-after-expand="false"
+          show-checkbox
+          multiple
+          collapse-tags
+          collapse-tags-tooltip
+          placeholder="请选择应用部门"
+          clearable
+          :disabled="isView"
+          style="width: 100%"
+        />
+      </el-form-item>
+      <el-form-item label="用途简述" prop="remark">
         <el-input
-          v-model="form.desc"
+          v-model="form.remark"
           type="textarea"
           :rows="2"
-          placeholder="请输入描述"
+          placeholder="请输入用途简述"
           :disabled="isView"
         />
       </el-form-item>
@@ -35,7 +51,7 @@
 
 <script setup name="AddassetBrand">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/administration/assetBrand/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/administration/seal/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -47,27 +63,29 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-  sort: "",
-  desc: "",
-  status: "1",
+  keepUid: "",
+  dids:"",
+  remark: "",
+  status: "1"
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看资产品牌";
-  return isEdit.value ? "编辑资产品牌" : "新增资产品牌";
+  if (isView.value) return "查看印章";
+  return isEdit.value ? "编辑印章" : "新增印章";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入品牌名称", trigger: "blur" }],
+  title: [{ required: true, message: "请输入印章名称", trigger: "blur" }],
+  keepUid: [{ required: true, message: "请输入保管人", trigger: "blur" }]
  };
 
 /** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.sort = "";
-  form.desc = "";
+  form.keepUid = "";
+  form.dids = "";
   form.status = "1";
 
   isEdit.value = false;
@@ -92,8 +110,9 @@ function openEdit(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.sort = data.sort;
-  form.desc = data.desc;
+  form.keepUid = data.keepUid;
+  form.dids = data.dids;
+  form.remark = data.remark;
   form.status = data.status;
   
   isEdit.value = true;
@@ -106,8 +125,9 @@ function openView(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.sort = data.sort;
-  form.desc = data.desc;
+  form.keepUid = data.keepUid;
+  form.dids = data.dids;
+  form.remark = data.remark;
   form.status = data.status;
 
   isView.value = true;
