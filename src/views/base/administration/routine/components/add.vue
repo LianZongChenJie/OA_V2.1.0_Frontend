@@ -73,7 +73,7 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 填充表单数据
+  
   form.id = data.id;
   form.title = data.title;
   form.status = data.status;
