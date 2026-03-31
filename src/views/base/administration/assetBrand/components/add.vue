@@ -11,9 +11,14 @@
       <el-form-item label="品牌名称" prop="title">
         <el-input v-model="form.title" placeholder="请输入品牌名称" :disabled="isView" />
       </el-form-item>
-       <el-form-item label="排序" prop="sort">
-        <el-input v-model="form.sort" placeholder="请输入排序" :disabled="isView" />
-      </el-form-item>
+      <el-form-item label="排序" prop="sort">
+  <el-input-number
+    v-model="form.sort"
+    placeholder="请输入排序"
+    :disabled="isView"
+    :min="0"
+  />
+</el-form-item>
       <el-form-item label="描述" prop="desc">
         <el-input
           v-model="form.desc"
@@ -49,7 +54,7 @@ const form = reactive({
   title: "",
   sort: "",
   desc: "",
-  status: "1",
+  status: 1,
 });
 
 // 根据模式动态显示标题
@@ -68,7 +73,7 @@ function reset() {
   form.title = "";
   form.sort = "";
   form.desc = "";
-  form.status = "1";
+  form.status = 1;
 
   isEdit.value = false;
   isView.value = false;

@@ -66,7 +66,7 @@ const form = reactive({
   keepUid: "",
   dids:"",
   remark: "",
-  status: "1"
+  status: 1
 });
 
 // 根据模式动态显示标题
@@ -86,7 +86,7 @@ function reset() {
   form.title = "";
   form.keepUid = "";
   form.dids = "";
-  form.status = "1";
+  form.status = 1;
 
   isEdit.value = false;
   isView.value = false;

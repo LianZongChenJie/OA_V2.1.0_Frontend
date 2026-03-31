@@ -35,7 +35,7 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-  status: "1"
+  status: 1
 });
 
 // 根据模式动态显示标题
@@ -52,7 +52,7 @@ const rules = {
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.status = "1";
+  form.status = 1;
 
   isEdit.value = false;
   isView.value = false;
