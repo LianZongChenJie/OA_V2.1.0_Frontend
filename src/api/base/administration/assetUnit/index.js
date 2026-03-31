@@ -39,7 +39,7 @@ export function updateenterPrise(data) {
 // 修改资产单位状态
 export function updateStatus(id,data) {
   return request({
-    url: `/system/propertyBrand/${id}`,
+    url: `/system/propertyUnit/${id}`,
     method: 'delete',
     data: data
   })
