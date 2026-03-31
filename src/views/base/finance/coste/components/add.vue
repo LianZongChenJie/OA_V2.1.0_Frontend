@@ -36,9 +36,9 @@
 <script setup name="AddReimbursementType">
 import { ref, reactive, computed, getCurrentInstance, nextTick } from "vue";
 import {
-  addReimbursement,
-  updateReimbursement,
-} from "@/api/finance/reimbursement/index.js";
+  add,
+  update,
+} from "@/api/finance/coste/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -139,7 +139,7 @@ function openView(data) {
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
-      const apiMethod = isEdit.value ? updateReimbursement : addReimbursement;
+      const apiMethod = isEdit.value ? update : add;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
 
       apiMethod(form).then(() => {
