@@ -2,7 +2,7 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="50%"
+    width="30%"
     append-to-body
     class="approval-module-dialog"
     @close="handleClose"
@@ -21,7 +21,7 @@
   </el-dialog>
 </template>
 
-<script setup name="AddassetBrand">
+<script setup name="AddnoticeType">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/administration/noticeType/index.js";
 

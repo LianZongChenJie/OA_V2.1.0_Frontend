@@ -8,9 +8,10 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="名称" prop="title">
-        <el-input v-model="form.title" placeholder="请输入名称" :disabled="isView" />
+      <el-form-item label="行业类型" prop="title">
+        <el-input v-model="form.title" placeholder="请输入类型" :disabled="isView" />
       </el-form-item>
+
     </el-form>
     <template #footer>
       <div class="dialog-footer">
@@ -21,9 +22,9 @@
   </el-dialog>
 </template>
 
-<script setup name="Addroutine">
+<script setup name="AddindustryType">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/administration/routine/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/customer/industryType/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -35,17 +36,18 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-  status: 1
+
+  status: 1,
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看内容";
-  return isEdit.value ? "编辑内容" : "新增内容";
+  if (isView.value) return "查看行业类型";
+  return isEdit.value ? "编辑行业类型" : "新增行业类型";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入内容", trigger: "blur" }],
+  title: [{ required: true, message: "请输入行业类型", trigger: "blur" }],
  };
 
 /** 表单重置 */
@@ -73,7 +75,7 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  
+  // 填充表单数据
   form.id = data.id;
   form.title = data.title;
   form.status = data.status;

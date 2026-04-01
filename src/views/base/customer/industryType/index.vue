@@ -19,13 +19,12 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, updateStatus } from "@/api/base/administration/seal/index.js";
+import { getPageList, getDetail, updateStatus } from "@/api/base/customer/industryType/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
 const { message_module_status } = proxy.useDict("message_module_status");
-const { deptDict } = proxy.useDict("dept"); // 🔴 加载部门字典
 
 const route = useRoute();
 const router = useRouter();
@@ -39,23 +38,19 @@ function handleAdd() {
 
 /** 编辑按钮操作 */
 async function handleEdit(row) {
+  // 获取详情数据
   const res = await getDetail(row.id);
   if (res) {
-    let data = res.data || res;
-    // 🔴 修复：把 dids 字符串转数组，弹窗才能回显部门名称
-    data.dids = data.dids ? data.dids.split(',') : [];
-    addDialogRef.value.openEdit(data);
+    addDialogRef.value.openEdit(res.data || res);
   }
 }
 
 /** 查看按钮操作 */
 async function handleView(row) {
+  // 获取详情数据
   const res = await getDetail(row.id);
   if (res) {
-    let data = res.data || res;
-    // 🔴 修复：把 dids 字符串转数组
-    data.dids = data.dids ? data.dids.split(',') : [];
-    addDialogRef.value.openView(data);
+    addDialogRef.value.openView(res.data || res);
   }
 }
 
@@ -78,28 +73,6 @@ async function handleDisable(row) {
 function handleSuccess() {
   tableList.value.refresh();
 }
-
-// 🔴 修复表格显示部门名称（不是ID）
-const formatColumns = () => {
-  return columns.map(col => {
-    if (col.fieldName === 'dids') {
-      return {
-        ...col,
-        formatter: (row) => {
-          if (!row.dids) return '-';
-          return row.dids.split(',')
-            .filter(id => id)
-            .map(id => {
-              const dept = deptDict.find(d => d.value == id);
-              return dept ? dept.label : id;
-            })
-            .join('、');
-        }
-      };
-    }
-    return col;
-  });
-};
 
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(handleEdit, handleDisable, handleView);

@@ -37,10 +37,11 @@ export function updateenterPrise(data) {
 
 
 // 修改行政状态
-export function updateStatus(id) {
+export function updateStatus(id,data) {
   return request({
-    url: `/basicdata/basicAdm/delete/${id}`,
-    method: 'delete',
+    url: `/basicdata/basicAdm/set/${id}`,
+    method: 'put',
+    data: data
   })
 }
 

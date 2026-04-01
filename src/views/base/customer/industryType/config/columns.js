@@ -2,33 +2,15 @@ export const columns = [
   {
     fieldName: 'id',
     label: 'ID',
-    width: "5%",
+    width: "10%",
     minWidth: 100,
     align: 'center',
   },
   {
     fieldName: 'title',
-    label: '印章名称',
-    width: "30%",
+    label: '类型名称',
+    width: "80%",
     minWidth: 100,
-  },
-  // ✅ 已修复部门显示
-  {
-    fieldName: 'dids',
-    label: '应用部门',
-    width: "35%",
-    minWidth: 100,
-    formatter: (row) => {
-      if (!row.dids) return "-";
-      return row.dids.split(",").filter(item => item).join("、");
-    }
-  },
-  {
-    fieldName: 'keepUid',
-    label: '保管人',
-    width: "10%",
-    minWidth: 100,
-    align: 'center',
   },
   {
     fieldName: 'status',
