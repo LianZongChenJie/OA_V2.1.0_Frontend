@@ -1,47 +1,80 @@
 <template>
-  <div style="padding: 20px; position: relative;">
-    <h3>多选下拉框测试</h3>
-    <el-select
-      ref="selectRef"
-      v-model="value"
-      multiple
-      placeholder="Choose tags for your article"
-      :teleported="false"
-      style="width: 240px; margin-top: 20px;"
+  <div class="main-content">
+    <TableList
+      :api="getPageList"
+      :columns="columns"
+      :operation-column="operationColumn"
+      :toolbar-buttons="headerButs"
+      row-key="name"
+      ref="tableList"
     >
-      <el-option
-        v-for="item in options"
-        :key="item.value"
-        :label="item.label"
-        :value="item.value"
-      />
-    </el-select>
-    <p style="margin-top: 20px;">已选择: {{ value }}</p>
+      <template #status="{ row }">
+        <dict-tag :options="message_module_status" :value="row.status" />
+      </template>
+    </TableList>
+    <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { reactive, ref, getCurrentInstance } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import TableList from "@/components/tableList/index.vue";
+import { getPageList, getDetail, updateStatus } from "@/api/base/common/businessEntity/index.js";
+import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
+import AddDialog from "./components/add.vue";
 
-const value = ref([]);
+const { proxy } = getCurrentInstance();
+const { message_module_status } = proxy.useDict("message_module_status");
 
-const options = [
-  {
-    value: "HTML",
-    label: "HTML",
-  },
-  {
-    value: "CSS",
-    label: "CSS",
-  },
-  {
-    value: "JavaScript",
-    label: "JavaScript",
-  },
-];
-</script>
-<style scoped>
-/* 使用 :teleported="false" 时，下拉框在当前组件内 */
-:deep(.el-select-dropdown) {
-  z-index: 9999 !important;
+const route = useRoute();
+const router = useRouter();
+const tableList = ref(null);
+const addDialogRef = ref(null);
+
+/** 新增按钮操作 */
+function handleAdd() {
+  addDialogRef.value.open();
 }
-</style>
+
+/** 编辑按钮操作 */
+async function handleEdit(row) {
+  // 获取详情数据
+  const res = await getDetail(row.id);
+  if (res) {
+    addDialogRef.value.openEdit(res.data || res);
+  }
+}
+
+/** 查看按钮操作 */
+async function handleView(row) {
+  // 获取详情数据
+  const res = await getDetail(row.id);
+  if (res) {
+    addDialogRef.value.openView(res.data || res);
+  }
+}
+
+/** 禁用/启用按钮操作 */
+async function handleDisable(row) {
+  const newStatus = row.status === 1 ? 0 : 1;
+  proxy.$modal
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该企业吗?`)
+    .then(async () => {
+      const res = await updateStatus({ id: row.id, status: newStatus });
+      if (res) {
+        proxy.$modal.msgSuccess(`${row.status === 1 ? '禁用' : '启用'}成功`);
+        tableList.value.refresh();
+      }
+    })
+    .catch(() => {});
+}
+
+/** 新增成功回调 */
+function handleSuccess() {
+  tableList.value.refresh();
+}
+
+const headerButs = getHeaderButs(handleAdd);
+const operationColumn = getOperationColumn(handleEdit, handleDisable, handleView);
+</script>
+<style lang="scss" scoped></style>
