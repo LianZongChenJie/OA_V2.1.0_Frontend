@@ -81,7 +81,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable, onView) => {
+export const getOperationColumn = (onEdit, onDisable, onenable) => {
   return {
     label: '操作',
     width: 200,
@@ -112,9 +112,9 @@ export const getOperationColumn = (onEdit, onDisable, onView) => {
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          onDisable && onDisable(row);
+          onenable && onenable(row);
         },
-        icon: 'unlock',
+        icon: 'enable',
         isShow: (row) => row.status === 0,
       },
     ],
