@@ -53,7 +53,7 @@ export const operationColumn = {
       onClick: (row) => {
         console.log('===启用', row)
       },
-      icon: 'unlock',
+      icon: 'enable',
       isShow: (row) => row.status === 0,
     },
   ],
