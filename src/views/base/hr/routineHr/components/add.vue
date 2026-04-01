@@ -2,116 +2,96 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="30%"
+    width="40%"
     append-to-body
     class="approval-module-dialog"
     @close="handleClose"
   >
-    <!-- 标签切换：职务 / 职级 -->
-    <el-tabs v-model="activeType" class="dialog-tabs">
-      <el-tab-pane label="职务" name="duty" />
-      <el-tab-pane label="职级" name="level" />
-    </el-tabs>
-
-    <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px" style="margin-top: 15px;">
-      <!-- 名称 -->
-      <el-form-item label="名称" prop="title">
-        <el-input v-model="form.title" placeholder="请输入名称" :disabled="isView" />
+    <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
+      <el-form-item label="内容" prop="title">
+        <el-input v-model="form.title" placeholder="请输入内容" :disabled="isView" />
       </el-form-item>
-    </el-form>
 
+    </el-form>
     <template #footer>
       <div class="dialog-footer">
-        <el-button v-if="!isView" type="primary" @click="handleSubmit">保 存</el-button>
+        <el-button v-if="!isView" type="primary" @click="handleSubmit">确 定</el-button>
         <el-button @click="dialogVisible = false">{{ isView ? '关 闭' : '取 消' }}</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
-<script setup name="AddRoutine">
-import { ref, reactive, computed, getCurrentInstance, watch } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/hr/routine/index.js";
+<script setup name="AddroutineHr">
+import { ref, reactive, computed, getCurrentInstance } from "vue";
+import { addenterPrise, updateenterPrise } from "@/api/base/hr/routineHr/index.js";
 
 const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false);
-const isView = ref(false);
+const isEdit = ref(false); // 是否为编辑模式
+const isView = ref(false); // 是否为查看模式
 
-// 标签切换绑定值
-const activeType = ref("duty");
-
-// 表单数据
 const form = reactive({
   id: undefined,
-  type: "duty", // 默认职务
   title: "",
 });
 
-// 监听标签切换，同步到 form.type
-watch(activeType, (val) => {
-  form.type = val;
-});
-
-// 动态标题
+// 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看";
-  return isEdit.value ? "编辑" : "新增";
+  if (isView.value) return "查看常规数据";
+  return isEdit.value ? "编辑常规数据" : "新增常规数据";
 });
 
-// 校验规则
 const rules = {
-  title: [{ required: true, message: "请输入名称", trigger: "blur" }],
-};
+  title: [{ required: true, message: "请输入内容", trigger: "blur" }],
+ };
 
-/** 重置 */
+/** 表单重置 */
 function reset() {
   form.id = undefined;
-  form.type = "duty";
   form.title = "";
-  activeType.value = "duty";
 
   isEdit.value = false;
   isView.value = false;
   proxy.resetForm("formRef");
 }
 
-/** 关闭 */
+/** 关闭弹窗 */
 function handleClose() {
   reset();
 }
 
-/** 新增 */
+/** 显示弹窗 - 新增模式 */
 function open() {
   reset();
   dialogVisible.value = true;
 }
 
-/** 编辑 */
+/** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
+  // 填充表单数据
   form.id = data.id;
-  form.type = data.type || "duty";
-  activeType.value = form.type; // 回显标签
   form.title = data.title;
+  
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-/** 查看 */
+/** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
+  // 填充表单数据
   form.id = data.id;
-  form.type = data.type || "duty";
-  activeType.value = form.type;
   form.title = data.title;
+
   isView.value = true;
   dialogVisible.value = true;
 }
 
-/** 提交 */
+/** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {

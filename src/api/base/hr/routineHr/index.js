@@ -37,13 +37,11 @@ export function updateenterPrise(data) {
 
 
 // 修改常规数据状态
-export function updateStatus(data) {
+export function updateStatus(id,data) {
   return request({
-    url: `/system/basicUser/${id}`,
-    method: 'delete',
+    url: `/system/basicUser/set/${id}`,
+    method: 'put',
     data: data
   })
 }
 
-
-0

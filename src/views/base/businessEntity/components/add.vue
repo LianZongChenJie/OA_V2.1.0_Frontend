@@ -2,16 +2,39 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="30%"
+    width="50%"
     append-to-body
     class="approval-module-dialog"
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="客户等级" prop="title">
-        <el-input v-model="form.title" placeholder="请输入客户等级" :disabled="isView" />
+      <el-form-item label="企业名称" prop="title">
+        <el-input v-model="form.title" placeholder="请输入企业名称" :disabled="isView" />
       </el-form-item>
-
+       <el-form-item label="所在城市" prop="city">
+        <el-input v-model="form.city" placeholder="请输入所在城市" :disabled="isView" />
+      </el-form-item>
+      <el-form-item label="开户银行" prop="bank">
+        <el-input v-model="form.bank" placeholder="请输入开户银行" :disabled="isView" />
+      </el-form-item>
+      <el-form-item label="银行账号" prop="bankSn">
+        <el-input v-model="form.bankSn" placeholder="银行账号" :disabled="isView" />
+      </el-form-item>
+      <el-form-item label="纳税人识别号" prop="taxNum">
+        <el-input v-model="form.taxNum" placeholder="纳税人识别号" :disabled="isView" />
+      </el-form-item>
+      <el-form-item label="详细地址" prop="address">
+        <el-input v-model="form.address" placeholder="详细地址" :disabled="isView" />
+      </el-form-item>
+      <el-form-item label="备注" prop="remark">
+        <el-input
+          v-model="form.remark"
+          type="textarea"
+          :rows="2"
+          placeholder="请输入备注"
+          :disabled="isView"
+        />
+      </el-form-item>
     </el-form>
     <template #footer>
       <div class="dialog-footer">
@@ -22,9 +45,9 @@
   </el-dialog>
 </template>
 
-<script setup name="Addlevel">
+<script setup name="AddEnterPrise">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/customer/level/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/common/businessEntity/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -36,26 +59,37 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-
-  status: 1,
+  city: "",
+  bank: "",
+  bankSn: "",
+  taxNum: "",
+  address: "",
+  remark: "",
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看客户等级";
-  return isEdit.value ? "编辑客户等级" : "新增客户等级";
+  if (isView.value) return "查看企业";
+  return isEdit.value ? "编辑企业" : "新增企业";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入客户等级", trigger: "blur" }],
+  title: [{ required: true, message: "请输入企业名称", trigger: "blur" }],
+  city: [{ required: true, message: "请输入所在城市", trigger: "blur" }],
+  taxNum: [{ required: true, message: "请输入纳税人识别号", trigger: "blur" }],
+  address: [{ required: true, message: "请输入详细地址", trigger: "blur" }],
  };
 
 /** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.status = 1;
-
+  form.city = "";
+  form.bank = "";
+  form.bankSn = "";
+  form.taxNum = "";
+  form.address = "";
+  form.remark = "";
   isEdit.value = false;
   isView.value = false;
   proxy.resetForm("formRef");
@@ -78,8 +112,13 @@ function openEdit(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.status = data.status;
-  
+  form.city = data.city;
+  form.bank = data.bank;
+  form.bankSn = data.bankSn;
+  form.taxNum = data.taxNum;
+  form.address = data.address;
+  form.remark = data.remark;
+
   isEdit.value = true;
   dialogVisible.value = true;
 }
@@ -90,7 +129,12 @@ function openView(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.status = data.status;
+  form.city = data.city;
+  form.bank = data.bank;
+  form.bankSn = data.bankSn;
+  form.taxNum = data.taxNum;
+  form.address = data.address;
+  form.remark = data.remark;
 
   isView.value = true;
   dialogVisible.value = true;

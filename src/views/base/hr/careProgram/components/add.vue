@@ -2,7 +2,7 @@
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="30%"
+      width="400%"
       append-to-body
       class="approval-module-dialog"
       @close="handleClose"
