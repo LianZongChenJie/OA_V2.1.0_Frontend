@@ -39,7 +39,7 @@
 
 <script setup>
 import { ref, reactive, toRefs, getCurrentInstance } from "vue";
-import { addAssetClassify } from "@/api/base/administration/assetClassfiy";
+import { addAssetClassify, updateAssetClassify } from "@/api/base/administration/assetClassfiy";
 
 const emit = defineEmits(["success"]);
 const { proxy } = getCurrentInstance();
@@ -125,11 +125,21 @@ function submitForm() {
       }
       delete submitData.parentName;
 
-      addAssetClassify(submitData).then(() => {
-        proxy.$modal.msgSuccess(isEdit.value ? "修改成功" : "新增成功");
-        open.value = false;
-        emit("success");
-      });
+      if (isEdit.value) {
+        // 编辑时调用 updateAssetClassify
+        updateAssetClassify(submitData).then(() => {
+          proxy.$modal.msgSuccess("修改成功");
+          open.value = false;
+          emit("success");
+        });
+      } else {
+        // 新增时调用 addAssetClassify
+        addAssetClassify(submitData).then(() => {
+          proxy.$modal.msgSuccess("新增成功");
+          open.value = false;
+          emit("success");
+        });
+      }
     }
   });
 }

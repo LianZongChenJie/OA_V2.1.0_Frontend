@@ -9,7 +9,7 @@ export function getPageList(query) {
   })
 }
 
-// 新增/修改资产分类
+// 新增资产分类
 export function addAssetClassify(data) {
   return request({
     url: '/system/propertyCate',
@@ -17,6 +17,15 @@ export function addAssetClassify(data) {
     data
   })
 }
+//修改资产分类
+export function updateAssetClassify(data) {
+  return request({
+    url: '/system/propertyCate',
+    method: 'put',
+    data
+  })
+}
+
 
 // 删除资产分类
 export function deleteAssetClassify(id) {
