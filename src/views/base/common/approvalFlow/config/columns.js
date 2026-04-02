@@ -17,21 +17,21 @@ export const columns = [
     label: '关联审批类型',
     width: "15%",
     minWidth: 200,
-    align: 'center', 
+    align: 'center',
   },
   {
     fieldName: 'checkType',
     label: '流程类型',
     width: "15%",
     minWidth: 200,
-    align: 'center', 
+    align: 'center',
   },
   {
     fieldName: 'departmentIds',
     label: '应用部门',
     width: "15%",
     minWidth: 200,
-    align: 'center', 
+    align: 'center',
   },
   {
     fieldName: 'copyUids',
@@ -53,11 +53,12 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable) => {
+export const getOperationColumn = (onEdit, onDisable,onEnable) => {
   return {
     label: '操作',
     width: 200,
     fixed: 'right',
+    align: 'center',
     show: true,
     actions: [
       {
@@ -78,6 +79,16 @@ export const getOperationColumn = (onEdit, onDisable) => {
         },
         icon: 'lock',
         isShow: (row) => row.status === 1,
+      },
+      {
+        label: '启用',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onEnable && onEnable(row);
+        },
+        icon: 'enable',
+        isShow: (row) => row.status != 1,
       }
     ],
   };

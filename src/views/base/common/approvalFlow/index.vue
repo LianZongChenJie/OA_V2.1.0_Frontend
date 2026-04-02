@@ -73,5 +73,5 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleDisable);
+const operationColumn = getOperationColumn(handleEdit, handleDisable, handleDisable);
 </script>
