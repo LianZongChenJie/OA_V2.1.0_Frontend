@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改常规数据状态
 export function updateStatus(id,data) {
   return request({
-    url: `/system/basicUser/set/${id}`,
+    url: `/system/basicUser/set`,
     method: 'put',
-    data: data
+    data: {id, ...data}
   })
 }
 

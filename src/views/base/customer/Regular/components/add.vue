@@ -24,7 +24,7 @@
 
 <script setup name="AddRegular">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/customer/Regular/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/customer/regular/index.js";
 
 const { proxy } = getCurrentInstance();
 

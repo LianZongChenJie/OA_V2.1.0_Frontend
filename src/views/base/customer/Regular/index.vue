@@ -28,7 +28,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, updateStatus } from "@/api/base/customer/Regular/index.js";
+import { getPageList, getDetail, updateStatus } from "@/api/base/customer/regular/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -103,7 +103,7 @@ const operationColumn = getOperationColumn(handleEdit, handleDisable, handleDisa
 </script>
 
 <style lang="scss" scoped>
-// 核心修复：消除标签栏下方留白
+
 .custom-tabs {
   margin-bottom: 0 !important; // 移除标签栏底部外边距
   ::v-deep .el-tabs__content {
