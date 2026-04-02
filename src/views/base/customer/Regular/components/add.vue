@@ -8,8 +8,8 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="客户等级" prop="title">
-        <el-input v-model="form.title" placeholder="请输入客户等级" :disabled="isView" />
+      <el-form-item label="常规数据" prop="title">
+        <el-input v-model="form.title" placeholder="请输入常规数据" :disabled="isView" />
       </el-form-item>
 
     </el-form>
@@ -22,9 +22,9 @@
   </el-dialog>
 </template>
 
-<script setup name="Addlevel">
+<script setup name="AddRegular">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/customer/channel/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/customer/regular/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -36,18 +36,18 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-
-  status: 1,
+  types: 1,
+  status: "",
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看客户等级";
-  return isEdit.value ? "编辑客户等级" : "新增客户等级";
+  if (isView.value) return "查看常规数据";
+  return isEdit.value ? "编辑常规数据" : "新增常规数据";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入客户等级", trigger: "blur" }],
+  title: [{ required: true, message: "请输入常规数据", trigger: "blur" }],
  };
 
 /** 表单重置 */
@@ -67,8 +67,9 @@ function handleClose() {
 }
 
 /** 显示弹窗 - 新增模式 */
-function open() {
+function open(types = "1") {
   reset();
+  form.types = types; 
   dialogVisible.value = true;
 }
 

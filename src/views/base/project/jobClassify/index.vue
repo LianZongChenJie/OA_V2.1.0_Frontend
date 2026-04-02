@@ -19,7 +19,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, updateStatus } from "@/api/base/customer/industryType/index.js";
+import { getPageList, getDetail, updateStatus } from "@/api/base/project/jobClassify/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -58,7 +58,7 @@ async function handleView(row) {
 async function handleDisable(row) {
   const newStatus = row.status === 1 ? 0 : 1;
   proxy.$modal
-    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该行业类型吗?`)
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该客户等级吗?`)
     .then(async () => {
       const res = await updateStatus(row.id, { status: newStatus });
       

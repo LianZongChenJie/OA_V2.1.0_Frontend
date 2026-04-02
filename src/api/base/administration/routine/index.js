@@ -39,7 +39,7 @@ export function updateenterPrise(data) {
 // 修改行政状态
 export function updateStatus(id,data) {
   return request({
-    url: `/basicdata/basicAdm/set`,
+    url: `/basicdata/basicAdm/changeStatus`,
     method: 'put',
     data: { id, ...data }
   })

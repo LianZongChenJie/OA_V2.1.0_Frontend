@@ -65,7 +65,7 @@ const form = reactive({
   id: undefined,
   title: "",
   keepUid: "",
-  dids: [], // 🔴 修复：多选必须是数组
+  dids: [], 
   remark: "",
   status: 1
 });

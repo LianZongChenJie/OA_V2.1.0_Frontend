@@ -35,6 +35,7 @@ const isView = ref(false); // 是否为查看模式
 
 const form = reactive({
   id: undefined,
+  types: 1,
   title: "",
 });
 
@@ -64,8 +65,9 @@ function handleClose() {
 }
 
 /** 显示弹窗 - 新增模式 */
-function open() {
+function open(types = "1") {
   reset();
+  form.types = types; 
   dialogVisible.value = true;
 }
 

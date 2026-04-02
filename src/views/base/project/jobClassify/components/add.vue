@@ -8,8 +8,8 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="客户等级" prop="title">
-        <el-input v-model="form.title" placeholder="请输入客户等级" :disabled="isView" />
+      <el-form-item label="工作类别" prop="title">
+        <el-input v-model="form.title" placeholder="请输入工作类别" :disabled="isView" />
       </el-form-item>
 
     </el-form>
@@ -22,9 +22,9 @@
   </el-dialog>
 </template>
 
-<script setup name="Addlevel">
+<script setup name="AddjobClassify">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/customer/channel/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/project/jobClassify/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -42,12 +42,12 @@ const form = reactive({
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看客户等级";
-  return isEdit.value ? "编辑客户等级" : "新增客户等级";
+  if (isView.value) return "查看工作类别";
+  return isEdit.value ? "编辑工作类别" : "新增工作类别";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入客户等级", trigger: "blur" }],
+  title: [{ required: true, message: "请输入工作类别", trigger: "blur" }],
  };
 
 /** 表单重置 */
