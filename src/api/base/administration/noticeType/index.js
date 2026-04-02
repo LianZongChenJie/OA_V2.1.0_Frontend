@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改公告类型状态
 export function updateStatus(id,data) {
   return request({
-    url: `/system/noteCate/set/${id}`,
+    url: `/system/noteCate/set`,
     method: 'put',
-    data: data
+    data: { id, ...data }
   })
 }
 

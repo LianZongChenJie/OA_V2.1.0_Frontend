@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改客户渠道状态
 export function updateStatus(id,data) {
   return request({
-    url: `/basicdata/customer/source/changeStatus/${id}`,
+    url: `/basicdata/customer/source/changeStatus`,
     method: 'put',
-    data: data
+    data: { id, ...data }
   })
 }
 

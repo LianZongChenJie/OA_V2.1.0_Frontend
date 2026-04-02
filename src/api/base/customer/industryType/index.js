@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改行业类型状态
 export function updateStatus(id,data) {
   return request({
-    url: `/basicdata/customer/industry/changeStatus/${id}`,
+    url: `/basicdata/customer/industry/changeStatus`, 
     method: 'put',
-    data: data
+    data: { id, ...data }
   })
 }
 

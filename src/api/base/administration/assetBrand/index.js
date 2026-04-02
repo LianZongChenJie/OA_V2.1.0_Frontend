@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改资产品牌状态
 export function updateStatus(id,data) {
   return request({
-    url: `/system/propertyBrand/set/${id}`,
+    url: `/system/propertyBrand/set`,
     method: 'put',
-    data: data
+    data: { id, ...data }
   })
 }
 

@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改客户等级状态
 export function updateStatus(id,data) {
   return request({
-    url: `/basicdata/customer/gradle/changeStatus/${id}`,
+    url: `/basicdata/customer/gradle/changeStatus`,
     method: 'put',
-    data: data
+    data: { id, ...data }
   })
 }
 

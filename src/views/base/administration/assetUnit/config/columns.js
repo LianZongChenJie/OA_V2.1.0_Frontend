@@ -107,7 +107,7 @@ export const getOperationColumn = (onEdit, onDisable, onenable) => {
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          onenablee && onenable(row);
+          onenable && onenable(row);
         },
         icon: 'enable',
         isShow: (row) => row.status === 0,

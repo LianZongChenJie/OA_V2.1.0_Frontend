@@ -39,9 +39,9 @@ export function updateenterPrise(data) {
 // 修改印章状态
 export function updateStatus(id,data) {
   return request({
-    url: `/system/sealCate/set/${id}`,
+    url: `/system/sealCate/set`,
     method: 'put',
-    data: data
+    data: { id, ...data }
   })
 }
 
