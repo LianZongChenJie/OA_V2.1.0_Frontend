@@ -8,8 +8,8 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="内容" prop="title">
-        <el-input v-model="form.title" placeholder="请输入内容" :disabled="isView" />
+      <el-form-item :label="label" prop="title">
+        <el-input v-model="form.title" :placeholder="`请输入${label}`" :disabled="isView" />
       </el-form-item>
 
     </el-form>
@@ -22,9 +22,20 @@
   </el-dialog>
 </template>
 
-<script setup name="AddroutineHr">
+<script setup name="Addlevel">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/hr/routineHr/index.js";
+
+const props = defineProps({
+  type: {
+    type: [String, Number],
+    required: true,
+  },
+  label: {
+    type: String,
+    required: true,
+  },
+});
 
 const { proxy } = getCurrentInstance();
 
@@ -35,24 +46,27 @@ const isView = ref(false); // 是否为查看模式
 
 const form = reactive({
   id: undefined,
-  types: 1,
   title: "",
+  types: props.type,
+  status: 1,
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看常规数据";
-  return isEdit.value ? "编辑常规数据" : "新增常规数据";
+  if (isView.value) return `查看${props.label}`;
+  return isEdit.value ? `编辑${props.label}` : `新增${props.label}`;
 });
 
-const rules = {
-  title: [{ required: true, message: "请输入内容", trigger: "blur" }],
- };
+const rules = computed(() => ({
+  title: [{ required: true, message: `请输入${props.label}`, trigger: "blur" }],
+}));
 
 /** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
+  form.types = props.type;
+  form.status = 1;
 
   isEdit.value = false;
   isView.value = false;
@@ -65,9 +79,10 @@ function handleClose() {
 }
 
 /** 显示弹窗 - 新增模式 */
-function open(types = "1") {
+function open() {
+  console.log("===open====>");
+  
   reset();
-  form.types = types; 
   dialogVisible.value = true;
 }
 
@@ -77,7 +92,9 @@ function openEdit(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  
+  form.types = data.types || props.type;
+  form.status = data.status;
+
   isEdit.value = true;
   dialogVisible.value = true;
 }
@@ -88,6 +105,8 @@ function openView(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
+  form.types = data.types || props.type;
+  form.status = data.status;
 
   isView.value = true;
   dialogVisible.value = true;
