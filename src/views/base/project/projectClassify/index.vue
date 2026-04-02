@@ -60,7 +60,6 @@ async function handleDisable(row) {
   proxy.$modal
     .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该行业类型吗?`)
     .then(async () => {
-      // ✅ 修复：第一个参数传 id，第二个参数传状态对象
       const res = await updateStatus(row.id, { status: newStatus });
       
       if (res) {

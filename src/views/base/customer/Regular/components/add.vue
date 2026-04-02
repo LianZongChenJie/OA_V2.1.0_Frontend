@@ -8,8 +8,8 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="项目阶段" prop="title">
-        <el-input v-model="form.title" placeholder="请输入项目阶段" :disabled="isView" />
+      <el-form-item label="常规数据" prop="title">
+        <el-input v-model="form.title" placeholder="请输入常规数据" :disabled="isView" />
       </el-form-item>
 
     </el-form>
@@ -22,9 +22,9 @@
   </el-dialog>
 </template>
 
-<script setup name="AddprojectPhase">
+<script setup name="AddRegular">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/base/project/projectPhase/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/customer/Regular/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -36,18 +36,18 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-
-  status: 1,
+  types: 1,
+  status: "",
 });
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看项目阶段";
-  return isEdit.value ? "编辑项目阶段" : "新增项目阶段";
+  if (isView.value) return "查看常规数据";
+  return isEdit.value ? "编辑常规数据" : "新增常规数据";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入项目阶段", trigger: "blur" }],
+  title: [{ required: true, message: "请输入常规数据", trigger: "blur" }],
  };
 
 /** 表单重置 */
@@ -67,8 +67,9 @@ function handleClose() {
 }
 
 /** 显示弹窗 - 新增模式 */
-function open() {
+function open(types = "1") {
   reset();
+  form.types = types; 
   dialogVisible.value = true;
 }
 

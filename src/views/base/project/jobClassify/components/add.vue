@@ -22,7 +22,7 @@
   </el-dialog>
 </template>
 
-<script setup name="Addlevel">
+<script setup name="AddjobClassify">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/project/jobClassify/index.js";
 
