@@ -24,11 +24,11 @@
 
 <script setup name="Addlevel">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addRegular, updateRegular } from "@/api/base/customer/regular/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/base/customer/regular/index.js";
 
 const props = defineProps({
   type: {
-    type: String,
+    type: [String, Number],
     required: true,
   },
   label: {
@@ -80,6 +80,8 @@ function handleClose() {
 
 /** 显示弹窗 - 新增模式 */
 function open() {
+  console.log("===open====>");
+  
   reset();
   dialogVisible.value = true;
 }
@@ -114,7 +116,7 @@ function openView(data) {
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
-      const apiMethod = isEdit.value ? updateRegular : addRegular;
+      const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
 
       apiMethod(form).then(() => {

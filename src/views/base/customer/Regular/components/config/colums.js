@@ -8,7 +8,7 @@ export const columns = [
   },
   {
     fieldName: 'title',
-    label: '名称',
+    label: '类型名称',
     width: "80%",
     minWidth: 100,
   },
@@ -21,8 +21,46 @@ export const columns = [
   },
 ];
 
+export const operationColumn = {
+  label: '操作',
+  width: 200,
+  fixed: 'right',
+  show: true,
+  actions: [
+    {
+      label: '编辑',
+      type: 'success',
+      size: 'small',
+      onClick: (row, onEdit) => {
+        onEdit && onEdit(row);
+      },
+      icon: 'edit',
+    },
+    {
+      label: '禁用',
+      type: 'danger',
+      size: 'small',
+      onClick: (row) => {
+        console.log('===禁用', row)
+      },
+      icon: 'lock',
+      isShow: (row) => row.status === 1,
+    },
+    {
+      label: '启用',
+      type: 'primary',
+      size: 'small',
+      onClick: (row) => {
+        console.log('===启用', row)
+      },
+      icon: 'enable',
+      isShow: (row) => row.status === 0,
+    },
+  ],
+};
+
 export const getHeaderButs = (onAdd) => [
-  { label: '新增内容', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
+  { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
 export const getOperationColumn = (onEdit, onDisable, onenable) => {
@@ -67,5 +105,6 @@ export const getOperationColumn = (onEdit, onDisable, onenable) => {
 
 export default {
   columns,
+  operationColumn,
   getHeaderButs
 };

@@ -22,12 +22,12 @@ import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
 //src/api/base/customer/regular/index.js
 import { getPageList, getDetail, updateStatus } from "@/api/base/customer/regular/index.js";
-import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
+import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
 const props = defineProps({
   type: {
-    type: String,
+    type: [String, Number],
     required: true,
   },
   label: {
