@@ -32,6 +32,9 @@ export const getOperationColumn = (onAdd, onEdit, onDel) => {
         onClick: (row) => {
           onAdd && onAdd(row);
         },
+        isShow: (row) => {
+          return row.pid === 0 || row.pid === '0';
+        },
         icon: 'add',
       },
       {
