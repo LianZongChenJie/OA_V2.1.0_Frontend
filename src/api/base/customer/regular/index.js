@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 获取客户常规数据
+// 获取常规数据分页列表
 export function getPageList(query) {
   return request({
     url: '/basicdata/customer/basic/list',
@@ -9,41 +9,39 @@ export function getPageList(query) {
   })
 }
 
-// 获取客户常规详情
+// 获取常规数据详情
 export function getDetail(id) {
   return request({
-    url: '/basicdata/customer/basic/detail/' + id,
+    url: `/basicdata/customer/basic/detail/${id}`,
     method: 'get'
   })
-} 
+}
 
-// 新增客户常规
-export function addRegular(data) {
+// 新增常规数据
+export function addenterPrise(data) {
   return request({
     url: '/basicdata/customer/basic/add',
     method: 'post',
-    data
+    data: data
   })
 }
 
-// 修改客户常规
-export function updateRegular(data) {
+// 更新常规数据
+export function updateenterPrise(data) {
   return request({
-    url: '/basicdata/customer/basic/update',
+    url: `/basicdata/customer/basic/update`,
     method: 'put',
-    data
+    data: data
   })
 }
 
-// 修改状态
 
-export function updateStatus(data) {
+// 修改常规数据状态
+export function updateStatus(id,data) {
   return request({
-    url: '/basicdata/customer/basic/changeStatus',
+    url: `/basicdata/customer/basic/changeStatus`,
     method: 'put',
-    data
+    data: { id, ...data }
   })
 }
-
-
 
