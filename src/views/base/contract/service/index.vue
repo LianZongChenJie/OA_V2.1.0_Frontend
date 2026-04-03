@@ -19,7 +19,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, updateStatus } from "@/api/base/administration/assetBrand/index.js";
+import { getPageList, getDetail, updateStatus } from "@/api/base/contract/service/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -37,12 +37,8 @@ function handleAdd() {
 }
 
 /** 编辑按钮操作 */
-async function handleEdit(row) {
-  // 获取详情数据
-  const res = await getDetail(row.id);
-  if (res) {
-    addDialogRef.value.openEdit(res.data || res);
-  }
+function handleEdit(row) {
+  addDialogRef.value.openEdit(row);
 }
 
 /** 查看按钮操作 */
@@ -58,7 +54,7 @@ async function handleView(row) {
 async function handleDisable(row) {
   const newStatus = row.status === 1 ? 0 : 1;
   proxy.$modal
-    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该资产品牌吗?`)
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该行政数据吗?`)
     .then(async () => {
       const res = await updateStatus(row.id, { status: newStatus });
       

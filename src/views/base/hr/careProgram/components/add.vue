@@ -2,7 +2,7 @@
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="400%"
+      width="40%"
       append-to-body
       class="approval-module-dialog"
       @close="handleClose"
@@ -55,7 +55,7 @@
 
     isEdit.value = false;
     isView.value = false;
-    proxy.resetForm("formRef");
+    formRef.value?.clearValidate();
   }
 
   /** 关闭弹窗 */

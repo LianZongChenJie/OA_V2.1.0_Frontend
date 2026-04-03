@@ -17,6 +17,7 @@
     placeholder="请输入排序"
     :disabled="isView"
     :min="0"
+    style="width: 100%"
   />
 </el-form-item>
       <el-form-item label="描述" prop="desc">
@@ -52,7 +53,7 @@ const isView = ref(false); // 是否为查看模式
 const form = reactive({
   id: undefined,
   title: "",
-  sort: "",
+  sort: 0,
   desc: "",
   status: 1,
 });
@@ -71,13 +72,13 @@ const rules = {
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.sort = "";
+  form.sort = 0;
   form.desc = "";
   form.status = 1;
 
   isEdit.value = false;
   isView.value = false;
-  proxy.resetForm("formRef");
+  formRef.value?.clearValidate();
 }
 
 /** 关闭弹窗 */
