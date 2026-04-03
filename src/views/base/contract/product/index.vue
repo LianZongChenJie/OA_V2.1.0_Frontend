@@ -3,16 +3,20 @@
     <div class="product-classify">
       <ProductClassifyTree @node-click="handleNodeClick" />
     </div>
-    <div class="product-list"></div>
+    <div class="product-list"><List :cate-id="cateId" /></div>
   </div>
 </template>
 
 <script setup>
+import { ref } from "vue";
 import ProductClassifyTree from "./components/ProductClassifyTree.vue";
+import List from "./list.vue";
+
+const cateId = ref(null);
 
 // 节点点击事件
 const handleNodeClick = (data) => {
-  console.log('点击节点:', data);
+  cateId.value = data;
 };
 </script>
 
@@ -28,7 +32,6 @@ const handleNodeClick = (data) => {
   }
   .product-list {
     width: calc(100% - 220px);
-    background-color: #fff;
     height: 100%;
   }
 }

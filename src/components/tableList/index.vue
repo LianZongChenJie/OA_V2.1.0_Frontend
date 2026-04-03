@@ -376,8 +376,8 @@ const searchableColumns = computed(() => {
   return props.columns
     .filter((column) => column.searchable)
     .map((column) => ({
-      ...column.searchable,
       fieldName: column.fieldName,
+      ...column.searchable,
     }));
 });
 
@@ -615,7 +615,8 @@ const filteredData = computed(() => {
 });
 
 // 处理搜索
-const handleSearch = () => {
+const handleSearch = (params) => {
+  searchParams.value = params || {};
   if (isApiMode.value) {
     currentPage.value = 1;
     fetchRemoteData();
