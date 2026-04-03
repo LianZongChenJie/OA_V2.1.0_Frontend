@@ -19,7 +19,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, updateStatus } from "@/api/base/administration/routine/index.js";
+import { getPageList, getDetail, updateStatus } from "@/api/base/contract/classify/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
