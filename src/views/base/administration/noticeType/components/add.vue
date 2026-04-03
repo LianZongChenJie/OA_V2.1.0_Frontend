@@ -56,7 +56,7 @@ function reset() {
 
   isEdit.value = false;
   isView.value = false;
-  proxy.resetForm("formRef");
+  formRef.value?.clearValidate();
 }
 
 /** 关闭弹窗 */
