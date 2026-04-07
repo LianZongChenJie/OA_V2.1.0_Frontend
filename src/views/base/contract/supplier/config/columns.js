@@ -1,6 +1,6 @@
-// 搜索表单对象（新增：全局存储搜索值）
+
 export const queryForm = {
-  title: '', // 对应 searchable 字段
+  title: '', 
 };
 
 export const columns = [
@@ -18,7 +18,7 @@ export const columns = [
     minWidth: 300,
     searchable: {
       type: 'input',
-      fieldName: 'title',
+      fieldName: 'keywords',
       placeholder: '请输入',
       label: '关键字',
       order: 1,

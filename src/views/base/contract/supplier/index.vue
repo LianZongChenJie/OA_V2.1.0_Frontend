@@ -34,13 +34,13 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
-// 编辑前先调用详情接口，
+// 编辑前先调用详情接口，拿到完整数据（含contactList）
 async function handleEdit(row) {
   const res = await getMessageModuleDetail(row.id);
   addDialogRef.value.openEdit(res.data);
 }
 
-//看前先调用详情接口
+// 查看前先调用详情接口
 async function handleView(row) {
   const res = await getMessageModuleDetail(row.id);
   addDialogRef.value.openView(res.data);

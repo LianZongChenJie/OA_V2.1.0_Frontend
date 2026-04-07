@@ -4,7 +4,6 @@
     v-model="dialogVisible"
     width="50%"
     append-to-body
-    class="supplier-module-dialog"
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
@@ -32,18 +31,6 @@
           placeholder="请输入内容"
           :disabled="isView"
         />
-      </el-form-item>
-
-      <el-form-item label="相关附件" prop="fileIds">
-        <el-upload
-          v-model:file-list="form.fileList"
-          :disabled="isView"
-          :auto-upload="false"
-          multiple
-          :limit="10"
-        >
-          <el-button type="success" icon="Plus">添加附件</el-button>
-        </el-upload>
       </el-form-item>
 
       <el-divider content-position="left" style="margin:20px 0">首要联系人信息</el-divider>
@@ -74,16 +61,20 @@
 </template>
 
 <script setup name="AddSupplier">
-import { ref, reactive, computed, getCurrentInstance } from "vue";
-import { addMessageModule, updateMessageModule } from "@/api/base/contract/supplier/index.js";
+import { ref, reactive, computed } from "vue";
+import { ElMessageBox, ElMessage } from "element-plus";
+import {
+  addMessageModule,
+  updateMessageModule,
+} from "@/api/base/contract/supplier/index.js";
 
-const { proxy } = getCurrentInstance();
-
+// 弹窗控制
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
+// 表单数据（结构不变）
 const form = reactive({
   id: undefined,
   title: "",
@@ -115,17 +106,20 @@ const form = reactive({
   fileList: [],
 });
 
+// 标题
 const dialogTitle = computed(() => {
   if (isView.value) return "查看供应商";
   return isEdit.value ? "编辑供应商" : "新增供应商";
 });
 
+// 校验
 const rules = {
   title: [{ required: true, message: "请输入供应商名称", trigger: "blur" }],
 };
 
-// 重置表单
+// 重置
 function reset() {
+  // 主表
   form.id = undefined;
   form.title = "";
   form.code = "";
@@ -136,50 +130,66 @@ function reset() {
   form.content = "";
   form.status = 1;
   form.sort = 0;
-  form.contactList = [
-    { id: undefined, sid: undefined, isDefault: 1, name: "", sex: 1, mobile: "", qq: "", wechat: "", email: "", nickname: "", department: "", position: "", status: 1 },
-  ];
+
+  Object.assign(form.contactList[0], {
+    id: undefined,
+    sid: undefined,
+    isDefault: 1,
+    name: "",
+    sex: 1,
+    mobile: "",
+    qq: "",
+    wechat: "",
+    email: "",
+    nickname: "",
+    department: "",
+    position: "",
+    status: 1,
+  });
   form.fileList = [];
+
   isEdit.value = false;
   isView.value = false;
-  formRef.value?.clearValidate();
+  formRef.value?.clearValidate?.();
 }
 
-function handleClose() { dialogVisible.value = false; }
-function open() { reset(); dialogVisible.value = true; }
+// 关闭
+function handleClose() {
+  dialogVisible.value = false;
+}
 
-// ==============================================
-// ✅ 编辑：直接赋值，不调用任何接口
-// ==============================================
+// 打开新增
+function open() {
+  reset();
+  dialogVisible.value = true;
+}
+
+// 打开编辑 —— 修复联系人回显
 function openEdit(data) {
   reset();
   form.id = data.id;
   form.title = data.title || "";
+  form.code = data.code || "";
   form.phone = data.phone || "";
   form.email = data.email || "";
   form.address = data.address || "";
+  form.fileIds = data.fileIds || "";
   form.content = data.content || "";
   form.status = data.status ?? 1;
+  form.sort = data.sort ?? 0;
 
-  // 联系人直接赋值
-  const contact = data.contactList?.[0] || {};
-  form.contactList[0] = {
-    id: contact.id || undefined,
-    sid: data.id,
-    isDefault: 1,
-    name: contact.name || "",
-    sex: contact.sex ?? 1,
-    mobile: contact.mobile || "",
-    status: contact.status ?? 1,
-  };
+  if (data.contactList && data.contactList.length > 0) {
+    form.contactList[0].name = data.contactList[0].name || "";
+    form.contactList[0].mobile = data.contactList[0].mobile || "";
+    form.contactList[0].sex = data.contactList[0].sex ?? 1;
+    form.contactList[0].id = data.contactList[0].id;
+  }
 
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-// ==============================================
-// ✅ 查看：直接赋值，不调用任何接口
-// ==============================================
+
 function openView(data) {
   reset();
   form.id = data.id;
@@ -190,62 +200,53 @@ function openView(data) {
   form.content = data.content || "";
   form.status = data.status ?? 1;
 
-  const contact = data.contactList?.[0] || {};
-  form.contactList[0] = {
-    id: contact.id || undefined,
-    sid: data.id,
-    isDefault: 1,
-    name: contact.name || "",
-    sex: contact.sex ?? 1,
-    mobile: contact.mobile || "",
-    status: contact.status ?? 1,
-  };
+  if (data.contactList && data.contactList.length > 0) {
+    form.contactList[0].name = data.contactList[0].name || "";
+    form.contactList[0].mobile = data.contactList[0].mobile || "";
+    form.contactList[0].sex = data.contactList[0].sex ?? 1;
+  }
 
   isView.value = true;
   dialogVisible.value = true;
 }
-
-// 提交（正常 POST / PUT）
+// 提交
 async function handleSubmit() {
-  formRef.value.validate(async (valid) => {
-    if (!valid) return;
-    try {
-      const apiMethod = isEdit.value ? updateMessageModule : addMessageModule;
-      const msg = isEdit.value ? "编辑成功" : "新增成功";
+  const valid = await formRef.value?.validate?.();
+  if (!valid) return;
 
-      const submitData = {
-        ...form,
-        contactList: form.contactList.map(c => ({ ...c, sid: form.id }))
-      };
+  try {
+    // 基础字段
+    const submitData = {
+      id: form.id,
+      title: form.title,
+      code: form.code,
+      phone: form.phone,
+      email: form.email,
+      address: form.address,
+      fileIds: form.fileIds,
+      content: form.content,
+      status: form.status,
+      sort: form.sort,
+    };
 
-      await apiMethod(submitData);
-      proxy.$modal.msgSuccess(msg);
-      dialogVisible.value = false;
-      emit("success");
-    } catch (e) {
-      console.error(e);
-      proxy.$modal.msgError("提交失败");
+    if (isEdit.value) {
+      submitData.contact_list = form.contactList;
     }
-  });
+
+    await (isEdit.value
+      ? updateMessageModule(submitData)
+      : addMessageModule(submitData));
+
+    ElMessage.success(isEdit.value ? "编辑成功" : "新增成功");
+    dialogVisible.value = false;
+    emit("success");
+  } catch (err) {
+    console.error("提交失败", err);
+    ElMessage.error("操作失败：" + (err.message || "未知错误"));
+  }
 }
 
 const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
 
-<style scoped>
-.dialog-footer { text-align: right; }
-</style>
-
-<style>
-.supplier-module-dialog .el-dialog {
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-}
-.supplier-module-dialog .el-dialog__body {
-  max-height: calc(88vh - 120px);
-  overflow-y: auto;
-  padding-bottom: 20px;
-}
-</style>
