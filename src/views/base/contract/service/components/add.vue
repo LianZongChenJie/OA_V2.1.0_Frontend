@@ -34,7 +34,7 @@
   </el-dialog>
 </template>
 
-<script setup name="AddindustryType">
+<script setup name="Addservice">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/contract/service/index.js";
 
