@@ -29,22 +29,22 @@ const { supplier_status } = proxy.useDict("supplier_status");
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
+
+
 // 新增
 function handleAdd() {
   addDialogRef.value.open();
 }
 
-// 编辑前先调用详情接口
+// 编辑前先调用详情接口，拿到完整数据（含contactList）
 async function handleEdit(row) {
   const res = await getMessageModuleDetail(row.id);
-  res.data.status = row.status;
   addDialogRef.value.openEdit(res.data);
 }
 
 // 查看前先调用详情接口
 async function handleView(row) {
   const res = await getMessageModuleDetail(row.id);
-  res.data.status = row.status;
   addDialogRef.value.openView(res.data);
 }
 

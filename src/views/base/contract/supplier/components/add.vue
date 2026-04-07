@@ -61,7 +61,7 @@
 </template>
 
 <script setup name="AddSupplier">
-import { ref, reactive, computed } from "vue";
+import { ref, reactive, computed, nextTick } from "vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 import {
   addMessageModule,
@@ -74,7 +74,7 @@ const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
-// 表单数据（结构不变）
+// 表单数据
 const form = reactive({
   id: undefined,
   title: "",
@@ -119,7 +119,6 @@ const rules = {
 
 // 重置
 function reset() {
-  // 主表
   form.id = undefined;
   form.title = "";
   form.code = "";
@@ -161,28 +160,21 @@ function handleClose() {
 // 打开新增
 function open() {
   reset();
-  dialogVisible.value = true;
+  nextTick(() => {
+    dialogVisible.value = true;
+  });
 }
 
-// 打开编辑 —— 修复联系人回显
 function openEdit(data) {
   reset();
-  form.id = data.id;
-  form.title = data.title || "";
-  form.code = data.code || "";
-  form.phone = data.phone || "";
-  form.email = data.email || "";
-  form.address = data.address || "";
-  form.fileIds = data.fileIds || "";
-  form.content = data.content || "";
-  form.status = data.status ?? 1;
-  form.sort = data.sort ?? 0;
+  Object.assign(form, data);
 
-  if (data.contactList && data.contactList.length > 0) {
+  if (data.contactList?.length > 0) {
+    form.contactList[0].id = data.contactList[0].id;
     form.contactList[0].name = data.contactList[0].name || "";
     form.contactList[0].mobile = data.contactList[0].mobile || "";
     form.contactList[0].sex = data.contactList[0].sex ?? 1;
-    form.contactList[0].id = data.contactList[0].id;
+    form.contactList[0].sid = form.id;
   }
 
   isEdit.value = true;
@@ -190,32 +182,27 @@ function openEdit(data) {
 }
 
 
+
 function openView(data) {
   reset();
-  form.id = data.id;
-  form.title = data.title || "";
-  form.phone = data.phone || "";
-  form.email = data.email || "";
-  form.address = data.address || "";
-  form.content = data.content || "";
-  form.status = data.status ?? 1;
+  Object.assign(form, data);
 
-  if (data.contactList && data.contactList.length > 0) {
-    form.contactList[0].name = data.contactList[0].name || "";
-    form.contactList[0].mobile = data.contactList[0].mobile || "";
-    form.contactList[0].sex = data.contactList[0].sex ?? 1;
+  if (data.contactList?.length) {
+    Object.assign(form.contactList[0], data.contactList[0]);
   }
 
   isView.value = true;
-  dialogVisible.value = true;
+  nextTick(() => {
+    dialogVisible.value = true;
+  });
 }
-// 提交
+
+// 提交（不变）
 async function handleSubmit() {
-  const valid = await formRef.value?.validate?.();
+  const valid = await formRef.value?.validate();
   if (!valid) return;
 
   try {
-    // 基础字段
     const submitData = {
       id: form.id,
       title: form.title,
@@ -225,28 +212,32 @@ async function handleSubmit() {
       address: form.address,
       fileIds: form.fileIds,
       content: form.content,
-      status: form.status,
+      status: form.status ?? 1, 
       sort: form.sort,
+    
+      contactList: [
+        {
+          id: form.contactList[0].id, 
+          sid: form.id,
+          isDefault: 1,
+          name: form.contactList[0].name,
+          sex: form.contactList[0].sex,
+          mobile: form.contactList[0].mobile,
+          status: 1
+        }
+      ]
     };
 
-    if (isEdit.value) {
-      submitData.contact_list = form.contactList;
-    }
-
-    await (isEdit.value
-      ? updateMessageModule(submitData)
-      : addMessageModule(submitData));
-
+    await (isEdit.value ? updateMessageModule(submitData) : addMessageModule(submitData));
     ElMessage.success(isEdit.value ? "编辑成功" : "新增成功");
     dialogVisible.value = false;
     emit("success");
   } catch (err) {
-    console.error("提交失败", err);
-    ElMessage.error("操作失败：" + (err.message || "未知错误"));
+    console.error(err);
+    ElMessage.error("操作失败");
   }
 }
 
 const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
-
