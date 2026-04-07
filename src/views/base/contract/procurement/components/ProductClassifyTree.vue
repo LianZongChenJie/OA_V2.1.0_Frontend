@@ -1,5 +1,5 @@
 <template>
-  <h3 class="header" @click="$emit('node-click', null, null)">产品分类</h3>
+  <h3 class="header" @click="$emit('node-click', null, null)">采购品分类</h3>
   <el-menu
     class="el-menu-vertical-demo"
     @open="handleOpen"
@@ -69,6 +69,13 @@ const defaultProps = {
   label: "title",
 };
 
+// 刷新树数据
+const refresh = () => {
+  getTree({ pid: 0 }).then((res) => {
+    data.value = res.data;
+  });
+};
+
 // 根据节点是否有子节点返回不同图标
 const getIcon = (node) => {
   return node.childNodes && node.childNodes.length > 0 ? Folder : Document;
@@ -115,6 +122,11 @@ onMounted(() => {
   getTree({pid: 0}).then((res) => {
     data.value = res.data;
   });
+});
+
+// 暴露方法给父组件
+defineExpose({
+  refresh,
 });
 </script>
 

@@ -1,46 +1,33 @@
 <template>
-  <div class="tabs-container">
+  <div class="main-content">
     <TableList
       :api="getPageList"
-      :params="{ cateId }"
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      row-key="name"
+      row-key="userId"
       ref="tableList"
     >
       <template #status="{ row }">
-        <dict-tag :options="message_module_status" :value="row.status" />
+        <dict-tag :options="employee_status" :value="row.status" />
+      </template>
+       <template #sex="{ row }">
+        <dict-tag :options="sys_user_sex" :value="row.sex" />
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 <script setup>
-import { reactive, ref, getCurrentInstance, defineProps } from "vue";
+import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import {
-  getPageList,
-  getDetail,
-  updateStatus,
-} from "@/api/base/contract/procurement/index.js";
+import { getPageList, getDetail, deleteEmployee } from "@/api/personnel/employee/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
-const props = defineProps({
-  cateId: {
-    type: [String, Number],
-    default: null
-  },
-  refreshTree: {
-    type: Function,
-    default: null
-  }
-});
-
 const { proxy } = getCurrentInstance();
-const { message_module_status } = proxy.useDict("message_module_status");
+const { employee_status,sys_user_sex } = proxy.useDict("employee_status","sys_user_sex");
 
 const route = useRoute();
 const router = useRouter();
@@ -53,8 +40,12 @@ function handleAdd() {
 }
 
 /** 编辑按钮操作 */
-function handleEdit(row) {
-  addDialogRef.value.openEdit(row);
+async function handleEdit(row) {
+  // 获取详情数据
+  const res = await getDetail(row.id);
+  if (res) {
+    addDialogRef.value.openEdit(res.data || res);
+  }
 }
 
 /** 查看按钮操作 */
@@ -66,16 +57,14 @@ async function handleView(row) {
   }
 }
 
-/** 禁用/启用按钮操作 */
-async function handleDisable(row) {
-  const newStatus = row.status === 1 ? 0 : 1;
+/** 删除按钮操作 */
+async function handleDelete(row) {
   proxy.$modal
-    .confirm(`确定要${row.status === 1 ? "禁用" : "启用"}该行政数据吗?`)
+    .confirm("确定要永久删除该数据吗？删除后无法恢复！")
     .then(async () => {
-      const res = await updateStatus({ id: row.id, status: newStatus });
-
+      const res = await deleteEmployee(row.id);
       if (res) {
-        proxy.$modal.msgSuccess(`${newStatus === 1 ? "启用" : "禁用"}成功`);
+        proxy.$modal.msgSuccess("删除成功");
         tableList.value.refresh();
       }
     })
@@ -85,19 +74,9 @@ async function handleDisable(row) {
 /** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
-  // 刷新分类树
-  props.refreshTree?.();
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(
-  handleEdit,
-  handleView,
-  handleDisable,
-);
+const operationColumn = getOperationColumn(handleEdit, handleDelete, handleView);
 </script>
-<style lang="scss" scoped>
-.tabs-container {
-  height: calc(100% - 10px);
-}
-</style>
+<style lang="scss" scoped></style>
