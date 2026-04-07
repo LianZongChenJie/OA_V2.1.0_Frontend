@@ -22,7 +22,7 @@
   </el-dialog>
 </template>
 
-<script setup name="AddindustryType">
+<script setup name="Addclassify">
 import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/contract/classify/index.js";
 
