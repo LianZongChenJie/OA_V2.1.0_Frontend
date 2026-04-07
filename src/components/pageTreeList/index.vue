@@ -440,6 +440,16 @@ const refreshChildren = async (pid) => {
             nodeState.loaded = true;
             nodeState.loading = false;
           }
+          // 保持节点展开状态
+          // 由于 Element Plus 的懒加载机制，需要强制刷新行展开状态
+          if (targetNode.children && targetNode.children.length > 0) {
+            await nextTick();
+            // 使用 toggleRowExpansion 强制刷新行的展开状态
+            // 先关闭再打开，确保展开状态被保留
+            tableRef.value?.toggleRowExpansion(targetNode, false);
+            await nextTick();
+            tableRef.value?.toggleRowExpansion(targetNode, true);
+          }
         } else {
           // 未展开：清除懒加载缓存，下次展开时会重新加载
           if (lazyTreeNodeMapValue) {
