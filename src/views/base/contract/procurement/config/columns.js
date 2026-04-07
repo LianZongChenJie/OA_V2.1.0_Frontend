@@ -53,10 +53,7 @@ export const columns = [
       type: 'select',
       fieldName: 'status',
       label: '状态',
-      options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
-      ]
+      dictKey: 'message_module_status',
     },
   },
 ];
@@ -65,10 +62,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDetail, onToggleStatus) => {
+export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) => {
   return {
     label: '操作',
-    width: 240,
+    width: 340,
     fixed: 'right',
     show: true,
     actions: [
@@ -80,6 +77,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
+        isShow: (row) => [0,1].includes(row.status),
       },
       {
         label: '查看',
@@ -109,6 +107,15 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus) => {
         },
         icon: 'enable',
         isShow: (row) => row.status === 0,
+      },
+      {
+        label: '删除',
+        type: 'danger',
+        size: 'small',
+        onClick: (row) => {
+          onDelete && onDelete(row);
+        },
+        icon: 'lock',
       },
     ],
   };
