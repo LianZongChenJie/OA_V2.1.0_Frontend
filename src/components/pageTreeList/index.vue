@@ -350,7 +350,13 @@ const loadChildren = async (row, treeNode, resolve) => {
       pid: row.id, // 根据当前行的 id 作为 pid 查询子节点
     });
     if (res.code === 200 && res.success) {
-      resolve(res.rows || res.data || []);
+      const children = res.rows || res.data || [];
+      // 为每个子节点添加 hasChildren: true，确保它们也能显示展开按钮
+      const childrenWithFlag = children.map(item => ({
+        ...item,
+        hasChildren: true,
+      }));
+      resolve(childrenWithFlag);
     } else {
       resolve([]);
     }
@@ -386,13 +392,20 @@ const refreshChildren = async (pid) => {
     const res = await props.getThree({ pid: pidNum });
     const children = res?.rows || res?.data || [];
 
+    // 为子节点添加 hasChildren 属性
+    const childrenWithFlag = children.map(item => ({
+      ...item,
+      hasChildren: true
+    }));
+
     // 找到对应节点并更新
     const findAndUpdateNode = (data) => {
       for (const item of data) {
         if (Number(item.id) === pidNum) {
           // 更新节点数据
-          item.children = children;
-          item.hasChildren = children.length > 0;
+          item.children = childrenWithFlag;
+          // 保持 hasChildren 为 true，确保展开按钮始终显示
+          item.hasChildren = true;
           return item;
         }
         if (item.children && item.children.length > 0) {
@@ -405,23 +418,42 @@ const refreshChildren = async (pid) => {
 
     const targetNode = findAndUpdateNode(tableData.value);
 
-    // 如果找到了节点，使用 Element Plus 的方法重新加载子节点
+    // 如果找到了节点，更新表格内部状态
     if (targetNode && tableRef.value) {
-      // 获取表格的 store
       const store = tableRef.value.store;
       if (store) {
-        // 清除懒加载缓存，强制重新加载
+        // 获取表格内部状态
         const lazyTreeNodeMap = store.states?.lazyTreeNodeMap;
         const lazyTreeNodeMapValue = lazyTreeNodeMap?.value || lazyTreeNodeMap;
-        if (lazyTreeNodeMapValue) {
-          delete lazyTreeNodeMapValue[pidNum];
+        const treeData = store.states?.treeData;
+        const treeDataValue = treeData?.value || treeData;
+        const nodeState = treeDataValue?.[pidNum];
+        const isExpanded = nodeState?.expanded;
+
+        if (isExpanded) {
+          // 已展开：直接更新懒加载缓存中的数据
+          if (lazyTreeNodeMapValue) {
+            lazyTreeNodeMapValue[pidNum] = childrenWithFlag;
+          }
+          // 更新 treeData 中的 loaded 状态
+          if (nodeState) {
+            nodeState.loaded = true;
+            nodeState.loading = false;
+          }
+        } else {
+          // 未展开：清除懒加载缓存，下次展开时会重新加载
+          if (lazyTreeNodeMapValue) {
+            delete lazyTreeNodeMapValue[pidNum];
+          }
+          // 重置 treeData 中的加载状态
+          if (nodeState) {
+            nodeState.loaded = false;
+            nodeState.loading = false;
+          }
         }
 
-        // 使用 toggleRowExpansion 来触发重新加载
-        // 先收起再展开，强制重新加载子节点
-        tableRef.value.toggleRowExpansion(targetNode, false);
-        await nextTick();
-        tableRef.value.toggleRowExpansion(targetNode, true);
+        // 强制更新表格布局
+        tableRef.value.doLayout();
       }
     }
   } catch (error) {
