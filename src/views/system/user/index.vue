@@ -42,10 +42,10 @@
               v-show="showSearch"
               label-width="68px"
             >
-              <el-form-item label="用户名称" prop="userName">
+              <el-form-item label="登录账号" prop="userName">
                 <el-input
                   v-model="queryParams.userName"
-                  placeholder="请输入用户名称"
+                  placeholder="请输入登录账号"
                   clearable
                   style="width: 240px"
                   @keyup.enter="handleQuery"
@@ -160,14 +160,14 @@
             >
               <el-table-column type="selection" width="50" align="center" />
               <el-table-column
-                label="用户编号"
+                label="员工编号"
                 align="center"
                 key="userId"
                 prop="userId"
                 v-if="columns.userId.visible"
               />
               <el-table-column
-                label="用户名称"
+                label="登录账号"
                 align="center"
                 key="userName"
                 prop="userName"
@@ -175,7 +175,7 @@
                 :show-overflow-tooltip="true"
               />
               <el-table-column
-                label="用户昵称"
+                label="员工姓名"
                 align="center"
                 key="nickName"
                 prop="nickName"
@@ -303,10 +303,10 @@
       <el-form :model="form" :rules="rules" ref="userRef" label-width="80px">
         <el-row>
           <el-col :span="12">
-            <el-form-item label="用户昵称" prop="nickName">
+            <el-form-item label="员工姓名" prop="nickName">
               <el-input
                 v-model="form.nickName"
-                placeholder="请输入用户昵称"
+                placeholder="请输入员工姓名"
                 maxlength="30"
               />
             </el-form-item>
@@ -349,12 +349,12 @@
           <el-col :span="12">
             <el-form-item
               v-if="form.userId == undefined"
-              label="用户名称"
+              label="登录账号"
               prop="userName"
             >
               <el-input
                 v-model="form.userName"
-                placeholder="请输入用户名称"
+                placeholder="请输入登录账号"
                 maxlength="30"
               />
             </el-form-item>
@@ -362,12 +362,12 @@
           <el-col :span="12">
             <el-form-item
               v-if="form.userId == undefined"
-              label="用户密码"
+              label="登录密码"
               prop="password"
             >
               <el-input
                 v-model="form.password"
-                placeholder="请输入用户密码"
+                placeholder="请输入登录密码"
                 type="password"
                 maxlength="20"
                 show-password
@@ -377,7 +377,7 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="用户性别">
+            <el-form-item label="性别">
               <el-select v-model="form.sex" placeholder="请选择">
                 <el-option
                   v-for="dict in sys_user_sex"
@@ -558,9 +558,9 @@ const upload = reactive({
 // 列显隐信息
 
 const columns = ref({
-  userId: { label: "用户编号", visible: true },
-  userName: { label: "用户名称", visible: true },
-  nickName: { label: "用户昵称", visible: true },
+  userId: { label: "员工编号", visible: true },
+  userName: { label: "登录账号", visible: true },
+  nickName: { label: "员工姓名", visible: true },
   deptName: { label: "部门", visible: true },
   phonenumber: { label: "手机号码", visible: true },
   status: { label: "状态", visible: true },
@@ -579,23 +579,23 @@ const data = reactive({
   },
   rules: {
     userName: [
-      { required: true, message: "用户名称不能为空", trigger: "blur" },
+      { required: true, message: "登录账号不能为空", trigger: "blur" },
       {
         min: 2,
         max: 20,
-        message: "用户名称长度必须介于 2 和 20 之间",
+        message: "登录账号长度必须介于 2 和 20 之间",
         trigger: "blur",
       },
     ],
     nickName: [
-      { required: true, message: "用户昵称不能为空", trigger: "blur" },
+      { required: true, message: "员工姓名不能为空", trigger: "blur" },
     ],
     password: [
-      { required: true, message: "用户密码不能为空", trigger: "blur" },
+      { required: true, message: "登录密码不能为空", trigger: "blur" },
       {
         min: 5,
         max: 20,
-        message: "用户密码长度必须介于 5 和 20 之间",
+        message: "登录密码长度必须介于 5 和 20 之间",
         trigger: "blur",
       },
       {
@@ -686,7 +686,7 @@ function resetQuery() {
 function handleDelete(row) {
   const userIds = row.userId || ids.value;
   proxy.$modal
-    .confirm('是否确认删除用户编号为"' + userIds + '"的数据项？')
+    .confirm('是否确认删除员工编号为"' + userIds + '"的数据项？')
     .then(function () {
       return delUser(userIds);
     })
@@ -747,7 +747,7 @@ function handleResetPwd(row) {
       cancelButtonText: "取消",
       closeOnClickModal: false,
       inputPattern: /^.{5,20}$/,
-      inputErrorMessage: "用户密码长度必须介于 5 和 20 之间",
+      inputErrorMessage: "登录密码长度必须介于 5 和 20 之间",
       inputValidator: (value) => {
         if (/<|>|"|'|\||\\/.test(value)) {
           return "不能包含非法字符：< > \" ' \\\ |";
@@ -851,7 +851,7 @@ function handleAdd() {
     postOptions.value = response.posts;
     roleOptions.value = response.roles;
     open.value = true;
-    title.value = "添加用户";
+    title.value = "添加员工";
     form.value.password = initPassword.value;
   });
 }

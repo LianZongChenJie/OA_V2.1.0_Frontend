@@ -44,7 +44,7 @@ export function delUser(userId) {
   })
 }
 
-// 用户密码重置
+// 登录密码重置
 export function resetUserPwd(userId, password) {
   const data = {
     userId,
@@ -87,7 +87,7 @@ export function updateUserProfile(data) {
   })
 }
 
-// 用户密码重置
+// 登录密码重置
 export function updateUserPwd(oldPassword, newPassword) {
   const data = {
     oldPassword,
