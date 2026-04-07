@@ -8,19 +8,19 @@ export const columns = [
   },
   {
     fieldName: 'code',
-    label: '产品编码',
+    label: '采购品编码',
     width: "10%",
     minWidth: 100,
   },
   {
-    fieldName: 'cateId',
-    label: '产品分类',
+    fieldName: 'cateName',
+    label: '采购品分类',
     width: "10%",
     minWidth: 100,
   },
   {
     fieldName: 'title',
-    label: '产品名称',
+    label: '采购品名称',
     width: "30%",
     minWidth: 100,
     searchable: {
@@ -32,38 +32,14 @@ export const columns = [
     },
   },
   {
-    fieldName: 'salePrice',
-    label: '销售价(元)',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
     fieldName: 'purchasePrice',
     label: '采购价(元)',
     width: "10%",
     minWidth: 100,
   },
   {
-    fieldName: 'basePrice',
-    label: '成本价(元)',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
     fieldName: 'unit',
     label: '计量单位',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
-    fieldName: 'specs',
-    label: '规格',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
-    fieldName: 'specs',
-    label: '规格',
     width: "10%",
     minWidth: 100,
   },
@@ -77,10 +53,7 @@ export const columns = [
       type: 'select',
       fieldName: 'status',
       label: '状态',
-      options: [
-        { label: '启用', value: 1 },
-        { label: '禁用', value: 0 },
-      ]
+      dictKey: 'message_module_status',
     },
   },
 ];
@@ -89,10 +62,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDetail, onToggleStatus) => {
+export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) => {
   return {
     label: '操作',
-    width: 240,
+    width: 340,
     fixed: 'right',
     show: true,
     actions: [
@@ -104,6 +77,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
+        isShow: (row) => [0, 1].includes(row.status),
       },
       {
         label: '查看',
@@ -133,6 +107,15 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus) => {
         },
         icon: 'enable',
         isShow: (row) => row.status === 0,
+      },
+      {
+        label: '删除',
+        type: 'danger',
+        size: 'small',
+        onClick: (row) => {
+          onDelete && onDelete(row);
+        },
+        icon: 'delete'
       },
     ],
   };

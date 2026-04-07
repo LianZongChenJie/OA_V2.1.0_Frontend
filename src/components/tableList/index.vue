@@ -378,6 +378,7 @@ const searchableColumns = computed(() => {
     .map((column) => ({
       fieldName: column.fieldName,
       ...column.searchable,
+      dictKey: column.searchable.dictKey,
     }));
 });
 

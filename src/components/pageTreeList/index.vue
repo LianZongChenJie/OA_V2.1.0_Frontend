@@ -38,6 +38,7 @@
     <div class="page-tree-list-content" v-loading="loading">
       <el-table
         ref="tableRef"
+        :key="tableKey"
         :data="tableData"
         row-key="id"
         border
@@ -118,7 +119,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, watch } from "vue";
+import { ref, computed, onMounted, reactive, watch, nextTick } from "vue";
 import { RefreshRight } from "@element-plus/icons-vue";
 import SearchBar from "@/components/tableList/SearchBar.vue";
 
@@ -219,6 +220,7 @@ const emit = defineEmits(["refresh"]);
 const loading = ref(false);
 const tableData = ref([]);
 const tableRef = ref(null);
+const tableKey = ref(0);
 
 // 分页配置
 const pagination = reactive({
@@ -317,19 +319,21 @@ const fetchRootData = async () => {
       const rows = res.rows || res.data?.rows || [];
       // 为每个节点添加 children 数组，确保显示展开图标
       // hasChildren 设置为 true 表示有子节点需要懒加载
-      tableData.value = rows.map(item => ({
+      const newData = rows.map((item) => ({
         ...item,
         children: [],
-        hasChildren: true
+        hasChildren: true,
       }));
+      // 使用 splice 触发响应式更新
+      tableData.value.splice(0, tableData.value.length, ...newData);
       pagination.total = res.total || res.data?.total || 0;
     } else {
-      tableData.value = [];
+      tableData.value.splice(0, tableData.value.length);
       pagination.total = 0;
     }
   } catch (error) {
     console.error("分页列表请求失败:", error);
-    tableData.value = [];
+    tableData.value.splice(0, tableData.value.length);
     pagination.total = 0;
   } finally {
     loading.value = false;
@@ -346,7 +350,13 @@ const loadChildren = async (row, treeNode, resolve) => {
       pid: row.id, // 根据当前行的 id 作为 pid 查询子节点
     });
     if (res.code === 200 && res.success) {
-      resolve(res.rows || res.data || []);
+      const children = res.rows || res.data || [];
+      // 为每个子节点添加 hasChildren: true，确保它们也能显示展开按钮
+      const childrenWithFlag = children.map(item => ({
+        ...item,
+        hasChildren: true,
+      }));
+      resolve(childrenWithFlag);
     } else {
       resolve([]);
     }
@@ -359,9 +369,106 @@ const loadChildren = async (row, treeNode, resolve) => {
 /**
  * 刷新数据
  */
-const refresh = () => {
-  fetchRootData();
+const refresh = async () => {
+  // 先改变 key 强制销毁旧表格
+  tableKey.value = tableKey.value + 1;
+
+  // 然后获取新数据
+  await fetchRootData();
+
   emit("refresh");
+};
+
+/**
+ * 刷新指定节点的子节点
+ * @param {number} pid - 父节点ID
+ */
+const refreshChildren = async (pid) => {
+  // 统一转换为数字类型进行比较
+  const pidNum = Number(pid);
+
+  try {
+    // 调用接口获取新数据
+    const res = await props.getThree({ pid: pidNum });
+    const children = res?.rows || res?.data || [];
+
+    // 为子节点添加 hasChildren 属性
+    const childrenWithFlag = children.map(item => ({
+      ...item,
+      hasChildren: true
+    }));
+
+    // 找到对应节点并更新
+    const findAndUpdateNode = (data) => {
+      for (const item of data) {
+        if (Number(item.id) === pidNum) {
+          // 更新节点数据
+          item.children = childrenWithFlag;
+          // 保持 hasChildren 为 true，确保展开按钮始终显示
+          item.hasChildren = true;
+          return item;
+        }
+        if (item.children && item.children.length > 0) {
+          const found = findAndUpdateNode(item.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const targetNode = findAndUpdateNode(tableData.value);
+
+    // 如果找到了节点，更新表格内部状态
+    if (targetNode && tableRef.value) {
+      const store = tableRef.value.store;
+      if (store) {
+        // 获取表格内部状态
+        const lazyTreeNodeMap = store.states?.lazyTreeNodeMap;
+        const lazyTreeNodeMapValue = lazyTreeNodeMap?.value || lazyTreeNodeMap;
+        const treeData = store.states?.treeData;
+        const treeDataValue = treeData?.value || treeData;
+        const nodeState = treeDataValue?.[pidNum];
+        const isExpanded = nodeState?.expanded;
+
+        if (isExpanded) {
+          // 已展开：直接更新懒加载缓存中的数据
+          if (lazyTreeNodeMapValue) {
+            lazyTreeNodeMapValue[pidNum] = childrenWithFlag;
+          }
+          // 更新 treeData 中的 loaded 状态
+          if (nodeState) {
+            nodeState.loaded = true;
+            nodeState.loading = false;
+          }
+          // 保持节点展开状态
+          // 由于 Element Plus 的懒加载机制，需要强制刷新行展开状态
+          if (targetNode.children && targetNode.children.length > 0) {
+            await nextTick();
+            // 使用 toggleRowExpansion 强制刷新行的展开状态
+            // 先关闭再打开，确保展开状态被保留
+            tableRef.value?.toggleRowExpansion(targetNode, false);
+            await nextTick();
+            tableRef.value?.toggleRowExpansion(targetNode, true);
+          }
+        } else {
+          // 未展开：清除懒加载缓存，下次展开时会重新加载
+          if (lazyTreeNodeMapValue) {
+            delete lazyTreeNodeMapValue[pidNum];
+          }
+          // 重置 treeData 中的加载状态
+          if (nodeState) {
+            nodeState.loaded = false;
+            nodeState.loading = false;
+          }
+        }
+
+        // 强制更新表格布局
+        tableRef.value.doLayout();
+      }
+    }
+  } catch (error) {
+    console.error("刷新子节点失败:", error);
+  }
 };
 
 /**
@@ -391,12 +498,58 @@ const collapseAll = () => {
   tableRef.value?.collapseAll();
 };
 
+/**
+ * 根据节点ID查找节点
+ * @param {number} id - 节点ID
+ * @returns {Object|null} 节点对象或null
+ */
+const findNodeById = (id) => {
+  const idNum = Number(id);
+
+  const findInData = (data) => {
+    for (const item of data) {
+      if (Number(item.id) === idNum) {
+        return item;
+      }
+      if (item.children && item.children.length > 0) {
+        const found = findInData(item.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // 先在表格数据中查找
+  let node = findInData(tableData.value);
+  if (node) return node;
+
+  // 如果表格数据中没有，尝试在懒加载缓存中查找
+  const store = tableRef.value?.store;
+  if (store) {
+    const lazyTreeNodeMap = store.states?.lazyTreeNodeMap;
+    const lazyTreeNodeMapValue = lazyTreeNodeMap?.value || lazyTreeNodeMap;
+    if (lazyTreeNodeMapValue) {
+      for (const pid in lazyTreeNodeMapValue) {
+        const children = lazyTreeNodeMapValue[pid];
+        if (Array.isArray(children)) {
+          node = findInData(children);
+          if (node) return node;
+        }
+      }
+    }
+  }
+
+  return null;
+};
+
 // 暴露方法给父组件
 defineExpose({
   refresh,
+  refreshChildren,
   expandAll,
   collapseAll,
   loading,
+  findNodeById,
 });
 
 // 组件挂载时加载数据

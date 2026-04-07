@@ -14,17 +14,25 @@
               <el-input
                 v-if="column.type === 'input' || !column.type"
                 v-model="searchParams[column.fieldName]"
-                :placeholder="column.placeholder || `请输入${column.label || column.fieldName}`"
+                :placeholder="
+                  column.placeholder ||
+                  `请输入${column.label || column.fieldName}`
+                "
                 clearable
               />
               <el-select
                 v-else-if="column.type === 'select'"
                 v-model="searchParams[column.fieldName]"
-                :placeholder="column.placeholder || `请选择${column.label || column.fieldName}`"
+                :placeholder="
+                  column.placeholder ||
+                  `请选择${column.label || column.fieldName}`
+                "
                 clearable
               >
                 <el-option
-                  v-for="option in column.options || []"
+                  v-for="option in (column.dictKey
+                    ? dictData[column.dictKey]
+                    : column.options) || []"
                   :key="option.value"
                   :label="option.label"
                   :value="option.value"
@@ -34,7 +42,10 @@
                 v-else-if="column.type === 'date'"
                 v-model="searchParams[column.fieldName]"
                 type="date"
-                :placeholder="column.placeholder || `请选择${column.label || column.fieldName}`"
+                :placeholder="
+                  column.placeholder ||
+                  `请选择${column.label || column.fieldName}`
+                "
                 :value-format="column.dateFormat || 'YYYY-MM-DD'"
                 clearable
               />
@@ -89,7 +100,9 @@
         <div class="search-actions">
           <el-form-item>
             <div class="action-buttons">
-              <el-button type="primary" @click="$emit('search', searchParams)">搜索</el-button>
+              <el-button type="primary" @click="$emit('search', searchParams)"
+                >搜索</el-button
+              >
               <el-button type="danger" @click="resetSearch">重置</el-button>
             </div>
           </el-form-item>
@@ -100,8 +113,10 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { ArrowDown } from '@element-plus/icons-vue'
+import { ref, computed, watch, onMounted } from "vue";
+import { ArrowDown } from "@element-plus/icons-vue";
+import { getDicts } from "@/api/system/dict/data";
+import useDictStore from "@/store/modules/dict";
 
 /**
  * 搜索列配置
@@ -136,42 +151,82 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
-})
+});
 
-const emit = defineEmits(['search', 'reset', 'toggle-expand'])
+const emit = defineEmits(["search", "reset", "toggle-expand"]);
 
 // 搜索参数
-const searchParams = ref({})
+const searchParams = ref({});
 // 是否展开搜索条件
-const showMore = ref(false)
-
-// 切换展开/收起
-const toggleExpand = () => {
-  showMore.value = !showMore.value
-  emit('toggle-expand', showMore.value)
-}
+const showMore = ref(false);
+// 字典数据存储
+const dictData = ref({});
 
 // 初始化搜索参数
 watch(
   () => props.initialParams,
   (newParams) => {
-    searchParams.value = { ...newParams }
+    searchParams.value = { ...newParams };
   },
   { immediate: true, deep: true },
-)
+);
+
+// 获取字典数据
+const loadDictData = async () => {
+  const dictKeys = [];
+  props.columns.forEach((column) => {
+    if (column.dictKey) {
+      dictKeys.push(column.dictKey);
+    }
+  });
+
+  // 去重
+  const uniqueKeys = [...new Set(dictKeys)];
+
+  // 从 store 中获取已缓存的字典
+  const store = useDictStore();
+  uniqueKeys.forEach((dictKey) => {
+    const cached = store.getDict(dictKey);
+    if (cached) {
+      dictData.value[dictKey] = cached;
+    }
+  });
+
+  // 获取未缓存的字典
+  const uncachedKeys = uniqueKeys.filter((key) => !dictData.value[key]);
+  for (const dictKey of uncachedKeys) {
+    try {
+      const res = await getDicts(dictKey);
+      if (res && res.data) {
+        dictData.value[dictKey] = res.data.map((p) => ({
+          label: p.dictLabel,
+          value: p.dictValue,
+        }));
+        store.setDict(dictKey, dictData.value[dictKey]);
+      }
+    } catch (e) {
+      console.error(`获取字典${dictKey}失败`, e);
+    }
+  }
+};
+
+onMounted(() => {
+  loadDictData();
+});
 
 // 计算可搜索的列
 const searchableColumns = computed(() => {
-  const sortedColumns = props.columns
-  return sortedColumns.sort((a, b) => Number(a.order || 9999) - Number(b.order || 9999))
-})
+  const sortedColumns = props.columns;
+  return sortedColumns.sort(
+    (a, b) => Number(a.order || 9999) - Number(b.order || 9999),
+  );
+});
 
 // 重置搜索
 const resetSearch = () => {
-  searchParams.value = {}
-  emit('reset')
-}
-
+  searchParams.value = {};
+  emit("reset");
+};
 </script>
 
 <style scoped>

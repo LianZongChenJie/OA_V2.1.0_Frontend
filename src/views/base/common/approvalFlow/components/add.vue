@@ -401,7 +401,7 @@ function handleApproverTypeChange(index) {
 function handleUserChange(index, userIds) {
   const flow = form.flowList[index];
   if (userIds && userIds.length > 0) {
-    // 根据选中的用户ID获取用户名称
+    // 根据选中的用户ID获取登录账号
     const selectedUsers = userOptions.value.filter((user) =>
       userIds.includes(user.userId)
     );

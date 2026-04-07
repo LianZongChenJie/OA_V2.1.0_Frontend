@@ -24,6 +24,7 @@ import {
   getPageList,
   getDetail,
   updateStatus,
+  deleteProcurement,
 } from "@/api/base/contract/procurement/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
@@ -82,6 +83,23 @@ async function handleDisable(row) {
     .catch(() => {});
 }
 
+/** 删除按钮操作 */
+async function handleDelete(row) {
+  proxy.$modal
+    .confirm("确定要删除该采购品吗？")
+    .then(async () => {
+      const res = await deleteProcurement(row.id);
+
+      if (res) {
+        proxy.$modal.msgSuccess("删除成功");
+        tableList.value.refresh();
+        // 刷新分类树
+        props.refreshTree?.();
+      }
+    })
+    .catch(() => {});
+}
+
 /** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
@@ -94,6 +112,7 @@ const operationColumn = getOperationColumn(
   handleEdit,
   handleView,
   handleDisable,
+  handleDelete,
 );
 </script>
 <style lang="scss" scoped>
