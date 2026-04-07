@@ -48,6 +48,7 @@ export const columns = [
     width: "5%",
     minWidth: 100,
     align: 'center',
+    slotName: 'status'
   },
 ];
 
