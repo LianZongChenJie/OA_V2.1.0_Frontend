@@ -4,7 +4,7 @@
     v-model="dialogVisible"
     width="60%"
     append-to-body
-    class="product-dialog"
+    class="procurement-dialog"
     @close="handleClose"
   >
     <el-form
@@ -15,16 +15,16 @@
     >
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="产品名称" prop="title">
+          <el-form-item label="采购品名称" prop="title">
             <el-input
               v-model="form.title"
-              placeholder="请输入产品名称"
+              placeholder="请输入采购品名称"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="产品分类" prop="cateId">
+          <el-form-item label="采购品分类" prop="cateId">
             <el-cascader
               v-model="form.cateId"
               :options="categoryOptions"
@@ -36,7 +36,7 @@
                 emitPath: false,
               }"
               :disabled="isView"
-              placeholder="请选择产品分类"
+              placeholder="请选择采购品分类"
               clearable
               style="width: 100%"
             />
@@ -46,26 +46,14 @@
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="产品编码" prop="code">
+          <el-form-item label="采购品编码" prop="code">
             <el-input
               v-model="form.code"
-              placeholder="请输入产品编码"
+              placeholder="请输入采购品编码"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="商品条码" prop="barcode">
-            <el-input
-              v-model="form.barcode"
-              placeholder="请输入商品条码"
-              :disabled="isView"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="计量单位" prop="unit">
             <el-input
@@ -75,88 +63,56 @@
             />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="品牌" prop="brand">
-            <el-input
-              v-model="form.brand"
-              placeholder="请输入品牌"
-              :disabled="isView"
-            />
-          </el-form-item>
-        </el-col>
       </el-row>
 
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="生产商" prop="producer">
+          <el-form-item label="规格" prop="specs">
             <el-input
-              v-model="form.producer"
-              placeholder="请输入生产商"
+              v-model="form.specs"
+              placeholder="请输入规格"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="库存数量" prop="stock">
-            <el-input-number
-              v-model="form.stock"
-              :min="0"
-              :precision="0"
-              :disabled="isView"
-              placeholder="请输入库存数量"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <el-form-item label="基础价格" prop="basePrice">
-            <el-input-number
-              v-model="form.basePrice"
-              :min="0"
-              :precision="2"
-              :disabled="isView"
-              placeholder="请输入基础价格"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="8">
-          <el-form-item label="采购价格" prop="purchasePrice">
+          <el-form-item label="采购价(元)" prop="purchasePrice">
             <el-input-number
               v-model="form.purchasePrice"
               :min="0"
               :precision="2"
               :disabled="isView"
-              placeholder="请输入采购价格"
+              placeholder="请输入采购价"
               style="width: 100%"
             />
           </el-form-item>
         </el-col>
-        <el-col :span="8">
-          <el-form-item label="销售价格" prop="salePrice">
-            <el-input-number
-              v-model="form.salePrice"
-              :min="0"
-              :precision="2"
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="是否实物" prop="isObject">
+            <el-select
+              v-model="form.isObject"
               :disabled="isView"
-              placeholder="请输入销售价格"
+              placeholder="请选择"
               style="width: 100%"
-            />
+            >
+              <el-option label="是" :value="1" />
+              <el-option label="否" :value="0" />
+            </el-select>
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="产品描述" prop="content">
+          <el-form-item label="采购品描述" prop="content">
             <el-input
               v-model="form.content"
               type="textarea"
               :rows="4"
-              placeholder="请输入产品描述"
+              placeholder="请输入采购品描述"
               :disabled="isView"
             />
           </el-form-item>
@@ -193,15 +149,11 @@ const form = reactive({
   title: "",
   cateId: null,
   code: "",
-  barcode: "",
   unit: "",
-  brand: "",
-  producer: "",
-  basePrice: 0,
+  specs: "",
   purchasePrice: 0,
-  salePrice: 0,
   content: "",
-  stock: 0,
+  isObject: 1,
   status: 1,
 });
 
@@ -210,20 +162,18 @@ const categoryOptions = ref([]);
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看产品";
-  return isEdit.value ? "编辑产品" : "新增产品";
+  if (isView.value) return "查看采购品";
+  return isEdit.value ? "编辑采购品" : "新增采购品";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入产品名称", trigger: "blur" }],
-  cateId: [{ required: true, message: "请选择产品分类", trigger: "change" }],
-  code: [{ required: true, message: "请输入产品编码", trigger: "blur" }],
+  title: [{ required: true, message: "请输入采购品名称", trigger: "blur" }],
+  cateId: [{ required: true, message: "请选择采购品分类", trigger: "change" }],
+  code: [{ required: true, message: "请输入采购品编码", trigger: "blur" }],
   unit: [{ required: true, message: "请输入计量单位", trigger: "blur" }],
-  basePrice: [{ required: true, message: "请输入基础价格", trigger: "blur" }],
   purchasePrice: [
-    { required: true, message: "请输入采购价格", trigger: "blur" },
+    { required: true, message: "请输入采购价", trigger: "blur" },
   ],
-  salePrice: [{ required: true, message: "请输入销售价格", trigger: "blur" }],
 };
 
 /** 获取产品分类树 */
@@ -239,15 +189,11 @@ function reset() {
   form.title = "";
   form.cateId = null;
   form.code = "";
-  form.barcode = "";
   form.unit = "";
-  form.brand = "";
-  form.producer = "";
-  form.basePrice = 0;
+  form.specs = "";
   form.purchasePrice = 0;
-  form.salePrice = 0;
   form.content = "";
-  form.stock = 0;
+  form.isObject = 1;
   form.status = 1;
 
   isEdit.value = false;
@@ -275,15 +221,11 @@ function openEdit(data) {
     title: data.title || "",
     cateId: data.cateId || null,
     code: data.code || "",
-    barcode: data.barcode || "",
     unit: data.unit || "",
-    brand: data.brand || "",
-    producer: data.producer || "",
-    basePrice: data.basePrice || 0,
+    specs: data.specs || "",
     purchasePrice: data.purchasePrice || 0,
-    salePrice: data.salePrice || 0,
     content: data.content || "",
-    stock: data.stock || 0,
+    isObject: data.isObject ?? 1,
     status: data.status ?? 1,
   });
 
@@ -300,15 +242,11 @@ function openView(data) {
     title: data.title || "",
     cateId: data.cateId || null,
     code: data.code || "",
-    barcode: data.barcode || "",
     unit: data.unit || "",
-    brand: data.brand || "",
-    producer: data.producer || "",
-    basePrice: data.basePrice || 0,
+    specs: data.specs || "",
     purchasePrice: data.purchasePrice || 0,
-    salePrice: data.salePrice || 0,
     content: data.content || "",
-    stock: data.stock || 0,
+    isObject: data.isObject ?? 1,
     status: data.status ?? 1,
   });
 
@@ -351,19 +289,19 @@ defineExpose({
 
 <style>
 /* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
-.product-dialog .el-dialog {
+.procurement-dialog .el-dialog {
   max-height: 88vh;
   display: flex;
   flex-direction: column;
 }
 
-.product-dialog .el-dialog__body {
+.procurement-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
   overflow-y: auto;
 }
 
 /* 级联选择器下拉框 z-index */
-.product-dialog .el-cascader-panel {
+.procurement-dialog .el-cascader-panel {
   z-index: 9999 !important;
 }
 </style>

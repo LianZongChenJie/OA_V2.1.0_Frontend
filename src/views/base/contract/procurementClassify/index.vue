@@ -63,10 +63,15 @@ const toolbarButtons = ref([
   },
 ]);
 
+// 查找节点名称
+const findNodeName = (pid) => {
+  return pageTreeListRef.value?.findNodeById?.(pid)?.title;
+};
+
 // 操作列配置
 const operationColumn = getOperationColumn(
   (row) => dialogRef.value?.add(row),
-  (row) => dialogRef.value?.edit(row),
+  (row) => dialogRef.value?.edit(row, findNodeName(row.pid)),
   del
 );
 </script>

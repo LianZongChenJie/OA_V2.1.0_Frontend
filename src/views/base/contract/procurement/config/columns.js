@@ -8,19 +8,19 @@ export const columns = [
   },
   {
     fieldName: 'code',
-    label: '产品编码',
+    label: '采购品编码',
     width: "10%",
     minWidth: 100,
   },
   {
     fieldName: 'cateId',
-    label: '产品分类',
+    label: '采购品分类',
     width: "10%",
     minWidth: 100,
   },
   {
     fieldName: 'title',
-    label: '产品名称',
+    label: '采购品名称',
     width: "30%",
     minWidth: 100,
     searchable: {
@@ -32,38 +32,14 @@ export const columns = [
     },
   },
   {
-    fieldName: 'salePrice',
-    label: '销售价(元)',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
     fieldName: 'purchasePrice',
     label: '采购价(元)',
     width: "10%",
     minWidth: 100,
   },
   {
-    fieldName: 'basePrice',
-    label: '成本价(元)',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
     fieldName: 'unit',
     label: '计量单位',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
-    fieldName: 'specs',
-    label: '规格',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
-    fieldName: 'specs',
-    label: '规格',
     width: "10%",
     minWidth: 100,
   },

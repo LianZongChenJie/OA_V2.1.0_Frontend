@@ -498,6 +498,50 @@ const collapseAll = () => {
   tableRef.value?.collapseAll();
 };
 
+/**
+ * 根据节点ID查找节点
+ * @param {number} id - 节点ID
+ * @returns {Object|null} 节点对象或null
+ */
+const findNodeById = (id) => {
+  const idNum = Number(id);
+
+  const findInData = (data) => {
+    for (const item of data) {
+      if (Number(item.id) === idNum) {
+        return item;
+      }
+      if (item.children && item.children.length > 0) {
+        const found = findInData(item.children);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  // 先在表格数据中查找
+  let node = findInData(tableData.value);
+  if (node) return node;
+
+  // 如果表格数据中没有，尝试在懒加载缓存中查找
+  const store = tableRef.value?.store;
+  if (store) {
+    const lazyTreeNodeMap = store.states?.lazyTreeNodeMap;
+    const lazyTreeNodeMapValue = lazyTreeNodeMap?.value || lazyTreeNodeMap;
+    if (lazyTreeNodeMapValue) {
+      for (const pid in lazyTreeNodeMapValue) {
+        const children = lazyTreeNodeMapValue[pid];
+        if (Array.isArray(children)) {
+          node = findInData(children);
+          if (node) return node;
+        }
+      }
+    }
+  }
+
+  return null;
+};
+
 // 暴露方法给父组件
 defineExpose({
   refresh,
@@ -505,6 +549,7 @@ defineExpose({
   expandAll,
   collapseAll,
   loading,
+  findNodeById,
 });
 
 // 组件挂载时加载数据
