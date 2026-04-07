@@ -13,7 +13,7 @@ export const columns = [
     minWidth: 100,
   },
   {
-    fieldName: 'cateId',
+    fieldName: 'cateName',
     label: '采购品分类',
     width: "10%",
     minWidth: 100,
@@ -77,7 +77,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
           onEdit && onEdit(row);
         },
         icon: 'edit',
-        isShow: (row) => [0,1].includes(row.status),
+        isShow: (row) => [0, 1].includes(row.status),
       },
       {
         label: '查看',
@@ -115,7 +115,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
         onClick: (row) => {
           onDelete && onDelete(row);
         },
-        icon: 'lock',
+        icon: 'delete'
       },
     ],
   };
