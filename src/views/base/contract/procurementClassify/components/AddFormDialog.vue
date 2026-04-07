@@ -130,14 +130,16 @@ function submitForm() {
         updateClassify(submitData).then(() => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
-          emit("success");
+          // 传递 pid，让父组件只刷新该节点的子节点
+          emit("success", form.value.pid);
         });
       } else {
         // 新增时调用 addClassify
         addClassify(submitData).then(() => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
-          emit("success");
+          // 传递 pid，让父组件只刷新该节点的子节点
+          emit("success", form.value.pid);
         });
       }
     }

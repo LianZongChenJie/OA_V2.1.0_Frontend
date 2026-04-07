@@ -26,8 +26,15 @@ const pageTreeListRef = ref(null);
 const dialogRef = ref(null);
 
 // 弹窗成功回调
-function handleDialogSuccess() {
-  pageTreeListRef.value?.refresh();
+async function handleDialogSuccess(pid) {
+  // 只刷新受影响的父节点子节点，保持其他展开状态
+  if (pageTreeListRef.value) {
+    if (pid !== undefined && pid !== null) {
+      await pageTreeListRef.value.refreshChildren(pid);
+    } else {
+      await pageTreeListRef.value.refresh();
+    }
+  }
 }
 
 // 新增子节点

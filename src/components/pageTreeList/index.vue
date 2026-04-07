@@ -38,6 +38,7 @@
     <div class="page-tree-list-content" v-loading="loading">
       <el-table
         ref="tableRef"
+        :key="tableKey"
         :data="tableData"
         row-key="id"
         border
@@ -118,7 +119,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, reactive, watch } from "vue";
+import { ref, computed, onMounted, reactive, watch, nextTick } from "vue";
 import { RefreshRight } from "@element-plus/icons-vue";
 import SearchBar from "@/components/tableList/SearchBar.vue";
 
@@ -219,6 +220,7 @@ const emit = defineEmits(["refresh"]);
 const loading = ref(false);
 const tableData = ref([]);
 const tableRef = ref(null);
+const tableKey = ref(0);
 
 // 分页配置
 const pagination = reactive({
@@ -317,19 +319,21 @@ const fetchRootData = async () => {
       const rows = res.rows || res.data?.rows || [];
       // 为每个节点添加 children 数组，确保显示展开图标
       // hasChildren 设置为 true 表示有子节点需要懒加载
-      tableData.value = rows.map(item => ({
+      const newData = rows.map((item) => ({
         ...item,
         children: [],
-        hasChildren: true
+        hasChildren: true,
       }));
+      // 使用 splice 触发响应式更新
+      tableData.value.splice(0, tableData.value.length, ...newData);
       pagination.total = res.total || res.data?.total || 0;
     } else {
-      tableData.value = [];
+      tableData.value.splice(0, tableData.value.length);
       pagination.total = 0;
     }
   } catch (error) {
     console.error("分页列表请求失败:", error);
-    tableData.value = [];
+    tableData.value.splice(0, tableData.value.length);
     pagination.total = 0;
   } finally {
     loading.value = false;
@@ -359,9 +363,70 @@ const loadChildren = async (row, treeNode, resolve) => {
 /**
  * 刷新数据
  */
-const refresh = () => {
-  fetchRootData();
+const refresh = async () => {
+  // 先改变 key 强制销毁旧表格
+  tableKey.value = tableKey.value + 1;
+
+  // 然后获取新数据
+  await fetchRootData();
+
   emit("refresh");
+};
+
+/**
+ * 刷新指定节点的子节点
+ * @param {number} pid - 父节点ID
+ */
+const refreshChildren = async (pid) => {
+  // 统一转换为数字类型进行比较
+  const pidNum = Number(pid);
+
+  try {
+    // 调用接口获取新数据
+    const res = await props.getThree({ pid: pidNum });
+    const children = res?.rows || res?.data || [];
+
+    // 找到对应节点并更新
+    const findAndUpdateNode = (data) => {
+      for (const item of data) {
+        if (Number(item.id) === pidNum) {
+          // 更新节点数据
+          item.children = children;
+          item.hasChildren = children.length > 0;
+          return item;
+        }
+        if (item.children && item.children.length > 0) {
+          const found = findAndUpdateNode(item.children);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const targetNode = findAndUpdateNode(tableData.value);
+
+    // 如果找到了节点，使用 Element Plus 的方法重新加载子节点
+    if (targetNode && tableRef.value) {
+      // 获取表格的 store
+      const store = tableRef.value.store;
+      if (store) {
+        // 清除懒加载缓存，强制重新加载
+        const lazyTreeNodeMap = store.states?.lazyTreeNodeMap;
+        const lazyTreeNodeMapValue = lazyTreeNodeMap?.value || lazyTreeNodeMap;
+        if (lazyTreeNodeMapValue) {
+          delete lazyTreeNodeMapValue[pidNum];
+        }
+
+        // 使用 toggleRowExpansion 来触发重新加载
+        // 先收起再展开，强制重新加载子节点
+        tableRef.value.toggleRowExpansion(targetNode, false);
+        await nextTick();
+        tableRef.value.toggleRowExpansion(targetNode, true);
+      }
+    }
+  } catch (error) {
+    console.error("刷新子节点失败:", error);
+  }
 };
 
 /**
@@ -394,6 +459,7 @@ const collapseAll = () => {
 // 暴露方法给父组件
 defineExpose({
   refresh,
+  refreshChildren,
   expandAll,
   collapseAll,
   loading,
