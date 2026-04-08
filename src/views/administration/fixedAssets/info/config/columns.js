@@ -78,7 +78,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminName',
+    fieldName: 'admin_name',
     label: '创建人',
     width: "8%",
     minWidth: 80,
@@ -134,7 +134,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
         icon: 'eye-open',
       },
       {
-        label: '禁用',
+        label: '设置状态',
         type: 'danger',
         size: 'small',
         onClick: (row) => {
