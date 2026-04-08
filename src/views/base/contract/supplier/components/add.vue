@@ -62,19 +62,34 @@
 
 <script setup name="AddSupplier">
 import { ref, reactive, computed, nextTick } from "vue";
-import { ElMessageBox, ElMessage } from "element-plus";
+import { ElMessage } from "element-plus";
 import {
   addMessageModule,
   updateMessageModule,
 } from "@/api/base/contract/supplier/index.js";
 
-// 弹窗控制
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
-// 表单数据
+// 初始化默认联系人，永远不会为空
+const defaultContact = {
+  id: undefined,
+  sid: undefined,
+  isDefault: 1,
+  name: "",
+  sex: 1,
+  mobile: "",
+  qq: "",
+  wechat: "",
+  email: "",
+  nickname: "",
+  department: "",
+  position: "",
+  status: 1,
+};
+
 const form = reactive({
   id: undefined,
   title: "",
@@ -86,68 +101,34 @@ const form = reactive({
   content: "",
   status: 1,
   sort: 0,
-  contactList: [
-    {
-      id: undefined,
-      sid: undefined,
-      isDefault: 1,
-      name: "",
-      sex: 1,
-      mobile: "",
-      qq: "",
-      wechat: "",
-      email: "",
-      nickname: "",
-      department: "",
-      position: "",
-      status: 1,
-    },
-  ],
+  contactList: [{ ...defaultContact }], // 强制有值
   fileList: [],
 });
 
-// 标题
 const dialogTitle = computed(() => {
   if (isView.value) return "查看供应商";
   return isEdit.value ? "编辑供应商" : "新增供应商";
 });
 
-// 校验
 const rules = {
   title: [{ required: true, message: "请输入供应商名称", trigger: "blur" }],
   phone: [
     { required: true, message: "请输入供应商电话", trigger: "blur" },
-    { 
-      pattern: /^[0-9-]*$/, 
-      message: "电话只能包含数字和中划线", 
-      trigger: "blur" 
-    }
+    { pattern: /^[0-9-]*$/, message: "电话只能包含数字和中划线", trigger: "blur" }
   ],
-  address: [
-    { required: true, message: "请输入供应商地址", trigger: "blur" }
-  ],
+  address: [{ required: true, message: "请输入供应商地址", trigger: "blur" }],
   email: [
     { required: true, message: "请输入供应商邮箱", trigger: "blur" },
-    { 
-      type: "email", 
-      message: "请输入正确的邮箱格式", 
-      trigger: "blur" 
-    }
+    { type: "email", message: "请输入正确的邮箱格式", trigger: "blur" }
   ],
-  "contactList.0.name": [
-    { required: true, message: "请输入联系人姓名", trigger: "blur" }
-  ],
+  "contactList.0.name": [{ required: true, message: "请输入联系人姓名", trigger: "blur" }],
   "contactList.0.mobile": [
     { required: true, message: "请输入联系人电话", trigger: "blur" },
-    { 
-      pattern: /^1[3-9]\d{9}$/, 
-      message: "请输入正确的手机号格式", 
-      trigger: "blur" 
-    }
+    { pattern: /^1[3-9]\d{9}$/, message: "请输入正确的手机号格式", trigger: "blur" }
   ],
 };
 
-// 重置
+// 完全安全的重置
 function reset() {
   form.id = undefined;
   form.title = "";
@@ -159,22 +140,9 @@ function reset() {
   form.content = "";
   form.status = 1;
   form.sort = 0;
-
-  Object.assign(form.contactList[0], {
-    id: undefined,
-    sid: undefined,
-    isDefault: 1,
-    name: "",
-    sex: 1,
-    mobile: "",
-    qq: "",
-    wechat: "",
-    email: "",
-    nickname: "",
-    department: "",
-    position: "",
-    status: 1,
-  });
+  
+  // 强制覆盖，保证 contactList[0] 一定存在
+  form.contactList[0] = { ...defaultContact };
   form.fileList = [];
 
   isEdit.value = false;
@@ -182,52 +150,61 @@ function reset() {
   formRef.value?.clearValidate?.();
 }
 
-// 关闭
 function handleClose() {
   dialogVisible.value = false;
 }
 
-// 打开新增
 function open() {
   reset();
-  nextTick(() => {
-    dialogVisible.value = true;
-  });
+  dialogVisible.value = true;
 }
 
+// 100% 安全编辑
 function openEdit(data) {
+  if (!data) return;
   reset();
-  Object.assign(form, data);
+  
+  // 基础赋值
+  form.id = data.id || undefined;
+  form.title = data.title || "";
+  form.phone = data.phone || "";
+  form.address = data.address || "";
+  form.email = data.email || "";
+  form.content = data.content || "";
 
-  if (data.contactList?.length > 0) {
-    form.contactList[0].id = data.contactList[0].id;
-    form.contactList[0].name = data.contactList[0].name || "";
-    form.contactList[0].mobile = data.contactList[0].mobile || "";
-    form.contactList[0].sex = data.contactList[0].sex ?? 1;
-    form.contactList[0].sid = form.id;
-  }
+  // 安全赋值联系人
+  const contact = data?.contactList?.[0] || {};
+  form.contactList[0].name = contact.name || "";
+  form.contactList[0].mobile = contact.mobile || "";
+  form.contactList[0].sex = contact.sex ?? 1;
+  form.contactList[0].id = contact.id || undefined;
+  form.contactList[0].sid = form.id;
 
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-
-
+// 100% 安全查看
 function openView(data) {
+  if (!data) return;
   reset();
-  Object.assign(form, data);
+  
+  form.id = data.id || undefined;
+  form.title = data.title || "";
+  form.phone = data.phone || "";
+  form.address = data.address || "";
+  form.email = data.email || "";
+  form.content = data.content || "";
 
-  if (data.contactList?.length) {
-    Object.assign(form.contactList[0], data.contactList[0]);
-  }
+  const contact = data?.contactList?.[0] || {};
+  form.contactList[0].name = contact.name || "";
+  form.contactList[0].mobile = contact.mobile || "";
+  form.contactList[0].sex = contact.sex ?? 1;
 
   isView.value = true;
-  nextTick(() => {
-    dialogVisible.value = true;
-  });
+  dialogVisible.value = true;
 }
 
-// 提交（不变）
 async function handleSubmit() {
   const valid = await formRef.value?.validate();
   if (!valid) return;
@@ -242,12 +219,11 @@ async function handleSubmit() {
       address: form.address,
       fileIds: form.fileIds,
       content: form.content,
-      status: form.status ?? 1, 
+      status: form.status ?? 1,
       sort: form.sort,
-    
       contactList: [
         {
-          id: form.contactList[0].id, 
+          id: form.contactList[0].id,
           sid: form.id,
           isDefault: 1,
           name: form.contactList[0].name,

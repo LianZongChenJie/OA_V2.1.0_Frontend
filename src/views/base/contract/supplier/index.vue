@@ -9,7 +9,7 @@
       ref="tableList"
     >
       <template #status="{ row }">
-        <dict-tag :options="supplier_status" :value="row.status" />
+        <dict-tag :options="message_module_status" :value="row.status" />
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
@@ -24,7 +24,7 @@ import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { supplier_status } = proxy.useDict("supplier_status");
+const { message_module_status } = proxy.useDict("message_module_status");
 
 const tableList = ref(null);
 const addDialogRef = ref(null);

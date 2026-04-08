@@ -98,7 +98,7 @@ export const columns = [
     label: '物品',
     width: "10%",
     minWidth: 120,
-        searchable: {
+      searchable: {
       type: 'input',
       fieldName: 'keywords',
       placeholder: '请输入',
