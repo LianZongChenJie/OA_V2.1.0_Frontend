@@ -227,6 +227,12 @@ const resetSearch = () => {
   searchParams.value = {};
   emit("reset");
 };
+
+// 切换展开/收起搜索条件
+const toggleExpand = () => {
+  showMore.value = !showMore.value;
+  emit("toggle-expand", showMore.value);
+};
 </script>
 
 <style scoped>
