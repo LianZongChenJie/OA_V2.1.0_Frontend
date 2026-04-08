@@ -28,7 +28,7 @@ export const columns = [
     searchable: {
       type: 'select',
       fieldName: 'rewardStatus',
-      label: '奖惩状态',
+      label: '关怀状态',
       placeholder: '请选择',
       order: 1,
       options: [
@@ -45,9 +45,9 @@ export const columns = [
     searchable: {
       type: 'select',
       fieldName: 'rewardEmp',
-      label: '奖惩员工',
+      label: '关怀员工',
       placeholder: '请选择人员',
-      order: 4,
+      order: 3, // 调整order值以控制显示顺序
       // 关键修复：直接配置用户接口，自动加载
       api: () => import('@/api/system/user.js').then(m => m.listUser({ pageSize: 1000 })),
       labelField: 'userName',
@@ -55,57 +55,35 @@ export const columns = [
     },
   },
   {
-    fieldName: 'rewardType',
-    label: '奖惩类型',
-    width: "10%",
-    minWidth: 120,
-    align: 'center',
-    slot: true,
-    slotName: 'rewardType',
-    searchable: {
-      type: 'select',
-      fieldName: 'rewardType',
-      label: '奖惩类型',
-      placeholder: '请选择',
-      order: 2,
-      options: [
-        { label: '奖励', value: 1 },
-        { label: '惩罚', value: 0 }
-      ]
-    },
-  },
-  {
     fieldName: 'rewardItem',
-    label: '奖惩项目',
+    label: '关怀项目',
     width: "12%",
     minWidth: 140,
     searchable: {
       type: 'select',
       fieldName: 'rewardItem',
-      label: '奖惩项目',
+      label: '关怀项目',
       placeholder: '请选择',
-      order: 3,
+      order: 2, // 调整order值以控制显示顺序
       options: [
-        { label: '生日福利', value: '生日福利' },
-        { label: '节日福利', value: '节日福利' },
-        { label: '迟到扣款', value: '迟到扣款' },
-        { label: '全勤奖励', value: '全勤奖励' },
-        { label: '表现优秀', value: '表现优秀' },
-        { label: '违规操作', value: '违规操作' }
+        { label: '礼品', value: '礼品' },
+        { label: '节日', value: '节日' },
+        { label: '生日', value: '生日' },
+        { label: '其他', value: '其他' },
       ]
     },
   },
   {
     fieldName: 'rewardDate',
-    label: '奖惩日期',
+    label: '关怀日期',
     width: "12%",
     minWidth: 140,
     searchable: {
       type: 'dateRange',
       fieldName: 'rewardDate',
-      label: '奖惩日期',
+      label: '关怀日期',
       placeholder: '请选择',
-      order: 5,
+      order: 4, // 调整order值以控制显示顺序
     },
   },
   {
@@ -120,6 +98,13 @@ export const columns = [
     label: '物品',
     width: "10%",
     minWidth: 120,
+        searchable: {
+      type: 'input',
+      fieldName: 'keywords',
+      placeholder: '请输入',
+      label: '关键字',
+      order: 5,
+    },
   },
   {
     fieldName: 'createBy',
@@ -133,20 +118,6 @@ export const columns = [
     width: "15%",
     minWidth: 180,
   },
-
-  // 关键字搜索（独立配置，不显示在列但参与搜索）
-  {
-    fieldName: 'keywords',
-    label: '关键字',
-    searchable: {
-      type: 'input',
-      fieldName: 'keywords',
-      label: '关键字',
-      placeholder: '请输入',
-      order: 6
-    },
-    show: false // 不在表格列显示
-  }
 ];
 
 // 操作列
@@ -156,7 +127,7 @@ export const operationColumn = {
   fixed: 'right',
   show: true,
   actions: [
-    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
+    { label: '详情', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '编辑', type: 'success', size: 'small', icon: 'edit' },
     { label: '删除', type: 'danger', size: 'small', icon: 'delete' }
   ]
@@ -181,7 +152,7 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   show: true,
   actions: [
     {
-      label: '详情',
+      label: '查看',
       type: 'primary',
       size: 'small',
       onClick: row => onView?.(row),
@@ -204,9 +175,27 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   ]
 });
 
-// 搜索字段（正确提取 + 关键字）
-export const searchFields = columns
+// 基础搜索字段（只包含order值较小的字段，会在初始状态下显示）
+export const basicSearchFields = columns
+  .filter(col => col.searchable && col.show !== false && (col.searchable.order <= 4))
+  .map(col => ({
+    ...col.searchable,
+    field: col.searchable.fieldName || col.fieldName
+  }))
+  .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+// 高级搜索字段（包含所有字段，用于展开时显示）
+export const advancedSearchFields = columns
   .filter(col => col.searchable && col.show !== false)
+  .map(col => ({
+    ...col.searchable,
+    field: col.searchable.fieldName || col.fieldName
+  }))
+  .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+// 所有搜索字段（包括不显示在表格中的）
+export const allSearchFields = columns
+  .filter(col => col.searchable)
   .map(col => ({
     ...col.searchable,
     field: col.searchable.fieldName || col.fieldName
@@ -218,6 +207,8 @@ export default {
   operationColumn,
   getHeaderButs,
   getOperationColumn,
-  searchFields,
+  basicSearchFields,     // 基础搜索字段
+  advancedSearchFields,  // 高级搜索字段
+  allSearchFields,       // 所有搜索字段
   queryForm
 };
