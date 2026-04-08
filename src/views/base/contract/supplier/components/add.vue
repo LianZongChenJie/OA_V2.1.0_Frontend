@@ -12,7 +12,7 @@
       </el-form-item>
 
       <el-form-item label="供应商电话" prop="phone">
-        <el-input v-model="form.phone" placeholder="请输入供应商电话" :disabled="isView" />
+        <el-input v-model="form.phone" placeholder="请输入供应商电话" :disabled="isView" @input="form.phone = form.phone.replace(/[^0-9-]/g, '')" />
       </el-form-item>
 
       <el-form-item label="供应商地址" prop="address">
@@ -35,11 +35,11 @@
 
       <el-divider content-position="left" style="margin:20px 0">首要联系人信息</el-divider>
 
-      <el-form-item label="联系人" prop="name">
+      <el-form-item label="联系人" prop="contactList.0.name">
         <el-input v-model="form.contactList[0].name" placeholder="请输入联系人姓名" :disabled="isView" />
       </el-form-item>
 
-      <el-form-item label="联系电话" prop="mobile">
+      <el-form-item label="联系电话" prop="contactList.0.mobile">
         <el-input v-model="form.contactList[0].mobile" placeholder="请输入联系人电话" :disabled="isView" />
       </el-form-item>
 
@@ -115,6 +115,36 @@ const dialogTitle = computed(() => {
 // 校验
 const rules = {
   title: [{ required: true, message: "请输入供应商名称", trigger: "blur" }],
+  phone: [
+    { required: true, message: "请输入供应商电话", trigger: "blur" },
+    { 
+      pattern: /^[0-9-]*$/, 
+      message: "电话只能包含数字和中划线", 
+      trigger: "blur" 
+    }
+  ],
+  address: [
+    { required: true, message: "请输入供应商地址", trigger: "blur" }
+  ],
+  email: [
+    { required: true, message: "请输入供应商邮箱", trigger: "blur" },
+    { 
+      type: "email", 
+      message: "请输入正确的邮箱格式", 
+      trigger: "blur" 
+    }
+  ],
+  "contactList.0.name": [
+    { required: true, message: "请输入联系人姓名", trigger: "blur" }
+  ],
+  "contactList.0.mobile": [
+    { required: true, message: "请输入联系人电话", trigger: "blur" },
+    { 
+      pattern: /^1[3-9]\d{9}$/, 
+      message: "请输入正确的手机号格式", 
+      trigger: "blur" 
+    }
+  ],
 };
 
 // 重置
