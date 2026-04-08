@@ -1,3 +1,4 @@
+import { getPageList } from "@/api/base/administration/assetBrand/index.js";
 export const columns = [
   {
     fieldName: 'id',
@@ -33,9 +34,23 @@ export const columns = [
   },
   {
     fieldName: 'brandName',
-    label: '品牌',
+    label: '资产品牌',
     width: "8%",
     minWidth: 80,
+    searchable: {
+      type: 'selectApi',
+      fieldName: 'brandId',
+      label: '资产品牌',
+      api: getPageList,
+      apiParams: {
+        pageNum: 1,
+        pageSize: 10
+      },
+      optionValue: 'id',
+      optionLabel: 'title',
+      placeholder: '请选择',
+
+    },
   },
   {
     fieldName: 'model',
