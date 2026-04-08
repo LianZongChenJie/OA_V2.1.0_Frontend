@@ -14,7 +14,7 @@ export const columns = [
   {
     fieldName: 'title',
     label: '供应商名称',
-    width: "50%",
+    width: "40%",
     minWidth: 300,
     searchable: {
       type: 'input',
@@ -27,8 +27,8 @@ export const columns = [
   {
     fieldName: 'address',
     label: '供应商地址',
-    width: "10%",
-    minWidth: 150,
+    width: "30%",
+    minWidth: 200,
   },
   {
     fieldName: 'phone',
@@ -48,7 +48,7 @@ export const columns = [
     width: "5%",
     minWidth: 100,
     align: 'center',
-    slotName: 'status'
+    slot: true,
   },
 ];
 

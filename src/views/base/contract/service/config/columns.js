@@ -17,6 +17,7 @@ export const columns = [
     label: '费用（元）',
     width: "10%",
     minWidth: 100,
+    align: "right"
   },
   {
     fieldName: 'status',
