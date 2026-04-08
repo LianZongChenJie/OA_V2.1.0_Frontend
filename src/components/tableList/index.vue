@@ -560,7 +560,7 @@ const tableContainerStyle = computed(() => {
   if (hasSearchableColumns.value) {
     // 如果搜索栏未展开，默认按1行计算
     const effectiveRows = isSearchExpanded.value ? searchRowsCount.value : 1;
-    const offsetHeight = effectiveRows * 80 + 50;
+    const offsetHeight = effectiveRows * 80 + 40;
     return {
       height: `calc(100% - ${offsetHeight}px)`,
     };
@@ -746,5 +746,8 @@ onBeforeUnmount(() => {
   display: flex;
   justify-content: flex-end;
   background-color: #fff;
+}
+:deep(.table-box) {
+  height: 100%;
 }
 </style>

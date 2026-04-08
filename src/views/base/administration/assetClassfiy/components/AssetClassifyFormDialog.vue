@@ -130,14 +130,16 @@ function submitForm() {
         updateAssetClassify(submitData).then(() => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
-          emit("success");
+          // 编辑时返回 pid，用于刷新对应父节点的子节点
+          emit("success", submitData.pid || 0);
         });
       } else {
         // 新增时调用 addAssetClassify
         addAssetClassify(submitData).then(() => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
-          emit("success");
+          // 新增时返回 pid，用于刷新对应父节点的子节点
+          emit("success", submitData.pid || 0);
         });
       }
     }
