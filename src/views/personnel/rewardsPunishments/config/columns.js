@@ -28,7 +28,7 @@ export const columns = [
     searchable: {
       type: 'select',
       fieldName: 'rewardStatus',
-      label: '奖惩状态',
+      label: '关怀状态',
       placeholder: '请选择',
       order: 1,
       options: [
@@ -47,8 +47,8 @@ export const columns = [
       fieldName: 'rewardEmp',
       label: '奖惩员工',
       placeholder: '请选择人员',
-      order: 4,
-      // 关键修复：直接配置用户接口，自动加载
+      order: 5,
+      // 直接配置用户接口，自动加载
       api: () => import('@/api/system/user.js').then(m => m.listUser({ pageSize: 1000 })),
       labelField: 'userName',
       valueField: 'userId',
@@ -105,7 +105,7 @@ export const columns = [
       fieldName: 'rewardDate',
       label: '奖惩日期',
       placeholder: '请选择',
-      order: 5,
+      order: 4,
     },
   },
   {
@@ -120,6 +120,13 @@ export const columns = [
     label: '物品',
     width: "10%",
     minWidth: 120,
+      searchable: {
+      type: 'input',
+      fieldName: 'keywords',
+      placeholder: '请输入',
+      label: '关键字',
+      order: 6,
+    },
   },
   {
     fieldName: 'createBy',
@@ -133,20 +140,6 @@ export const columns = [
     width: "15%",
     minWidth: 180,
   },
-
-  // 关键字搜索（独立配置，不显示在列但参与搜索）
-  {
-    fieldName: 'keywords',
-    label: '关键字',
-    searchable: {
-      type: 'input',
-      fieldName: 'keywords',
-      label: '关键字',
-      placeholder: '请输入',
-      order: 6
-    },
-    show: false // 不在表格列显示
-  }
 ];
 
 // 操作列
@@ -181,7 +174,7 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   show: true,
   actions: [
     {
-      label: '详情',
+      label: '查看',
       type: 'primary',
       size: 'small',
       onClick: row => onView?.(row),
