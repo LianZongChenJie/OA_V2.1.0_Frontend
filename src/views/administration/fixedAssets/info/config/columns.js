@@ -78,7 +78,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'admin_name',
+    fieldName: 'adminName',
     label: '创建人',
     width: "8%",
     minWidth: 80,
@@ -122,7 +122,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
           onEdit && onEdit(row);
         },
         icon: 'edit',
-        isShow: (row) => [0, 1].includes(row.status),
+        isShow: (row) => ![-1, 4].includes(row.status),
       },
       {
         label: '查看',
@@ -140,18 +140,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
         onClick: (row) => {
           onToggleStatus && onToggleStatus(row);
         },
-        icon: 'lock',
-        isShow: (row) => row.status === 1,
-      },
-      {
-        label: '启用',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onToggleStatus && onToggleStatus(row);
-        },
-        icon: 'enable',
-        isShow: (row) => row.status === 0,
+        icon: 'lock'
       },
       {
         label: '删除',

@@ -12,7 +12,7 @@ export function getPageList(query) {
 // 资产信息详情
 export function getDetail(id) {
   return request({
-    url: '/system/property/detail/' + id,
+    url: '/system/property/' + id,
     method: 'get'
   })
 }
