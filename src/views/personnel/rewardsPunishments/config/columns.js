@@ -28,7 +28,7 @@ export const columns = [
     searchable: {
       type: 'select',
       fieldName: 'rewardStatus',
-      label: '关怀状态',
+      label: '奖惩状态',
       placeholder: '请选择',
       order: 1,
       options: [
