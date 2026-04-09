@@ -9,7 +9,6 @@
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="140px">
 
-      <!-- 所有表单一列排开，无分栏 -->
       <el-form-item label="车辆名称" prop="title" required>
         <el-input v-model="form.title" placeholder="请输入车辆名称" :disabled="isView" />
       </el-form-item>
@@ -22,7 +21,6 @@
         <el-date-picker
           v-model="form.buyTime"
           type="date"
-          value-format="timestamp"
           placeholder="请选择购买日期"
           :disabled="isView"
           style="width: 100%"
@@ -66,7 +64,6 @@
         <el-date-picker
           v-model="form.insureTime"
           type="date"
-          value-format="timestamp"
           placeholder="请选择保险到期时间"
           :disabled="isView"
           style="width: 100%"
@@ -77,7 +74,6 @@
         <el-date-picker
           v-model="form.reviewTime"
           type="date"
-          value-format="timestamp"
           placeholder="请选择年检到期时间"
           :disabled="isView"
           style="width: 100%"
@@ -95,9 +91,11 @@
       <el-form-item label="驾驶员">
         <el-select
           v-model="form.driver"
-          placeholder="请选择驾驶员"
-          clearable
           :disabled="isView"
+          :teleported="false"
+          placeholder="请选择驾驶员"
+          filterable
+          clearable
           style="width: 100%"
         >
           <el-option
@@ -170,7 +168,7 @@
     </template>
   </el-dialog>
 </template>
-addenterPrise
+
 <script setup name="AddData">
 import { ref, reactive, computed, onMounted, getCurrentInstance } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/administration/car/data/index.js";
@@ -193,6 +191,7 @@ onMounted(() => {
   });
 });
 
+
 const form = reactive({
   id: undefined,
   title: "",
@@ -203,13 +202,13 @@ const form = reactive({
   color: "",
   vin: "",
   engine: "",
-  buyTime: "",
+  buyTime: null,
   price: 0,
   thumb: 0,
   types: 0,
-  driver: "",
-  insureTime: "",
-  reviewTime: "",
+  driver: null,
+  insureTime: null,
+  reviewTime: null,
   fileIds: "",
   remark: "",
   status: 1,
@@ -238,15 +237,21 @@ const rules = {
   mileage: [{ required: true, message: "请输入行驶里程", trigger: "blur" }],
 };
 
-// 提交表单（保留你原来的逻辑，只保留这一个）
+
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
+      const submitData = {
+        ...form,
+        buyTime: form.buyTime ? Math.floor(new Date(form.buyTime).getTime() / 1000) : 0,
+        insureTime: form.insureTime ? Math.floor(new Date(form.insureTime).getTime() / 1000) : 0,
+        reviewTime: form.reviewTime ? Math.floor(new Date(form.reviewTime).getTime() / 1000) : 0,
+        driver: form.driver || null,
+      };
+  
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
-      const successMsg = isEdit.value ? "编辑成功" : "新增成功";
-
-      apiMethod(form).then(() => {
-        proxy.$modal.msgSuccess(successMsg);
+      apiMethod(submitData).then(() => {
+        proxy.$modal.msgSuccess(isEdit.value ? "编辑成功" : "新增成功");
         dialogVisible.value = false;
         emit("success");
       });
@@ -277,8 +282,8 @@ function handleAttachUploadSuccess(res) {
 function reset() {
   Object.assign(form, {
     id: undefined, title: "", name: "", oil: "", mileage: "", seats: 0, color: "",
-    vin: "", engine: "", buyTime: "", price: 0, thumb: 0, driver: "",
-    insureTime: "", reviewTime: "", fileIds: "", remark: "", status: 1
+    vin: "", engine: "", buyTime: null, price: 0, thumb: 0, driver: null,
+    insureTime: null, reviewTime: null, fileIds: "", remark: "", status: 1
   });
   fileList.value = [];
   attachFileList.value = [];
@@ -299,7 +304,11 @@ function open() {
 
 function openEdit(data) {
   reset();
-  Object.assign(form, data);
+  Object.assign(form, {
+    ...data,
+    id: data.id, 
+    driver: data.driver === 0 ? null : data.driver,
+  });
   isEdit.value = true;
   dialogVisible.value = true;
 }

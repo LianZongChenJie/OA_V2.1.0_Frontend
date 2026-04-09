@@ -129,15 +129,7 @@ export const columns = [
     width: "10%",
     minWidth: 160,
     align: 'center',
-  },
-  {
-    fieldName: 'status',
-    label: '状态',
-    width: "5%",
-    minWidth: 100,
-    align: 'center',
-    show: false,
-  },
+  }
 ];
 
 

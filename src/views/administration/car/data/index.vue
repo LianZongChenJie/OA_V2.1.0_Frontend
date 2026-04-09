@@ -10,7 +10,7 @@
       row-key="id"
       ref="tableList"
     >
-      <!-- 保险到期日期 + 提醒 -->
+      <!-- 保险到期 -->
       <template #insureTime="{ row }">
         <span>{{ row.insureTime }}</span>
       </template>
@@ -20,7 +20,7 @@
         </el-tag>
       </template>
 
-      <!-- 车审到期日期 + 提醒 -->
+      <!-- 车审到期 -->
       <template #reviewTime="{ row }">
         <span>{{ row.reviewTime }}</span>
       </template>
@@ -42,8 +42,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail } from "@/api/administration/car/data/index.js";
-// 引入 searchFields、queryForm
+import { getPageList, getDetail, deletereward } from "@/api/administration/car/data/index.js";
 import { columns, getHeaderButs, getOperationColumn, searchFields, queryForm } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -55,57 +54,52 @@ const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
-/** 新增按钮操作 */
 function handleAdd() {
   addDialogRef.value.open();
 }
-
-/** 编辑按钮操作 */
 async function handleEdit(row) {
   const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openEdit(res.data || res);
   }
 }
-
-/** 查看按钮操作 */
 async function handleView(row) {
   const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openView(res.data || res);
   }
 }
-
-/** 删除按钮操作（补充完整） */
 async function handleDelete(row) {
-  // 弹出确认框
-  proxy.$modal.confirm('确定要删除该数据吗？', '提示').then(async () => {
-    // 调用删除接口
-    await deleteMessageModule(row.id);
-    // 成功提示
-    proxy.$modal.msgSuccess('删除成功');
-    // 刷新列表
+  proxy.$modal.confirm("确定删除？").then(async () => {
+    await deletereward(row.id);
+    proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
-  }).catch(() => {
-    // 取消删除
-    proxy.$modal.msgInfo('已取消删除');
-  });
+  }).catch(() => {});
 }
 
-/** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
 }
 
 const getPageListFix = async (params) => {
-  const res = await getPageList(params);  
-  res.rows = res.rows.flat().filter(Boolean);
+  const res = await getPageList(params);
+
+  res.rows = res.rows.map(item => {
+    if (Array.isArray(item)) {
+      let car = item[0] || {};
+      let name = item[1] || "";
+      car.driverName = name; 
+      return car;
+    }
+    return item;
+  }).filter(item => item && item.id);
+
   return res;
 };
 
 const headerButs = getHeaderButs(handleAdd);
-// 补充删除方法
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, getPageListFix);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
 
-<style lang="scss" scess></style>
+<style lang="scss" scoped>
+</style>
