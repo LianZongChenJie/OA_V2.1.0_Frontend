@@ -132,7 +132,7 @@
         <div class="search-actions">
           <el-form-item>
             <div class="action-buttons">
-              <el-button type="primary" @click="$emit('search', searchParams)"
+              <el-button type="primary" @click="handleSearch"
                 >搜索</el-button
               >
               <el-button type="danger" @click="resetSearch">重置</el-button>
@@ -214,9 +214,12 @@ const apiTotal = ref({});
 watch(
   () => props.initialParams,
   (newParams) => {
-    searchParams.value = { ...newParams };
+    // 只在初始时或外部重置时更新，避免搜索后重置
+    if (Object.keys(searchParams.value).length === 0) {
+      searchParams.value = { ...newParams };
+    }
   },
-  { immediate: true, deep: true },
+  { deep: true },
 );
 
 // 获取字典数据
@@ -269,6 +272,11 @@ const searchableColumns = computed(() => {
     (a, b) => Number(a.order || 9999) - Number(b.order || 9999),
   );
 });
+
+// 处理搜索
+const handleSearch = () => {
+  emit("search", { ...searchParams.value });
+};
 
 // 重置搜索
 const resetSearch = () => {

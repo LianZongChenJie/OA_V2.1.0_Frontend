@@ -376,9 +376,8 @@ const searchableColumns = computed(() => {
   return props.columns
     .filter((column) => column.searchable)
     .map((column) => ({
-      fieldName: column.fieldName,
       ...column.searchable,
-      dictKey: column.searchable.dictKey,
+      fieldName: column.searchable.fieldName || column.fieldName,
     }));
 });
 
@@ -617,7 +616,23 @@ const filteredData = computed(() => {
 
 // 处理搜索
 const handleSearch = (params) => {
-  searchParams.value = params || {};
+  const processedParams = { ...params };
+  
+  // 处理 searchKey 配置，将日期范围等转换为开始和结束字段
+  searchableColumns.value.forEach((column) => {
+    if (column.searchKey && Array.isArray(column.searchKey)) {
+      const fieldValue = params[column.fieldName];
+      if (fieldValue && Array.isArray(fieldValue) && fieldValue.length === 2) {
+        // 将日期范围拆分为开始和结束字段
+        processedParams[column.searchKey[0]] = fieldValue[0];
+        processedParams[column.searchKey[1]] = fieldValue[1];
+        // 删除原始字段
+        delete processedParams[column.fieldName];
+      }
+    }
+  });
+  
+  searchParams.value = processedParams;
   if (isApiMode.value) {
     currentPage.value = 1;
     fetchRemoteData();
