@@ -7,7 +7,7 @@ export const queryForm = {
 export const columns = [
   {
     fieldName: 'id',
-    label: 'ID号',
+    label: 'ID',
     width: "5%",
     minWidth: 80,
     align: 'center',
@@ -132,6 +132,15 @@ export const operationColumn = {
   fixed: 'right',
   show: true,
   actions: [
+        {
+      label: '编辑',
+      type: 'success',
+      size: 'small',
+      onClick: (row, onEdit) => {
+        onEdit && onEdit(row);
+      },
+      icon: 'edit',
+    },
     {
       label: '查看',
       type: 'primary',
@@ -140,15 +149,6 @@ export const operationColumn = {
         onView && onView(row);
       },
       icon: 'eye-open',
-    },
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
     },
     {
       label: '删除',
@@ -181,15 +181,6 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   show: true,
   actions: [
     {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: (row) => {
-        onView && onView(row);
-      },
-      icon: 'eye-open'
-    },
-    {
       label: '编辑',
       type: 'success',
       size: 'small',
@@ -197,6 +188,16 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
         onEdit && onEdit(row);
       },
       icon: 'edit'
+    },
+    
+    {
+      label: '查看',
+      type: 'primary',
+      size: 'small',
+      onClick: (row) => {
+        onView && onView(row);
+      },
+      icon: 'eye-open'
     },
     {
       label: '删除',

@@ -69,9 +69,6 @@ export const columns = [
     label: '维修内容',
     width: "25%",
     minWidth: 300,
-    formatter: (row) => {
-    return row.content || '-';
-  },
   searchable: {
     type: 'input',
     fieldName: 'keywords',

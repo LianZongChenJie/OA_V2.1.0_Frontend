@@ -22,9 +22,6 @@
       }}
     </span>
      </template>
-     <template #content="{ row }">
-        <span>{{ row.content || '-' }}</span>
-      </template>
       <!-- 记录时间格式化 -->
       <template #updateTime="{ row }">
         <span>{{ row.updateTime || '-' }}</span>

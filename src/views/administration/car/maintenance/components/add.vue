@@ -7,7 +7,7 @@
     class="car-dialog"
     @close="handleClose"
   >
-    <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="140px">
+    <el-form ref="formRef" :model="form" :rules="isView ? undefined : rules" label-width="140px">
 
       <!-- 所有表单项 垂直单列 -->
       
@@ -74,7 +74,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="类型" prop="types" >
+      <el-form-item label="类型" prop="types" required>
         <el-select
           v-model="form.types"
           :disabled="isView"
@@ -99,7 +99,7 @@
         </el-upload>
       </el-form-item>
 
-      <el-form-item label="维修内容" prop="content">
+      <el-form-item label="维修内容" prop="content" required>
         <el-input
           v-model="form.content"
           type="textarea"
@@ -181,6 +181,8 @@ const rules = {
   repairTime: [{ required: true, message: "请选择维修日期", trigger: "change" }],
   amount: [{ required: true, message: "请输入维修费用", trigger: "blur" }],
   adminId: [{ required: true, message: "请选择经手人", trigger: "change" }],
+  content: [{ required: true, message: "请输入维修内容", trigger: "blur" }],
+  types: [{ required: true, message: "请选择维修类型", trigger: "change" }]
 };
 
 // 提交
