@@ -306,7 +306,9 @@ function openEdit(data) {
   reset();
   Object.assign(form, {
     ...data,
-    id: data.id, 
+    buyTime: data.buyTime ? data.buyTime * 1000 : null,
+    insureTime: data.insureTime ? data.insureTime * 1000 : null,
+    reviewTime: data.reviewTime ? data.reviewTime * 1000 : null,
     driver: data.driver === 0 ? null : data.driver,
   });
   isEdit.value = true;
@@ -315,7 +317,13 @@ function openEdit(data) {
 
 function openView(data) {
   reset();
-  Object.assign(form, data);
+  Object.assign(form, {
+    ...data,
+    buyTime: data.buyTime ? data.buyTime * 1000 : null,
+    insureTime: data.insureTime ? data.insureTime * 1000 : null,
+    reviewTime: data.reviewTime ? data.reviewTime * 1000 : null,
+    driver: data.driver === 0 ? null : data.driver,
+  });
   isView.value = true;
   dialogVisible.value = true;
 }

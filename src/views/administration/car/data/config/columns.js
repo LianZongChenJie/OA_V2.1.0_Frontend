@@ -74,14 +74,7 @@ export const columns = [
   },
   {
     fieldName: 'mileage',
-    label: '开始里程数',
-    width: "8%",
-    minWidth: 120,
-    align: 'right',
-  },
-  {
-    fieldName: 'currentMileage',
-    label: '当前里程数',
+    label: '行驶里程数',
     width: "8%",
     minWidth: 120,
     align: 'right',

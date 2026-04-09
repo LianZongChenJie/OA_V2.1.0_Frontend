@@ -10,23 +10,28 @@
       row-key="id"
       ref="tableList"
     >
+      <!-- 购买日期 -->
+      <template #buyTime="{ row }">
+        <span>{{ row.buyTime?.substring(0, 10) || '-' }}</span>
+      </template>
+
       <!-- 保险到期 -->
       <template #insureTime="{ row }">
-        <span>{{ row.insureTime }}</span>
+        <span>{{ row.insureTime?.substring(0, 10) || '-' }}</span>
       </template>
       <template #insureWarn="{ row }">
-        <el-tag :type="row.insureWarn === '已到期' ? 'danger' : 'success'">
-          {{ row.insureWarn || '正常' }}
+        <el-tag :type="getInsureTagType(row.insureTime)">
+          {{ getInsureWarnText(row.insureTime) }}
         </el-tag>
       </template>
 
       <!-- 车审到期 -->
       <template #reviewTime="{ row }">
-        <span>{{ row.reviewTime }}</span>
+        <span>{{ row.reviewTime?.substring(0, 10) || '-' }}</span>
       </template>
       <template #reviewWarn="{ row }">
-        <el-tag :type="row.reviewWarn === '已到期' ? 'danger' : 'success'">
-          {{ row.reviewWarn || '正常' }}
+        <el-tag :type="getReviewTagType(row.reviewTime)">
+          {{ getReviewWarnText(row.reviewTime) }}
         </el-tag>
       </template>
 
@@ -53,6 +58,53 @@ const route = useRoute();
 const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
+
+// ==========================
+// 保险到期提醒逻辑
+// ==========================
+function getInsureWarnText(time) {
+  if (!time) return "正常";
+  const left = getDayLeft(time);
+  if (left < 0) return "已到期";
+  if (left <= 3) return "即将到期";
+  return "正常";
+}
+function getInsureTagType(time) {
+  if (!time) return "success";
+  const left = getDayLeft(time);
+  if (left < 0) return "danger";
+  if (left <= 3) return "warning";
+  return "success";
+}
+
+// ==========================
+// 车审到期提醒逻辑
+// ==========================
+function getReviewWarnText(time) {
+  if (!time) return "正常";
+  const left = getDayLeft(time);
+  if (left < 0) return "已到期";
+  if (left <= 3) return "即将到期";
+  return "正常";
+}
+function getReviewTagType(time) {
+  if (!time) return "success";
+  const left = getDayLeft(time);
+  if (left < 0) return "danger";
+  if (left <= 3) return "warning";
+  return "success";
+}
+
+// ==========================
+// 计算剩余天数（通用工具）
+// ==========================
+function getDayLeft(timeStr) {
+  const now = new Date();
+  const target = new Date(timeStr);
+  const diff = target - now;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+}
+
 
 function handleAdd() {
   addDialogRef.value.open();
@@ -83,17 +135,15 @@ function handleSuccess() {
 
 const getPageListFix = async (params) => {
   const res = await getPageList(params);
-
   res.rows = res.rows.map(item => {
     if (Array.isArray(item)) {
       let car = item[0] || {};
       let name = item[1] || "";
-      car.driverName = name; 
+      car.driverName = name;
       return car;
     }
     return item;
   }).filter(item => item && item.id);
-
   return res;
 };
 
