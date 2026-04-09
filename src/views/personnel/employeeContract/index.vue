@@ -12,9 +12,7 @@
       ref="tableList"
     >
       <template #status="{ row }">
-        <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
-          {{ row.status === 1 ? '未到期' : '已到期' }}
-        </el-tag>
+        <dict-tag :options="supplier_status" :value="row.status" />
       </template>
     </TableList>
 
@@ -53,6 +51,7 @@ import AddDialog from "./components/add.vue";
 const { proxy } = getCurrentInstance();
 const tableList = ref(null);
 const addDialogRef = ref(null);
+const { supplier_status } = proxy.useDict("supplier_status");
 
 // 类型选择弹窗
 const categoryDialogVisible = ref(false);

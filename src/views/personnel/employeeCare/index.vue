@@ -12,9 +12,7 @@
       ref="tableList"
     >
       <template #status="{ row }">
-        <el-tag :type="row.status === 1 ? 'warning' : 'success'">
-          {{ row.status === 1 ? '待执行' : '已执行' }}
-        </el-tag>
+        <dict-tag :options="supplier_status" :value="row.status" />
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
