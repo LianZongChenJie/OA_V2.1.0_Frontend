@@ -88,6 +88,8 @@ export const columns = [
     label: '经手人',
     width: "8%",
     minWidth: 100,
+    slot: true, 
+    slotName: 'handled',
   },
   {
     fieldName: 'updateTime',

@@ -89,7 +89,7 @@
           <el-option
             v-for="item in userOptions"
             :key="item.userId"
-            :label="item.userName"
+            :label="item.nickName"
             :value="item.userId"
           />
         </el-select>
@@ -157,9 +157,10 @@ onMounted(() => {
     carOptions.value = res.rows || [];
   });
 
-  // 获取用户列表
+  // 获取用户列表（只获取正常状态的用户）
   listUser({ pageSize: 1000 }).then(res => {
-    userOptions.value = res.rows || [];
+    // 过滤掉禁用的用户（status === "1" 表示禁用）
+    userOptions.value = (res.rows || []).filter(user => user.status === "0");
   });
 });
 

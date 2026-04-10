@@ -122,7 +122,7 @@ async function handleView(row) {
   }
 }
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定删除？").then(async () => {
+  proxy.$modal.confirm("确定删除该车辆吗？").then(async () => {
     await deletereward(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();

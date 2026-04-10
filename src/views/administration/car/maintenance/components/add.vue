@@ -55,9 +55,9 @@
         />
       </el-form-item>
 
-      <el-form-item label="经手人" prop="adminId" required>
+      <el-form-item label="经手人" prop="handled" required>
         <el-select
-          v-model="form.adminId"
+          v-model="form.handled"
           :disabled="isView"
           :teleported="false"
           placeholder="请选择经手人"
@@ -68,7 +68,7 @@
           <el-option
             v-for="item in userOptions"
             :key="item.userId"
-            :label="item.userName"
+            :label="item.nickName"
             :value="item.userId"
           />
         </el-select>
@@ -150,7 +150,8 @@ onMounted(() => {
 
   // 获取用户列表
   listUser({ pageSize: 1000 }).then(res => {
-    userOptions.value = res.rows || [];
+    // 过滤掉禁用的用户（status === "1" 表示禁用）
+    userOptions.value = (res.rows || []).filter(user => user.status === "0");
   });
 });
 
@@ -165,7 +166,7 @@ const form = reactive({
   types: undefined,
   content: "",
   fileIds: "",
-  handled: 0,
+  handled: null,
 });
 
 const attachFileList = ref([]);
@@ -234,7 +235,7 @@ function reset() {
     types: undefined,
     content: "",
     fileIds: "",
-    handled: 0,
+    handled: null,
   });
   attachFileList.value = [];
   isEdit.value = false;
