@@ -125,7 +125,7 @@ export const dynamicRoutes = [
       {
         path: 'index/:dictId(\\d+)',
         component: () => import('@/views/system/dict/data'),
-        name: 'Data',
+        name: 'DictData',
         meta: { title: '字典数据', activeMenu: '/system/dict' }
       }
     ]
