@@ -30,34 +30,55 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="维修地点" prop="address" required>
-        <el-input v-model="form.address" placeholder="请输入维修地点" :disabled="isView" />
+      <el-form-item label="费用类型" prop="types" required>
+        <el-select
+          v-model="form.types"
+          :disabled="isView"
+          placeholder="请选择费用类型"
+          style="width: 100%"
+        >
+          <el-option label="停车费" :value="1" />
+          <el-option label="洗车费" :value="2" />
+          <el-option label="保养费" :value="3" />
+          <el-option label="维修费" :value="4" />
+          <el-option label="过路费" :value="5" />
+          <el-option label="过桥费" :value="6" />
+          <el-option label="养路费" :value="7" />
+          <el-option label="保险费" :value="8" />
+          <el-option label="年检费" :value="9" />
+          <el-option label="违章费" :value="10" />
+          <el-option label="其他费" :value="11" />
+        </el-select>
       </el-form-item>
 
-            <el-form-item label="维修日期" prop="repairTime" required>
+      <el-form-item label="费用主题" prop="title" required>
+        <el-input v-model="form.title" placeholder="请输入费用主题" :disabled="isView" />
+      </el-form-item>
+
+      <el-form-item label="收费日期" prop="feeTime" required>
         <el-date-picker
-          v-model="form.repairTime"
+          v-model="form.feeTime"
           type="date"
-          placeholder="请选择维修日期"
+          placeholder="请选择收费日期"
           :disabled="isView"
           style="width: 100%"
         />
       </el-form-item>
 
-      <el-form-item label="维修费用" prop="amount" required>
+      <el-form-item label="费用金额" prop="amount" required>
         <el-input-number
           v-model="form.amount"
           :min="0"
           :precision="2"
-          placeholder="请输入维修费用"
+          placeholder="请输入费用金额"
           :disabled="isView"
           style="width: 100%"
         />
       </el-form-item>
 
-      <el-form-item label="经手人" prop="adminId" required>
+      <el-form-item label="经手人" prop="handled" required>
         <el-select
-          v-model="form.adminId"
+          v-model="form.handled"
           :disabled="isView"
           :teleported="false"
           placeholder="请选择经手人"
@@ -74,18 +95,6 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="类型" prop="types" required>
-        <el-select
-          v-model="form.types"
-          :disabled="isView"
-          placeholder="请选择类型"
-          style="width: 100%"
-        >
-          <el-option label="保养" :value="1" />
-          <el-option label="维修" :value="2" />
-        </el-select>
-      </el-form-item>
-
       <el-form-item label="相关附件">
         <el-upload
           :action="uploadUrl"
@@ -99,12 +108,12 @@
         </el-upload>
       </el-form-item>
 
-      <el-form-item label="维修内容" prop="content" required>
+      <el-form-item label="收费内容" prop="content" required>
         <el-input
           v-model="form.content"
           type="textarea"
           :rows="4"
-          placeholder="请输入维修内容"
+          placeholder="请输入收费内容"  
           :disabled="isView"
           style="width: 100%"
         />
@@ -123,7 +132,7 @@
 
 <script setup name="AddRepairData">
 import { ref, reactive, computed, onMounted, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/administration/car/maintenance/index.js";
+import { addenterPrise, updateenterPrise } from "@/api/administration/car/fee/index.js";
 import { getPageList  } from "@/api/administration/car/data/index.js";
 import { ElMessage } from "element-plus";
 import { Plus, Upload } from "@element-plus/icons-vue";
@@ -154,35 +163,34 @@ onMounted(() => {
   });
 });
 
-// 维修表单
+
 const form = reactive({
   id: undefined,
   carId: null,
-  address: "",
-  repairTime: null,
+  title: "",
+  feeTime: null,
   amount: 0,
-  adminId: null,
+  handled: null,
   types: undefined,
   content: "",
   fileIds: "",
-  handled: 0,
 });
 
 const attachFileList = ref([]);
 
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看维修记录";
-  return isEdit.value ? "编辑维修记录" : "新增维修记录";
+  if (isView.value) return "查看费用记录";
+  return isEdit.value ? "编辑费用记录" : "新增费用记录";
 });
 
 const rules = {
   carId: [{ required: true, message: "请选择车辆", trigger: "change" }],
-  address: [{ required: true, message: "请输入维修地点", trigger: "blur" }],
-  repairTime: [{ required: true, message: "请选择维修日期", trigger: "change" }],
-  amount: [{ required: true, message: "请输入维修费用", trigger: "blur" }],
-  adminId: [{ required: true, message: "请选择经手人", trigger: "change" }],
-  content: [{ required: true, message: "请输入维修内容", trigger: "blur" }],
-  types: [{ required: true, message: "请选择维修类型", trigger: "change" }]
+  title: [{ required: true, message: "请输入费用主题", trigger: "blur" }],
+  feeTime: [{ required: true, message: "请选择收费日期", trigger: "change" }],
+  amount: [{ required: true, message: "请输入费用金额", trigger: "blur" }],
+  handled: [{ required: true, message: "请选择经手人", trigger: "change" }],
+  content: [{ required: true, message: "请输入收费内容", trigger: "blur" }],
+  types: [{ required: true, message: "请选择费用类型", trigger: "change" }]
 };
 
 // 提交
@@ -191,8 +199,8 @@ function handleSubmit() {
     if (valid) {
       const submitData = {
         ...form,
-        repairTime: form.repairTime ? Math.floor(form.repairTime / 1000) : 0,
-        adminId: form.adminId || 0,
+        feeTime: form.feeTime ? Math.floor(form.feeTime / 1000) : 0,
+        handled: form.handled || 0,
       };
 
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
@@ -227,14 +235,13 @@ function reset() {
   Object.assign(form, {
     id: undefined,
     carId: null,
-    address: "",
-    repairTime: null,
+    title: "",
+    feeTime: null,
     amount: 0,
-    adminId: null,
+    handled: null,
     types: undefined,
     content: "",
     fileIds: "",
-    handled: 0,
   });
   attachFileList.value = [];
   isEdit.value = false;
@@ -259,8 +266,8 @@ function openEdit(data) {
   reset();
   Object.assign(form, {
     ...data,
-    repairTime: data.repairTime ? data.repairTime * 1000 : null,
-    adminId: data.adminId === 0 ? null : data.adminId,
+    feeTime: data.feeTime ? data.feeTime * 1000 : null,
+    handled: data.handled === 0 ? null : data.handled,
   });
   isEdit.value = true;
   dialogVisible.value = true;
@@ -271,8 +278,8 @@ function openView(data) {
   reset();
   Object.assign(form, {
     ...data,
-    repairTime: data.repairTime ? data.repairTime * 1000 : null,
-    adminId: data.adminId === 0 ? null : data.adminId,
+    feeTime: data.feeTime ? data.feeTime * 1000 : null,
+    handled: data.handled === 0 ? null : data.handled,
   });
   isView.value = true;
   dialogVisible.value = true;
