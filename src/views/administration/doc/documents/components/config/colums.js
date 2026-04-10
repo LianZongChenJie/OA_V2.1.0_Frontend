@@ -1,29 +1,101 @@
 export const columns = [
   {
     fieldName: 'id',
-    label: 'ID',
-    width: "10%",
+    label: 'ID号',
+    width: 80,
+    minWidth: 80,
+    align: 'center',
+  },
+  {
+    fieldName: 'checkStatus',
+    label: '审核状态',
+    width: 100,
     minWidth: 100,
     align: 'center',
+    isDict: true,
+    dict: 'check_status',
   },
   {
     fieldName: 'title',
-    label: '名称',
-    width: "80%",
+    label: '公文主题',
+    minWidth: 200,
+    searchable: {
+      type: 'input',
+      fieldName: 'keywords',
+      placeholder: '请输入关键字',
+      label: '关键字',
+      order: 0,
+    },
+  },
+  {
+    fieldName: 'code',
+    label: '公文编号',
+    width: 150,
+    minWidth: 120,
+  },
+  {
+    fieldName: 'secrets',
+    label: '密级程度',
+    width: 100,
+    minWidth: 100,
+    align: 'center',
+    isDict: true,
+    dict: 'secrets_level',
+    searchable: {
+      type: 'select',
+      dictKey: 'secrets_level',
+      fieldName: 'secrets',
+      placeholder: '请选择密级程度',
+      label: '密级程度',
+      order: 1,
+    },
+  },
+  {
+    fieldName: 'urgency',
+    label: '紧急程度',
+    width: 100,
+    minWidth: 100,
+    align: 'center',
+    isDict: true,
+    dict: 'urgency_level',
+    searchable: {
+      type: 'select',
+      dictKey: 'urgency_level',
+      fieldName: 'urgency',
+      placeholder: '请选择紧急程度',
+      label: '紧急程度',
+      order: 2,
+    },
+  },
+  {
+    fieldName: 'draftUid',
+    label: '拟稿人',
+    width: 100,
+    minWidth: 80,
+  },
+  {
+    fieldName: 'draftTime',
+    label: '拟稿日期',
+    width: 160,
+    minWidth: 140,
+  },
+  {
+    fieldName: 'did',
+    label: '拟稿部门',
+    width: 120,
     minWidth: 100,
   },
   {
-    fieldName: 'status',
-    label: '状态',
-    width: "auto",
-    minWidth: 100,
-    align: 'center',
+    fieldName: 'createTime',
+    label: '创建时间',
+    width: 180,
+    minWidth: 160,
   },
 ];
 
 export const operationColumn = {
   label: '操作',
-  width: 200,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [
@@ -36,26 +108,6 @@ export const operationColumn = {
       },
       icon: 'edit',
     },
-    {
-      label: '禁用',
-      type: 'danger',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===禁用', row)
-      },
-      icon: 'lock',
-      isShow: (row) => row.status === 1,
-    },
-    {
-      label: '启用',
-      type: 'primary',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===启用', row)
-      },
-      icon: 'enable',
-      isShow: (row) => row.status === 0,
-    },
   ],
 };
 
@@ -63,10 +115,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable, onenable) => {
+export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
-    width: 200,
+    width: 240,
     fixed: 'right',
     show: true,
     actions: [
@@ -80,24 +132,22 @@ export const getOperationColumn = (onEdit, onDisable, onenable) => {
         icon: 'edit',
       },
       {
-        label: '禁用',
-        type: 'danger',
-        size: 'small',
-        onClick: (row) => {
-          onDisable && onDisable(row);
-        },
-        icon: 'lock',
-        isShow: (row) => row.status === 1,
-      },
-      {
-        label: '启用',
+        label: '详情',
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          onenable && onenable(row);
+          onView && onView(row);
         },
-        icon: 'enable',
-        isShow: (row) => row.status === 0,
+        icon: 'eye-open',
+      },
+      {
+        label: '删除',
+        type: 'danger',
+        size: 'small',
+        onClick: (row) => {
+          onDelete && onDelete(row);
+        },
+        icon: 'delete',
       },
     ],
   };

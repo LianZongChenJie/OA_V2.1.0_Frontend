@@ -6,8 +6,7 @@
           v-for="(tab, index) in tabs"
           :label="tab.label"
           :name="tab.name"
-          ></el-tab-pane
-        >
+        ></el-tab-pane>
       </el-tabs>
       <DocumentList :type="activeType" :label="activeLabel" />
     </div>
@@ -19,17 +18,17 @@ import { useRoute, useRouter } from "vue-router";
 import DocumentList from "./components/index.vue";
 const route = useRoute();
 const router = useRouter();
-const activeName = ref("CustomerStatus");
+const activeName = ref("AllDocuments");
 
 // 计算当前选中的 type
 const activeType = computed(() => {
-  const currentTab = tabs.find(tab => tab.name === activeName.value);
+  const currentTab = tabs.find((tab) => tab.name === activeName.value);
   return currentTab ? currentTab.type : 1;
 });
 
 // 计算当前选中的 label
 const activeLabel = computed(() => {
-  const currentTab = tabs.find(tab => tab.name === activeName.value);
+  const currentTab = tabs.find((tab) => tab.name === activeName.value);
   return currentTab ? currentTab.label : "客户状态";
 });
 
@@ -38,7 +37,7 @@ const tabs = reactive([
   { label: "我创建的", name: "MyDocuments", type: 1 },
   { label: "待我审批", name: "WaitingDocuments", type: 2 },
   { label: "我已审批", name: "ApprovedDocuments", type: 3 },
-  { label: "抄送给我的", name: "CopiedDocuments", type: 4 }
+  { label: "抄送给我的", name: "CopiedDocuments", type: 4 },
 ]);
 
 function handleClick(tab) {
@@ -49,7 +48,10 @@ function handleClick(tab) {
 .main {
   width: 100%;
   height: 100%;
-  background-color: #fff;
+}
+.demo-tabs {
   padding: 10px 20px;
+  background-color: #fff;
+  border-radius: 4px;
 }
 </style>

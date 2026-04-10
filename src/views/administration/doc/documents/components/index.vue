@@ -9,8 +9,14 @@
       row-key="name"
       ref="tableList"
     >
-      <template #status="{ row }">
-        <dict-tag :options="message_module_status" :value="row.status" />
+      <template #checkStatus="{ row }">
+        <dict-tag :options="check_status" :value="row.checkStatus" />
+      </template>
+      <template #secrets="{ row }">
+        <dict-tag :options="secrets_level" :value="row.secrets" />
+      </template>
+      <template #urgency="{ row }">
+        <dict-tag :options="urgency_level" :value="row.urgency" />
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
@@ -20,7 +26,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail } from "@/api/administration/doc/documents";
+import { getPageList, getDetail, del } from "@/api/administration/doc/documents";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -36,7 +42,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { message_module_status } = proxy.useDict("message_module_status");
+const { check_status, secrets_level, urgency_level } = proxy.useDict("check_status", "secrets_level", "urgency_level");
 
 const route = useRoute();
 const router = useRouter();
@@ -71,8 +77,20 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
+/** 删除按钮操作 */
+async function handleDelete(row) {
+  try {
+    await proxy.$modal.confirm('确认删除该公文吗？');
+    await del(row.id);
+    proxy.$modal.msgSuccess("删除成功");
+    handleSuccess();
+  } catch (e) {
+    console.error('删除失败', e);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
