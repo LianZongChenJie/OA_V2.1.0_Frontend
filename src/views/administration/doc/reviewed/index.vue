@@ -35,7 +35,7 @@ const addDialogRef = ref(null);
 async function handleView(row) {
   const res = await getDetail(row.id);  // 获取文档详情
   if (res) {  // 如果获取成功
-    addDialogRef.value.open(res);  // 打开详情弹窗
+    addDialogRef.value.openView(res.data || res);  // 打开详情弹窗
   }
 }
 

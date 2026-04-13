@@ -34,7 +34,7 @@ const addDialogRef = ref(null);
 async function handleView(row) {
   const res = await getDetail(row.id);
   if (res) {
-    addDialogRef.value.openView(res);
+    addDialogRef.value.openView(res.data || res);
   }
 }
 
