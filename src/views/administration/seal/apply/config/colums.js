@@ -1,115 +1,80 @@
 export const columns = [
   {
     fieldName: 'id',
-    label: 'ID号',
+    label: 'ID',
     width: 80,
     minWidth: 80,
     align: 'center',
   },
   {
     fieldName: 'checkStatus',
-    label: '审核状态',
+    label: '审批状态',
     width: 100,
     minWidth: 100,
     align: 'center',
     isDict: true,
-    dict: 'check_status',
-  },
-  {
-    fieldName: 'title',
-    label: '公文主题',
-    minWidth: 200,
-    searchable: {
-      type: 'input',
-      fieldName: 'keywords',
-      placeholder: '请输入关键字',
-      label: '关键字',
-      order: 0,
-    },
-  },
-  {
-    fieldName: 'code',
-    label: '公文编号',
-    width: 150,
-    minWidth: 120,
-  },
-  {
-    fieldName: 'secrets',
-    label: '密级程度',
-    width: 100,
-    minWidth: 100,
-    align: 'center',
-    isDict: true,
-    dict: 'secrets_level',
+    dict: 'seal_check_status',
     searchable: {
       type: 'select',
-      dictKey: 'secrets_level',
-      fieldName: 'secrets',
-      placeholder: '请选择密级程度',
-      label: '密级程度',
+      dictKey: 'seal_check_status',
+      fieldName: 'checkStatus',
+      placeholder: '请选择审批状态',
+      label: '审批状态',
       order: 1,
     },
   },
   {
-    fieldName: 'urgency',
-    label: '紧急程度',
-    width: 100,
+    fieldName: 'title',
+    label: '主题',
+    minWidth: 200,
+    searchable: {
+      type: 'input',
+      fieldName: 'keywords',
+      placeholder: '请输入主题',
+      label: '关键字',
+      order: 3,
+    },
+  },
+  {
+    fieldName: 'sealCateId',
+    label: '用章类型',
+    width: 120,
     minWidth: 100,
-    align: 'center',
-    isDict: true,
-    dict: 'urgency_level',
+    dict: 'seal_type',
     searchable: {
       type: 'select',
-      dictKey: 'urgency_level',
-      fieldName: 'urgency',
-      placeholder: '请选择紧急程度',
-      label: '紧急程度',
+      fieldName: 'sealCateId',
+      dictKey: 'seal_type',
+      label: '用章类型',
       order: 2,
     },
   },
   {
-    fieldName: 'draftName',
-    label: '拟稿人',
-    width: 100,
-    minWidth: 80,
-  },
-  {
-    fieldName: 'draftTime',
-    label: '拟稿日期',
-    width: 160,
-    minWidth: 140,
-  },
-  {
-    fieldName: 'draftDname',
-    label: '拟稿部门',
+    fieldName: 'did',
+    label: '用章部门',
     width: 120,
     minWidth: 100,
   },
   {
+    fieldName: 'num',
+    label: '盖章次数',
+    width: 100,
+    minWidth: 80,
+    align: 'center',
+  },
+  {
+    fieldName: 'adminId',
+    label: '申请人',
+    width: 100,
+    minWidth: 80,
+  },
+  {
     fieldName: 'createTime',
-    label: '创建时间',
+    label: '申请时间',
     width: 180,
     minWidth: 160,
   },
 ];
-
-export const operationColumn = {
-  label: '操作',
-  width: 180,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-  ],
-};
 
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
@@ -155,6 +120,5 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
 
 export default {
   columns,
-  operationColumn,
   getHeaderButs
 };
