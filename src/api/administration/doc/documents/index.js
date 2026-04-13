@@ -9,6 +9,24 @@ export function getPageList(query) {
   })
 }
 
+// 代审公文分页列表
+export function getPageListForReview(query) {
+  return request({
+    url: '/system/official/pending',
+    method: 'get',
+    params: query
+  })
+}
+
+// 已审公文分页列表
+export function getPageListForAudit(query) {
+  return request({
+    url: '/system/official/reviewed',
+    method: 'get',
+    params: query
+  })
+}
+
 // 公文详情
 export function getDetail(id) {
   return request({
@@ -38,8 +56,7 @@ export function edit(data) {
 // 公文删除
 export function del(ids) {
   return request({
-    url: '/system/official',
+    url: '/system/official/' + ids,
     method: 'delete',
-    data: ids
   })
 }
