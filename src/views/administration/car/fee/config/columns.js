@@ -17,80 +17,97 @@ export const columns = [
     label: '车辆名称',
     width: "10%",
     minWidth: 120,
-  },
-
-  {
-    fieldName: 'types',
-    label: '类型',
-    width: "5%",
-    minWidth: 80,
-    align: 'center',
-    enum: {
-      1: '保养',
-      2: '维修'
-    },
     searchable: {
-      type: 'select',
-      fieldName: 'types',
-      label: '类型',
-      placeholder: '请选择',
-      order: 2,
-      options: [
-        { label: '保养', value: 1 },
-        { label: '维修', value: 2 }
-      ]
-    },
-  },
-
-  {
-    fieldName: 'repairTime',
-    label: '维修日期',
-    width: "12%",
-    minWidth: 140,
-    align: 'center',
-    slot: true,
-    slotName: 'repairTime',
-    searchable: {
-      type: 'date',
-      fieldName: 'repairTime',
-      label: '维修日期',
-      order: 1,
-    },
-  },
-  {
-    fieldName: 'amount',
-    label: '维修费用(元)',
-    width: "5%",
-    minWidth: 100,
-    align: 'right',
-  },
-  {
-    fieldName: 'content',
-    label: '维修内容',
-    width: "25%",
-    minWidth: 300,
-  searchable: {
     type: 'input',
     fieldName: 'keywords',
     placeholder: '关键词',
     label: '关键词',
     order: 3,
-  },
+    },
   },
   {
-    fieldName: 'address',
-    label: '维修地点',
+    fieldName: 'title',
+    label: '费用主题',
     width: "25%",
-    minWidth: 300,
+    minWidth: 200,
   },
+  {
+    fieldName: 'content',
+    label: '收费内容',
+    width: "25%",
+    minWidth: 200,
+  },
+  {
+    fieldName: 'feeTime',
+    label: '收费日期',
+    width: "12%",
+    minWidth: 140,
+    align: 'center',
+    slot: true,
+    slotName: 'feeTime',
+    searchable: {
+      type: 'date',
+      fieldName: 'feeTime',
+      label: '收费日期',
+      order: 1,
+    },
+  },
+  {
+    fieldName: 'types',
+    label: '费用类型',
+    width: "5%",
+    minWidth: 100,
+    align: 'center',
+    enum: {
+      1: '停车费',
+      2: '洗车费',
+      3: '保养费',
+      4: '维修费',
+      5: '过路费',
+      6: '过桥费',
+      7: '养路费',
+      8: '保险费',
+      9: '年检费',
+      10: '违章费',
+      11: '其他费'
+    },
+    searchable: {
+      type: 'select',
+      fieldName: 'types',
+      label: '费用类型',
+      placeholder: '请选择',
+      order: 2,
+      options: [
+        { label: '停车费', value: 1 },
+        { label: '洗车费', value: 2 },
+        { label: '保养费', value: 3 },
+        { label: '维修费', value: 4 },
+        { label: '过路费', value: 5 },
+        { label: '过桥费', value: 6 },
+        { label: '养路费', value: 7 },
+        { label: '保险费', value: 8 },
+        { label: '年检费', value: 9 },
+        { label: '违章费', value: 10 },
+        { label: '其他费', value: 11 }
+      ]
+    },
+  },
+  {
+    fieldName: 'amount',
+    label: '费用金额(元)',
+    width: "5%",
+    minWidth: 100,
+    align: 'right',
+  },
+
   {
     fieldName: 'handledName',
     label: '经手人',
     width: "8%",
     minWidth: 100,
-    slot: true, 
-    slotName: 'handled',
+    align: 'center'
   },
+
   {
     fieldName: 'updateTime',
     label: '记录时间',
@@ -116,7 +133,7 @@ export const operationColumn = {
 
 export const getHeaderButs = (onAdd) => [
   {
-    label: '添加维修记录',
+    label: '添加费用记录',
     type: 'success',
     icon: 'plus',
     size: 'default',
@@ -140,18 +157,27 @@ export const searchFields = [
   {
     type: 'date',
     fieldName: 'repairTime',
-    label: '维修日期',
-    placeholder: '请选择维修日期',
+    label: '费用日期',
+    placeholder: '请选择费用日期',
     order: 1,
   },
   {
     type: 'select',
     fieldName: 'types',
-    label: '维修类型',
+    label: '类型',
     placeholder: '请选择',
     options: [
-      { label: '保养', value: 1 },
-      { label: '维修', value: 2 }
+      { label: '停车费', value: 1 },
+      { label: '洗车费', value: 2 },
+      { label: '保养费', value: 3 },
+      { label: '维修费', value: 4 },
+      { label: '过路费', value: 5 },
+      { label: '过桥费', value: 6 },
+      { label: '养路费', value: 7 },
+      { label: '保险费', value: 8 },
+      { label: '年检费', value: 9 },
+      { label: '违章费', value: 10 },
+      { label: '其他费', value: 11 }
     ],
     order: 2,
   },

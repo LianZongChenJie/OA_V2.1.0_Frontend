@@ -3,45 +3,52 @@ export const columns = [
     fieldName: 'id',
     label: 'ID',
     width: "5%",
-    minWidth: 100,
+    minWidth: 80,
     align: 'center',
   },
   {
     fieldName: 'title',
     label: '印章名称',
-    width: "30%",
-    minWidth: 100,
+    width: "20%",
+    minWidth: 120,
   },
-  // ✅ 已修复部门显示
   {
     fieldName: 'dids',
     label: '应用部门',
     width: "35%",
-    minWidth: 100,
+    minWidth: 200,
     formatter: (row) => {
-      if (!row.dids) return "-";
-      return row.dids.split(",").filter(item => item).join("、");
+      if (!row.dids || row.dids === "") return "-";
+      const ids = Array.isArray(row.dids) ? row.dids : row.dids.split(",");
+      return ids.filter(id => id).join("、");
     }
   },
   {
     fieldName: 'keepUid',
     label: '保管人',
-    width: "10%",
-    minWidth: 100,
+    width: "15%",
+    minWidth: 120,
     align: 'center',
+    formatter: (row) => {
+      if (!row.keepUid || row.keepUid == 0) return "-";
+      return row.keepUid;
+    }
   },
   {
     fieldName: 'status',
     label: '状态',
-    width: "auto",
+    width: "10%",
     minWidth: 100,
     align: 'center',
+    formatter: (row) => {
+      return row.status === 1 ? '启用' : '禁用'
+    }
   },
 ];
 
 export const operationColumn = {
   label: '操作',
-  width: 200,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [
@@ -81,10 +88,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable, onenable) => {
+export const getOperationColumn = (onEdit, onDisable, onEnable) => {
   return {
     label: '操作',
-    width: 200,
+    width: 180,
     fixed: 'right',
     show: true,
     actions: [
@@ -112,9 +119,9 @@ export const getOperationColumn = (onEdit, onDisable, onenable) => {
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          onenable && onenable(row);
+          onEnable && onEnable(row);
         },
-        icon: 'enable',
+        icon: 'unlock',
         isShow: (row) => row.status === 0,
       },
     ],

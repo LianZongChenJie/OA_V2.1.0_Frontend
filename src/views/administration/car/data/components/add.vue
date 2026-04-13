@@ -101,7 +101,7 @@
           <el-option
             v-for="item in userOptions"
             :key="item.userId"
-            :label="item.userName"
+            :label="item.nickName"
             :value="item.userId"
           />
         </el-select>
@@ -191,7 +191,6 @@ onMounted(() => {
   });
 });
 
-
 const form = reactive({
   id: undefined,
   title: "",
@@ -237,7 +236,7 @@ const rules = {
   mileage: [{ required: true, message: "请输入行驶里程", trigger: "blur" }],
 };
 
-
+// 提交
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
@@ -246,9 +245,12 @@ function handleSubmit() {
         buyTime: form.buyTime ? Math.floor(new Date(form.buyTime).getTime() / 1000) : 0,
         insureTime: form.insureTime ? Math.floor(new Date(form.insureTime).getTime() / 1000) : 0,
         reviewTime: form.reviewTime ? Math.floor(new Date(form.reviewTime).getTime() / 1000) : 0,
-        driver: form.driver || null,
+        driver: Number(form.driver) || null,
+        price: Number(form.price),
+        seats: Number(form.seats),
+        status: Number(form.status),
       };
-  
+
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
       apiMethod(submitData).then(() => {
         proxy.$modal.msgSuccess(isEdit.value ? "编辑成功" : "新增成功");
@@ -259,6 +261,7 @@ function handleSubmit() {
   });
 }
 
+// 上传前校验
 function beforeUpload(file) {
   const isLt2M = file.size / 1024 / 1024 < 2;
   if (!isLt2M) {
@@ -268,17 +271,20 @@ function beforeUpload(file) {
   return true;
 }
 
+// 图片上传成功
 function handleUploadSuccess(res) {
   form.thumb = res.data;
   ElMessage.success("上传成功");
 }
 
+// 附件上传成功
 function handleAttachUploadSuccess(res) {
   const ids = attachFileList.value.map(i => i.response?.data).filter(Boolean);
   form.fileIds = ids.join(",");
   ElMessage.success("附件上传成功");
 }
 
+// 重置表单
 function reset() {
   Object.assign(form, {
     id: undefined, title: "", name: "", oil: "", mileage: "", seats: 0, color: "",
@@ -289,40 +295,72 @@ function reset() {
   attachFileList.value = [];
   isEdit.value = false;
   isView.value = false;
-  formRef.value?.clearValidate?.();
 }
 
+// 关闭弹窗（修复版）
 function handleClose() {
-  dialogVisible.value = false;
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
   reset();
+  dialogVisible.value = false;
 }
 
+// 打开新增
 function open() {
   reset();
   dialogVisible.value = true;
 }
 
+// 编辑（已修复：数字类型 + 时间类型）
 function openEdit(data) {
   reset();
   Object.assign(form, {
-    ...data,
-    buyTime: data.buyTime ? data.buyTime * 1000 : null,
-    insureTime: data.insureTime ? data.insureTime * 1000 : null,
-    reviewTime: data.reviewTime ? data.reviewTime * 1000 : null,
-    driver: data.driver === 0 ? null : data.driver,
+    id: data.id,
+    title: data.title,
+    name: data.name,
+    price: Number(data.price),
+    color: data.color,
+    seats: Number(data.seats),
+    engine: data.engine,
+    vin: data.vin,
+    buyTime: data.buyTime ? new Date(data.buyTime * 1000) : null,
+    insureTime: data.insureTime ? new Date(data.insureTime * 1000) : null,
+    reviewTime: data.reviewTime ? new Date(data.reviewTime * 1000) : null,
+    oil: data.oil,
+    mileage: String(data.mileage),
+    driver: data.driver === 0 ? null : Number(data.driver),
+    status: Number(data.status),
+    thumb: data.thumb,
+    fileIds: data.fileIds,
+    remark: data.remark,
   });
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
+// 查看（已修复）
 function openView(data) {
   reset();
   Object.assign(form, {
-    ...data,
-    buyTime: data.buyTime ? data.buyTime * 1000 : null,
-    insureTime: data.insureTime ? data.insureTime * 1000 : null,
-    reviewTime: data.reviewTime ? data.reviewTime * 1000 : null,
-    driver: data.driver === 0 ? null : data.driver,
+    id: data.id,
+    title: data.title,
+    name: data.name,
+    price: Number(data.price),
+    color: data.color,
+    seats: Number(data.seats),
+    engine: data.engine,
+    vin: data.vin,
+    buyTime: data.buyTime ? new Date(data.buyTime * 1000) : null,
+    insureTime: data.insureTime ? new Date(data.insureTime * 1000) : null,
+    reviewTime: data.reviewTime ? new Date(data.reviewTime * 1000) : null,
+    oil: data.oil,
+    mileage: String(data.mileage),
+    driver: data.driver === 0 ? null : Number(data.driver),
+    status: Number(data.status),
+    thumb: data.thumb,
+    fileIds: data.fileIds,
+    remark: data.remark,
   });
   isView.value = true;
   dialogVisible.value = true;

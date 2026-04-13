@@ -11,24 +11,48 @@
       <el-form-item label="印章名称" prop="title">
         <el-input v-model="form.title" placeholder="请输入印章名称" :disabled="isView" />
       </el-form-item>
-       <el-form-item label="保管人" prop="keepUid">
-        <el-input v-model="form.keepUid" placeholder="请输入保管人" :disabled="isView" />
+      
+      <el-form-item label="保管人" prop="keepUid" required>
+        <el-select
+          v-model="form.keepUid"
+          :disabled="isView"
+          :teleported="false"
+          placeholder="请选择保管人"
+          filterable
+          clearable
+          style="width: 100%"
+        >
+          <el-option
+            v-for="item in userOptions"
+            :key="item.userId"
+            :label="item.nickName"
+            :value="item.userId"
+          />
+        </el-select>
       </el-form-item>
-      <el-form-item label="应用部门" prop="dids">
-        <el-tree-select
+
+      <el-form-item label="应用部门" prop="dids" required>
+        <el-cascader
           v-model="form.dids"
-          :data="deptOptions"
-          :props="{ value: 'id', label: 'label', children: 'children' }"
-          :render-after-expand="false"
-          show-checkbox
-          multiple
-          collapse-tags
+          :options="deptOptions"
+          :multiple="true"
+          :props="{
+            value: 'id',
+            label: 'label',
+            children: 'children',
+            checkStrictly: true,
+            emitPath: false,
+            disabled: 'disabled'
+          }"
+          :disabled="isView"
           placeholder="请选择应用部门"
           clearable
-          :disabled="isView"
+          collapse-tags
+          collapse-tags-tooltip
           style="width: 100%"
         />
       </el-form-item>
+
       <el-form-item label="用途简述" prop="remark">
         <el-input
           v-model="form.remark"
@@ -42,16 +66,17 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button v-if="!isView" type="primary" @click="handleSubmit">确 定</el-button>
-        <el-button @click="dialogVisible = false">{{ isView ? "关 闭" : "取 消" }}</el-button>
+        <el-button @click="handleClose">{{ isView ? "关 闭" : "取 消" }}</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script setup name="Addseal">
-import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, computed, getCurrentInstance, onMounted, nextTick } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/administration/seal/index.js";
 import { deptTreeSelect } from "@/api/system/user.js";
+import { listUser } from "@/api/system/user.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -60,12 +85,13 @@ const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 const deptOptions = ref([]);
+const userOptions = ref([]);
 
 const form = reactive({
   id: undefined,
   title: "",
-  keepUid: "",
-  dids: [], 
+  keepUid: null,
+  dids: [],
   remark: "",
   status: 1
 });
@@ -77,77 +103,135 @@ const dialogTitle = computed(() => {
 
 const rules = {
   title: [{ required: true, message: "请输入印章名称", trigger: "blur" }],
-  keepUid: [{ required: true, message: "请输入保管人", trigger: "blur" }]
+  keepUid: [{ required: true, message: "请选择保管人", trigger: "change" }],
+  dids: [{ required: true, message: "请选择应用部门", trigger: "change" }]
 };
 
-// 获取部门树
+// 递归给部门设置禁用状态
+function setDeptDisabled(depts) {
+  return depts.map(item => {
+    item.disabled = item.status === "1" || item.status === 1;
+    if (item.children && item.children.length) {
+      item.children = setDeptDisabled(item.children);
+    }
+    return item;
+  });
+}
+
 onMounted(() => {
+  // 加载部门树
   deptTreeSelect().then(res => {
-    deptOptions.value = res.data;
+    deptOptions.value = setDeptDisabled(res.data || []);
+  });
+
+  // 加载用户（过滤禁用）
+  listUser({ pageSize: 1000 }).then(res => {
+    userOptions.value = (res.rows || []).filter(u => u.status === "0");
   });
 });
 
-/** 表单重置 */
 function reset() {
-  form.id = undefined;
-  form.title = "";
-  form.keepUid = "";
-  form.dids = [];
-  form.remark = "";
-  form.status = 1;
-
+  if (formRef.value) formRef.value.clearValidate();
+  Object.assign(form, {
+    id: undefined, title: "", keepUid: null, dids: [], remark: "", status: 1
+  });
   isEdit.value = false;
   isView.value = false;
-  proxy.resetForm(formRef);
 }
 
-/** 关闭弹窗 */
 function handleClose() {
   reset();
+  dialogVisible.value = false;
 }
 
-/** 新增 */
 function open() {
   reset();
   dialogVisible.value = true;
 }
 
-/** 编辑 */
+// 🔥 核心修复：确保 keepUid 永远是单个ID，不是数组
 function openEdit(data) {
   reset();
   form.id = data.id;
-  form.title = data.title;
-  form.keepUid = data.keepUid;
-  form.dids = data.dids ? (Array.isArray(data.dids) ? data.dids : data.dids.split(',')) : [];
-  form.remark = data.remark;
-  form.status = data.status;
+  form.title = data.title || "";
   
+  // ✅ 关键修复：处理 keepUid，确保是单个数字ID
+  if (data.keepUid) {
+    if (Array.isArray(data.keepUid)) {
+      // 如果是数组，取第一个元素
+      form.keepUid = Number(data.keepUid[0]?.userId || data.keepUid[0]);
+    } else {
+      // 普通情况，直接转数字
+      form.keepUid = Number(data.keepUid);
+    }
+  } else {
+    form.keepUid = null;
+  }
+
+  form.remark = data.remark || "";
+  form.status = data.status ?? 1;
+  
+  // 处理部门回显
+  if (data.dids) {
+    if (typeof data.dids === "string") {
+      form.dids = data.dids.split(",").filter(Boolean).map(Number);
+    } else {
+      form.dids = data.dids;
+    }
+  } else {
+    form.dids = [];
+  }
+
   isEdit.value = true;
-  dialogVisible.value = true;
+  nextTick(() => {
+    dialogVisible.value = true;
+  });
 }
 
-/** 查看 */
 function openView(data) {
   reset();
   form.id = data.id;
-  form.title = data.title;
-  form.keepUid = data.keepUid;
-  form.dids = data.dids ? (Array.isArray(data.dids) ? data.dids : data.dids.split(',')) : [];
-  form.remark = data.remark;
-  form.status = data.status;
+  form.title = data.title || "";
+  
+  // ✅ 同样修复 keepUid
+  if (data.keepUid) {
+    if (Array.isArray(data.keepUid)) {
+      form.keepUid = Number(data.keepUid[0]?.userId || data.keepUid[0]);
+    } else {
+      form.keepUid = Number(data.keepUid);
+    }
+  } else {
+    form.keepUid = null;
+  }
+
+  form.remark = data.remark || "";
+  form.status = data.status ?? 1;
+
+  if (data.dids) {
+    if (typeof data.dids === "string") {
+      form.dids = data.dids.split(",").filter(Boolean).map(Number);
+    } else {
+      form.dids = data.dids;
+    }
+  } else {
+    form.dids = [];
+  }
 
   isView.value = true;
-  dialogVisible.value = true;
+  nextTick(() => {
+    dialogVisible.value = true;
+  });
 }
 
-/** 提交 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
-      const submitData = { ...form };
-      // 数组转逗号字符串给后端
-      submitData.dids = Array.isArray(form.dids) ? form.dids.join(',') : form.dids;
-
+      // 双重保险：确保 dids 是数组
+      const deptIds = Array.isArray(form.dids) ? form.dids : [];
+      const submitData = {
+        ...form,
+        dids: deptIds.join(",")
+      };
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
       apiMethod(submitData).then(() => {
         proxy.$modal.msgSuccess(isEdit.value ? "编辑成功" : "新增成功");
@@ -165,4 +249,13 @@ defineExpose({ open, openEdit, openView });
 <style>
 .approval-module-dialog .el-dialog { max-height: 88vh; display: flex; flex-direction: column; }
 .approval-module-dialog .el-dialog__body { max-height: calc(88vh - 120px); overflow-y: auto; }
+</style>
+
+<style scoped>
+:deep(.el-cascader__tags) {
+  flex-wrap: wrap;
+}
+:deep(.el-cascader__collapse-tags) {
+  flex-wrap: wrap;
+}
 </style>
