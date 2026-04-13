@@ -9,8 +9,6 @@
   >
     <el-form ref="formRef" :model="form" :rules="isView ? undefined : rules" label-width="140px">
 
-      <!-- 所有表单项 垂直单列 -->
-      
       <el-form-item label="车辆名称" prop="carId" required>
         <el-select
           v-model="form.carId"
@@ -113,14 +111,13 @@
           v-model="form.content"
           type="textarea"
           :rows="4"
-          placeholder="请输入收费内容"  
+          placeholder="请输入收费内容"
           :disabled="isView"
           style="width: 100%"
         />
       </el-form-item>
 
     </el-form>
-
     <template #footer>
       <div class="dialog-footer">
         <el-button v-if="!isView" type="primary" @click="handleSubmit">立即提交</el-button>
@@ -146,24 +143,18 @@ const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
-// 车辆下拉
 const carOptions = ref([]);
-// 用户下拉
 const userOptions = ref([]);
 
 onMounted(() => {
-  // 获取车辆列表
   getPageList({ pageSize: 1000 }).then(res => {
     carOptions.value = res.rows || [];
   });
 
-  // 获取用户列表（只获取正常状态的用户）
   listUser({ pageSize: 1000 }).then(res => {
-    // 过滤掉禁用的用户（status === "1" 表示禁用）
     userOptions.value = (res.rows || []).filter(user => user.status === "0");
   });
 });
-
 
 const form = reactive({
   id: undefined,
@@ -200,8 +191,12 @@ function handleSubmit() {
     if (valid) {
       const submitData = {
         ...form,
-        feeTime: form.feeTime ? Math.floor(form.feeTime / 1000) : 0,
-        handled: form.handled || 0,
+        // 确保提交时是数字
+        amount: Number(form.amount),
+        types: Number(form.types),
+        carId: Number(form.carId),
+        handled: Number(form.handled),
+        feeTime: form.feeTime ? Math.floor(form.feeTime.getTime() / 1000) : 0,
       };
 
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
@@ -247,13 +242,15 @@ function reset() {
   attachFileList.value = [];
   isEdit.value = false;
   isView.value = false;
-  formRef.value?.clearValidate?.();
 }
 
-// 关闭
+// 🔥 修复：关闭弹窗时强制清除校验
 function handleClose() {
-  dialogVisible.value = false;
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
   reset();
+  dialogVisible.value = false;
 }
 
 // 打开新增
@@ -262,25 +259,38 @@ function open() {
   dialogVisible.value = true;
 }
 
-// 编辑
+// 🔥 编辑：核心修复！强制转数字类型
 function openEdit(data) {
   reset();
   Object.assign(form, {
-    ...data,
-    feeTime: data.feeTime ? data.feeTime * 1000 : null,
-    handled: data.handled === 0 ? null : data.handled,
+    id: data.id,
+    carId: Number(data.carId),
+    title: data.title,
+    // 🔥 关键：将字符串 "0.00" 转为数字
+    amount: Number(data.amount),
+    types: Number(data.types),
+    feeTime: data.feeTime ? new Date(data.feeTime * 1000) : null,
+    handled: data.handled === 0 ? null : Number(data.handled),
+    content: data.content,
+    fileIds: data.fileIds,
   });
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-// 查看
+// 🔥 查看：同编辑处理
 function openView(data) {
   reset();
   Object.assign(form, {
-    ...data,
-    feeTime: data.feeTime ? data.feeTime * 1000 : null,
-    handled: data.handled === 0 ? null : data.handled,
+    id: data.id,
+    carId: Number(data.carId),
+    title: data.title,
+    amount: Number(data.amount),
+    types: Number(data.types),
+    feeTime: data.feeTime ? new Date(data.feeTime * 1000) : null,
+    handled: data.handled === 0 ? null : Number(data.handled),
+    content: data.content,
+    fileIds: data.fileIds,
   });
   isView.value = true;
   dialogVisible.value = true;

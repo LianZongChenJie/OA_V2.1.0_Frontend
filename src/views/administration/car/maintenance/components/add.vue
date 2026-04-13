@@ -9,8 +9,6 @@
   >
     <el-form ref="formRef" :model="form" :rules="isView ? undefined : rules" label-width="140px">
 
-      <!-- 所有表单项 垂直单列 -->
-      
       <el-form-item label="车辆名称" prop="carId" required>
         <el-select
           v-model="form.carId"
@@ -34,7 +32,7 @@
         <el-input v-model="form.address" placeholder="请输入维修地点" :disabled="isView" />
       </el-form-item>
 
-            <el-form-item label="维修日期" prop="repairTime" required>
+      <el-form-item label="维修日期" prop="repairTime" required>
         <el-date-picker
           v-model="form.repairTime"
           type="date"
@@ -122,11 +120,11 @@
 </template>
 
 <script setup name="AddRepairData">
-import { ref, reactive, computed, onMounted, getCurrentInstance } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/administration/car/maintenance/index.js";
 import { getPageList  } from "@/api/administration/car/data/index.js";
 import { ElMessage } from "element-plus";
-import { Plus, Upload } from "@element-plus/icons-vue";
+import { Plus } from "@element-plus/icons-vue";
 import { listUser } from "@/api/system/user.js";
 
 const { proxy } = getCurrentInstance();
@@ -137,32 +135,25 @@ const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
-// 车辆下拉
 const carOptions = ref([]);
-// 用户下拉
 const userOptions = ref([]);
 
 onMounted(() => {
-  // 获取车辆列表
   getPageList({ pageSize: 1000 }).then(res => {
     carOptions.value = res.rows || [];
   });
 
-  // 获取用户列表
   listUser({ pageSize: 1000 }).then(res => {
-    // 过滤掉禁用的用户（status === "1" 表示禁用）
     userOptions.value = (res.rows || []).filter(user => user.status === "0");
   });
 });
 
-// 维修表单
 const form = reactive({
   id: undefined,
   carId: null,
   address: "",
   repairTime: null,
   amount: 0,
-  adminId: null,
   types: undefined,
   content: "",
   fileIds: "",
@@ -181,9 +172,9 @@ const rules = {
   address: [{ required: true, message: "请输入维修地点", trigger: "blur" }],
   repairTime: [{ required: true, message: "请选择维修日期", trigger: "change" }],
   amount: [{ required: true, message: "请输入维修费用", trigger: "blur" }],
-  adminId: [{ required: true, message: "请选择经手人", trigger: "change" }],
+  handled: [{ required: true, message: "请选择经手人", trigger: "change" }],
   content: [{ required: true, message: "请输入维修内容", trigger: "blur" }],
-  types: [{ required: true, message: "请选择维修类型", trigger: "change" }]
+  types: [{ required: true, message: "请选择类型", trigger: "change" }]
 };
 
 // 提交
@@ -192,8 +183,15 @@ function handleSubmit() {
     if (valid) {
       const submitData = {
         ...form,
-        repairTime: form.repairTime ? Math.floor(form.repairTime / 1000) : 0,
-        adminId: form.adminId || 0,
+        carId: Number(form.carId),
+        handled: Number(form.handled),
+        types: Number(form.types),
+        amount: Number(form.amount),
+        repairTime: form.repairTime ? Math.floor(form.repairTime.getTime() / 1000) : 0,
+        adminId: 0,
+        create_time: undefined,
+        update_time: undefined,
+        delete_time: undefined,
       };
 
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
@@ -231,7 +229,6 @@ function reset() {
     address: "",
     repairTime: null,
     amount: 0,
-    adminId: null,
     types: undefined,
     content: "",
     fileIds: "",
@@ -240,13 +237,13 @@ function reset() {
   attachFileList.value = [];
   isEdit.value = false;
   isView.value = false;
-  formRef.value?.clearValidate?.();
 }
-
-// 关闭
 function handleClose() {
-  dialogVisible.value = false;
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
   reset();
+  dialogVisible.value = false;
 }
 
 // 打开新增
@@ -259,9 +256,15 @@ function open() {
 function openEdit(data) {
   reset();
   Object.assign(form, {
-    ...data,
-    repairTime: data.repairTime ? data.repairTime * 1000 : null,
-    adminId: data.adminId === 0 ? null : data.adminId,
+    id: data.id,
+    carId: Number(data.carId),
+    address: data.address,
+    repairTime: data.repairTime ? new Date(data.repairTime * 1000) : null,
+    amount: Number(data.amount),
+    types: Number(data.types),
+    content: data.content,
+    fileIds: data.fileIds,
+    handled: Number(data.handled),
   });
   isEdit.value = true;
   dialogVisible.value = true;
@@ -271,9 +274,15 @@ function openEdit(data) {
 function openView(data) {
   reset();
   Object.assign(form, {
-    ...data,
-    repairTime: data.repairTime ? data.repairTime * 1000 : null,
-    adminId: data.adminId === 0 ? null : data.adminId,
+    id: data.id,
+    carId: Number(data.carId),
+    address: data.address,
+    repairTime: data.repairTime ? new Date(data.repairTime * 1000) : null,
+    amount: Number(data.amount),
+    types: Number(data.types),
+    content: data.content,
+    fileIds: data.fileIds,
+    handled: Number(data.handled),
   });
   isView.value = true;
   dialogVisible.value = true;
