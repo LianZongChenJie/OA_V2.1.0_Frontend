@@ -171,7 +171,7 @@
               <el-radio
                 v-for="dict in secrets_level"
                 :key="dict.value"
-                :label="dict.value"
+                :label="Number(dict.value)"
               >
                 {{ dict.label }}
               </el-radio>
@@ -184,7 +184,7 @@
               <el-radio
                 v-for="dict in urgency_level"
                 :key="dict.value"
-                :label="dict.value"
+                :label="Number(dict.value)"
               >
                 {{ dict.label }}
               </el-radio>
@@ -371,21 +371,21 @@ function openEdit(data) {
   form.draftTime = data.draftTime || "";
   form.sendUids = data.sendUids
     ? Array.isArray(data.sendUids)
-      ? data.sendUids
-      : data.sendUids.split(",")
+      ? data.sendUids.map(id => Number(id))
+      : data.sendUids.split(",").map(id => Number(id))
     : [];
   form.copyUids = data.copyUids
     ? Array.isArray(data.copyUids)
-      ? data.copyUids
-      : data.copyUids.split(",")
+      ? data.copyUids.map(id => Number(id))
+      : data.copyUids.split(",").map(id => Number(id))
     : [];
   form.shareUids = data.shareUids
     ? Array.isArray(data.shareUids)
-      ? data.shareUids
-      : data.shareUids.split(",")
+      ? data.shareUids.map(id => Number(id))
+      : data.shareUids.split(",").map(id => Number(id))
     : [];
-  form.secrets = data.secrets || "";
-  form.urgency = data.urgency || "";
+  form.secrets = data.secrets !== undefined ? Number(data.secrets) : "";
+  form.urgency = data.urgency !== undefined ? Number(data.urgency) : "";
   form.content = data.content || "";
 
   isEdit.value = true;
@@ -406,21 +406,21 @@ function openView(data) {
   form.draftTime = data.draftTime || "";
   form.sendUids = data.sendUids
     ? Array.isArray(data.sendUids)
-      ? data.sendUids
-      : data.sendUids.split(",")
+      ? data.sendUids.map((id) => Number(id))
+      : data.sendUids.split(",").map((id) => Number(id))
     : [];
   form.copyUids = data.copyUids
     ? Array.isArray(data.copyUids)
-      ? data.copyUids
-      : data.copyUids.split(",")
+      ? data.copyUids.map((id) => Number(id))
+      : data.copyUids.split(",").map((id) => Number(id))
     : [];
   form.shareUids = data.shareUids
     ? Array.isArray(data.shareUids)
-      ? data.shareUids
-      : data.shareUids.split(",")
+      ? data.shareUids.map((id) => Number(id))
+      : data.shareUids.split(",").map((id) => Number(id))
     : [];
-  form.secrets = data.secrets || "";
-  form.urgency = data.urgency || "";
+  form.secrets = data.secrets ? Number(data.secrets) : "";
+  form.urgency = data.urgency ? Number(data.urgency) : "";
   form.content = data.content || "";
 
   isView.value = true;
