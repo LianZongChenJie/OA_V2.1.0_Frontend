@@ -52,7 +52,6 @@
                 remote
                 :remote-method="(query) => handleApiSearch(column, query)"
                 @visible-change="(visible) => handleApiVisible(visible, column)"
-                @focus="handleApiSelectFocus(column)"
                 style="width: 100%"
               ><el-option
                   v-for="option in apiOptions[column.fieldName] || []"
