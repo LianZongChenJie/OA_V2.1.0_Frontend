@@ -50,7 +50,7 @@
               <el-option
                 v-for="item in userOptions"
                 :key="item.userId"
-                :label="item.userName"
+                :label="item.nickName"
                 :value="item.userId"
               />
             </el-select>
