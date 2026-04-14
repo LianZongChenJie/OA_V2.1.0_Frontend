@@ -1,4 +1,6 @@
-export const columns = [
+import { getPageList as getNoteCateList } from "@/api/base/administration/noticeType";
+
+export const getColumns = () => [
   {
     fieldName: 'id',
     label: 'ID号',
@@ -19,11 +21,22 @@ export const columns = [
     },
   },
   {
-    fieldName: 'cate_id',
+    fieldName: 'cateName',
     label: '所属分类',
     width: 120,
     minWidth: 100,
     align: 'center',
+    searchable: {
+      type: 'selectApi',
+      fieldName: 'cateId',
+      label: '所属分类',
+      placeholder: '请选择所属分类',
+      api: getNoteCateList,
+      optionLabel: 'title',
+      optionValue: 'id',
+      pageSize: 10,
+      order: 1,
+    },
   },
   {
     fieldName: 'status',
@@ -31,9 +44,19 @@ export const columns = [
     width: 100,
     minWidth: 80,
     align: 'center',
+    isDict: true,
+    dict: 'note_status',
+    searchable: {
+      type: 'select',
+      dictKey: 'note_status',
+      fieldName: 'status',
+      placeholder: '请选择状态',
+      label: '状态',
+      order: 2,
+    },
   },
   {
-    fieldName: 'admin',
+    fieldName: 'adminName',
     label: '创建人',
     width: 100,
     minWidth: 80,
@@ -59,28 +82,10 @@ export const columns = [
       fieldName: 'sourse',
       placeholder: '请选择公告平台',
       label: '公告平台',
-      order: 1,
+      order: 3,
     },
   },
 ];
-
-export const operationColumn = {
-  label: '操作',
-  width: 180,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-  ],
-};
 
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
@@ -89,7 +94,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
-    width: 240,
+    width: 180,
     fixed: 'right',
     show: true,
     actions: [
@@ -103,7 +108,7 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
         icon: 'edit',
       },
       {
-        label: '详情',
+        label: '查看',
         type: 'primary',
         size: 'small',
         onClick: (row) => {
@@ -111,21 +116,12 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
         },
         icon: 'eye-open',
       },
-      {
-        label: '删除',
-        type: 'danger',
-        size: 'small',
-        onClick: (row) => {
-          onDelete && onDelete(row);
-        },
-        icon: 'delete',
-      },
     ],
   };
 };
 
 export default {
-  columns,
-  operationColumn,
-  getHeaderButs
+  getColumns,
+  getHeaderButs,
+  getOperationColumn,
 };

@@ -12,7 +12,7 @@ export function getPageList(query) {
 // 公告详情
 export function getDetail(id) {
   return request({
-    url: '/administrative/note/' + id,
+    url: '/administrative/note/detail/' + id,
     method: 'get'
   })
 }

@@ -2,9 +2,9 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="50%"
+    width="60%"
     append-to-body
-    class="documents-dialog"
+    class="notice-dialog"
     @close="handleClose"
   >
     <el-form
@@ -13,176 +13,61 @@
       :rules="isView ? {} : rules"
       label-width="100px"
     >
-      <!-- 第一行：公文名称 + 公文编号 -->
+      <!-- 第一行：公告标题 + 公告分类 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="公文名称" prop="title">
+          <el-form-item label="公告标题" prop="title">
             <el-input
               v-model="form.title"
-              placeholder="请输入公文名称"
+              placeholder="请输入公告标题"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="公文编号" prop="code">
-            <el-input
-              v-model="form.code"
-              placeholder="请输入公文编号"
-              :disabled="isView"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第二行：拟稿人 + 拟稿部门 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="拟稿人" prop="draftName">
+          <el-form-item label="公告分类" prop="cateId">
             <el-select
-              v-model="form.draftName"
+              v-model="form.cateId"
               :disabled="isView"
-              placeholder="请选择拟稿人"
+              placeholder="请选择公告分类"
               clearable
+              filterable
+              remote
+              :remote-method="handleCateSearch"
+              :loading="cateLoading"
               style="width: 100%"
-              @change="handleDraftUserChange"
+              @visible-change="handleCateVisible"
             >
               <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="拟稿部门" prop="draftDname">
-            <el-select
-              v-model="form.draftDname"
-              :disabled="isView"
-              placeholder="请选择拟稿部门"
-              clearable
-              style="width: 100%"
-              @change="handleDeptChange"
-            >
-              <el-option
-                v-for="item in deptOptions"
-                :key="item.deptId"
-                :label="item.deptName"
-                :value="item.deptId"
+                v-for="item in cateOptions"
+                :key="item.id"
+                :label="item.title"
+                :value="item.id"
               />
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
 
-      <!-- 第三行：拟稿日期 + 主送人员 -->
+      <!-- 第二行：排序 + 公告状态 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="拟稿日期" prop="draftTime">
-            <el-date-picker
-              v-model="form.draftTime"
-              type="date"
-              placeholder="请选择拟稿日期"
+          <el-form-item label="排序" prop="sort">
+            <el-input-number
+              v-model="form.sort"
+              :min="0"
               :disabled="isView"
+              controls-position="right"
               style="width: 100%"
-              value-format="YYYY-MM-DD"
+              placeholder="请输入排序"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="主送人员" prop="sendUids">
-            <el-select
-              v-model="form.sendUids"
-              :disabled="isView"
-              placeholder="请选择主送人员"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第四行：抄送人员 + 共享可查阅人 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="抄送人员" prop="copyUids">
-            <el-select
-              v-model="form.copyUids"
-              :disabled="isView"
-              placeholder="请选择抄送人员"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="共享可查阅人" prop="shareUids">
-            <el-select
-              v-model="form.shareUids"
-              :disabled="isView"
-              placeholder="请选择共享可查阅人"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第五行：密级程度 + 紧急程度 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="密级程度" prop="secrets">
-            <el-radio-group v-model="form.secrets" :disabled="isView">
+          <el-form-item label="公告状态" prop="status">
+            <el-radio-group v-model="form.status" :disabled="isView">
               <el-radio
-                v-for="dict in secrets_level"
-                :key="dict.value"
-                :label="dict.value"
-              >
-                {{ dict.label }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="紧急程度" prop="urgency">
-            <el-radio-group v-model="form.urgency" :disabled="isView">
-              <el-radio
-                v-for="dict in urgency_level"
+                v-for="dict in note_status"
                 :key="dict.value"
                 :label="dict.value"
               >
@@ -193,15 +78,15 @@
         </el-col>
       </el-row>
 
-      <!-- 第六行：公文内容（独占一行） -->
+      <!-- 第三行：公告内容（独占一行） -->
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="公文内容" prop="content">
+          <el-form-item label="公告内容" prop="content">
             <el-input
               v-model="form.content"
               type="textarea"
-              :rows="6"
-              placeholder="请输入公文内容"
+              :rows="8"
+              placeholder="请输入公告内容"
               :disabled="isView"
             />
           </el-form-item>
@@ -222,235 +107,129 @@
   </el-dialog>
 </template>
 
-<script setup name="AddDocuments">
-import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
+<script setup name="AddNotice">
+import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { add, edit } from "@/api/administration/notice";
-import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
+import { getPageList as getNoteCateList } from "@/api/base/administration/noticeType";
 
 const { proxy } = getCurrentInstance();
-const { secrets_level, urgency_level } = proxy.useDict(
-  "secrets_level",
-  "urgency_level"
-);
+const { note_status } = proxy.useDict("note_status");
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false); // 是否为编辑模式
-const isView = ref(false); // 是否为查看模式
+const isEdit = ref(false);
+const isView = ref(false);
 
-// 下拉选项数据
-const userOptions = ref([]);
-const deptOptions = ref([]);
+// 分类下拉选项数据
+const cateOptions = ref([]);
+const cateLoading = ref(false);
 
 const form = reactive({
   id: undefined,
   title: "",
-  code: "",
-  draftName: "",
-  draftUid: "",
-  draftDname: "",
-  did: "",
-  draftTime: "",
-  sendUids: [],
-  copyUids: [],
-  shareUids: [],
-  secrets: "",
-  urgency: "",
+  cateId: undefined,
+  sort: 1,
+  status: "1",
   content: "",
 });
 
-// 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看公文";
-  return isEdit.value ? "编辑公文" : "新增公文";
+  if (isView.value) return "查看公告";
+  return isEdit.value ? "编辑公告" : "新增公告";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入公文名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入公文编号", trigger: "blur" }],
-  draftName: [{ required: true, message: "请选择拟稿人", trigger: "change" }],
-  draftDname: [{ required: true, message: "请选择拟稿部门", trigger: "change" }],
-  draftTime: [{ required: true, message: "请选择拟稿日期", trigger: "change" }],
-  sendUids: [{ required: true, message: "请选择主送人员", trigger: "change" }],
-  secrets: [{ required: true, message: "请选择密级程度", trigger: "change" }],
-  urgency: [{ required: true, message: "请选择紧急程度", trigger: "change" }],
-  content: [{ required: true, message: "请输入公文内容", trigger: "blur" }],
+  title: [{ required: true, message: "请输入公告标题", trigger: "blur" }],
+  cateId: [{ required: true, message: "请选择公告分类", trigger: "change" }],
+  sort: [{ required: true, message: "请输入排序", trigger: "blur" }],
+  status: [{ required: true, message: "请选择公告状态", trigger: "change" }],
+  content: [{ required: true, message: "请输入公告内容", trigger: "blur" }],
 };
 
-/** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.code = "";
-  form.draftName = "";
-  form.draftUid = "";
-  form.draftDname = "";
-  form.did = "";
-  form.draftTime = "";
-  form.sendUids = [];
-  form.copyUids = [];
-  form.shareUids = [];
-  form.secrets = "1";
-  form.urgency = "1";
+  form.cateId = undefined;
+  form.sort = 1;
+  form.status = "1";
   form.content = "";
-
   isEdit.value = false;
   isView.value = false;
   formRef.value?.clearValidate();
 }
 
-/** 获取用户列表 */
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-  });
+function getCateList(query = "") {
+  const params = {
+    pageNum: 1,
+    pageSize: 100,
+  };
+  if (query) {
+    params.keyword = query;
+  }
+  cateLoading.value = true;
+  getNoteCateList(params)
+    .then((response) => {
+      if (response.code === 200) {
+        cateOptions.value = response.rows || [];
+      }
+    })
+    .finally(() => {
+      cateLoading.value = false;
+    });
 }
 
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
-/** 拟稿人选择变更 */
-function handleDraftUserChange(userId) {
-  if (userId) {
-    form.draftUid = userId;
-    const selectedUser = userOptions.value.find(
-      (item) => item.userId === userId
-    );
-    if (selectedUser) {
-      form.draftName = selectedUser.userName;
-    }
-  } else {
-    form.draftUid = "";
-    form.draftName = "";
+function handleCateVisible(visible) {
+  if (visible && cateOptions.value.length === 0) {
+    getCateList();
   }
 }
 
-/** 拟稿部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    form.did = deptId;
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId
-    );
-    if (selectedDept) {
-      form.draftDname = selectedDept.deptName;
-    }
-  } else {
-    form.did = "";
-    form.draftDname = "";
-  }
+function handleCateSearch(query) {
+  getCateList(query);
 }
 
-/** 关闭弹窗 */
 function handleClose() {
   reset();
 }
 
-/** 显示弹窗 - 新增模式 */
 function open() {
   reset();
   dialogVisible.value = true;
 }
 
-/** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.title = data.title || "";
-  form.code = data.code || "";
-  form.draftName = data.draftName || "";
-  form.draftUid = data.draftUid || "";
-  form.draftDname = data.draftDname || "";
-  form.did = data.did || "";
-  form.draftTime = data.draftTime || "";
-  form.sendUids = data.sendUids
-    ? Array.isArray(data.sendUids)
-      ? data.sendUids
-      : data.sendUids.split(",")
-    : [];
-  form.copyUids = data.copyUids
-    ? Array.isArray(data.copyUids)
-      ? data.copyUids
-      : data.copyUids.split(",")
-    : [];
-  form.shareUids = data.shareUids
-    ? Array.isArray(data.shareUids)
-      ? data.shareUids
-      : data.shareUids.split(",")
-    : [];
-  form.secrets = data.secrets || "";
-  form.urgency = data.urgency || "";
+  form.cateId = data.cateId || undefined;
+  form.sort = data.sort || 1;
+  // 状态值转换为字符串以匹配 radio 的 label
+  form.status = data.status !== undefined ? String(data.status) : "1";
   form.content = data.content || "";
-
   isEdit.value = true;
   dialogVisible.value = true;
+  getCateList();
 }
 
-/** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.title = data.title || "";
-  form.code = data.code || "";
-  form.draftName = data.draftName || "";
-  form.draftUid = data.draftUid || "";
-  form.draftDname = data.draftDname || "";
-  form.did = data.did || "";
-  form.draftTime = data.draftTime || "";
-  form.sendUids = data.sendUids
-    ? Array.isArray(data.sendUids)
-      ? data.sendUids
-      : data.sendUids.split(",")
-    : [];
-  form.copyUids = data.copyUids
-    ? Array.isArray(data.copyUids)
-      ? data.copyUids
-      : data.copyUids.split(",")
-    : [];
-  form.shareUids = data.shareUids
-    ? Array.isArray(data.shareUids)
-      ? data.shareUids
-      : data.shareUids.split(",")
-    : [];
-  form.secrets = data.secrets || "";
-  form.urgency = data.urgency || "";
+  form.cateId = data.cateId || undefined;
+  form.sort = data.sort || 1;
+  form.status = data.status !== undefined ? String(data.status) : "1";
   form.content = data.content || "";
-
   isView.value = true;
   dialogVisible.value = true;
+  getCateList();
 }
 
-/** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
-      // 将数组转换为逗号分隔的字符串，secrets 和 urgency 转为数字
-      const submitData = {
-        ...form,
-        sendUids: Array.isArray(form.sendUids)
-          ? form.sendUids.join(",")
-          : form.sendUids,
-        copyUids: Array.isArray(form.copyUids)
-          ? form.copyUids.join(",")
-          : form.copyUids,
-        shareUids: Array.isArray(form.shareUids)
-          ? form.shareUids.join(",")
-          : form.shareUids,
-        secrets: form.secrets ? parseInt(form.secrets) : null,
-        urgency: form.urgency ? parseInt(form.urgency) : null,
-      };
-
       const apiMethod = isEdit.value ? edit : add;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
-
-      apiMethod(submitData).then(() => {
+      apiMethod({ ...form }).then(() => {
         proxy.$modal.msgSuccess(successMsg);
         dialogVisible.value = false;
         emit("success");
@@ -466,26 +245,16 @@ defineExpose({
   openEdit,
   openView,
 });
-
-/** 初始化数据 */
-onMounted(() => {
-  getUserList();
-  getDeptList();
-});
 </script>
 
-<style scoped>
-</style>
-
 <style>
-/* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
-.documents-dialog .el-dialog {
+.notice-dialog .el-dialog {
   max-height: 88vh;
   display: flex;
   flex-direction: column;
 }
 
-.documents-dialog .el-dialog__body {
+.notice-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
   overflow-y: auto;
 }

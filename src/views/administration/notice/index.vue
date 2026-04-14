@@ -1,5 +1,5 @@
 <template>
-  <div class="tabs-container">
+  <div class="main-content">
     <TableList
       :api="getPageList"
       :columns="columns"
@@ -9,78 +9,54 @@
       row-key="name"
       ref="tableList"
     >
-      <template #checkStatus="{ row }">
-        <dict-tag :options="check_status" :value="row.checkStatus" />
+      <template #status="{ row }">
+        <dict-tag :options="note_status" :value="row.status" />
       </template>
-      <template #secrets="{ row }">
-        <dict-tag :options="secrets_level" :value="row.secrets" />
-      </template>
-      <template #urgency="{ row }">
-        <dict-tag :options="urgency_level" :value="row.urgency" />
+      <template #sourse="{ row }">
+        <dict-tag :options="note_sourse" :value="row.sourse" />
       </template>
     </TableList>
-    <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 <script setup>
-import { reactive, ref, getCurrentInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/administration/notice";
-import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
+import { getColumns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
-const props = defineProps({
-  type: {
-    type: [String, Number],
-    required: true,
-  },
-  label: {
-    type: String,
-    required: true,
-  },
-});
-
 const { proxy } = getCurrentInstance();
-const { check_status, secrets_level, urgency_level } = proxy.useDict("check_status", "secrets_level", "urgency_level");
+const { note_status, note_sourse } = proxy.useDict("note_status", "note_sourse");
 
-const route = useRoute();
-const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
-/** 新增按钮操作 */
 function handleAdd() {
   addDialogRef.value.open();
 }
 
-/** 编辑按钮操作 */
 async function handleEdit(row) {
-  // 获取详情数据
   const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openEdit(res.data || res);
   }
 }
 
-/** 查看按钮操作 */
 async function handleView(row) {
-  // 获取详情数据
   const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openView(res.data || res);
   }
 }
 
-/** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
 }
 
-/** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm('确认删除该公文吗？');
+    await proxy.$modal.confirm('确认删除该公告吗？');
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();
@@ -91,9 +67,10 @@ async function handleDelete(row) {
 
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const columns = getColumns();
 </script>
 <style lang="scss" scoped>
-.tabs-container {
-  height: calc(100% - 50px);
+.main-content {
+  height: 100%;
 }
 </style>
