@@ -13,26 +13,17 @@ export const columns = [
     minWidth: 120,
   },
   {
-    fieldName: 'dids',
+    fieldName: 'deptNames',
     label: '应用部门',
     width: "35%",
     minWidth: 200,
-    formatter: (row) => {
-      if (!row.dids || row.dids === "") return "-";
-      const ids = Array.isArray(row.dids) ? row.dids : row.dids.split(",");
-      return ids.filter(id => id).join("、");
-    }
   },
   {
-    fieldName: 'keepUid',
+    fieldName: 'keeperName',
     label: '保管人',
     width: "15%",
     minWidth: 120,
     align: 'center',
-    formatter: (row) => {
-      if (!row.keepUid || row.keepUid == 0) return "-";
-      return row.keepUid;
-    }
   },
   {
     fieldName: 'status',
@@ -45,6 +36,7 @@ export const columns = [
     }
   },
 ];
+
 
 export const operationColumn = {
   label: '操作',
@@ -121,7 +113,7 @@ export const getOperationColumn = (onEdit, onDisable, onEnable) => {
         onClick: (row) => {
           onEnable && onEnable(row);
         },
-        icon: 'unlock',
+        icon: 'enable',
         isShow: (row) => row.status === 0,
       },
     ],
