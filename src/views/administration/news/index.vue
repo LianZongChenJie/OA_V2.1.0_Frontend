@@ -21,10 +21,8 @@
 </template>
 <script setup>
 import { ref, getCurrentInstance } from "vue";
-
-const type = ref("");
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/administration/notice";
+import { getPageList, getDetail, del } from "@/api/administration/news";
 import { getColumns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -33,6 +31,7 @@ const { note_status, note_sourse } = proxy.useDict("note_status", "note_sourse")
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
+const type = ref("");
 
 function handleAdd() {
   addDialogRef.value.open();
