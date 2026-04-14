@@ -50,9 +50,9 @@
       <!-- 第二行：签约主体 + 合同类别 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="签约主体" prop="enterpriseId">
+          <el-form-item label="签约主体" prop="subjectId">
             <el-select
-              v-model="form.enterpriseId"
+              v-model="form.subjectId"
               :disabled="isView"
               placeholder="请选择签约主体"
               clearable
@@ -376,7 +376,7 @@ const form = reactive({
   id: undefined,
   types: "",
   name: "",
-  enterpriseId: "",
+  subjectId: "",
   cateId: "",
   contractTime: [],
   customerId: "",
@@ -406,7 +406,7 @@ const dialogTitle = computed(() => {
 const rules = {
   types: [{ required: true, message: "请选择合同性质", trigger: "change" }],
   name: [{ required: true, message: "请输入合同名称", trigger: "blur" }],
-  enterpriseId: [{ required: true, message: "请选择签约主体", trigger: "change" }],
+  subjectId: [{ required: true, message: "请选择签约主体", trigger: "change" }],
   cateId: [{ required: true, message: "请选择合同类别", trigger: "change" }],
   contractTime: [{ required: true, message: "请选择合同时间", trigger: "change" }],
   customerId: [{ required: true, message: "请选择客户名称", trigger: "change" }],
@@ -434,7 +434,7 @@ function reset() {
   // 合同基本信息
   form.types = "";
   form.name = "";
-  form.enterpriseId = "";
+  form.subjectId = "";
   form.cateId = "";
   form.contractTime = [];
   form.customerId = "";
@@ -575,7 +575,7 @@ function openEdit(data) {
   // 合同基本信息
   form.types = data.types || "";
   form.name = data.name || "";
-  form.enterpriseId = data.enterpriseId || "";
+  form.subjectId = data.subjectId || "";
   form.cateId = data.cateId || data.cataId || "";
   // 将开始时间和结束时间组合为数组
   if (data.startTime || data.endTime) {
@@ -614,7 +614,7 @@ function openView(data) {
   // 合同基本信息
   form.types = data.types || "";
   form.name = data.name || "";
-  form.enterpriseId = data.enterpriseId || "";
+  form.subjectId = data.subjectId || "";
   form.cateId = data.cateId || data.cataId || "";
   // 将开始时间和结束时间组合为数组
   if (data.startTime || data.endTime) {
@@ -652,6 +652,7 @@ function handleSubmit() {
       // 将数组转换为后端需要的格式
       const submitData = {
         ...form,
+        subjectId: String(form.subjectId),
         shareIds: Array.isArray(form.shareIds)
           ? form.shareIds.join(",")
           : form.shareIds,

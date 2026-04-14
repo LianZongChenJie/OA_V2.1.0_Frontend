@@ -62,7 +62,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'enterpriseId',
+    fieldName: 'subjectName',
     label: '签约主体',
     width: 150,
     minWidth: 120,
@@ -121,7 +121,7 @@ export const columns = [
     align: 'right',
   },
   {
-    fieldName: 'signUid',
+    fieldName: 'signName',
     label: '签订人',
     width: 100,
     minWidth: 80,
@@ -163,7 +163,7 @@ export const columns = [
     minWidth: 80,
   },
   {
-    fieldName: 'keeperUid',
+    fieldName: 'keeperName',
     label: '保管人',
     width: 100,
     minWidth: 80,

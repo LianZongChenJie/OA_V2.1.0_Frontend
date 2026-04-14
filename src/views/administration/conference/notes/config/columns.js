@@ -1,3 +1,5 @@
+import { listUser } from "@/api/system/user.js";
+
 export const queryForm = {
   meetingDate: '',
   anchorId: '',
@@ -59,22 +61,23 @@ export const columns = [
     minWidth: 150,
     align: 'center',
   },
-    {
-  fieldName: 'anchorName',
-  label: '主持人',
-  width: "12%",
-  minWidth: 100,
-  align: 'center',
-  searchable: {
-    type: 'select',
-    fieldName: 'anchorId',
-    placeholder: '请选择主持人',
+  {
+    fieldName: 'anchorName',
     label: '主持人',
-    order: 2,
-    filterable: true,
-    enum: 'anchorId' 
+    width: "12%",
+    minWidth: 100,
+    align: 'center',
+    searchable: {
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userId',
+      optionLabel: 'nickName',
+      fieldName: 'anchorId',
+      placeholder: '请选择主持人',
+      label: '主持人',
+      order: 2,
+    },
   },
-},
   {
     fieldName: 'recorderName',
     label: '记录人',
