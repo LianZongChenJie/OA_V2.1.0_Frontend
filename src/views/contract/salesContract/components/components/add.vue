@@ -380,7 +380,7 @@ const form = reactive({
   cateId: "",
   contractTime: [],
   customerId: "",
-  customerName: "",
+  customer: "",
   contactName: "",
   contactAddress: "",
   contactMobile: "",
@@ -438,7 +438,7 @@ function reset() {
   form.cateId = "";
   form.contractTime = [];
   form.customerId = "";
-  form.customerName = "";
+  form.customer = "";
   form.contactName = "";
   form.contactAddress = "";
   form.contactMobile = "";
@@ -505,11 +505,11 @@ function handleCustomerChange(customerId) {
       (item) => item.id === customerId
     );
     if (selectedCustomer) {
-      form.customerName = selectedCustomer.name;
+      form.customer = selectedCustomer.name;
     }
   } else {
     form.customerId = "";
-    form.customerName = "";
+    form.customer = "";
   }
 }
 
@@ -573,16 +573,16 @@ function openEdit(data) {
   // 填充表单数据
   form.id = data.id;
   // 合同基本信息
-  form.types = data.types || "";
+  form.types = data.types !== undefined && data.types !== null ? String(data.types) : "";
   form.name = data.name || "";
-  form.subjectId = data.subjectId || "";
-  form.cateId = data.cateId || data.cataId || "";
+  form.subjectId = data.subjectId ? Number(data.subjectId) : "";
+  form.cateId = data.cateId ? Number(data.cateId) : (data.cataId ? Number(data.cataId) : "");
   // 将开始时间和结束时间组合为数组
   if (data.startTime || data.endTime) {
     form.contractTime = [data.startTime || "", data.endTime || ""];
   }
   form.customerId = data.customerId || "";
-  form.customerName = data.customerName || "";
+  form.customer = data.customer || "";
   form.contactName = data.contactName || "";
   form.contactAddress = data.contactAddress || "";
   form.contactMobile = data.contactMobile || "";
@@ -612,16 +612,16 @@ function openView(data) {
   // 填充表单数据
   form.id = data.id;
   // 合同基本信息
-  form.types = data.types || "";
+  form.types = data.types !== undefined && data.types !== null ? String(data.types) : "";
   form.name = data.name || "";
-  form.subjectId = data.subjectId || "";
-  form.cateId = data.cateId || data.cataId || "";
+  form.subjectId = data.subjectId ? Number(data.subjectId) : "";
+  form.cateId = data.cateId ? Number(data.cateId) : (data.cataId ? Number(data.cataId) : "");
   // 将开始时间和结束时间组合为数组
   if (data.startTime || data.endTime) {
     form.contractTime = [data.startTime || "", data.endTime || ""];
   }
   form.customerId = data.customerId || "";
-  form.customerName = data.customerName || "";
+  form.customer = data.customer || "";
   form.contactName = data.contactName || "";
   form.contactAddress = data.contactAddress || "";
   form.contactMobile = data.contactMobile || "";

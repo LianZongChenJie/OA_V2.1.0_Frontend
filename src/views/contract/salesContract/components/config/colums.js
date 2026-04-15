@@ -68,7 +68,7 @@ export const columns = [
     minWidth: 120,
   },
   {
-    fieldName: 'cateId',
+    fieldName: 'cateName',
     label: '合同类别',
     width: 120,
     minWidth: 100,
@@ -84,7 +84,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'customerName',
+    fieldName: 'customer',
     label: '客户名称',
     width: 150,
     minWidth: 120,
@@ -137,13 +137,13 @@ export const columns = [
     },
   },
   {
-    fieldName: 'did',
+    fieldName: 'deptName',
     label: '所属部门',
     width: 120,
     minWidth: 100,
   },
   {
-    fieldName: 'signTime',
+    fieldName: 'signTimeStr',
     label: '签订日期',
     width: 120,
     minWidth: 100,
@@ -157,7 +157,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'preparedUid',
+    fieldName: 'preparedName',
     label: '制定人',
     width: 100,
     minWidth: 80,
