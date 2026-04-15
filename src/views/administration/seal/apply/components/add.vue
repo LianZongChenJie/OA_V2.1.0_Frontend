@@ -159,106 +159,13 @@
       <!-- 审批流程信息 -->
       <div class="form-section-title">审批流程信息</div>
 
-      <!-- 第七行：审批流程 -->
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <el-form-item label="审批流程" prop="checkFlowId">
-            <el-select
-              v-model="form.checkFlowId"
-              :disabled="isView"
-              placeholder="请选择审批流程"
-              clearable
-              style="width: 100%"
-              @change="handleApprovalFlowChange"
-            >
-              <el-option
-                v-for="item in approvalFlowOptions"
-                :key="item.id"
-                :label="item.title"
-                :value="item.id"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第八行：抄送人 -->
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <el-form-item label="抄送人" prop="checkCopyUids">
-            <el-select
-              v-model="form.checkCopyUids"
-              :disabled="isView"
-              placeholder="请选择抄送人"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.nickName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第九行：审批流程详情 -->
-      <el-row
-        :gutter="20"
-        v-if="
-          selectedFlow &&
-          selectedFlow.flowList &&
-          selectedFlow.flowList.length > 0
-        "
-      >
-        <el-col :span="24">
-          <el-form-item label="审批流程详情">
-            <div class="flow-detail-container">
-              <div
-                v-for="(flow, index) in selectedFlow.flowList"
-                :key="index"
-                class="flow-item"
-              >
-                <div class="flow-header">
-                  <span class="flow-index">第 {{ index + 1 }} 步</span>
-                  <el-tag size="small" type="primary" class="flow-mode">{{
-                    getApprovalModeLabel(flow.check_types)
-                  }}</el-tag>
-                </div>
-                <div class="flow-content">
-                  <div class="flow-info-row">
-                    <span class="info-label">审批类型：</span>
-                    <span class="info-value">{{
-                      getFlowRoleLabel(flow.check_role)
-                    }}</span>
-                  </div>
-                  <div v-if="flow.check_position_id" class="flow-info-row">
-                    <span class="info-label">岗位名称：</span>
-                    <span class="info-value">{{
-                      getPostName(flow.check_position_id)
-                    }}</span>
-                  </div>
-                  <div
-                    v-if="flow.check_uids && flow.check_uids.length > 0"
-                    class="flow-info-row"
-                  >
-                    <span class="info-label">审批人：</span>
-                    <span class="info-value">{{
-                      getUserNames(flow.check_uids)
-                    }}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <ApprovalFlow
+        ref="approvalFlowRef"
+        v-model="approvalFlowData"
+        :disabled="isView"
+        flow-title="用章"
+        @flow-change="handleFlowChange"
+      />
     </el-form>
 
     <template #footer>
@@ -277,31 +184,31 @@
 <script setup name="AddSealApply">
 import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
 import { add, edit } from "@/api/administration/seal/apply";
-import { listUser } from "@/api/system/user.js";
 import { listDept } from "@/api/system/dept.js";
-import { listPost } from "@/api/system/post.js";
-import { getPageList as getApprovalFlowList } from "@/api/base/common/approvalFlow/index.js";
+import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
-const { seal_type, approval_mode, flow_list_item_type } = proxy.useDict(
-  "seal_type",
-  "approval_mode",
-  "flow_list_item_type",
-);
+const { seal_type } = proxy.useDict("seal_type");
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
+const approvalFlowRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
-// 下拉选项数据
-const userOptions = ref([]);
-const deptOptions = ref([]);
-const postOptions = ref([]);
-const approvalFlowOptions = ref([]);
+// 审批流程数据（双向绑定）
+const approvalFlowData = ref({
+  checkFlowId: "",
+  checkCopyUids: userStore.id ? [userStore.id] : [],
+});
+
+// 选中的审批流程详情
 const selectedFlow = ref(null);
+
+// 下拉选项数据
+const deptOptions = ref([]);
 
 const form = reactive({
   id: undefined,
@@ -314,8 +221,6 @@ const form = reactive({
   startTime: "",
   endTime: "",
   content: "",
-  checkFlowId: "1",
-  checkCopyUids: [],
 });
 
 // 根据模式动态显示标题
@@ -365,19 +270,17 @@ function reset() {
   form.startTime = "";
   form.endTime = "";
   form.content = "";
-  form.checkFlowId = "1";
-  form.checkCopyUids = [];
+
+  // 重置审批流程数据
+  approvalFlowData.value = {
+    checkFlowId: "",
+    checkCopyUids: userStore.id ? [userStore.id] : [],
+  };
+  selectedFlow.value = null;
 
   isEdit.value = false;
   isView.value = false;
   formRef.value?.clearValidate();
-}
-
-/** 获取用户列表 */
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-  });
 }
 
 /** 获取部门列表 */
@@ -385,22 +288,6 @@ function getDeptList() {
   listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
     deptOptions.value = response.data || [];
   });
-}
-
-/** 获取岗位列表 */
-function getPostList() {
-  listPost({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    postOptions.value = response.rows || [];
-  });
-}
-
-/** 获取审批流程列表 */
-function getApprovalFlowOptions() {
-  getApprovalFlowList({ pageNum: 1, pageSize: 100, title: "用章" }).then(
-    (response) => {
-      approvalFlowOptions.value = response.rows || [];
-    },
-  );
 }
 
 /** 印章外借变更 */
@@ -412,67 +299,8 @@ function handleIsBorrowChange(value) {
 }
 
 /** 审批流程变更 */
-function handleApprovalFlowChange(flowId) {
-  if (!flowId) {
-    selectedFlow.value = null;
-    return;
-  }
-  const flow = approvalFlowOptions.value.find((item) => item.id === flowId);
-  if (flow) {
-    // 解析 flowList，如果是字符串则转换为对象数组
-    let flowListData = flow.flowList;
-    if (typeof flowListData === "string") {
-      try {
-        flowListData = JSON.parse(flowListData);
-      } catch (e) {
-        console.error("解析 flowList 失败:", e);
-        flowListData = [];
-      }
-    }
-    selectedFlow.value = {
-      ...flow,
-      flowList: flowListData,
-    };
-    console.log("====选中的审批流程111：", selectedFlow.value);
-    console.log("====选中的审批流程22：", selectedFlow.value.flowList);
-  } else {
-    selectedFlow.value = null;
-  }
-}
-
-/** 获取审批方式标签 */
-function getApprovalModeLabel(checkTypes) {
-  const mode = approval_mode.value.find(
-    (item) => item.value === String(checkTypes),
-  );
-  return mode ? mode.label : checkTypes;
-}
-
-/** 获取审批类型标签 */
-function getFlowRoleLabel(checkRole) {
-  const role = flow_list_item_type.value.find(
-    (item) => item.value === String(checkRole),
-  );
-  return role ? role.label : checkRole;
-}
-
-/** 获取岗位名称 */
-function getPostName(postId) {
-  const post = postOptions.value.find((item) => String(item.postId) === String(postId));
-  return post ? post.postName : postId;
-}
-
-/** 获取用户名称（支持数组或逗号分隔的字符串） */
-function getUserNames(userIds) {
-  if (!userIds) return "";
-  let ids = [];
-  if (Array.isArray(userIds)) {
-    ids = userIds;
-  } else if (typeof userIds === "string") {
-    ids = userIds.split(",").map((id) => id.trim());
-  }
-  const users = userOptions.value.filter((user) => ids.includes(String(user.userId)));
-  return users.map((user) => user.nickName || user.userName).join("、");
+function handleFlowChange(flow) {
+  selectedFlow.value = flow;
 }
 
 /** 关闭弹窗 */
@@ -483,10 +311,6 @@ function handleClose() {
 /** 显示弹窗 - 新增模式 */
 function open() {
   reset();
-  // 设置抄送人默认为当前登录人
-  if (userStore.id) {
-    form.checkCopyUids = [userStore.id];
-  }
   dialogVisible.value = true;
 }
 
@@ -503,12 +327,16 @@ function openEdit(data) {
   form.startTime = data.startTime || "";
   form.endTime = data.endTime || "";
   form.content = data.content || "";
-  form.checkFlowId = data.checkFlowId || "1";
-  form.checkCopyUids = data.checkCopyUids
-    ? Array.isArray(data.checkCopyUids)
-      ? data.checkCopyUids
-      : data.checkCopyUids.split(",")
-    : [];
+
+  // 设置审批流程数据
+  approvalFlowData.value = {
+    checkFlowId: data.checkFlowId || "",
+    checkCopyUids: data.checkCopyUids
+      ? Array.isArray(data.checkCopyUids)
+        ? data.checkCopyUids
+        : data.checkCopyUids.split(",")
+      : [],
+  };
 
   isEdit.value = true;
   dialogVisible.value = true;
@@ -527,12 +355,16 @@ function openView(data) {
   form.startTime = data.startTime || "";
   form.endTime = data.endTime || "";
   form.content = data.content || "";
-  form.checkFlowId = data.checkFlowId || "1";
-  form.checkCopyUids = data.checkCopyUids
-    ? Array.isArray(data.checkCopyUids)
-      ? data.checkCopyUids
-      : data.checkCopyUids.split(",")
-    : [];
+
+  // 设置审批流程数据
+  approvalFlowData.value = {
+    checkFlowId: data.checkFlowId || "",
+    checkCopyUids: data.checkCopyUids
+      ? Array.isArray(data.checkCopyUids)
+        ? data.checkCopyUids
+        : data.checkCopyUids.split(",")
+      : [],
+  };
 
   isView.value = true;
   dialogVisible.value = true;
@@ -544,9 +376,10 @@ function handleSubmit() {
     if (valid) {
       const submitData = {
         ...form,
-        checkCopyUids: Array.isArray(form.checkCopyUids)
-          ? form.checkCopyUids.join(",")
-          : form.checkCopyUids,
+        checkFlowId: approvalFlowData.value.checkFlowId,
+        checkCopyUids: Array.isArray(approvalFlowData.value.checkCopyUids)
+          ? approvalFlowData.value.checkCopyUids.join(",")
+          : approvalFlowData.value.checkCopyUids,
       };
 
       const apiMethod = isEdit.value ? edit : add;
@@ -571,10 +404,7 @@ defineExpose({
 
 /** 初始化数据 */
 onMounted(() => {
-  getUserList();
   getDeptList();
-  getPostList();
-  getApprovalFlowOptions();
 });
 </script>
 
