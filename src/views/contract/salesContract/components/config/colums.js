@@ -186,7 +186,7 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
         label: '编辑',
         type: 'success',
         size: 'small',
-        // isShow: (row) => Number(row.checkStatus) === 3,
+        isShow: (row) => Number(row.checkStatus) === 0,
         onClick: (row) => {
           onEdit && onEdit(row);
         },
@@ -205,7 +205,7 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
         label: '删除',
         type: 'danger',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 3,
+        isShow: (row) => Number(row.checkStatus) === 0,
         onClick: (row) => {
           onDelete && onDelete(row);
         },

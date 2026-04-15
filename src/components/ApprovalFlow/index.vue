@@ -143,6 +143,10 @@ watch(
           ? val.checkCopyUids
           : val.checkCopyUids.split(",")
         : [];
+      // 监听审批节点数据变化
+      if (val.flowNodes) {
+        handleFlowNodesChange(val.flowNodes);
+      }
     }
   },
   { immediate: true, deep: true },
@@ -223,6 +227,26 @@ function handleFlowChange(flowIdVal) {
   }
 }
 
+/** 处理从详情页获取的审批节点数据 */
+function handleFlowNodesChange(flowNodes) {
+  // 将获取到的审批节点数据格式化为 flowList 格式
+  if (flowNodes && flowNodes.length > 0) {
+    const formattedFlowList = flowNodes.map((node) => ({
+      check_types: node.checkType || node.check_types || 1,
+      check_role: node.checkRole || node.check_role || 1,
+      check_position_id: node.checkPositionId || node.check_position_id || "",
+      check_uids: node.checkUids || node.check_uids || [],
+      status: node.status || node.node_status || 0,
+      remark: node.remark || "",
+    }));
+    selectedFlow.value = {
+      id: flowId.value,
+      flowList: formattedFlowList,
+    };
+    emit("flowChange", selectedFlow.value);
+  }
+}
+
 /** 获取审批方式标签 */
 function getApprovalModeLabel(checkTypes) {
   const mode = approval_mode.value.find((item) => item.value === String(checkTypes));
@@ -271,6 +295,8 @@ onMounted(() => {
   getUserList();
   getPostList();
   getApprovalFlowOptions();
+  // 默认设置当前登录人为抄送人
+  setDefaultCopyUser();
 });
 </script>
 

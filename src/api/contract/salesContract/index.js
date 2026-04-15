@@ -40,8 +40,5 @@ export function getDetail(id) {
   return request({
     url: '/system/contract/' + id,
     method: 'get'
-  })  
+  })
 }
-
-
-
