@@ -64,7 +64,7 @@
             >
               <div class="flow-header">
                 <span class="flow-index">第 {{ index + 1 }} 步</span>
-                <el-tag size="small" type="primary" class="flow-mode">{{
+                <el-tag size="small" class="flow-mode">{{
                   getApprovalModeLabel(flow.check_types)
                 }}</el-tag>
               </div>
@@ -139,9 +139,10 @@ watch(
     if (val) {
       flowId.value = val.checkFlowId || "";
       copyUids.value = val.checkCopyUids
-        ? Array.isArray(val.checkCopyUids)
-          ? val.checkCopyUids
-          : val.checkCopyUids.split(",")
+        ? (Array.isArray(val.checkCopyUids)
+            ? val.checkCopyUids
+            : val.checkCopyUids.split(",")
+          ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 确保转换为数字数组
         : [];
       // 监听审批节点数据变化
       if (val.flowNodes) {
@@ -344,6 +345,9 @@ onMounted(() => {
 
 .flow-mode {
   font-size: 12px;
+  background-color: #ecf5ff;
+  border-color: #d9ecff;
+  color: #409eff;
 }
 
 .flow-content {

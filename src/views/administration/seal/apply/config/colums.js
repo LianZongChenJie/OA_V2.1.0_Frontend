@@ -50,7 +50,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'did',
+    fieldName: 'didDept',
     label: '用章部门',
     width: 120,
     minWidth: 100,
@@ -63,7 +63,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '申请人',
     width: 100,
     minWidth: 80,

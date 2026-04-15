@@ -232,7 +232,8 @@ const dialogTitle = computed(() => {
 // 自定义校验：印章外借时，开始日期和结束日期必填
 const validateBorrowDates = (rule, value, callback) => {
   if (form.isBorrow === 1 && !value) {
-    const fieldName = rule.field === "startTime" ? "借用开始日期" : "借用结束日期";
+    const fieldName =
+      rule.field === "startTime" ? "借用开始日期" : "借用结束日期";
     callback(new Error(`请选择${fieldName}`));
   } else {
     callback();
@@ -250,12 +251,8 @@ const rules = {
     { required: true, message: "请选择用章类型", trigger: "change" },
   ],
   content: [{ required: true, message: "请输入盖章内容", trigger: "blur" }],
-  startTime: [
-    { validator: validateBorrowDates, trigger: "change" },
-  ],
-  endTime: [
-    { validator: validateBorrowDates, trigger: "change" },
-  ],
+  startTime: [{ validator: validateBorrowDates, trigger: "change" }],
+  endTime: [{ validator: validateBorrowDates, trigger: "change" }],
 };
 
 /** 表单重置 */
@@ -315,7 +312,8 @@ function open() {
 }
 
 /** 显示弹窗 - 编辑模式 */
-function openEdit(data) {
+function openEdit(formData) {
+  const { info: data, record } = formData;
   reset();
   form.id = data.id;
   form.title = data.title || "";
@@ -332,9 +330,10 @@ function openEdit(data) {
   approvalFlowData.value = {
     checkFlowId: data.checkFlowId || "",
     checkCopyUids: data.checkCopyUids
-      ? Array.isArray(data.checkCopyUids)
-        ? data.checkCopyUids
-        : data.checkCopyUids.split(",")
+      ? (Array.isArray(data.checkCopyUids)
+          ? data.checkCopyUids
+          : data.checkCopyUids.split(",")
+        ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 转换为数字数组
       : [],
   };
 
@@ -343,7 +342,8 @@ function openEdit(data) {
 }
 
 /** 显示弹窗 - 查看模式 */
-function openView(data) {
+function openView(formData) {
+  const { info: data, record } = formData;
   reset();
   form.id = data.id;
   form.title = data.title || "";
@@ -360,9 +360,10 @@ function openView(data) {
   approvalFlowData.value = {
     checkFlowId: data.checkFlowId || "",
     checkCopyUids: data.checkCopyUids
-      ? Array.isArray(data.checkCopyUids)
-        ? data.checkCopyUids
-        : data.checkCopyUids.split(",")
+      ? (Array.isArray(data.checkCopyUids)
+          ? data.checkCopyUids
+          : data.checkCopyUids.split(",")
+        ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 转换为数字数组
       : [],
   };
 
