@@ -96,7 +96,8 @@
         />
       </el-form-item>
 
-      <el-form-item label="审批流程" prop="flowId">
+      <!-- 审批流程（新增必填校验） -->
+      <el-form-item label="审批流程" prop="flowId" >
         <el-select
           v-model="form.flowId"
           :disabled="isView"
@@ -163,10 +164,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance } from "vue";
+import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/administration/conference/reservation/index.js";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/administration/conference/room/index.js";
+// 新增审批流程接口（如果有后端接口，替换为真实接口）
+// import { getFlowList } from "@/api/system/flow.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -177,6 +180,7 @@ const isView = ref(false);
 
 const userOptions = ref([]);
 const roomOptions = ref([]);
+const flowOptions = ref([]); // 审批流程选项
 
 const form = reactive({
   id: undefined,
@@ -184,8 +188,8 @@ const form = reactive({
   roomId: null,
   startDate: "",
   endDate: "",
+  flowId: null,
   adminId: null,
-  flowId: null, // 👈 审批流程ID
   num: "",
   requirements: "",
   requirementList: [],
@@ -206,15 +210,16 @@ const rules = {
     { required: true, message: "请输入会议人数", trigger: "blur" },
     { pattern: /^[1-9]\d*$/, message: "必须是正整数", trigger: "blur" }
   ],
+  // flowId: [{ required: true, message: "请选择审批流程", trigger: "change" }], 
+  // adminId: [{ required: true, message: "请选择审批人", trigger: "change" }],
 };
 
 onMounted(() => {
-  // 用户列表
+  // 加载用户列表
   listUser({ pageSize: 1000 }).then(res => {
     userOptions.value = (res.rows || []).filter(u => u.status === "0");
   });
-
-  // 会议室列表
+  // 加载会议室列表
   getPageList({ pageSize: 1000 }).then(res => {
     let list = [];
     if (res.rows && Array.isArray(res.rows)) {
@@ -224,19 +229,28 @@ onMounted(() => {
     }
     roomOptions.value = list;
   });
+  // 加载审批流程列表（替换为真实接口）
+  // getFlowList({ pageSize: 1000 }).then(res => {
+  //   flowOptions.value = res.rows || [];
+  // });
 });
 
 function handleSubmit() {
   formRef.value.validate(valid => {
     if (!valid) return;
 
+    // 🔥 核心修复：所有数字字段强制转整数，避免null/字符串
     const data = {
       ...form,
-      roomId: +form.roomId,
-      adminId: form.adminId || null,
-      num: +form.num,
+      id: form.id || undefined,
+      roomId: Number(form.roomId) || 0,
+      flowId: Number(form.flowId) || 0,
+      adminId: Number(form.adminId) || 0,
+      num: Number(form.num) || 0,
+      startDate: form.startDate,
+      endDate: form.endDate,
       requirements: form.requirementList.join('、') + (form.requirements ? '；' + form.requirements : ''),
-      ccUids: form.ccUids.join(',')
+      ccUids: form.ccUids.join(',') || ''
     };
 
     const api = isEdit.value ? updateenterPrise : addenterPrise;
@@ -244,26 +258,20 @@ function handleSubmit() {
       proxy.$modal.msgSuccess("操作成功");
       dialogVisible.value = false;
       emit("success");
+    }).catch(err => {
+      console.error("提交失败详情：", err.response?.data);
+      proxy.$modal.msgError("操作失败，请检查数据");
     });
   });
 }
 
 function reset() {
   Object.assign(form, {
-    id: undefined,
-    title: "",
-    roomId: null,
-    startDate: "",
-    endDate: "",
-    adminId: null,
-    num: "",
-    requirements: "",
-    requirementList: [],
-    ccUids: []
+    id: undefined, title: "", roomId: null, startDate: "", endDate: "",
+    flowId: null, adminId: null, num: "", requirements: "", requirementList: [], ccUids: []
   });
   isEdit.value = false;
   isView.value = false;
-  // 手动清除校验
   nextTick(() => {
     formRef.value?.clearValidate();
   });
@@ -281,36 +289,46 @@ function open() {
 
 function openEdit(data) {
   reset();
-  console.log("编辑回显数据：", data); // 看控制台！
+  const reqList = data.requirements ? data.requirements.split('、').filter(Boolean) : [];
   
   Object.assign(form, {
     ...data,
     startDate: data.startDate || "",
     endDate: data.endDate || "",
     roomId: data.roomId || null,
+    flowId: data.flowId || null,
     adminId: data.adminId || null,
-    num: (data.num || "").toString(),
+    num: (data.num ?? "").toString(),
     ccUids: data.ccUids ? data.ccUids.split(',').map(Number) : [],
-    requirementList: data.requirements ? data.requirements.split('、').filter(Boolean) : []
+    requirementList: reqList,
+    requirements: data.requirements || ""
   });
-  
+
   isEdit.value = true;
   dialogVisible.value = true;
+  
+  nextTick(() => {
+    formRef.value?.clearValidate();
+  });
 }
 
 function openView(data) {
   reset();
+  const reqList = data.requirements ? data.requirements.split('、').filter(Boolean) : [];
+  
   Object.assign(form, {
     ...data,
     startDate: data.startDate || "",
     endDate: data.endDate || "",
     roomId: data.roomId || null,
+    flowId: data.flowId || null,
     adminId: data.adminId || null,
-    num: (data.num || "").toString(),
+    num: (data.num ?? "").toString(),
     ccUids: data.ccUids ? data.ccUids.split(',').map(Number) : [],
-    requirementList: data.requirements ? data.requirements.split('、').filter(Boolean) : []
+    requirementList: reqList,
+    requirements: data.requirements || ""
   });
-  
+
   isView.value = true;
   dialogVisible.value = true;
 }

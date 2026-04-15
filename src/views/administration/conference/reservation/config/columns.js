@@ -24,27 +24,23 @@ export const columns = [
   { fieldName: 'title', 
     label: '会议主题', 
     width: "15%",
-    searchable: 
-    { 
-      type: 'input', 
-      fieldName: '关键词', 
-      placeholder: '关键词', 
-      order: 1 
-    }
+    searchable: {
+      type: 'input',
+      fieldName: 'keywords',
+      placeholder: '关键词',
+      label: '关键词',
+      order: 1,
+    },
   },
-  { fieldName: 'meetingDate', 
+  { fieldName: 'meetingTimeStr', 
     label: '会议时间', 
     width: "20%", 
     align: 'center',
-    formatter: (row) => {
-      // 这里自动拼接
-      return row.startDate + ' 至 ' + row.endDate;
-    }
   },
   { 
     fieldName: 'roomName', 
     label: '会议室', 
-    width: "10%", 
+    width: "15%", 
     align: 'center' 
   },
   { 
@@ -55,14 +51,14 @@ export const columns = [
   },
   {
      fieldName: 'adminName', 
-    label: '审核人',
+    label: '审批人',
      width: "10%",
       align: 'center' 
   },
   { 
-    fieldName: 'creatorName', 
+    fieldName: 'adminName', 
     label: '申请人',
-     width: "8%", 
+     width: "10%", 
      align: 'center' 
   },
   { 
