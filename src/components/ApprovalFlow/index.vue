@@ -3,7 +3,7 @@
     <!-- 审批流程 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="审批流程">
+        <el-form-item label="审批流程"  label-width="120px">
           <el-select
             v-model="flowId"
             :disabled="disabled"
@@ -26,7 +26,7 @@
     <!-- 抄送人 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="抄送人">
+        <el-form-item label="抄送人"  label-width="120px">
           <el-select
             v-model="copyUids"
             :disabled="disabled"
@@ -55,7 +55,7 @@
       v-if="selectedFlow && selectedFlow.flowList && selectedFlow.flowList.length > 0"
     >
       <el-col :span="24">
-        <el-form-item label="审批流程详情">
+        <el-form-item label="审批流程详情"  label-width="120px">
           <div class="flow-detail-container">
             <div
               v-for="(flow, index) in selectedFlow.flowList"
