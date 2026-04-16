@@ -6,6 +6,7 @@
     append-to-body
     class="car-dialog"
     @close="handleClose"
+    :close-on-click-modal="false"
   >
     <el-form 
       ref="formRef" 
@@ -13,8 +14,8 @@
       :rules="isView ? {} : rules" 
       label-width="100px"
       style="margin-top: 15px"
+      :key="dialogVisible"
     >
-      <!-- 第一行：项目名称 + 主办部门 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="项目名称" prop="name" required>
@@ -27,32 +28,27 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-
-      <el-form-item label="归属部门" prop="did" required>
-        <el-cascader
-          v-model="form.did"
-          :options="deptOptions"
-          :multiple="true"
-          :props="{
-            value: 'id',
-            label: 'label',
-            children: 'children',
-            checkStrictly: true,
-            emitPath: false,
-            disabled: 'disabled'
-          }"
-          :disabled="isView"
-          placeholder="请选择归属部门"
-          clearable
-          collapse-tags
-          collapse-tags-tooltip
-          style="width: 100%"
-        />
-      </el-form-item>
+          <el-form-item label="归属部门" prop="did" required>
+            <el-cascader
+              v-model="form.did"
+              :options="deptOptions"
+              :multiple="false"
+              :props="{
+                value: 'id',
+                label: 'label',
+                children: 'children',
+                checkStrictly: true,
+                emitPath: false
+              }"
+              :disabled="isView"
+              placeholder="请选择归属部门"
+              clearable
+              style="width: 100%"
+            />
+          </el-form-item>
         </el-col>
       </el-row>
 
-      <!-- 第二行：项目类别 + 项目经理 + 起止日期 -->
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item label="项目类别" prop="cateId" required>
@@ -78,7 +74,7 @@
             <el-select
               v-model="form.directorUid"
               :disabled="isView"
-              placeholder="请选择项目经理(负责人)"
+              placeholder="请选择项目经理"
               filterable
               clearable
               style="width:100%"
@@ -93,15 +89,15 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="起止日期" prop="startTime" required>
+          <el-form-item label="起止日期" prop="dateRange" required>
             <el-date-picker
-              v-model="form.startTime"
+              v-model="form.dateRange"
               type="daterange"
               format="YYYY-MM-DD"
               value-format="YYYY-MM-DD"
               range-separator="至"
-              start-placeholder="开始"
-              end-placeholder="结束"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
               :disabled="isView"
               style="width:100%"
             />
@@ -109,12 +105,11 @@
         </el-col>
       </el-row>
 
-      <!-- 第三行：项目成员 -->
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="项目成员" prop="joinUids" required>
+          <el-form-item label="项目成员" prop="customerId" required>
             <el-select
-              v-model="form.joinUids"
+              v-model="form.customerId"
               multiple
               :disabled="isView"
               placeholder="请选择项目成员"
@@ -133,14 +128,13 @@
         </el-col>
       </el-row>
 
-      <!-- 第四行：关联合同 -->
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="关联合同" prop="contractId">
             <el-select
               v-model="form.contractId"
               :disabled="isView"
-              placeholder="请选择需要关联的合同"
+              placeholder="请选择合同"
               filterable
               clearable
               style="width:100%"
@@ -156,7 +150,6 @@
         </el-col>
       </el-row>
 
-      <!-- 第五行：项目简介 -->
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="项目简介" prop="content">
@@ -172,40 +165,54 @@
         </el-col>
       </el-row>
 
-      <!-- 项目阶段表格 -->
       <el-form-item label="项目阶段" required>
         <el-button type="success" icon="el-icon-plus" @click="addStage" :disabled="isView">+ 添加阶段</el-button>
         <el-table
-          :data="stageList"
+          :data="form.stageList"
           style="width: 100%; margin-top: 10px"
           border
           size="small"
-          :scrollbar-always-on="true"
         >
-          <el-table-column prop="sort" label="序号" width="80" align="center" />
-          
-          <!-- 阶段名称 去掉了多余布局，只保留输入框 -->
-          <el-table-column prop="name" label="阶段名称" min-width="150">
-            <template #default="{ row }">
-              <el-input
-                v-model="row.name"
-                :disabled="isView"
-                placeholder="请输入阶段名称"
-                style="width:100%"
-              />
+          <el-table-column label="序号" width="70" align="center">
+            <template #default="{ $index }">
+              {{ $index + 1 }}
             </template>
           </el-table-column>
 
-          <el-table-column prop="directorUid" label="阶段负责人" min-width="150">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.directorUid"
-                :disabled="isView"
-                placeholder="负责人"
-                filterable
-                clearable
-                style="width: 100%"
+          <el-table-column label="阶段名称" min-width="150">
+            <template #default="{ $index }">
+              <el-form-item
+                :prop="`stageList.${$index}.name`"
+                :rules="[{ required: true, message: '请输入阶段名称', trigger: 'blur' }]"
+                style="margin:0"
               >
+                <el-input v-model="form.stageList[$index].name" :disabled="isView" placeholder="阶段名称" style="width:100%"/>
+              </el-form-item>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="阶段负责人" min-width="150">
+            <template #default="{ $index }">
+              <el-form-item
+                :prop="`stageList.${$index}.directorUid`"
+                :rules="[{ required: true, message: '请选择负责人', trigger: 'change' }]"
+                style="margin:0"
+              >
+              <el-select v-model="form.stageList[$index].directorUid" :disabled="isView" placeholder="负责人" style="width:100%" clearable>
+                <el-option
+                  v-for="item in userOptions"
+                  :key="item.userId"
+                  :label="item.nickName"
+                  :value="item.userId"
+                />
+              </el-select>
+              </el-form-item>
+            </template>
+          </el-table-column>
+
+          <el-table-column label="阶段成员" min-width="180">
+            <template #default="{ $index }">
+              <el-select v-model="form.stageList[$index].memberUids" multiple :disabled="isView" placeholder="成员" style="width:100%">
                 <el-option
                   v-for="item in userOptions"
                   :key="item.userId"
@@ -216,75 +223,45 @@
             </template>
           </el-table-column>
 
-          <el-table-column prop="memberUids" label="阶段成员" min-width="180">
-            <template #default="{ row }">
-              <el-select
-                v-model="row.memberUids"
-                multiple
-                :disabled="isView"
-                placeholder="成员"
-                filterable
-                clearable
-                style="width: 100%"
+          <el-table-column label="阶段周期" min-width="200">
+            <template #default="{ $index }">
+              <el-form-item
+                :prop="`stageList.${$index}.timeRange`"
+                :rules="[{ required: true, message: '请选择阶段周期', trigger: 'change' }]"
+                style="margin:0"
               >
-                <el-option
-                  v-for="item in userOptions"
-                  :key="item.userId"
-                  :label="item.nickName"
-                  :value="item.userId"
+                <el-date-picker
+                  v-model="form.stageList[$index].timeRange"
+                  type="daterange"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                  :disabled="isView"
+                  style="width:100%"
                 />
-              </el-select>
+              </el-form-item>
             </template>
           </el-table-column>
 
-          <el-table-column prop="timeRange" label="阶段周期" min-width="200">
-            <template #default="{ row }">
-              <el-date-picker
-                v-model="row.timeRange"
-                type="daterange"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-                range-separator="至"
-                start-placeholder="开始"
-                end-placeholder="结束"
-                :disabled="isView"
-                style="width: 100%"
-              />
+          <el-table-column label="阶段说明" min-width="200">
+            <template #default="{ $index }">
+              <el-input v-model="form.stageList[$index].remark" :disabled="isView" placeholder="说明" style="width:100%"/>
             </template>
           </el-table-column>
 
-          <el-table-column prop="remark" label="阶段说明" min-width="200">
-            <template #default="{ row }">
-              <el-input
-                v-model="row.remark"
-                :disabled="isView"
-                placeholder="请输入阶段说明"
-                style="width: 100%"
-              />
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            fixed="right"
-            label="操作"
-            width="180"
-            align="center"
-            :resizable="false"
-          >
-            <template #default="{ row, $index }">
-              <el-button type="success" size="small" @click="moveUp($index)" style="width:45px;padding:0">上移</el-button>
-              <el-button type="primary" size="small" @click="moveDown($index)" style="width:45px;padding:0">下移</el-button>
-              <el-button type="danger" size="small" @click="delStage($index)" style="width:45px;padding:0">删除</el-button>
+          <el-table-column fixed="right" label="操作" width="180" align="center">
+            <template #default="{ $index }">
+              <el-button size="small" type="success" @click="moveUp($index)" style="width:42px">上移</el-button>
+              <el-button size="small" type="primary" @click="moveDown($index)" style="width:42px">下移</el-button>
+              <el-button size="small" type="danger" @click="delStage($index)" style="width:42px">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-form-item>
-
     </el-form>
 
     <template #footer>
-      <div style="text-align: center">
-        <el-button v-if="!isView" type="primary" @click="handleSubmit">立即提交</el-button>
+      <div style="text-align:center">
+        <el-button type="primary" @click="handleSubmit" v-if="!isView">提交</el-button>
         <el-button @click="handleClose">关闭</el-button>
       </div>
     </template>
@@ -298,7 +275,6 @@ import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import { getPageList } from "@/api/base/project/projectClassify/index.js";
 
 const { proxy } = getCurrentInstance();
-
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
@@ -313,32 +289,24 @@ const form = reactive({
   id: undefined,
   name: "",
   code: "",
-  amount: 0,
+  amount: "",
   cateId: null,
-  customerId: 0,
+  customerId: [],
   contractId: null,
-  adminId: 0,
+  adminId: null,
   directorUid: null,
   did: null,
-  startTime: "",
-  endTime: "",
-  startTimeStr: [],
-  status: 0,
+  dateRange: [],
   content: "",
-  createTime: 0,
-  updateTime: 0,
-  deleteTime: 0,
-  joinUids: []
+  stageList: [
+    { name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+    { name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+    { name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+    { name: "监控阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+    { name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+    { name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+  ]
 });
-
-const stageList = reactive([
-  { sort: 1, name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-  { sort: 2, name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-  { sort: 3, name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-  { sort: 4, name: "监控与控制阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-  { sort: 5, name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-  { sort: 6, name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" }
-]);
 
 const dialogTitle = computed(() => {
   if (isView.value) return "查看项目";
@@ -350,8 +318,8 @@ const rules = {
   cateId: [{ required: true, message: "请选择项目类别", trigger: "change" }],
   directorUid: [{ required: true, message: "请选择项目经理", trigger: "change" }],
   did: [{ required: true, message: "请选择归属部门", trigger: "change" }],
-  startTime: [{ required: true, message: "请选择起止日期", trigger: "change" }],
-  joinUids: [{ required: true, message: "请选择项目成员", trigger: "change" }],
+  dateRange: [{ required: true, message: "请选择起止日期", trigger: "change" }],
+  customerId: [{ required: true, message: "请选择项目成员", trigger: "change" }],
 };
 
 onMounted(() => {
@@ -365,199 +333,179 @@ onMounted(() => {
 });
 
 async function loadProjectCategory() {
-  try {
-    const res = await getPageList({ pageSize: 100 , pageNum: 1});
-    cateOptions.value = res.rows || [];
-  } catch (err) {
-    console.error("加载项目分类失败", err);
-  }
+  const res = await getPageList({ pageSize: 100, pageNum: 1 });
+  cateOptions.value = res.rows || [];
 }
 
 function addStage() {
-  stageList.push({
-    sort: stageList.length + 1,
-    name: "",
-    directorUid: null,
-    memberUids: [],
-    timeRange: [],
-    remark: ""
-  });
+  form.stageList.push({ name: "", directorUid: null, memberUids: [], timeRange: [], remark: "" });
 }
 
 function delStage(index) {
-  stageList.splice(index, 1);
-  stageList.forEach((item, idx) => {
-    item.sort = idx + 1;
-  });
+  form.stageList.splice(index, 1);
 }
 
 function moveUp(index) {
   if (index === 0) return;
-  const temp = stageList[index];
-  stageList.splice(index, 1);
-  stageList.splice(index - 1, 0, temp);
-  stageList.forEach((item, idx) => {
-    item.sort = idx + 1;
-  });
+  [form.stageList[index], form.stageList[index - 1]] = [form.stageList[index - 1], form.stageList[index]];
 }
 
 function moveDown(index) {
-  if (index === stageList.length - 1) return;
-  const temp = stageList[index];
-  stageList.splice(index, 1);
-  stageList.splice(index + 1, 0, temp);
-  stageList.forEach((item, idx) => {
-    item.sort = idx + 1;
-  });
+  if (index === form.stageList.length - 1) return;
+  [form.stageList[index], form.stageList[index + 1]] = [form.stageList[index + 1], form.stageList[index]];
+}
+
+function toSeconds(dateStr) {
+  if (!dateStr) return null;
+  return Math.floor(new Date(dateStr).getTime() / 1000);
 }
 
 function handleSubmit() {
-  formRef.value.validate(valid => {
+  formRef.value.validate((valid) => {
     if (!valid) return;
 
-    const [startDate, endDate] = form.startTime || [];
-    const startTime = startDate ? new Date(startDate).getTime() : 0;
-    const endTime = endDate ? new Date(endDate).getTime() : 0;
-    let did = 0;
-    if (form.did) {
-      did = Number(form.did);
-    }
+    const [startDate, endDate] = form.dateRange || [];
+    const startTime = toSeconds(startDate);
+    const endTime = toSeconds(endDate);
 
-    // 提交参数（完全按后端接口文档）
+    let didVal = form.did;
+    if (Array.isArray(didVal)) didVal = didVal.at(-1);
+
     const data = {
-      id: form.id || undefined,
-      name: form.name || '',
-      code: form.code || '',
-      amount: Number(form.amount) || 0,
-      cateId: Number(form.cateId) || 0,
-      customerId: 0,
-      contractId: Number(form.contractId) || 0,
-      adminId: 0,
-      directorUid: Number(form.directorUid) || 0,
-      did: did,                
-      startTime: startTime,    
-      endTime: endTime,        
+      id: form.id,
+      name: form.name,
+      code: form.code,
+      amount: form.amount || 0,
+      cateId: form.cateId,
+      customerId: form.customerId?.length ? form.customerId[0] : null,
+      contractId: form.contractId,
+      adminId: form.adminId,
+      directorUid: form.directorUid,
+      did: didVal,
+      startTime: startTime,
+      endTime: endTime,
       status: 0,
-      content: form.content || '',
-      joinUids: (form.joinUids || []).join(','),
-      stages: stageList.map(item => ({
-        sort: item.sort || 0,
-        name: item.name || '',
-        directorUid: Number(item.directorUid) || 0,
-        memberUids: (item.memberUids || []).join(','),
-        startTime: item.timeRange?.[0] ? new Date(item.timeRange[0]).getTime() : 0,
-        endTime: item.timeRange?.[1] ? new Date(item.timeRange[1]).getTime() : 0,
-        remark: item.remark || ''
-      }))
+      content: form.content,
+      stages: form.stageList.map(it => {
+        const [s, e] = it.timeRange || [];
+        return {
+          name: it.name,
+          directorUid: it.directorUid,
+          memberUids: (it.memberUids || []).join(','),
+          startTime: toSeconds(s),
+          endTime: toSeconds(e),
+          remark: it.remark
+        };
+      })
     };
 
-    // 发送请求
-    const api = isEdit.value ? updateenterPrise : addenterPrise;
-    api(data).then(() => {
-      proxy.$modal.msgSuccess("操作成功");
-      dialogVisible.value = false;
-      emit("success");
-    }).catch(err => {
-      console.error("提交失败", err);
-      proxy.$modal.msgError("提交失败：参数格式不正确");
-    });
+    (isEdit.value ? updateenterPrise(data) : addenterPrise(data))
+      .then(() => {
+        proxy.$modal.msgSuccess("操作成功");
+        handleClose();
+        emit("success");
+      })
+      .catch((e) => {
+
+        console.error("提交失败", e);
+      });
   });
 }
 
-function reset() {
+function resetForm() {
   Object.assign(form, {
-    id: undefined, name: "", code: "", amount: 0, cateId: null, customerId: 0,
-    contractId: null, adminId: 0, directorUid: null, did: null, startTime: "",
-    endTime: "", startTimeStr: [], status: 0, content: "", createTime: 0, updateTime: 0, deleteTime: 0,
-    joinUids: []
+    id: undefined,
+    name: "",
+    code: "",
+    amount: "",
+    cateId: null,
+    customerId: [],
+    contractId: null,
+    adminId: null,
+    directorUid: null,
+    did: null,
+    dateRange: [],
+    content: "",
+    stageList: [
+      { name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+      { name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+      { name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+      { name: "监控阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+      { name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+      { name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+    ]
   });
-  Object.assign(stageList, [
-    { sort: 1, name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { sort: 2, name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { sort: 3, name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { sort: 4, name: "监控与控制阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { sort: 5, name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { sort: 6, name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" }
-  ]);
   isEdit.value = false;
   isView.value = false;
-  nextTick(() => {
-    formRef.value?.clearValidate();
-  });
+  nextTick(() => formRef.value?.clearValidate());
 }
 
 function handleClose() {
-  reset();
+  resetForm();
   dialogVisible.value = false;
 }
 
 function open() {
-  reset();
+  resetForm();
   dialogVisible.value = true;
 }
 
-function openEdit(data) {
-  reset();
-  Object.assign(form, {
-    ...data,
-    directorUid: data.directorUid || null,
-    did: data.did || null, 
-    contractId: data.contractId || null,
-    cateId: data.cateId || null,
-    joinUids: data.joinUids ? data.joinUids.split(',').map(Number) : [],
-    startTime: [data.startTime, data.endTime]
-  });
+// ✅【修复】安全解析数组
+function safeSplit(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  return String(val).split(',').map(Number).filter(Boolean);
+}
 
-  if (data.stages && Array.isArray(data.stages)) {
-    stageList.splice(0, stageList.length, ...data.stages.map((item, idx) => ({
-      ...item,
-      sort: idx + 1,
-      timeRange: [item.startTime, item.endTime],
-      memberUids: item.memberUids ? item.memberUids.split(',').map(Number) : []
-    })));
-  }
-  
+function openEdit(row) {
+  resetForm();
+
+  form.id = row.id;
+  form.name = row.name;
+  form.did = row.did;
+  form.cateId = row.cateId;
+  form.directorUid = row.directorUid;
+  form.contractId = row.contractId || null;
+  form.content = row.content;
+  form.adminId = row.adminId;
+
+  // ✅ 安全转数组
+  form.customerId = safeSplit(row.customerId);
+
+  try {
+    form.dateRange = row.startTime && row.endTime
+      ? [formatTime(row.startTime), formatTime(row.endTime)]
+      : [];
+  } catch (e) {}
+
+  try {
+    if (row.stages) {
+      form.stageList = row.stages.map(s => ({
+        name: s.name,
+        directorUid: s.directorUid,
+        memberUids: safeSplit(s.memberUids),
+        timeRange: s.startTime && s.endTime ? [formatTime(s.startTime), formatTime(s.endTime)] : [],
+        remark: s.remark || ""
+      }));
+    }
+  } catch (e) {}
+
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-function openView(data) {
-  reset();
-  Object.assign(form, {
-    ...data,
-    directorUid: data.directorUid || null,
-    did: data.did || null,
-    contractId: data.contractId || null,
-    cateId: data.cateId || null,
-    joinUids: data.joinUids ? data.joinUids.split(',').map(Number) : [],
-    startTimeStr: [data.startTime, data.endTime]
-  });
-  if (data.stages && Array.isArray(data.stages)) {
-    stageList.splice(0, stageList.length, ...data.stages.map((item, idx) => ({
-      ...item,
-      sort: idx + 1,
-      timeRange: [item.startTime, item.endTime],
-      memberUids: item.memberUids ? item.memberUids.split(',').map(Number) : []
-    })));
-  }
+function openView(row) {
+  openEdit(row);
   isView.value = true;
-  dialogVisible.value = true;
+}
+
+function formatTime(ts) {
+  if (!ts) return "";
+  const time = ts.toString().length === 10 ? ts * 1000 : ts;
+  const d = new Date(time);
+  return d.toISOString().split("T")[0];
 }
 
 const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
-
-<style>
-.car-dialog.el-dialog {
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-}
-.car-dialog .el-dialog__body {
-  overflow-y: auto;
-}
-.car-dialog .el-table .el-button {
-  margin: 0 2px;
-}
-</style>

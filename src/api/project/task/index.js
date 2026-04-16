@@ -1,35 +1,35 @@
 import request from '@/utils/request'
 
-// 获取项目列表分页列表
+// 获取任务列表分页列表
 export function getPageList(query) {
   return request({
-    url: '/project/list',
+    url: '/project/task/list',
     method: 'get',
     params: query
   })
 }
 
-// 获取项目列表详情
+// 获取任务列表详情
 export function getDetail(id) {
   return request({
-    url: `/project/${id}`,
+    url: `/project/task/${id}`,
     method: 'get'
   })
 }
 
-// 新增项目列表
+// 新增任务列表
 export function addenterPrise(data) {
   return request({
-    url: '/project',
+    url: '/project/task',
     method: 'post',
     data: data
   })
 }
 
-// 更新项目列表
+// 更新任务列表
 export function updateenterPrise(data) {
   return request({
-    url: `/project`,
+    url: `/project/task`,
     method: 'put',
     data: data
   })
@@ -37,10 +37,10 @@ export function updateenterPrise(data) {
 
 
 
-// 删除项目列表接口
+// 删除任务列表接口
 export function deletereward(id) {
   return request({
-    url: `/project/${id}`,
+    url: `/project/task/${id}`,
     method: 'delete'
   })
 }
