@@ -13,7 +13,7 @@
         <dict-tag :options="contract_check_status" :value="Number(row.checkStatus)" />
       </template>
       <template #types="{ row }">
-        <dict-tag :options="seal_contract_types" :value="Number(row.types)" />
+        <dict-tag :options="procurement_contract_types" :value="Number(row.types)" />
       </template>
       <template #effTime="{ row }">
         {{ row.startTime }} ~ {{ row.endTime }}
@@ -26,7 +26,8 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/contract/salesContract";
+//src/api/contract/procurementContract/index.js
+import { getPageList, getDetail, del } from "@/api/contract/procurementContract";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -42,7 +43,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { contract_check_status, seal_contract_types } = proxy.useDict("contract_check_status", "seal_contract_types");
+const { contract_check_status, procurement_contract_types } = proxy.useDict("contract_check_status", "procurement_contract_types");
 
 const route = useRoute();
 const router = useRouter();

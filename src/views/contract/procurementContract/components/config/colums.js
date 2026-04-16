@@ -51,10 +51,10 @@ export const columns = [
     minWidth: 100,
     align: 'center',
     isDict: true,
-    dict: 'seal_contract_types',
+    dict: 'procurement_contract_types',
     searchable: {
       type: 'select',
-      dictKey: 'seal_contract_types',
+      dictKey: 'procurement_contract_types',
       fieldName: 'types',
       placeholder: '请选择合同性质',
       label: '合同性质',
@@ -62,17 +62,11 @@ export const columns = [
     },
   },
   {
-    fieldName: 'subjectName',
-    label: '签约主体',
-    width: 150,
-    minWidth: 120,
-  },
-  {
     fieldName: 'cateName',
     label: '合同类别',
     width: 120,
     minWidth: 100,
-    searchable: {
+    searchable: { 
       type: 'selectApi',
       api: getClassifyPageList,
       optionValue: 'id',
@@ -84,29 +78,11 @@ export const columns = [
     },
   },
   {
-    fieldName: 'customer',
-    label: '客户名称',
-    width: 150,
-    minWidth: 120,
-  },
-  {
-    fieldName: 'contactName',
-    label: '客户代表',
-    width: 100,
-    minWidth: 80,
-  },
-  {
-    fieldName: 'contactMobile',
-    label: '联系方式',
-    width: 120,
-    minWidth: 100,
-  },
-  {
     fieldName: 'startTimeStr',
     label: '开始时间',
     width: 120,
     minWidth: 100,
-  },
+  }, 
   {
     fieldName: 'endTimeStr',
     label: '结束时间',
@@ -137,12 +113,6 @@ export const columns = [
     },
   },
   {
-    fieldName: 'deptName',
-    label: '所属部门',
-    width: 120,
-    minWidth: 100,
-  },
-  {
     fieldName: 'signTimeStr',
     label: '签订日期',
     width: 120,
@@ -155,12 +125,6 @@ export const columns = [
       order: 4,
       searchKey: ['signTimeStart', 'signTimeEnd'],
     },
-  },
-  {
-    fieldName: 'preparedName',
-    label: '制定人',
-    width: 100,
-    minWidth: 80,
   },
   {
     fieldName: 'keeperName',

@@ -3,7 +3,7 @@
     ref="formRef"
     :model="form"
     :rules="readonly ? {} : rules"
-    label-width="120px"
+    label-width="140px"
   >
     <!-- 合同基本信息 -->
     <div class="form-section-title">合同基本信息</div>
@@ -20,7 +20,7 @@
             style="width: 100%"
           >
             <el-option
-              v-for="dict in seal_contract_types"
+              v-for="dict in procurement_contract_types"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -39,14 +39,14 @@
       </el-col>
     </el-row>
 
-    <!-- 第二行：签约主体 + 合同类别 -->
+    <!-- 第二行：签约主体(甲方) + 合同类别 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="签约主体" prop="subjectId">
+        <el-form-item label="签约主体(甲方)" prop="subjectId">
           <el-select
             v-model="form.subjectId"
             :disabled="readonly"
-            placeholder="请选择签约主体"
+            placeholder="请选择签约主体(甲方)"
             clearable
             filterable
             style="width: 100%"
@@ -98,14 +98,14 @@
       </el-col>
     </el-row>
 
-    <!-- 第四行：客户名称 + 客户代表 -->
+    <!-- 第四行：供应商名称(乙方) + 供应商代表 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="客户名称" prop="customerId">
+        <el-form-item label="供应商名称(乙方)" prop="customerId">
           <el-select
             v-model="form.customerId"
             :disabled="readonly"
-            placeholder="请选择客户名称"
+            placeholder="请选择供应商(乙方)"
             clearable
             filterable
             style="width: 100%"
@@ -121,10 +121,10 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="客户代表" prop="contactName">
+        <el-form-item label="供应商代表" prop="contactName">
           <el-input
             v-model="form.contactName"
-            placeholder="请输入客户代表"
+            placeholder="请输入供应商代表"
             :disabled="readonly"
           />
         </el-form-item>
@@ -134,19 +134,19 @@
     <!-- 第五行：客户地址 + 客户联系方式 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="客户地址" prop="contactAddress">
+        <el-form-item label="供应商地址" prop="contactAddress">
           <el-input
             v-model="form.contactAddress"
-            placeholder="请输入客户地址"
+            placeholder="请输入供应商地址"
             :disabled="readonly"
           />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="客户联系方式" prop="contactMobile">
+        <el-form-item label="供应商联系方式" prop="contactMobile">
           <el-input
             v-model="form.contactMobile"
-            placeholder="请输入客户手机号"
+            placeholder="请输入供应商手机号"
             :disabled="readonly"
             maxlength="11"
           />
@@ -337,7 +337,9 @@ import { getPageList as getClassifyPageList } from "@/api/base/contract/classify
 import request from "@/utils/request";
 
 const { proxy } = getCurrentInstance();
-const { seal_contract_types } = proxy.useDict("seal_contract_types");
+const { procurement_contract_types } = proxy.useDict(
+  "procurement_contract_types",
+);
 
 const props = defineProps({
   // 是否只读
@@ -396,17 +398,21 @@ const form = reactive({
 const rules = {
   types: [{ required: true, message: "请选择合同性质", trigger: "change" }],
   name: [{ required: true, message: "请输入合同名称", trigger: "blur" }],
-  subjectId: [{ required: true, message: "请选择签约主体", trigger: "change" }],
+  subjectId: [
+    { required: true, message: "请选择签约主体(甲方)", trigger: "change" },
+  ],
   cateId: [{ required: true, message: "请选择合同类别", trigger: "change" }],
   contractTime: [
     { required: true, message: "请选择合同时间", trigger: "change" },
   ],
   customerId: [
-    { required: true, message: "请选择客户名称", trigger: "change" },
+    { required: true, message: "请选择供应商名称(乙方)", trigger: "change" },
   ],
-  contactName: [{ required: true, message: "请输入客户代表", trigger: "blur" }],
+  contactName: [
+    { required: true, message: "请输入供应商代表", trigger: "blur" },
+  ],
   contactMobile: [
-    { required: true, message: "请输入客户联系方式", trigger: "blur" },
+    { required: true, message: "请输入供应商联系方式", trigger: "blur" },
     {
       pattern: /^1[3-9]\d{9}$/,
       message: "请输入正确的手机号码",
@@ -443,7 +449,7 @@ function getEnterpriseList() {
   });
 }
 
-/** 获取客户列表 */
+/** 获取供应商列表 */
 function getCustomerList(query = {}) {
   getCustomerPageList({ pageNum: 1, pageSize: 100, ...query }).then(
     (response) => {
