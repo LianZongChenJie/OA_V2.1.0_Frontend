@@ -12,6 +12,7 @@
       :model="form"
       :rules="isView ? {} : rules"
       label-width="140px"
+      :validate-on-rule-change="false"
     >
       <!-- 基础申请信息 -->
       <div class="form-section-title">基础申请信息</div>
@@ -182,7 +183,7 @@
 </template>
 
 <script setup name="AddSealApply">
-import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, computed, getCurrentInstance, onMounted, nextTick } from "vue";
 import { add, edit } from "@/api/administration/seal/apply";
 import { listDept } from "@/api/system/dept.js";
 import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
@@ -257,6 +258,9 @@ const rules = {
 
 /** 表单重置 */
 function reset() {
+  // 先清除验证
+  formRef.value?.clearValidate();
+
   form.id = undefined;
   form.title = "";
   form.did = "";
@@ -277,7 +281,6 @@ function reset() {
 
   isEdit.value = false;
   isView.value = false;
-  formRef.value?.clearValidate();
 }
 
 /** 获取部门列表 */
@@ -313,61 +316,71 @@ function open() {
 
 /** 显示弹窗 - 编辑模式 */
 function openEdit(formData) {
-  const { info: data, record } = formData;
+  // 兼容两种数据格式：{ info: data, record } 或直接 data
+  const data = formData?.info || formData;
   reset();
-  form.id = data.id;
-  form.title = data.title || "";
-  form.did = data.did || "";
-  form.num = data.num || 1;
-  form.useTime = data.useTime || "";
-  form.sealCateId = data.sealCateId || "";
-  form.isBorrow = data.isBorrow ?? 0;
-  form.startTime = data.startTime || "";
-  form.endTime = data.endTime || "";
-  form.content = data.content || "";
+  isEdit.value = true; // 先设置为编辑模式
 
-  // 设置审批流程数据
-  approvalFlowData.value = {
-    checkFlowId: data.checkFlowId || "",
-    checkCopyUids: data.checkCopyUids
-      ? (Array.isArray(data.checkCopyUids)
-          ? data.checkCopyUids
-          : data.checkCopyUids.split(",")
-        ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 转换为数字数组
-      : [],
-  };
+  // 使用 nextTick 确保表单状态更新后再设置数据
+  nextTick(() => {
+    form.id = data.id;
+    form.title = data.title || "";
+    form.did = data.did || "";
+    form.num = data.num || 1;
+    form.useTime = data.useTime || "";
+    form.sealCateId = data.sealCateId || "";
+    form.isBorrow = data.isBorrow ?? 0;
+    form.startTime = data.startTime || "";
+    form.endTime = data.endTime || "";
+    form.content = data.content || "";
 
-  isEdit.value = true;
+    // 设置审批流程数据
+    approvalFlowData.value = {
+      checkFlowId: data.checkFlowId || "",
+      checkCopyUids: data.checkCopyUids
+        ? (Array.isArray(data.checkCopyUids)
+            ? data.checkCopyUids
+            : data.checkCopyUids.split(",")
+          ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 转换为数字数组
+        : [],
+    };
+  });
+
   dialogVisible.value = true;
 }
 
 /** 显示弹窗 - 查看模式 */
 function openView(formData) {
-  const { info: data, record } = formData;
+  // 兼容两种数据格式：{ info: data, record } 或直接 data
+  const data = formData?.info || formData;
   reset();
-  form.id = data.id;
-  form.title = data.title || "";
-  form.did = data.did || "";
-  form.num = data.num || 1;
-  form.useTime = data.useTime || "";
-  form.sealCateId = data.sealCateId || "";
-  form.isBorrow = data.isBorrow ?? 0;
-  form.startTime = data.startTime || "";
-  form.endTime = data.endTime || "";
-  form.content = data.content || "";
+  isView.value = true; // 先设置为查看模式
 
-  // 设置审批流程数据
-  approvalFlowData.value = {
-    checkFlowId: data.checkFlowId || "",
-    checkCopyUids: data.checkCopyUids
-      ? (Array.isArray(data.checkCopyUids)
-          ? data.checkCopyUids
-          : data.checkCopyUids.split(",")
-        ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 转换为数字数组
-      : [],
-  };
+  // 使用 nextTick 确保表单状态更新后再设置数据
+  nextTick(() => {
+    form.id = data.id;
+    form.title = data.title || "";
+    form.did = data.did || "";
+    form.num = data.num || 1;
+    form.useTime = data.useTime || "";
+    form.sealCateId = data.sealCateId || "";
+    form.isBorrow = data.isBorrow ?? 0;
+    form.startTime = data.startTime || "";
+    form.endTime = data.endTime || "";
+    form.content = data.content || "";
 
-  isView.value = true;
+    // 设置审批流程数据
+    approvalFlowData.value = {
+      checkFlowId: data.checkFlowId || "",
+      checkCopyUids: data.checkCopyUids
+        ? (Array.isArray(data.checkCopyUids)
+            ? data.checkCopyUids
+            : data.checkCopyUids.split(",")
+          ).map(id => Number(typeof id === 'string' ? id.trim() : id))  // 转换为数字数组
+        : [],
+    };
+  });
+
   dialogVisible.value = true;
 }
 

@@ -3,7 +3,7 @@
     <!-- 审批流程 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="审批流程" prop="checkFlowId">
+        <el-form-item label="审批流程">
           <el-select
             v-model="flowId"
             :disabled="disabled"
@@ -26,7 +26,7 @@
     <!-- 抄送人 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="抄送人" prop="checkCopyUids">
+        <el-form-item label="抄送人">
           <el-select
             v-model="copyUids"
             :disabled="disabled"
@@ -132,10 +132,14 @@ const selectedFlow = ref(null);
 const flowId = ref("");
 const copyUids = ref([]);
 
+// 标志位：防止从 props 更新时触发 emit
+const isUpdatingFromProps = ref(false);
+
 // 监听 props.modelValue 变化
 watch(
   () => props.modelValue,
   (val) => {
+    isUpdatingFromProps.value = true;
     if (val) {
       flowId.value = val.checkFlowId || "";
       copyUids.value = val.checkCopyUids
@@ -149,17 +153,25 @@ watch(
         handleFlowNodesChange(val.flowNodes);
       }
     }
+    // 在下一个 tick 重置标志位
+    setTimeout(() => {
+      isUpdatingFromProps.value = false;
+    }, 0);
   },
   { immediate: true, deep: true },
 );
 
 // 监听内部值变化，emit 到父组件
 watch(flowId, (val) => {
-  emitUpdate();
+  if (!isUpdatingFromProps.value) {
+    emitUpdate();
+  }
 });
 
 watch(copyUids, (val) => {
-  emitUpdate();
+  if (!isUpdatingFromProps.value) {
+    emitUpdate();
+  }
 });
 
 function emitUpdate() {
