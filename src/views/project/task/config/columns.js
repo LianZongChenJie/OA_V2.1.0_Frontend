@@ -73,7 +73,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'content',
+    fieldName: 'workId',
     label: '工作类型',
     width: "12%",
     minWidth: 100,
@@ -166,26 +166,12 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'end_time_str',
-    label: '预计结束日期',
-    width: "15%",
-    minWidth: 120,
-    align: 'center',
-    // ===================== 逾期提示（已加上）=====================
-    formatter: (row) => {
-      if (!row.end_time_str) return '-';
-      if (row.status === 3) return row.end_time_str; // 已完成不显示逾期
-
-      const end = new Date(row.end_time_str).getTime();
-      const now = Date.now();
-      const diffDay = Math.ceil((end - now) / (86400000));
-
-      if (diffDay < 0) {
-        return `<span style="color:#f56c6c">${row.end_time_str}（逾期${Math.abs(diffDay)}天）</span>`;
-      }
-      return row.end_time_str;
-    }
-  }
+  fieldName: 'end_time_display',  
+  label: '预计结束日期',
+  width: "25%", 
+  minWidth: 200,
+  align: 'center',
+},
 ];
 
 // 操作列
@@ -231,9 +217,7 @@ export const getOperationColumn = (onView, onDelete) => ({
       label: '删除',
       type: 'danger',
       size: 'small',
-      onClick: (row) => {
-        onDelete && onDelete(row);
-      },
+      onClick: (row) => onDelete?.(row),
       icon: 'delete'
     }
   ]

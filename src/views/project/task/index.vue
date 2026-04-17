@@ -16,7 +16,7 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted, nextTick } from "vue";
+import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
 
 // 任务接口
@@ -40,15 +40,22 @@ const tableList = ref(null);
 const addDialogRef = ref(null);
 const tableKey = ref(0);
 
+// 状态映射
+const statusMap = {
+  0: "未设置",
+  1: "未开始",
+  2: "进行中",
+  3: "已完成",
+  4: "已关闭"
+};
+
 // 下拉枚举：项目类别 + 负责人
 const searchEnum = ref({
-  projectCategoryList: [], // 项目类别
-  userList: [], // 负责人
+  projectCategoryList: [],
+  userList: [],
 });
 
-
 // 加载：项目类别下拉
-
 const fetchProjectCategory = async () => {
   try {
     const res = await getProjectCategoryList({ pageNum: 1, pageSize: 100 });
@@ -66,9 +73,7 @@ const fetchProjectCategory = async () => {
   }
 };
 
-
 // 加载：负责人下拉
-
 const fetchUserList = async () => {
   try {
     const res = await listUser({ pageSize: 1000 });
@@ -89,14 +94,44 @@ const fetchUserList = async () => {
 };
 
 onMounted(() => {
-  fetchProjectCategory(); // 项目类别
-  fetchUserList(); // 负责人
+  fetchProjectCategory();
+  fetchUserList();
   tableKey.value++;
 });
 
-// 列表请求适配
+
+const formatTaskData = (rows) => {
+  if (!rows?.length) return [];
+  
+  return rows.map(row => {
+    let endTimeDisplay = row.end_time_str || '-';
+    
+    if (row.end_time_str && row.status !== 3) {
+      const dateStr = row.end_time_str.split(' ')[0];
+      const end = new Date(dateStr.replace(/-/g, '/')).getTime();
+      const now = Date.now();
+      const diffDay = Math.ceil((end - now) / (86400000));
+      
+      if (diffDay < 0) {
+        endTimeDisplay = `${row.end_time_str}（逾期${Math.abs(diffDay)}天）`;
+      }
+    }
+    
+    return {
+      ...row,
+      end_time_display: endTimeDisplay,  
+      statusText: statusMap[row.status] || "未知"
+    };
+  });
+};
+
+// 列表请求适配（修改这里）
 const getPageListFix = async (params) => {
   const res = await getPageList(params);
+  // 关键：在返回数据前格式化
+  if (res?.rows) {
+    res.rows = formatTaskData(res.rows);
+  }
   return res;
 };
 
@@ -104,14 +139,12 @@ const getPageListFix = async (params) => {
 function handleAdd() {
   addDialogRef.value.open();
 }
-async function handleEdit(row) {
-  const res = await getDetail(row.id);
-  if (res) addDialogRef.value.openEdit(res.data || res);
-}
+
 async function handleView(row) {
   const res = await getDetail(row.id);
   if (res) addDialogRef.value.openView(res.data || res);
 }
+
 async function handleDelete(row) {
   proxy.$modal.confirm("确定删除该项目吗？").then(async () => {
     await deletereward(row.id);
@@ -125,5 +158,5 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(handleView, handleDelete);
 </script>

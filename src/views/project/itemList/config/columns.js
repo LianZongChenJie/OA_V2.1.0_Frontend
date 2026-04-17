@@ -95,7 +95,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'currentStage',
+    fieldName: 'step',
     label: '当前阶段及负责人',
     minWidth: 200,
     align: 'center',

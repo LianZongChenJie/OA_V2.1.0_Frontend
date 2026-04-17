@@ -14,17 +14,11 @@
       :rules="isView ? {} : rules" 
       label-width="100px"
       style="margin-top: 15px"
-      :key="dialogVisible"
     >
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="项目名称" prop="name" required>
-            <el-input 
-              v-model="form.name" 
-              placeholder="请输入项目名称" 
-              :disabled="isView" 
-              style="width: 100%"
-            />
+            <el-input v-model="form.name" placeholder="请输入项目名称" :disabled="isView" />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -32,18 +26,10 @@
             <el-cascader
               v-model="form.did"
               :options="deptOptions"
-              :multiple="false"
-              :props="{
-                value: 'id',
-                label: 'label',
-                children: 'children',
-                checkStrictly: true,
-                emitPath: false
-              }"
+              :props="cascaderProps"
               :disabled="isView"
               placeholder="请选择归属部门"
               clearable
-              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -52,39 +38,15 @@
       <el-row :gutter="20">
         <el-col :span="8">
           <el-form-item label="项目类别" prop="cateId" required>
-            <el-select
-              v-model="form.cateId"
-              :disabled="isView"
-              placeholder="请选择"
-              filterable
-              clearable
-              style="width:100%"
-            >
-              <el-option
-                v-for="item in cateOptions"
-                :key="item.id"
-                :label="item.title"
-                :value="item.id"
-              />
+            <el-select v-model="form.cateId" :disabled="isView" placeholder="请选择" filterable clearable>
+              <el-option v-for="item in cateOptions" :key="item.id" :label="item.title" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item label="项目经理" prop="directorUid" required>
-            <el-select
-              v-model="form.directorUid"
-              :disabled="isView"
-              placeholder="请选择项目经理"
-              filterable
-              clearable
-              style="width:100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.nickName"
-                :value="item.userId"
-              />
+            <el-select v-model="form.directorUid" :disabled="isView" placeholder="请选择" filterable clearable>
+              <el-option v-for="item in userOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -99,7 +61,6 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               :disabled="isView"
-              style="width:100%"
             />
           </el-form-item>
         </el-col>
@@ -108,21 +69,8 @@
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="项目成员" prop="customerId" required>
-            <el-select
-              v-model="form.customerId"
-              multiple
-              :disabled="isView"
-              placeholder="请选择项目成员"
-              filterable
-              clearable
-              style="width:100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.nickName"
-                :value="item.userId"
-              />
+            <el-select v-model="form.customerId" multiple :disabled="isView" placeholder="请选择" filterable clearable>
+              <el-option v-for="item in userOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -131,20 +79,8 @@
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="关联合同" prop="contractId">
-            <el-select
-              v-model="form.contractId"
-              :disabled="isView"
-              placeholder="请选择合同"
-              filterable
-              clearable
-              style="width:100%"
-            >
-              <el-option
-                v-for="item in contractOptions"
-                :key="item.id"
-                :label="item.title"
-                :value="item.id"
-              />
+            <el-select v-model="form.contractId" :disabled="isView" placeholder="请选择" filterable clearable>
+              <el-option v-for="item in contractOptions" :key="item.id" :label="item.name" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
@@ -153,90 +89,53 @@
       <el-row :gutter="20">
         <el-col :span="24">
           <el-form-item label="项目简介" prop="content">
-            <el-input
-              v-model="form.content"
-              type="textarea"
-              rows="3"
-              placeholder="请输入项目简介"
-              :disabled="isView"
-              style="width: 100%"
-            />
+            <el-input v-model="form.content" type="textarea" rows="3" placeholder="请输入项目简介" :disabled="isView" />
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-form-item label="项目阶段" required>
         <el-button type="success" icon="el-icon-plus" @click="addStage" :disabled="isView">+ 添加阶段</el-button>
-        <el-table
-          :data="form.stageList"
-          style="width: 100%; margin-top: 10px"
-          border
-          size="small"
-        >
+        <el-table :data="form.stageList" border size="small" style="margin-top: 10px">
           <el-table-column label="序号" width="70" align="center">
-            <template #default="{ $index }">
-              {{ $index + 1 }}
-            </template>
+            <template #default="{ $index }">{{ $index + 1 }}</template>
           </el-table-column>
 
-          <el-table-column label="阶段名称" min-width="150">
+          <el-table-column label="阶段名称" min-width="120">
             <template #default="{ $index }">
-              <el-form-item
-                :prop="`stageList.${$index}.name`"
-                :rules="[{ required: true, message: '请输入阶段名称', trigger: 'blur' }]"
-                style="margin:0"
-              >
-                <el-input v-model="form.stageList[$index].name" :disabled="isView" placeholder="阶段名称" style="width:100%"/>
+              <el-form-item :prop="`stageList.${$index}.name`" :rules="stageNameRule" style="margin:0">
+                <el-input v-model="form.stageList[$index].name" :disabled="isView" placeholder="阶段名称" />
               </el-form-item>
             </template>
           </el-table-column>
 
           <el-table-column label="阶段负责人" min-width="150">
             <template #default="{ $index }">
-              <el-form-item
-                :prop="`stageList.${$index}.directorUid`"
-                :rules="[{ required: true, message: '请选择负责人', trigger: 'change' }]"
-                style="margin:0"
-              >
-              <el-select v-model="form.stageList[$index].directorUid" :disabled="isView" placeholder="负责人" style="width:100%" clearable>
-                <el-option
-                  v-for="item in userOptions"
-                  :key="item.userId"
-                  :label="item.nickName"
-                  :value="item.userId"
-                />
-              </el-select>
+              <el-form-item :prop="`stageList.${$index}.directorUid`" :rules="stageLeaderRule" style="margin:0">
+                <el-select v-model="form.stageList[$index].directorUid" :disabled="isView" placeholder="负责人" clearable>
+                  <el-option v-for="item in userOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
+                </el-select>
               </el-form-item>
             </template>
           </el-table-column>
 
-          <el-table-column label="阶段成员" min-width="180">
+          <el-table-column label="阶段成员" min-width="260">
             <template #default="{ $index }">
-              <el-select v-model="form.stageList[$index].memberUids" multiple :disabled="isView" placeholder="成员" style="width:100%">
-                <el-option
-                  v-for="item in userOptions"
-                  :key="item.userId"
-                  :label="item.nickName"
-                  :value="item.userId"
-                />
+              <el-select v-model="form.stageList[$index].memberUids" multiple :disabled="isView" placeholder="成员">
+                <el-option v-for="item in userOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
               </el-select>
             </template>
           </el-table-column>
 
-          <el-table-column label="阶段周期" min-width="200">
+          <el-table-column label="阶段周期" min-width="260">
             <template #default="{ $index }">
-              <el-form-item
-                :prop="`stageList.${$index}.timeRange`"
-                :rules="[{ required: true, message: '请选择阶段周期', trigger: 'change' }]"
-                style="margin:0"
-              >
+              <el-form-item :prop="`stageList.${$index}.timeRange`" :rules="stageDateRule" style="margin:0">
                 <el-date-picker
                   v-model="form.stageList[$index].timeRange"
                   type="daterange"
                   format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
                   :disabled="isView"
-                  style="width:100%"
                 />
               </el-form-item>
             </template>
@@ -244,15 +143,15 @@
 
           <el-table-column label="阶段说明" min-width="200">
             <template #default="{ $index }">
-              <el-input v-model="form.stageList[$index].remark" :disabled="isView" placeholder="说明" style="width:100%"/>
+              <el-input v-model="form.stageList[$index].remark" :disabled="isView" placeholder="说明" />
             </template>
           </el-table-column>
 
-          <el-table-column fixed="right" label="操作" width="180" align="center">
+          <el-table-column fixed="right" label="操作" width="200" align="center">
             <template #default="{ $index }">
-              <el-button size="small" type="success" @click="moveUp($index)" style="width:42px">上移</el-button>
-              <el-button size="small" type="primary" @click="moveDown($index)" style="width:42px">下移</el-button>
-              <el-button size="small" type="danger" @click="delStage($index)" style="width:42px">删除</el-button>
+              <el-button size="small" type="success" @click="moveUp($index)">上移</el-button>
+              <el-button size="small" type="primary" @click="moveDown($index)">下移</el-button>
+              <el-button size="small" type="danger" @click="delStage($index)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -269,12 +168,38 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from "vue";
+import { ref, reactive, computed, onMounted } from "vue";
+import { ElMessage } from "element-plus";
 import { addenterPrise, updateenterPrise } from "@/api/project/itemList/index.js";
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import { getPageList } from "@/api/base/project/projectClassify/index.js";
+import { getPageList as getContractList } from "@/api/contract/salesContract/index.js";
 
-const { proxy } = getCurrentInstance();
+const emit = defineEmits(["success"]);
+
+// ========== 常量配置 ==========
+const cascaderProps = {
+  value: "id",
+  label: "label",
+  children: "children",
+  checkStrictly: true,
+  emitPath: false
+};
+
+const stageNameRule = [{ required: true, message: "请输入阶段名称", trigger: "blur" }];
+const stageLeaderRule = [{ required: true, message: "请选择负责人", trigger: "change" }];
+const stageDateRule = [{ required: true, message: "请选择阶段周期", trigger: "change" }];
+
+const defaultStageList = [
+  { name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+  { name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+  { name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+  { name: "监控阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+  { name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+  { name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
+];
+
+// ========== 响应式数据 ==========
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
@@ -292,22 +217,16 @@ const form = reactive({
   amount: "",
   cateId: null,
   customerId: [],
-  contractId: null,
+  contractId: "",
   adminId: null,
   directorUid: null,
   did: null,
   dateRange: [],
   content: "",
-  stageList: [
-    { name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { name: "监控阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    { name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-  ]
+  stageList: structuredClone(defaultStageList)  // 使用 structuredClone 深拷贝
 });
 
+// ========== 计算属性 ==========
 const dialogTitle = computed(() => {
   if (isView.value) return "查看项目";
   return isEdit.value ? "编辑项目" : "新建项目";
@@ -322,6 +241,60 @@ const rules = {
   customerId: [{ required: true, message: "请选择项目成员", trigger: "change" }],
 };
 
+// ========== 工具函数 ==========
+const toSeconds = (dateStr) => {
+  if (!dateStr) return null;
+  if (typeof dateStr === "number") return dateStr > 1e10 ? Math.floor(dateStr / 1000) : dateStr;
+  if (typeof dateStr === "string") {
+    const d = new Date(dateStr.replace(/-/g, "/"));
+    return isNaN(d.getTime()) ? null : Math.floor(d.getTime() / 1000);
+  }
+  return null;
+};
+
+const formatTime = (ts) => {
+  if (!ts) return "";
+  let date;
+  if (typeof ts === "number") {
+    const timeMs = ts.toString().length === 10 ? ts * 1000 : ts;
+    date = new Date(timeMs);
+  } else if (typeof ts === "string") {
+    date = new Date(ts);
+    if (isNaN(date.getTime())) date = new Date(ts.replace(/-/g, "/"));
+  } else if (ts instanceof Date) {
+    date = ts;
+  } else {
+    return "";
+  }
+  if (isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
+const safeSplit = (val) => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  return String(val).split(",").map(Number).filter(Boolean);
+};
+
+// ========== 数据加载 ==========
+const loadContractList = async () => {
+  try {
+    const res = await getContractList({ pageSize: 1000 });
+    const list = res.rows || res.data?.rows || [];
+    contractOptions.value = list.filter(item => item.checkStatus === 2);
+  } catch (err) {
+    console.error("加载合同失败", err);
+  }
+};
+
+const loadProjectCategory = async () => {
+  const res = await getPageList({ pageSize: 100, pageNum: 1 });
+  cateOptions.value = res.rows || [];
+};
+
 onMounted(() => {
   listUser({ pageSize: 1000 }).then(res => {
     userOptions.value = (res.rows || []).filter(u => u.status === "0");
@@ -330,37 +303,30 @@ onMounted(() => {
     deptOptions.value = res.data || [];
   });
   loadProjectCategory();
+  loadContractList();
 });
 
-async function loadProjectCategory() {
-  const res = await getPageList({ pageSize: 100, pageNum: 1 });
-  cateOptions.value = res.rows || [];
-}
-
-function addStage() {
+// ========== 阶段操作 ==========
+const addStage = () => {
   form.stageList.push({ name: "", directorUid: null, memberUids: [], timeRange: [], remark: "" });
-}
+};
 
-function delStage(index) {
+const delStage = (index) => {
   form.stageList.splice(index, 1);
-}
+};
 
-function moveUp(index) {
+const moveUp = (index) => {
   if (index === 0) return;
   [form.stageList[index], form.stageList[index - 1]] = [form.stageList[index - 1], form.stageList[index]];
-}
+};
 
-function moveDown(index) {
+const moveDown = (index) => {
   if (index === form.stageList.length - 1) return;
   [form.stageList[index], form.stageList[index + 1]] = [form.stageList[index + 1], form.stageList[index]];
-}
+};
 
-function toSeconds(dateStr) {
-  if (!dateStr) return null;
-  return Math.floor(new Date(dateStr).getTime() / 1000);
-}
-
-function handleSubmit() {
+// ========== 提交 ==========
+const handleSubmit = () => {
   formRef.value.validate((valid) => {
     if (!valid) return;
 
@@ -378,41 +344,40 @@ function handleSubmit() {
       amount: form.amount || 0,
       cateId: form.cateId,
       customerId: form.customerId?.length ? form.customerId[0] : null,
-      contractId: form.contractId,
+      contractId: form.contractId || null,
       adminId: form.adminId,
       directorUid: form.directorUid,
       did: didVal,
-      startTime: startTime,
-      endTime: endTime,
+      startTime,
+      endTime,
       status: 0,
       content: form.content,
-      stages: form.stageList.map(it => {
-        const [s, e] = it.timeRange || [];
+      stages: form.stageList.map(({ name, directorUid, memberUids, timeRange, remark }) => {
+        const [s, e] = timeRange || [];
         return {
-          name: it.name,
-          directorUid: it.directorUid,
-          memberUids: (it.memberUids || []).join(','),
+          name,
+          directorUid,
+          memberUids: (memberUids || []).join(","),
           startTime: toSeconds(s),
           endTime: toSeconds(e),
-          remark: it.remark
+          remark
         };
       })
     };
 
-    (isEdit.value ? updateenterPrise(data) : addenterPrise(data))
+    const action = isEdit.value ? updateenterPrise(data) : addenterPrise(data);
+    action
       .then(() => {
-        proxy.$modal.msgSuccess("操作成功");
+        ElMessage.success("操作成功");
         handleClose();
         emit("success");
       })
-      .catch((e) => {
-
-        console.error("提交失败", e);
-      });
+      .catch((e) => console.error("提交失败", e));
   });
-}
+};
 
-function resetForm() {
+// ========== 重置 ==========
+const resetForm = () => {
   Object.assign(form, {
     id: undefined,
     name: "",
@@ -420,92 +385,86 @@ function resetForm() {
     amount: "",
     cateId: null,
     customerId: [],
-    contractId: null,
+    contractId: "",
     adminId: null,
     directorUid: null,
     did: null,
     dateRange: [],
     content: "",
-    stageList: [
-      { name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-      { name: "规划阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-      { name: "执行阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-      { name: "监控阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-      { name: "收尾阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-      { name: "测试阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
-    ]
+    stageList: structuredClone(defaultStageList)
   });
   isEdit.value = false;
   isView.value = false;
-  nextTick(() => formRef.value?.clearValidate());
-}
+  formRef.value?.clearValidate();
+};
 
-function handleClose() {
+// ========== 关闭 ==========
+const handleClose = () => {
   resetForm();
   dialogVisible.value = false;
-}
+};
 
-function open() {
+// ========== 打开方法 ==========
+const open = () => {
   resetForm();
+  loadContractList();
   dialogVisible.value = true;
-}
+};
 
-// ✅【修复】安全解析数组
-function safeSplit(val) {
-  if (!val) return [];
-  if (Array.isArray(val)) return val;
-  return String(val).split(',').map(Number).filter(Boolean);
-}
-
-function openEdit(row) {
+const openEdit = (row) => {
   resetForm();
+  
+  Object.assign(form, {
+    id: row.id,
+    name: row.name,
+    did: row.did,
+    cateId: row.cateId,
+    directorUid: row.directorUid,
+    contractId: row.contractId || "",
+    content: row.content,
+    adminId: row.adminId,
+    customerId: safeSplit(row.customerId)
+  });
 
-  form.id = row.id;
-  form.name = row.name;
-  form.did = row.did;
-  form.cateId = row.cateId;
-  form.directorUid = row.directorUid;
-  form.contractId = row.contractId || null;
-  form.content = row.content;
-  form.adminId = row.adminId;
+  // 回填日期
+  if (row.startTime && row.endTime) {
+    form.dateRange = [formatTime(row.startTime), formatTime(row.endTime)];
+  }
 
-  // ✅ 安全转数组
-  form.customerId = safeSplit(row.customerId);
-
-  try {
-    form.dateRange = row.startTime && row.endTime
-      ? [formatTime(row.startTime), formatTime(row.endTime)]
-      : [];
-  } catch (e) {}
-
-  try {
-    if (row.stages) {
-      form.stageList = row.stages.map(s => ({
-        name: s.name,
-        directorUid: s.directorUid,
-        memberUids: safeSplit(s.memberUids),
-        timeRange: s.startTime && s.endTime ? [formatTime(s.startTime), formatTime(s.endTime)] : [],
-        remark: s.remark || ""
-      }));
-    }
-  } catch (e) {}
+  // 回填阶段
+  if (row.stages?.length) {
+    form.stageList = row.stages.map(s => ({
+      name: s.name || "",
+      directorUid: s.directorUid || null,
+      memberUids: safeSplit(s.memberUids),
+      timeRange: (s.startTime && s.endTime) ? [formatTime(s.startTime), formatTime(s.endTime)] : [],
+      remark: s.remark || ""
+    }));
+  }
 
   isEdit.value = true;
   dialogVisible.value = true;
-}
+};
 
-function openView(row) {
+const openView = (row) => {
   openEdit(row);
   isView.value = true;
-}
+};
 
-function formatTime(ts) {
-  if (!ts) return "";
-  const time = ts.toString().length === 10 ? ts * 1000 : ts;
-  const d = new Date(time);
-  return d.toISOString().split("T")[0];
-}
-
-const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
+
+<style>
+.car-dialog.el-dialog {
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+.car-dialog .el-dialog__body {
+  overflow-y: auto;
+}
+.car-dialog .el-form-item__label {
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+</style>

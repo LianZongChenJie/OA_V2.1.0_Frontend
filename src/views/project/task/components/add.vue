@@ -210,7 +210,7 @@ const form = reactive({
   id: undefined,
   title: "",
   priority: "", 
- workId: "",
+  workId: "",
   planHours: "",
   endTime: "",
   directorUid: null,
@@ -248,8 +248,29 @@ const dialogTitle = computed(() => {
 const rules = {
   title: [{ required: true, message: "请输入任务主题", trigger: "blur" }],
   priority: [{ required: true, message: "请选择任务优先级", trigger: "change" }],
- workId: [{ required: true, message: "请选择工作类型", trigger: "change" }],
-  planHours: [{ required: true, message: "请填写预估工时", trigger: "blur" }],
+  workId: [{ required: true, message: "请选择工作类型", trigger: "change" }],
+   planHours: [
+    { required: true, message: "请填写预估工时", trigger: "blur" },
+    { 
+      validator: (rule, value, callback) => {
+        if (value === '' || value === null || value === undefined) {
+          callback();
+          return;
+        }
+        const num = Number(value);
+        if (isNaN(num)) {
+          callback(new Error('请输入数字'));
+        } else if (num <= 0) {
+          callback(new Error('预估工时必须大于0'));
+        } else if (!Number.isInteger(num) && !/^\d+(\.\d{1,2})?$/.test(value)) {
+          callback(new Error('最多保留两位小数'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
   endTime: [{ required: true, message: "请选择预计结束日期", trigger: "change" }],
   directorUid: [{ required: true, message: "请选择负责人", trigger: "change" }],
   assistAdminIds: [{ required: true, message: "请选择协作人", trigger: "change" }],
@@ -273,7 +294,23 @@ function handleSubmit() {
   formRef.value.validate(valid => {
     if (!valid) return;
 
-    const endTime = form.endTime ? new Date(form.endTime).getTime() : 0;
+    // 修改点：将日期字符串转换为秒级时间戳（数字），而不是日期字符串
+    let endTime = null;
+    if (form.endTime) {
+      // 方式1：如果 form.endTime 是 YYYY-MM-DD 格式的字符串
+      if (typeof form.endTime === 'string') {
+        const date = new Date(form.endTime.replace(/-/g, '/'));
+        endTime = Math.floor(date.getTime() / 1000);  // 秒级时间戳
+      } 
+      // 方式2：如果 form.endTime 已经是 Date 对象
+      else if (form.endTime instanceof Date) {
+        endTime = Math.floor(form.endTime.getTime() / 1000);
+      }
+      // 方式3：如果已经是时间戳数字
+      else if (typeof form.endTime === 'number') {
+        endTime = form.endTime > 10000000000 ? Math.floor(form.endTime / 1000) : form.endTime;
+      }
+    }
 
     const data = {
       id: form.id || undefined,
@@ -281,20 +318,22 @@ function handleSubmit() {
       priority: Number(form.priority) || 0,
       workId: Number(form.workId) || 0,
       planHours: form.planHours || '',
-      endTime: formatDateTime(form.endTime),
+      endTime: endTime,  // 修改：传数字时间戳，而不是字符串
       directorUid: Number(form.directorUid) || 0,
       assistAdminIds: (form.assistAdminIds || []).join(','),
       projectId: form.projectId || '',
       content: form.content || ''
     };
 
+    console.log('提交的数据:', data);  // 调试用，确认 endTime 是数字
+
     const api = isEdit.value ? updateenterPrise : addenterPrise;
     api(data).then(() => {
       proxy.$modal.msgSuccess("操作成功");
       handleClose();
+      emit("success");  // 添加这行，通知父组件刷新
     }).catch(err => {
       console.error("提交失败", err);
-      proxy.$modal.msgError("提交失败：参数格式不正确");
     });
   });
 }
@@ -306,7 +345,7 @@ function resetForm() {
     id: undefined,
     title: "",
     priority: "",
-   workId: "",
+    workId: "",
     planHours: "",
     endTime: "",
     directorUid: null,
