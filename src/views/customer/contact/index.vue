@@ -4,17 +4,9 @@
       :api="getPageList"
       :columns="columns"
       :operation-column="operationColumn"
-      :toolbar-buttons="headerButs"
       row-key="name"
       ref="tableList"
-    >
-      <template #customerStatus="{ row }">
-        <dict-tag :options="customer_status" :value="row.customerStatus" />
-      </template>
-      <template #intentStatus="{ row }">
-        <dict-tag :options="customer_intent_status" :value="row.intentStatus" />
-      </template>
-    </TableList>
+    />
     <AddDialog
       ref="addDialogRef"
       @success="handleSuccess"
@@ -25,19 +17,13 @@
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/customer/contact";
-import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
+import { columns, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { customer_status, customer_intent_status } = proxy.useDict("customer_status", "customer_intent_status");
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
-
-/** 新增按钮操作 */
-function handleAdd() {
-  addDialogRef.value.open();
-}
 
 /** 编辑按钮操作 */
 async function handleEdit(row) {
@@ -74,7 +60,6 @@ async function handleDelete(row) {
   }
 }
 
-const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(
   handleEdit,
   handleView,

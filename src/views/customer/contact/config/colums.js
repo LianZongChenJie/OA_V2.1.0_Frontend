@@ -8,7 +8,7 @@ export const columns = [
   {
     fieldName: 'name',
     label: '姓名',
-    width: "50%",
+    width: "10%",
     minWidth: 100,
     searchable: {
       type: 'input',
@@ -27,30 +27,27 @@ export const columns = [
   {
     fieldName: 'email',
     label: '电子邮箱',
-    width: "10%",
+    width: "20%",
     minWidth: 160,
   },
   {
     fieldName: 'qq',
     label: 'QQ号码',
-    width: "10%",
+    width: "15%",
     minWidth: 100,
   },
   {
     fieldName: 'wechat',
     label: '微信号',
-    width: "10%",
+    width: "15%",
     minWidth: 100,
   },
   {
-    fieldName: 'cid',
+    fieldName: 'customerName',
     label: '关联客户',
-    width: "10%",
+    width: "30%",
     minWidth: 120,
   },
-];
-
-export const getHeaderButs = (onAdd) => [
 ];
 
 export const getOperationColumn = (onEdit, onView, onDelete) => {
@@ -92,6 +89,5 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
 };
 
 export default {
-  columns,
-  getHeaderButs
+  columns
 };

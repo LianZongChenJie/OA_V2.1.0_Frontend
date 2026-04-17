@@ -165,14 +165,13 @@ export const columns = [
   },
 ];
 
-export const getHeaderButs = (onAdd) => [
-  { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
+export const getHeaderButs = () => [
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onToOpenSea) => {
+export const getOperationColumn = (onEdit, onDelete) => {
   return {
     label: '操作',
-    width: 300,
+    width: 180,
     fixed: 'right',
     show: true,
     actions: [
@@ -184,24 +183,6 @@ export const getOperationColumn = (onEdit, onView, onDelete, onToOpenSea) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
-      },
-      {
-        label: '详情',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onView && onView(row);
-        },
-        icon: 'eye-open',
-      },
-      {
-        label: '移入公海',
-        type: 'warning',
-        size: 'small',
-        onClick: (row) => {
-          onToOpenSea && onToOpenSea(row);
-        },
-        icon: 'enter',
       },
       {
         label: '删除',
