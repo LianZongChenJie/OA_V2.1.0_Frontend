@@ -32,25 +32,23 @@
       </el-form-item>
 
       <el-form-item label="应用部门" prop="dids" required>
-        <el-cascader
+        <el-select
           v-model="form.dids"
-          :options="deptOptions"
-          :multiple="true"
-          :props="{
-            value: 'id',
-            label: 'label',
-            children: 'children',
-            checkStrictly: true,
-            emitPath: false,
-            disabled: 'disabled'
-          }"
           :disabled="isView"
           placeholder="请选择应用部门"
-          clearable
+          multiple
           collapse-tags
           collapse-tags-tooltip
+          clearable
           style="width: 100%"
-        />
+        >
+          <el-option
+            v-for="item in deptOptions"
+            :key="item.id"
+            :label="item.label"
+            :value="item.id"
+          />
+        </el-select>
       </el-form-item>
 
       <el-form-item label="用途简述" prop="remark">
@@ -118,10 +116,22 @@ function setDeptDisabled(depts) {
   });
 }
 
+// 扁平化部门树
+function flattenDepts(depts, result = []) {
+  depts.forEach(item => {
+    result.push({ id: item.id, label: item.label, disabled: item.disabled });
+    if (item.children && item.children.length) {
+      flattenDepts(item.children, result);
+    }
+  });
+  return result;
+}
+
 onMounted(() => {
-  // 加载部门树
+  // 加载部门树并扁平化
   deptTreeSelect().then(res => {
-    deptOptions.value = setDeptDisabled(res.data || []);
+    const treeData = setDeptDisabled(res.data || []);
+    deptOptions.value = flattenDepts(treeData);
   });
 
   // 加载用户（过滤禁用）

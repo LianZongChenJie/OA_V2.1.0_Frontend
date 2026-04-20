@@ -35,6 +35,14 @@ export function updateenterPrise(data) {
   })
 }
 
+// 删除印章
+export function deleteenterPrise(id) {
+  return request({
+    url: `/system/sealCate/${id}`,
+    method: 'delete'
+  })
+} 
+
 
 // 修改印章状态
 export function updateStatus(id,data) {

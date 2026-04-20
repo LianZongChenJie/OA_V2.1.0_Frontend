@@ -19,7 +19,7 @@
 <script setup>
 import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, updateStatus } from "@/api/base/administration/seal/index.js";
+import { getPageList, getDetail, updateStatus, deleteenterPrise } from "@/api/base/administration/seal/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import { listUser } from "@/api/system/user.js";
@@ -89,12 +89,24 @@ async function handleDisable(row) {
   tableList.value.refresh();
 }
 
+// 删除
+async function handleDelete(row) {
+  try {
+    await proxy.$modal.confirm('确认删除该印章吗？');
+    await deleteenterPrise(row.id);
+    proxy.$modal.msgSuccess("删除成功");
+    tableList.value.refresh();
+  } catch (e) {
+    // 用户取消或其他错误
+  }
+}
+
 function handleSuccess() {
   tableList.value.refresh();
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleDisable, handleDisable);
+const operationColumn = getOperationColumn(handleEdit, handleDisable, handleDisable, handleDelete);
 </script>
 
 <style lang="scss" scoped>

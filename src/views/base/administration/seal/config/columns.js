@@ -38,52 +38,14 @@ export const columns = [
 ];
 
 
-export const operationColumn = {
-  label: '操作',
-  width: 180,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-    {
-      label: '禁用',
-      type: 'danger',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===禁用', row)
-      },
-      icon: 'lock',
-      isShow: (row) => row.status === 1,
-    },
-    {
-      label: '启用',
-      type: 'primary',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===启用', row)
-      },
-      icon: 'unlock',
-      isShow: (row) => row.status === 0,
-    },
-  ],
-};
-
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable, onEnable) => {
+export const getOperationColumn = (onEdit, onDisable, onEnable, onDelete) => {
   return {
     label: '操作',
-    width: 180,
+    width: 260,
     fixed: 'right',
     show: true,
     actions: [
@@ -95,6 +57,15 @@ export const getOperationColumn = (onEdit, onDisable, onEnable) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
+      },
+      {
+        label: '删除',
+        type: 'danger',
+        size: 'small',
+        onClick: (row) => {
+          onDelete && onDelete(row);
+        },
+        icon: 'delete',
       },
       {
         label: '禁用',
@@ -122,6 +93,5 @@ export const getOperationColumn = (onEdit, onDisable, onEnable) => {
 
 export default {
   columns,
-  operationColumn,
   getHeaderButs
 };
