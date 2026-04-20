@@ -2,7 +2,7 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="60%"
+    width="70%"
     append-to-body
     class="car-dialog"
     @close="handleClose"
@@ -55,21 +55,12 @@
               clearable
               style="width:100%"
             >
-              <el-option label="其他" :value="1" />
-              <el-option label="方案策划" :value="2" />
-              <el-option label="撰写文档" :value="3" />
-              <el-option label="需求调研" :value="4" />
-              <el-option label="需求沟通" :value="5" />
-              <el-option label="参加会议" :value="6" />
-              <el-option label="拜访客户" :value="7" />
-              <el-option label="接待客户" :value="8" />
-              <el-option label="系统设计" :value="9" />
-              <el-option label="系统开发" :value="10" />
-              <el-option label="系统实施" :value="11" />
-              <el-option label="测试验证" :value="12" />
-              <el-option label="部署上线" :value="13" />
-              <el-option label="系统维护" :value="14" />
-              <el-option label="系统验收" :value="15" />
+              <el-option
+                v-for="item in workCateList"
+                :key="item.id"
+                :label="item.title"
+                :value="item.id"
+              />
             </el-select>
           </el-form-item>
         </el-col>
@@ -177,8 +168,105 @@
           </el-form-item>
         </el-col>
       </el-row>
-
     </el-form>
+
+    <!-- 工作记录 -->
+    <div v-if="isView" style="margin-top: 20px; border-top: 1px solid #ebeef5; padding-top: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <div style="font-weight: bold;">工作日志</div>
+        <el-button type="success" size="small" @click="openAddWorkLog">+ 添加工作日志</el-button>
+      </div>
+
+      <el-table :data="workLogList" border size="small" style="width: 100%;">
+        <el-table-column label="ID号" prop="id" align="center" width="70" />
+        <el-table-column label="工作内容" prop="workContent" align="center" />
+        <el-table-column label="所属人员" prop="executorName" align="center" />
+        <el-table-column label="工作时间范围" prop="workTimeRange" align="center" />
+        <el-table-column label="工作类型" prop="workType" align="center" />
+        <el-table-column label="工时" prop="workHour" align="center" width="70" />
+        <el-table-column label="创建时间" prop="createTime" align="center" />
+        <el-table-column label="操作" align="center" width="120">
+          <template #default="{ row }">
+            <el-button type="primary" size="small">详细</el-button>
+            <el-button type="success" size="small" style="margin-left: 5px;">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-pagination
+        small
+        background
+        layout="prev, pager, next"
+        :total="workLogTotal"
+        style="margin-top: 10px; text-align: right;"
+      />
+    </div>
+
+    <!-- 添加工作日志 弹窗 -->
+    <el-dialog
+      title="添加工作日志"
+      v-model="addLogVisible"
+      width="550px"
+      append-to-body
+    >
+      <el-form ref="logFormRef" :model="logForm" :rules="logRules" label-width="80px">
+        <el-form-item label="时间范围" prop="startTime">
+          <el-space wrap>
+            <el-date-picker
+              v-model="logForm.startDate"
+              type="date"
+              placeholder="开始日期"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+            />
+            <el-time-picker
+              v-model="logForm.startTime"
+              placeholder="开始时间"
+              format="HH:mm"
+              value-format="HH:mm"
+            />
+            <span>至</span>
+            <el-date-picker
+              v-model="logForm.endDate"
+              type="date"
+              placeholder="结束日期"
+              format="YYYY-MM-DD"
+              value-format="YYYY-MM-DD"
+            />
+            <el-time-picker
+              v-model="logForm.endTime"
+              placeholder="结束时间"
+              format="HH:mm"
+              value-format="HH:mm"
+            />
+          </el-space>
+        </el-form-item>
+
+        <el-form-item label="工作类别" prop="workType">
+          <el-select v-model="logForm.workType" placeholder="请选择" style="width:100%">
+            <el-option
+              v-for="item in workCateList"
+              :key="item.id"
+              :label="item.title"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="工时" prop="workHour">
+          <el-input v-model.number="logForm.workHour" placeholder="请输入工时" />
+        </el-form-item>
+
+        <el-form-item label="工作内容" prop="workContent">
+          <el-input v-model="logForm.workContent" type="textarea" rows="3" placeholder="请输入工作内容" />
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <el-button @click="addLogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitWorkLog">确认提交</el-button>
+      </template>
+    </el-dialog>
 
     <template #footer>
       <div style="text-align: center">
@@ -191,8 +279,10 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/project/task/index.js";
-import { listUser, deptTreeSelect } from "@/api/system/user.js";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import { addenterPrise, updateenterPrise, getWorkCateList} from "@/api/project/task/index.js";
+import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/project/itemList/index.js";
 
 const { proxy } = getCurrentInstance();
@@ -204,6 +294,25 @@ const isView = ref(false);
 
 const userOptions = ref([]);
 const projectList = ref([]);
+const workCateList = ref([]); // 工作类型接口数据
+
+// 工作记录列表
+const workLogList = ref([]);
+const workLogTotal = ref(0);
+
+// 添加日志弹窗
+const addLogVisible = ref(false);
+const logFormRef = ref(null);
+const logForm = reactive({
+  taskId: null,
+  startDate: "",
+  startTime: "",
+  endDate: "",
+  endTime: "",
+  workType: "",
+  workHour: "",
+  workContent: ""
+});
 
 // 表单数据
 const form = reactive({
@@ -219,6 +328,24 @@ const form = reactive({
   content: ""
 });
 
+// 日志校验
+const logRules = {
+  startTime: [{ required: true, message: "请选择时间范围", trigger: "change" }],
+  workType: [{ required: true, message: "请选择工作类别", trigger: "change" }],
+  workHour: [{ required: true, message: "请输入工时", trigger: "blur" }],
+  workContent: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
+};
+
+// 加载工作类型接口
+async function loadWorkCateList() {
+  try {
+    const res = await getWorkCateList({ pageSize: 1000 , pageNum: 1});
+    workCateList.value = res.rows || [];
+  } catch (err) {
+    console.error("加载工作类型失败:", err);
+  }
+}
+
 // 加载项目列表
 async function loadProjectList() {
   try {
@@ -226,7 +353,6 @@ async function loadProjectList() {
     projectList.value = res.rows || [];
   } catch (err) {
     console.error("加载项目列表失败:", err);
-    proxy.$modal.msgError("加载项目失败");
   }
 }
 
@@ -249,7 +375,7 @@ const rules = {
   title: [{ required: true, message: "请输入任务主题", trigger: "blur" }],
   priority: [{ required: true, message: "请选择任务优先级", trigger: "change" }],
   workId: [{ required: true, message: "请选择工作类型", trigger: "change" }],
-   planHours: [
+  planHours: [
     { required: true, message: "请填写预估工时", trigger: "blur" },
     { 
       validator: (rule, value, callback) => {
@@ -278,37 +404,38 @@ const rules = {
   content: [{ required: true, message: "请输入详细描述", trigger: "blur" }],
 };
 
+// 打开添加工作日志
+function openAddWorkLog() {
+  logForm.taskId = form.id;
+  addLogVisible.value = true;
+}
+
+// 提交工作日志
+function submitWorkLog() {
+  logFormRef.value.validate(valid => {
+    if (!valid) return;
+    ElMessage.success("添加成功");
+    addLogVisible.value = false;
+  });
+}
+
 // 初始化加载
 onMounted(() => {
   loadUserList();
   loadProjectList();
+  loadWorkCateList(); // 加载工作类型
 });
-
-function formatDateTime(dateStr) {
-  if (!dateStr) return "";
-  return dateStr + " 00:00:00";
-}
 
 // 提交
 function handleSubmit() {
   formRef.value.validate(valid => {
     if (!valid) return;
 
-    // 修改点：将日期字符串转换为秒级时间戳（数字），而不是日期字符串
     let endTime = null;
     if (form.endTime) {
-      // 方式1：如果 form.endTime 是 YYYY-MM-DD 格式的字符串
       if (typeof form.endTime === 'string') {
         const date = new Date(form.endTime.replace(/-/g, '/'));
-        endTime = Math.floor(date.getTime() / 1000);  // 秒级时间戳
-      } 
-      // 方式2：如果 form.endTime 已经是 Date 对象
-      else if (form.endTime instanceof Date) {
-        endTime = Math.floor(form.endTime.getTime() / 1000);
-      }
-      // 方式3：如果已经是时间戳数字
-      else if (typeof form.endTime === 'number') {
-        endTime = form.endTime > 10000000000 ? Math.floor(form.endTime / 1000) : form.endTime;
+        endTime = Math.floor(date.getTime() / 1000);
       }
     }
 
@@ -318,29 +445,26 @@ function handleSubmit() {
       priority: Number(form.priority) || 0,
       workId: Number(form.workId) || 0,
       planHours: form.planHours || '',
-      endTime: endTime,  // 修改：传数字时间戳，而不是字符串
+      endTime: endTime,
       directorUid: Number(form.directorUid) || 0,
       assistAdminIds: (form.assistAdminIds || []).join(','),
       projectId: form.projectId || '',
       content: form.content || ''
     };
 
-    console.log('提交的数据:', data);  // 调试用，确认 endTime 是数字
-
     const api = isEdit.value ? updateenterPrise : addenterPrise;
     api(data).then(() => {
       proxy.$modal.msgSuccess("操作成功");
       handleClose();
-      emit("success");  // 添加这行，通知父组件刷新
+      emit("success");
     }).catch(err => {
       console.error("提交失败", err);
     });
   });
 }
 
-// 重置表单（彻底清除校验状态）
+// 重置表单
 function resetForm() {
-  // 重置表单数据
   Object.assign(form, {
     id: undefined,
     title: "",
@@ -353,7 +477,8 @@ function resetForm() {
     projectId: "",
     content: ""
   });
-  // 清除校验状态
+  workLogList.value = [];
+  workLogTotal.value = 0;
   nextTick(() => {
     formRef.value?.clearValidate();
   });
@@ -425,7 +550,6 @@ defineExpose({ open, openEdit, openView });
 .car-dialog .el-dialog__body {
   overflow-y: auto;
 }
-/* 强制标签不换行 */
 .car-dialog .el-form-item__label {
   white-space: nowrap !important;
   overflow: visible !important;
