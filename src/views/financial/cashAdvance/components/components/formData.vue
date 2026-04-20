@@ -199,6 +199,12 @@ const userOptions = ref([]);
 const deptOptions = ref([]);
 const enterpriseOptions = ref([]);
 
+// 当前登录用户信息
+const currentUserInfo = ref({
+  userId: "",
+  deptId: ""
+});
+
 // 表单数据
 const form = reactive({
   id: undefined,
@@ -232,8 +238,12 @@ function getUserList() {
     userOptions.value = response.rows || [];
     // 设置当前登录人信息
     const currentUser = userOptions.value.find(u => u.userId === userStore.id);
-    form.adminId = userStore.id || "";
-    form.did = currentUser?.deptId || "";
+    currentUserInfo.value = {
+      userId: userStore.id || "",
+      deptId: currentUser?.deptId || ""
+    };
+    form.adminId = currentUserInfo.value.userId;
+    form.did = currentUserInfo.value.deptId;
   });
 }
 
@@ -282,8 +292,8 @@ function resetForm() {
   form.title = "";
   form.subjectId = "";
   form.cost = undefined;
-  form.adminId = userStore.id || "";
-  form.did = userStore.deptId || "";
+  form.adminId = currentUserInfo.value.userId;
+  form.did = currentUserInfo.value.deptId;
   form.code = "";
   form.types = "";
   form.planTime = "";
