@@ -9,17 +9,11 @@
       row-key="id"
       ref="tableList"
     >
-      <template #balanceStatus="{ row }">
-        <dict-tag :options="balance_status" :value="Number(row.balanceStatus)" />
-      </template>
-      <template #types="{ row }">
-        <dict-tag :options="cash_advance_types" :value="Number(row.types)" />
+      <template #checkStatus="{ row }">
+        <dict-tag :options="contract_check_status" :value="Number(row.checkStatus)" />
       </template>
       <template #payStatus="{ row }">
         <dict-tag :options="cash_pay_status" :value="Number(row.payStatus)" />
-      </template>
-      <template #effTime="{ row }">
-        {{ row.startTime }} ~ {{ row.endTime }}
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
@@ -45,7 +39,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { balance_status, cash_advance_types, cash_pay_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status");
+const { cash_pay_status, contract_check_status } = proxy.useDict("cash_pay_status", "contract_check_status");
 
 const route = useRoute();
 const router = useRouter();
