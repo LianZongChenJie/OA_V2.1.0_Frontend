@@ -19,10 +19,10 @@
 import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
 
-// 任务接口
-import { getPageList, getDetail, deletereward } from "@/api/project/task/index.js";
+// 使用 workingHour 接口
+import { getPageList, getDetail, deletereward } from "@/api/project/workingHour/index.js";
 
-// 项目列表接口（改成获取项目列表）
+// 项目列表接口
 import { getPageList as getProjectList } from "@/api/project/itemList/index.js";
 
 // 用户接口
@@ -51,19 +51,17 @@ const statusMap = {
 
 // 下拉枚举：项目列表 + 负责人
 const searchEnum = ref({
-  projectList: [],     // 改成项目列表
+  projectList: [],
   userList: [],
 });
 
-// ==============================================
-// 加载：项目列表（已改成获取项目列表）
-// ==============================================
+// 加载项目列表
 const fetchProjectList = async () => {
   try {
     const res = await getProjectList({ pageNum: 1, pageSize: 100 });
     let list = [];
-    if (res.rows) list = res.rows;
-    else if (res.data?.rows) list = res.data.rows;
+    if (res.data?.rows) list = res.data.rows;
+    else if (res.rows) list = res.rows;
     else if (Array.isArray(res)) list = res;
 
     searchEnum.value.projectList = list.map((item) => ({
@@ -75,13 +73,13 @@ const fetchProjectList = async () => {
   }
 };
 
-// 加载：负责人下拉
+// 加载负责人下拉
 const fetchUserList = async () => {
   try {
     const res = await listUser({ pageSize: 1000 });
     let users = [];
-    if (res.rows) users = res.rows;
-    else if (res.data?.rows) users = res.data.rows;
+    if (res.data?.rows) users = res.data.rows;
+    else if (res.rows) users = res.rows;
     else if (Array.isArray(res)) users = res;
 
     searchEnum.value.userList = users
@@ -96,12 +94,12 @@ const fetchUserList = async () => {
 };
 
 onMounted(() => {
-  fetchProjectList();   // 调用项目列表
+  fetchProjectList();
   fetchUserList();
   tableKey.value++;
 });
 
-
+// 格式化 workingHour 接口数据，适配 columns 配置
 const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
@@ -119,26 +117,53 @@ const formatTaskData = (rows) => {
       }
     }
     
-    return {
-      ...row,
-      end_time_display: endTimeDisplay,  
-      statusText: statusMap[row.status] || "未知"
-    };
   });
 };
 
 // 列表请求适配
 const getPageListFix = async (params) => {
-  const res = await getPageList(params);
-  if (res?.rows) {
-    res.rows = formatTaskData(res.rows);
+  try {
+    const res = await getPageList(params);
+    console.log('workingHour接口返回:', res);
+    
+    // workingHour 接口返回格式: { code: 200, data: { rows: [], total: number } }
+    if (res?.code === 200 && res?.data?.rows) {
+      const formattedRows = formatTaskData(res.data.rows);
+      return {
+        rows: formattedRows,
+        total: res.data.total || 0
+      };
+    }
+    
+    // 兼容其他格式
+    if (res?.rows) {
+      const formattedRows = formatTaskData(res.rows);
+      return {
+        rows: formattedRows,
+        total: res.total || 0
+      };
+    }
+    
+    return { rows: [], total: 0 };
+  } catch (error) {
+    console.error('获取任务列表失败:', error);
+    return { rows: [], total: 0 };
   }
-  return res;
 };
 
 // 操作
 function handleAdd() {
   addDialogRef.value.open();
+}
+
+function handleAdjustHour(row) {
+  // 调整工时逻辑
+  console.log('调整工时', row);
+}
+
+function handleEdit(row) {
+  // 编辑逻辑
+  console.log('编辑', row);
 }
 
 async function handleView(row) {
@@ -147,7 +172,7 @@ async function handleView(row) {
 }
 
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定删除该项目吗？").then(async () => {
+  proxy.$modal.confirm("确定删除该记录吗？").then(async () => {
     await deletereward(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
@@ -158,6 +183,7 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
+// 注意：这里有4个参数：调整工时、编辑、删除、查看
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleView, handleDelete);
+const operationColumn = getOperationColumn(handleAdjustHour, handleEdit, handleDelete, handleView);
 </script>

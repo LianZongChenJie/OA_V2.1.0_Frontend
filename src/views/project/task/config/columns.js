@@ -1,14 +1,15 @@
-import { getPageList } from "@/api/base/project/projectClassify/index.js";
+import { getPageList } from "@/api/project/itemList/index.js";
 import { listUser } from '@/api/system/user.js';
+import { getWorkCateList } from "@/api/project/task/index.js";
 
-// 查询表单（与搜索框一一对应，完全匹配界面）
+// 查询表单
 export const queryForm = {
-  statusName: '',         // 任务状态
-  priorityName: '',       // 优先级（新增）
-  workId: '',       // 工作类型（新增）
-  projectId: '',      // 所属项目
-  directorUid: '',    // 任务负责人（可多选）
-  keywords: ''        // 关键字，任务主题/描述内容
+  statusName: '',         
+  priorityName: '',       
+  workId: '',      
+  projectId: '',      
+  directorUid: '',    
+  keywords: ''        
 };
 
 // 表格列配置
@@ -21,7 +22,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'status_name',
+    fieldName: 'statusName',
     label: '任务状态',
     width: "12%",
     minWidth: 100,
@@ -49,7 +50,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'priority_name',
+    fieldName: 'priorityName',
     label: '优先级',
     width: "10%",
     minWidth: 80,
@@ -72,39 +73,25 @@ export const columns = [
       ]
     },
   },
-  {
-    fieldName: 'workId',
+    {
+    fieldName: 'workName',
     label: '工作类型',
     width: "12%",
     minWidth: 100,
     align: 'center',
     searchable: {
-      type: 'select',
-      fieldName: 'workId',
-      label: '工作类型',
+      type: 'selectApi',      
+      api: getWorkCateList,  
+      optionValue: 'id',      
+      optionLabel: 'title',    
+      fieldName: 'workId',    
       placeholder: '请选择工作类型',
-      order: 3,
-      options: [
-        { label: '其他', value: 0 },
-        { label: '方案策划', value: 1 },
-        { label: '撰写文档', value: 2 },
-        { label: '需求调研', value: 3 },
-        { label: '需求沟通', value: 4 },
-        { label: '参加会议', value: 5 },
-        { label: '拜访客户', value: 6 },
-        { label: '接待客户', value: 7 },
-        { label: '系统设计', value: 8 },
-        { label: '系统开发', value: 9 },
-        { label: '系统实施', value: 10},
-        { label: '测试验证', value: 11 },
-        { label: '部署上线', value: 12},
-        { label: '系统维护', value: 13 },
-        { label: '系统验收', value: 14 }
-      ]
-    },
+      label: '工作类型',
+      order: 3
+    }
   },
   {
-    fieldName: 'project_name',
+    fieldName: 'projectName',
     label: '所属项目',
     width: "18%",
     minWidth: 150,
@@ -121,7 +108,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'admin_name',
+    fieldName: 'adminName',
     label: '负责人',
     width: "12%",
     minWidth: 100,
@@ -152,7 +139,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'director_name',
+    fieldName: 'directorName',
     label: '协作人',
     width: "15%",
     minWidth: 120,
@@ -166,7 +153,7 @@ export const columns = [
     align: 'center',
   },
   {
-  fieldName: 'end_time_display',  
+  fieldName: 'endTimeStr',  
   label: '预计结束日期',
   width: "25%", 
   minWidth: 200,
@@ -223,7 +210,7 @@ export const getOperationColumn = (onView, onDelete) => ({
   ]
 });
 
-// 生成搜索字段（完全匹配搜索栏顺序：任务状态→优先级→工作类型→所属项目→任务负责人→关键字）
+// 生成搜索字段
 export const searchFields = columns
   .filter(col => col.searchable)
   .map(col => ({

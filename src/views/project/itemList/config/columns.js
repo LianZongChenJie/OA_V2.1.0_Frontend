@@ -32,7 +32,7 @@ export const columns = [
       placeholder: '请选择项目状态',
       order: 1,
       options: [
-        { label: '未设置', value: 0 },
+        // { label: '未设置', value: 0 },
         { label: '未开始', value: 1 },
         { label: '进行中', value: 2 },
         { label: '已完成', value: 3 },

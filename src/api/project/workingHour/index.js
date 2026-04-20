@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 获取任务列表分页列表
 export function getPageList(query) {
   return request({
-    url: '/project/task/list',
+    url: '/project/task/hour',
     method: 'get',
     params: query
   })
@@ -12,24 +12,16 @@ export function getPageList(query) {
 // 获取任务列表详情
 export function getDetail(id) {
   return request({
-    url: `/project/task/${id}`,
+    url: `/project/task/hour/${id}`,
     method: 'get'
   })
 }
 
-// 新增任务列表
-export function addenterPrise(data) {
-  return request({
-    url: '/project/task',
-    method: 'post',
-    data: data
-  })
-}
 
 // 更新任务列表
 export function updateenterPrise(data) {
   return request({
-    url: `/project/task`,
+    url: `/project/task/hour`,
     method: 'put',
     data: data
   })
@@ -40,16 +32,17 @@ export function updateenterPrise(data) {
 // 删除任务列表接口
 export function deletereward(id) {
   return request({
-    url: `/project/task/${id}`,
+    url: `/project/task/hour/${id}`,
     method: 'delete'
   })
 }
 
-// 获取工作类型（项目分类）列表
-export function getWorkCateList(params) {
+
+// 调整工时
+export function updateChange(data) {
   return request({
-    url: '/basicdata/project/workCate/list',
-    method: 'get',
-    params
+    url: `/project/task/hour`,
+    method: 'put',
+    data: data
   })
 }

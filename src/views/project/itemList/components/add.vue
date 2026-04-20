@@ -30,6 +30,7 @@
               :disabled="isView"
               placeholder="请选择归属部门"
               clearable
+              style="width: 100%;"
             />
           </el-form-item>
         </el-col>
@@ -343,7 +344,7 @@ const handleSubmit = () => {
       code: form.code,
       amount: form.amount || 0,
       cateId: form.cateId,
-      customerId: form.customerId?.length ? form.customerId[0] : null,
+      customerId: form.customerId?.join(',') || '',
       contractId: form.contractId || null,
       adminId: form.adminId,
       directorUid: form.directorUid,
