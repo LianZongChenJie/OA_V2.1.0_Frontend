@@ -20,9 +20,9 @@ import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
 
 // 任务接口
-import { getPageList, getDetail, deletereward } from "@/api/project/task/index.js";
+import { getPageList, getDetail, deletereward } from "@/api/project/document/index.js";
 
-// 项目列表接口
+// 项目列表接口（改成获取项目列表）
 import { getPageList as getProjectList } from "@/api/project/itemList/index.js";
 
 // 用户接口
@@ -51,11 +51,13 @@ const statusMap = {
 
 // 下拉枚举：项目列表 + 负责人
 const searchEnum = ref({
-  projectList: [],
+  projectList: [],     // 改成项目列表
   userList: [],
 });
 
-// 加载：项目列表
+// ==============================================
+// 加载：项目列表（已改成获取项目列表）
+// ==============================================
 const fetchProjectList = async () => {
   try {
     const res = await getProjectList({ pageNum: 1, pageSize: 100 });
@@ -94,40 +96,32 @@ const fetchUserList = async () => {
 };
 
 onMounted(() => {
-  fetchProjectList();
+  fetchProjectList();   // 调用项目列表
   fetchUserList();
   tableKey.value++;
 });
-
 
 
 const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
   return rows.map(row => {
-    let showText = row.endTimeStr || '-';
-
-    if (row.status === 3) {
-      showText = row.endTimeStr || '-';
-    } 
-    else if (row.endTimeStr) {
-      const dateStr = row.endTimeStr.split(' ')[0];
+    let endTimeDisplay = row.end_time_str || '-';
+    
+    if (row.end_time_str && row.status !== 3) {
+      const dateStr = row.end_time_str.split(' ')[0];
       const end = new Date(dateStr.replace(/-/g, '/')).getTime();
       const now = Date.now();
-      const diffDay = Math.ceil((end - now) / 86400000);
-
-      if (diffDay > 0) {
-        showText = `${row.endTimeStr}（剩余 ${diffDay} 天）`;
-      } else if (diffDay === 0) {
-        showText = `${row.endTimeStr}（今日到期）`;
-      } else {
-        showText = `${row.endTimeStr}（逾期 ${Math.abs(diffDay)} 天）`;
+      const diffDay = Math.ceil((end - now) / (86400000));
+      
+      if (diffDay < 0) {
+        endTimeDisplay = `${row.end_time_str}（逾期${Math.abs(diffDay)}天）`;
       }
     }
-
+    
     return {
       ...row,
-      endTimeStr: showText, 
+      end_time_display: endTimeDisplay,  
       statusText: statusMap[row.status] || "未知"
     };
   });
@@ -147,6 +141,11 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
+const handleEdit = async (row) => {
+  const res = await getDetail(row.id);
+  addDialogRef.value.openEdit(res.data || res);
+};
+
 async function handleView(row) {
   const res = await getDetail(row.id);
   if (res) addDialogRef.value.openView(res.data || res);
@@ -165,5 +164,5 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleView, handleDelete);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
