@@ -12,9 +12,6 @@
       <template #balanceStatus="{ row }">
         <dict-tag :options="balance_status" :value="Number(row.balanceStatus)" />
       </template>
-       <template #checkStatus="{ row }">
-        <dict-tag :options="contract_check_status" :value="Number(row.checkStatus)" />
-      </template>
       <template #types="{ row }">
         <dict-tag :options="cash_advance_types" :value="Number(row.types)" />
       </template>
@@ -32,7 +29,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/financial/cashAdvance";
+import { getPageList, getDetail, del } from "@/api/financial/reimbursement";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -48,7 +45,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { balance_status, cash_advance_types, cash_pay_status,contract_check_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status","contract_check_status");
+const { balance_status, cash_advance_types, cash_pay_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status");
 
 const route = useRoute();
 const router = useRouter();
