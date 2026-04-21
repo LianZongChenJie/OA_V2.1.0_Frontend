@@ -19,7 +19,7 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getMessageModuleDetail, updateStatus, deleteMessageModule } from "@/api/base/contract/supplier/index.js";
+import { getPageList, getDetail, deleteDeptChange } from "@/api/personnel/rewardsPunishments/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -29,45 +29,38 @@ const { supplier_status } = proxy.useDict("supplier_status");
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
-
+const loadUsers = async () => {
+  const res = await listUser({ pageSize: 1000 });
+  const users = res.rows || res.data?.rows || [];
+  searchEnum.userList = users.map(u => ({
+    label: u.nickName || u.userName || "",
+    value: u.userId,
+  }));
+  return users;
+};
 
 // 新增
 function handleAdd() {
   addDialogRef.value.open();
 }
 
-// 编辑前先调用详情接口，拿到完整数据（含contactList）
+// 编辑
 async function handleEdit(row) {
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id); 
   addDialogRef.value.openEdit(res.data);
 }
 
-// 查看前先调用详情接口
+// 查看
 async function handleView(row) {
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id); 
   addDialogRef.value.openView(res.data);
 }
 
-/** 禁用/启用按钮操作 */
-async function handleDisable(row) {
-  const newStatus = row.status === 1 ? 0 : 1;
-  proxy.$modal
-    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该行政数据吗?`)
-    .then(async () => {
-      const res = await updateStatus(row.id, { status: newStatus });
-      
-      if (res) {
-        proxy.$modal.msgSuccess(`${newStatus === 1 ? '启用' : '禁用'}成功`);
-        tableList.value.refresh();
-      }
-    })
-    .catch(() => {});
-}
 
 // 删除
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定要删除该供应商吗？删除后无法恢复！").then(async () => {
-    await deleteMessageModule(row.id);
+  proxy.$modal.confirm("确定要删除该奖罚项目吗？").then(async () => {
+    await deleteDeptChange(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
   }).catch(() => {});
@@ -79,11 +72,9 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(
-  handleEdit, 
+const operationColumn = getOperationColumn( 
+  handleEdit,
   handleView, 
-  handleDisable, 
-  handleDisable, 
   handleDelete
 );
 </script>

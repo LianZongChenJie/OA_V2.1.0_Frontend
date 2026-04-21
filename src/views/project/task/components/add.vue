@@ -46,7 +46,7 @@
       <!-- 第二行：工作类型 + 预估工时 + 任务优先级 -->
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="工作类型" prop="workId" required label-suffix="：">
+          <el-form-item label="工作类别" prop="workId" required label-suffix="：">
             <el-select
               v-model="form.workId"
               :disabled="isView"
@@ -178,17 +178,16 @@
       </div>
 
       <el-table :data="workLogList" border size="small" style="width: 100%;">
-        <el-table-column label="ID号" prop="id" align="center" width="70" />
+        <el-table-column label="ID" prop="id" align="center" width="70" />
         <el-table-column label="工作内容" prop="workContent" align="center" />
         <el-table-column label="所属人员" prop="executorName" align="center" />
         <el-table-column label="工作时间范围" prop="workTimeRange" align="center" />
-        <el-table-column label="工作类型" prop="workType" align="center" />
+        <el-table-column label="工作类别" prop="workType" align="center" />
         <el-table-column label="工时" prop="workHour" align="center" width="70" />
         <el-table-column label="创建时间" prop="createTime" align="center" />
         <el-table-column label="操作" align="center" width="120">
           <template #default="{ row }">
-            <el-button type="primary" size="small">详细</el-button>
-            <el-button type="success" size="small" style="margin-left: 5px;">编辑</el-button>
+            <el-button type="success" size="small" @click="openEditWorkLog(row)">编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -206,40 +205,20 @@
     <el-dialog
       title="添加工作日志"
       v-model="addLogVisible"
-      width="550px"
+      width="450px"
       append-to-body
     >
       <el-form ref="logFormRef" :model="logForm" :rules="logRules" label-width="80px">
-        <el-form-item label="时间范围" prop="startTime">
-          <el-space wrap>
-            <el-date-picker
-              v-model="logForm.startDate"
-              type="date"
-              placeholder="开始日期"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-            />
-            <el-time-picker
-              v-model="logForm.startTime"
-              placeholder="开始时间"
-              format="HH:mm"
-              value-format="HH:mm"
-            />
-            <span>至</span>
-            <el-date-picker
-              v-model="logForm.endDate"
-              type="date"
-              placeholder="结束日期"
-              format="YYYY-MM-DD"
-              value-format="YYYY-MM-DD"
-            />
-            <el-time-picker
-              v-model="logForm.endTime"
-              placeholder="结束时间"
-              format="HH:mm"
-              value-format="HH:mm"
-            />
-          </el-space>
+        <el-form-item label="时间范围" prop="timeRange">
+          <el-date-picker
+            v-model="logForm.timeRange"
+            type="datetimerange"
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            format="YYYY-MM-DD HH:mm"
+            value-format="YYYY-MM-DD HH:mm:ss"
+          />
         </el-form-item>
 
         <el-form-item label="工作类别" prop="workType">
@@ -254,7 +233,7 @@
         </el-form-item>
 
         <el-form-item label="工时" prop="workHour">
-          <el-input v-model.number="logForm.workHour" placeholder="请输入工时" />
+          <el-input v-model="logForm.workHour" placeholder="请输入工时" />
         </el-form-item>
 
         <el-form-item label="工作内容" prop="workContent">
@@ -280,10 +259,10 @@
 <script setup>
 import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from "vue";
 import { ElMessage } from "element-plus";
-import axios from "axios";
 import { addenterPrise, updateenterPrise, getWorkCateList} from "@/api/project/task/index.js";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/project/itemList/index.js";
+import { getPageList as getTaskHourList, getDetail, updateenterPrise as saveWorkHour } from "@/api/project/workingHour/index.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -294,7 +273,7 @@ const isView = ref(false);
 
 const userOptions = ref([]);
 const projectList = ref([]);
-const workCateList = ref([]); // 工作类型接口数据
+const workCateList = ref([]);
 
 // 工作记录列表
 const workLogList = ref([]);
@@ -304,11 +283,9 @@ const workLogTotal = ref(0);
 const addLogVisible = ref(false);
 const logFormRef = ref(null);
 const logForm = reactive({
+  id: null,
   taskId: null,
-  startDate: "",
-  startTime: "",
-  endDate: "",
-  endTime: "",
+  timeRange: null,
   workType: "",
   workHour: "",
   workContent: ""
@@ -330,9 +307,29 @@ const form = reactive({
 
 // 日志校验
 const logRules = {
-  startTime: [{ required: true, message: "请选择时间范围", trigger: "change" }],
+  timeRange: [{ required: true, message: "请选择时间范围", trigger: "change" }],
   workType: [{ required: true, message: "请选择工作类别", trigger: "change" }],
-  workHour: [{ required: true, message: "请输入工时", trigger: "blur" }],
+  workHour: [{ required: true, message: "请输入工时", trigger: "blur" },
+    { 
+      validator: (rule, value, callback) => {
+        if (value === '' || value === null || value === undefined) {
+          callback();
+          return;
+        }
+        const num = Number(value);
+        if (isNaN(num)) {
+          callback(new Error('请输入数字'));
+        } else if (num <= 0) {
+          callback(new Error('预估工时必须大于0'));
+        } else if (!Number.isInteger(num) && !/^\d+(\.\d{1,2})?$/.test(value)) {
+          callback(new Error('最多保留两位小数'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
   workContent: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
 };
 
@@ -340,7 +337,7 @@ const logRules = {
 async function loadWorkCateList() {
   try {
     const res = await getWorkCateList({ pageSize: 1000 , pageNum: 1});
-    workCateList.value = res.rows || [];
+    workCateList.value = (res.rows || []).filter(item => item.status === 0);
   } catch (err) {
     console.error("加载工作类型失败:", err);
   }
@@ -406,24 +403,83 @@ const rules = {
 
 // 打开添加工作日志
 function openAddWorkLog() {
+  logForm.id = null;
   logForm.taskId = form.id;
+  logForm.timeRange = null;
+  logForm.workType = "";
+  logForm.workHour = "";
+  logForm.workContent = "";
+  nextTick(() => {
+    logFormRef.value?.clearValidate();
+  });
   addLogVisible.value = true;
 }
 
+// 编辑工作日志
+async function openEditWorkLog(row) {
+  try {
+    const res = await getDetail(row.id);
+    const data = res.data;
+    logForm.id = data.id;
+    logForm.taskId = form.id;
+    logForm.timeRange = [data.startTime, data.endTime];
+    logForm.workType = data.workType;
+    logForm.workHour = data.workHour;
+    logForm.workContent = data.workContent;
+    nextTick(() => logFormRef.value?.clearValidate());
+    addLogVisible.value = true;
+  } catch (e) {
+    ElMessage.error("加载数据失败");
+  }
+}
+
 // 提交工作日志
-function submitWorkLog() {
-  logFormRef.value.validate(valid => {
-    if (!valid) return;
-    ElMessage.success("添加成功");
+async function submitWorkLog() {
+  const valid = await logFormRef.value.validate();
+  if (!valid) return;
+
+  const params = {
+    id: logForm.id || undefined,
+    taskId: logForm.taskId,
+    workType: logForm.workType,
+    workHour: logForm.workHour,
+    workContent: logForm.workContent,
+    startTime: logForm.timeRange[0],
+    endTime: logForm.timeRange[1]
+  };
+
+  try {
+    await saveWorkHour(params);
+    ElMessage.success(logForm.id ? "编辑成功" : "添加成功");
     addLogVisible.value = false;
-  });
+    loadWorkLogList();
+  } catch (err) {
+    console.error(err);
+    ElMessage.error("操作失败");
+  }
+}
+
+// 加载工作日志列表
+async function loadWorkLogList() {
+  if (!form.id) return;
+  try {
+    const res = await getTaskHourList({
+      taskId: form.id,  
+      pageNum: 1,
+      pageSize: 20
+    });
+    workLogList.value = res.rows || [];
+    workLogTotal.value = res.total || 0;
+  } catch (err) {
+    console.error("加载任务工时列表失败:", err);
+  }
 }
 
 // 初始化加载
 onMounted(() => {
   loadUserList();
   loadProjectList();
-  loadWorkCateList(); // 加载工作类型
+  loadWorkCateList();
 });
 
 // 提交
@@ -535,6 +591,7 @@ function openView(data) {
   });
   isView.value = true;
   dialogVisible.value = true;
+  loadWorkLogList();
 }
 
 const emit = defineEmits(["success"]);

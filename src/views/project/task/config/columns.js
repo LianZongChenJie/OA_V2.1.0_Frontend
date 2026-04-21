@@ -22,7 +22,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'statusName',
+    fieldName: 'status_name',
     label: '任务状态',
     width: "12%",
     minWidth: 100,
@@ -41,16 +41,14 @@ export const columns = [
       placeholder: '请选择任务状态',
       order: 1,
       options: [
-        { label: '未设置', value: 0 },
         { label: '未开始', value: 1 },
         { label: '进行中', value: 2 },
         { label: '已完成', value: 3 },
-        { label: '已关闭', value: 4 }
       ]
     },
   },
   {
-    fieldName: 'priorityName',
+    fieldName: 'priority_name',
     label: '优先级',
     width: "10%",
     minWidth: 80,
@@ -75,7 +73,7 @@ export const columns = [
   },
     {
     fieldName: 'workName',
-    label: '工作类型',
+    label: '工作类别',
     width: "12%",
     minWidth: 100,
     align: 'center',
@@ -85,13 +83,13 @@ export const columns = [
       optionValue: 'id',      
       optionLabel: 'title',    
       fieldName: 'workId',    
-      placeholder: '请选择工作类型',
-      label: '工作类型',
+      placeholder: '请选择工作列别',
+      label: '工作类别',
       order: 3
     }
   },
   {
-    fieldName: 'projectName',
+    fieldName: 'project_name',
     label: '所属项目',
     width: "18%",
     minWidth: 150,
@@ -108,7 +106,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminName',
+    fieldName: 'admin_name',
     label: '负责人',
     width: "12%",
     minWidth: 100,
@@ -139,7 +137,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'directorName',
+    fieldName: 'director_name',
     label: '协作人',
     width: "15%",
     minWidth: 120,
@@ -153,7 +151,7 @@ export const columns = [
     align: 'center',
   },
   {
-  fieldName: 'endTimeStr',  
+  fieldName: 'end_time_str',  
   label: '预计结束日期',
   width: "25%", 
   minWidth: 200,

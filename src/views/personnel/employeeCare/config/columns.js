@@ -1,11 +1,14 @@
-// 搜索表单（增加 keywords）
+import { listUser } from '@/api/system/user.js';
+import { getPageList } from '@/api/base/hr/careProgram/index.js';
+
+// 搜索表单
 export const queryForm = {
   rewardStatus: '',
   rewardType: '',
   rewardItem: '',
   rewardEmp: '',
   rewardDate: '',
-  keywords: '' // 全局关键字
+  keywords: ''
 };
 
 // 列表列配置
@@ -18,7 +21,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'status',
+    fieldName: 'statusName',
     label: '状态',
     width: "8%",
     minWidth: 100,
@@ -43,64 +46,61 @@ export const columns = [
     width: "10%",
     minWidth: 120,
     searchable: {
-      type: 'select',
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userId',
+      optionLabel: 'nickName',
       fieldName: 'rewardEmp',
       label: '关怀员工',
       placeholder: '请选择人员',
-      order: 3, // 调整order值以控制显示顺序
-      // 关键修复：直接配置用户接口，自动加载
-      api: () => import('@/api/system/user.js').then(m => m.listUser({ pageSize: 1000 })),
-      labelField: 'userName',
-      valueField: 'userId',
+      order: 3,
     },
   },
   {
-    fieldName: 'rewardItem',
+    fieldName: 'careCateName',
     label: '关怀项目',
     width: "12%",
     minWidth: 140,
     searchable: {
-      type: 'select',
+      type: 'selectApi',
+      api: getPageList,
+      optionValue: 'title',
+      optionLabel: 'title',
       fieldName: 'rewardItem',
       label: '关怀项目',
       placeholder: '请选择',
-      order: 2, // 调整order值以控制显示顺序
-      options: [
-        { label: '礼品', value: '礼品' },
-        { label: '节日', value: '节日' },
-        { label: '生日', value: '生日' },
-        { label: '其他', value: '其他' },
-      ]
+      order: 2,
     },
   },
   {
+  fieldName: 'careTime',
+  label: '关怀日期',
+  width: "12%",
+  minWidth: 140,
+  format: (val) => val?.split(' ')[0] || '', 
+  searchable: {
+    type: 'dateRange',
     fieldName: 'rewardDate',
     label: '关怀日期',
-    width: "12%",
-    minWidth: 140,
-    searchable: {
-      type: 'dateRange',
-      fieldName: 'rewardDate',
-      label: '关怀日期',
-      placeholder: '请选择',
-      order: 4, // 调整order值以控制显示顺序
-    },
+    placeholder: '请选择',
+    order: 4,
   },
+},
   {
-    fieldName: 'amount',
+    fieldName: 'cost',
     label: '金额(元)',
     width: "8%",
     minWidth: 100,
     align: 'right',
   },
   {
-    fieldName: 'gift',
+    fieldName: 'thing',
     label: '物品',
     width: "10%",
     minWidth: 120,
-      searchable: {
+    searchable: {
       type: 'input',
-      fieldName: 'keywords',
+      fieldName: 'keyword',
       placeholder: '请输入',
       label: '关键字',
       order: 5,
@@ -123,12 +123,12 @@ export const columns = [
 // 操作列
 export const operationColumn = {
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    { label: '详情', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '编辑', type: 'success', size: 'small', icon: 'edit' },
+    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '删除', type: 'danger', size: 'small', icon: 'delete' }
   ]
 };
@@ -136,7 +136,7 @@ export const operationColumn = {
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
-    label: '添加奖罚管理',
+    label: '添加关怀管理',
     type: 'success',
     icon: 'plus',
     size: 'default',
@@ -147,23 +147,23 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: row => onView?.(row),
-      icon: 'eye-open'
-    },
     {
       label: '编辑',
       type: 'success',
       size: 'small',
       onClick: row => onEdit?.(row),
       icon: 'edit'
+    },
+    {
+      label: '查看',
+      type: 'primary',
+      size: 'small',
+      onClick: row => onView?.(row),
+      icon: 'eye-open'
     },
     {
       label: '删除',
@@ -175,7 +175,6 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   ]
 });
 
-// 基础搜索字段（只包含order值较小的字段，会在初始状态下显示）
 export const basicSearchFields = columns
   .filter(col => col.searchable && col.show !== false && (col.searchable.order <= 4))
   .map(col => ({
@@ -184,7 +183,6 @@ export const basicSearchFields = columns
   }))
   .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-// 高级搜索字段（包含所有字段，用于展开时显示）
 export const advancedSearchFields = columns
   .filter(col => col.searchable && col.show !== false)
   .map(col => ({
@@ -193,7 +191,6 @@ export const advancedSearchFields = columns
   }))
   .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-// 所有搜索字段（包括不显示在表格中的）
 export const allSearchFields = columns
   .filter(col => col.searchable)
   .map(col => ({
@@ -207,8 +204,8 @@ export default {
   operationColumn,
   getHeaderButs,
   getOperationColumn,
-  basicSearchFields,     // 基础搜索字段
-  advancedSearchFields,  // 高级搜索字段
-  allSearchFields,       // 所有搜索字段
+  basicSearchFields,
+  advancedSearchFields,
+  allSearchFields,
   queryForm
 };

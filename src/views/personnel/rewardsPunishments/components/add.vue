@@ -9,35 +9,39 @@
     <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
       
       <el-form-item label="奖惩项目" prop="rewardItem" required>
-        <el-select v-model="form.rewardItem" placeholder="请选择" style="width: 100%">
-          <el-option label="请选择" value="" />
-          <el-option label="生日福利" value="生日福利" />
-          <el-option label="节日福利" value="节日福利" />
-          <el-option label="迟到扣款" value="迟到扣款" />
-          <el-option label="全勤奖励" value="全勤奖励" />
-          <el-option label="表现优秀" value="表现优秀" />
-          <el-option label="违规操作" value="违规操作" />
+        <el-select
+          v-model="form.rewardItem"
+          :disabled="isView"
+          placeholder="请选择"
+          clearable
+          style="width: 100%"
+        >
+          <el-option
+            v-for="item in rewardItemList"
+            :key="item.id"
+            :label="item.title"
+            :value="item.title"
+          />
         </el-select>
       </el-form-item>
 
-      <el-form-item label="奖惩类型" prop="rewardType" required>
-        <el-radio-group v-model="form.rewardType">
-          <el-radio label="1">奖励</el-radio>
-          <el-radio label="0">惩罚</el-radio>
+      <el-form-item label="奖惩类型" prop="types" required>
+        <el-radio-group v-model="form.types" :disabled="isView">
+          <el-radio :label="1">奖励</el-radio>
+          <el-radio :label="0">惩罚</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <el-form-item label="当前状态" prop="status" required>
-        <el-radio-group v-model="form.status">
-          <el-radio label="1">待执行</el-radio>
-          <el-radio label="0">已执行</el-radio>
+        <el-radio-group v-model="form.status" :disabled="isView">
+          <el-radio :label="1">待执行</el-radio>
+          <el-radio :label="0">已执行</el-radio>
         </el-radio-group>
       </el-form-item>
 
-      <!-- 员工姓名（下拉选择人员） -->
-      <el-form-item label="员工姓名" prop="empName" required>
+      <el-form-item label="员工姓名" prop="uid" required>
         <el-select
-          v-model="form.empName"
+          v-model="form.uid"
           :disabled="isView"
           placeholder="请选择员工"
           clearable
@@ -46,30 +50,30 @@
           <el-option
             v-for="item in userOptions"
             :key="item.userId"
-            :label="item.userName"
-            :value="item.userName"
+            :label="item.nickName"
+            :value="item.userId"
           />
         </el-select>
       </el-form-item>
 
-
-      <el-form-item label="奖惩金额(元)" prop="amount" required>
-        <el-input v-model="form.amount" placeholder="请输入金额" style="width: 100%" />
+      <el-form-item label="奖惩金额(元)" prop="cost" required>
+        <el-input v-model="form.cost" placeholder="请输入金额" style="width: 100%" :disabled="isView" />
       </el-form-item>
 
-      <el-form-item label="奖惩日期" prop="rewardDate" required>
+      <el-form-item label="奖惩日期" prop="rewardsTime" required>
         <el-date-picker
-          v-model="form.rewardDate"
+          v-model="form.rewardsTime"
           type="date"
           placeholder="请选择"
           style="width: 100%"
           format="YYYY-MM-DD"
           value-format="YYYY-MM-DD"
+          :disabled="isView"
         />
       </el-form-item>
 
-      <el-form-item label="奖惩物品" prop="gift">
-        <el-input v-model="form.gift" placeholder="请输入奖惩物品" style="width: 100%" />
+      <el-form-item label="奖惩物品" prop="thing">
+        <el-input v-model="form.thing" placeholder="请输入奖惩物品" style="width: 100%" :disabled="isView" />
       </el-form-item>
 
       <el-form-item label="奖惩描述" prop="remark">
@@ -79,6 +83,7 @@
           :rows="4"
           placeholder="请输入奖惩描述"
           style="width: 100%"
+          :disabled="isView"
         />
       </el-form-item>
 
@@ -86,7 +91,7 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">立即提交</el-button>
+        <el-button type="primary" @click="handleSubmit" v-if="!isView">立即提交</el-button>
         <el-button @click="handleClose">关闭</el-button>
       </div>
     </template>
@@ -96,59 +101,63 @@
 <script setup name="AddReward">
 import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import { listUser } from "@/api/system/user.js"; // 引入用户接口
+import { listUser } from "@/api/system/user.js";
+import { getPageList } from "@/api/base/hr/rewards/index.js";
+import { addDeptChange, updateDeptChange } from "@/api/personnel/rewardsPunishments/index.js";
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
-const userOptions = ref([]); // 用户列表
+const userOptions = ref([]);
+const rewardItemList = ref([]);
 
 const form = reactive({
   rewardItem: "",
-  rewardType: "1",
-  status: "1",
-  empName: "",
-  copyUids: [], // 抄送人
-  amount: "",
-  rewardDate: "",
-  gift: "",
+  types: 1,
+  status: 1,
+  uid: "",
+  copyUids: [],
+  cost: "",
+  rewardsTime: "",
+  thing: "",
   remark: ""
 });
 
 const dialogTitle = computed(() => {
-  return isView.value ? "查看奖惩信息" : isEdit.value ? "编辑奖惩信息" : "新增奖惩信息";
+  if (isView.value) return "查看奖惩信息";
+  if (isEdit.value) return "编辑奖惩信息";
+  return "新增奖惩信息";
 });
 
 const rules = {
   rewardItem: [{ required: true, message: "请选择奖惩项目", trigger: "change" }],
-  rewardType: [{ required: true, message: "请选择奖惩类型", trigger: "change" }],
+  types: [{ required: true, message: "请选择奖惩类型", trigger: "change" }],
   status: [{ required: true, message: "请选择当前状态", trigger: "change" }],
-  empName: [{ required: true, message: "请选择员工姓名", trigger: "change" }],
-  amount: [{ required: true, message: "请输入奖惩金额", trigger: "blur" }],
-  rewardDate: [{ required: true, message: "请选择奖惩日期", trigger: "change" }],
+  uid: [{ required: true, message: "请选择员工姓名", trigger: "change" }],
+  cost: [{ required: true, message: "请输入奖惩金额", trigger: "blur" }],
+  rewardsTime: [{ required: true, message: "请选择奖惩日期", trigger: "change" }],
 };
 
-// 获取用户列表（和上面审批弹窗一样）
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-  });
-}
-
 onMounted(() => {
-  getUserList(); // 打开页面就加载用户
+  listUser({ pageNum:1, pageSize: 1000 }).then(res => {
+    userOptions.value = (res.rows || []).filter(user => user.status === '0' || user.status === 0);
+  });
+
+  getPageList({ pageNum:1, pageSize: 1000 }).then(res => {
+    rewardItemList.value = res.rows || [];
+  });
 });
 
 function reset() {
   form.rewardItem = "";
-  form.rewardType = "1";
-  form.status = "1";
-  form.empName = "";
+  form.types = 1;
+  form.status = 1;
+  form.uid = "";
   form.copyUids = [];
-  form.amount = "";
-  form.rewardDate = "";
-  form.gift = "";
+  form.cost = "";
+  form.rewardsTime = "";
+  form.thing = "";
   form.remark = "";
   isEdit.value = false;
   isView.value = false;
@@ -183,8 +192,22 @@ async function handleSubmit() {
   const valid = await formRef.value?.validate?.();
   if (!valid) return;
 
+  const submitData = {
+    ...form,
+    uid: Number(form.uid),
+    types: Number(form.types),
+    status: Number(form.status),
+    cost: Number(form.cost),
+    rewardsTime: Math.floor(new Date(form.rewardsTime).getTime() / 1000)
+  };;
+
   try {
-    ElMessage.success(isEdit.value ? "编辑成功" : "新增成功");
+    if (isEdit.value) {
+      await updateDeptChange(submitData);
+    } else {
+      await addDeptChange(submitData);
+    }
+    ElMessage.success("操作成功");
     dialogVisible.value = false;
     emit("success");
   } catch (err) {
@@ -193,7 +216,7 @@ async function handleSubmit() {
 }
 
 const emit = defineEmits(["success"]);
-defineExpose({ open, openEdit, openView, getUserList });
+defineExpose({ open, openEdit, openView });
 </script>
 
 <style lang="scss" scoped>

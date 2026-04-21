@@ -1,11 +1,14 @@
-// 搜索表单（增加 keywords）
+import { listUser } from '@/api/system/user.js';
+import { getPageList } from '@/api/base/hr/rewards/index.js';
+
+// 搜索表单
 export const queryForm = {
   rewardStatus: '',
   rewardType: '',
   rewardItem: '',
   rewardEmp: '',
   rewardDate: '',
-  keywords: '' // 全局关键字
+  keywords: '' 
 };
 
 // 列表列配置
@@ -19,7 +22,7 @@ export const columns = [
   },
   {
     fieldName: 'status',
-    label: '状态',
+    label: '奖罚状态',
     width: "8%",
     minWidth: 100,
     align: 'center',
@@ -33,29 +36,29 @@ export const columns = [
       order: 1,
       options: [
         { label: '待执行', value: 1 },
-        { label: '已执行', value: 0 }
+        { label: '已执行', value: 2 }
       ]
     },
   },
   {
-    fieldName: 'empName',
+    fieldName: 'uid',
     label: '员工',
     width: "10%",
     minWidth: 120,
+    align: 'center',
     searchable: {
-      type: 'select',
-      fieldName: 'rewardEmp',
-      label: '奖惩员工',
-      placeholder: '请选择人员',
-      order: 5,
-      // 直接配置用户接口，自动加载
-      api: () => import('@/api/system/user.js').then(m => m.listUser({ pageSize: 1000 })),
-      labelField: 'userName',
-      valueField: 'userId',
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userId',
+      optionLabel: 'nickName',
+      fieldName: 'uid', 
+      placeholder: '请选择员工',
+      label: '员工',
+      order: 6,
     },
   },
   {
-    fieldName: 'rewardType',
+    fieldName: 'typesName',
     label: '奖惩类型',
     width: "10%",
     minWidth: 120,
@@ -75,28 +78,23 @@ export const columns = [
     },
   },
   {
-    fieldName: 'rewardItem',
+    fieldName: 'rewardsCateName',
     label: '奖惩项目',
     width: "12%",
     minWidth: 140,
     searchable: {
-      type: 'select',
+      type: 'selectApi',
+      api: getPageList,
+      optionValue: 'title',
+      optionLabel: 'title',
       fieldName: 'rewardItem',
       label: '奖惩项目',
       placeholder: '请选择',
       order: 3,
-      options: [
-        { label: '生日福利', value: '生日福利' },
-        { label: '节日福利', value: '节日福利' },
-        { label: '迟到扣款', value: '迟到扣款' },
-        { label: '全勤奖励', value: '全勤奖励' },
-        { label: '表现优秀', value: '表现优秀' },
-        { label: '违规操作', value: '违规操作' }
-      ]
     },
   },
   {
-    fieldName: 'rewardDate',
+    fieldName: 'rewardsTimeStr',
     label: '奖惩日期',
     width: "12%",
     minWidth: 140,
@@ -109,27 +107,27 @@ export const columns = [
     },
   },
   {
-    fieldName: 'amount',
+    fieldName: 'cost',
     label: '金额(元)',
     width: "8%",
     minWidth: 100,
     align: 'right',
   },
   {
-    fieldName: 'gift',
-    label: '物品',
+    fieldName: 'thing',
+    label: '奖罚物品',
     width: "10%",
     minWidth: 120,
-      searchable: {
+    searchable: {
       type: 'input',
-      fieldName: 'keywords',
+      fieldName: 'keyword',
       placeholder: '请输入',
       label: '关键字',
-      order: 6,
+      order: 5,
     },
   },
   {
-    fieldName: 'createBy',
+    fieldName: 'adminId',
     label: '创建人',
     width: "10%",
     minWidth: 120,
@@ -145,12 +143,12 @@ export const columns = [
 // 操作列
 export const operationColumn = {
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '编辑', type: 'success', size: 'small', icon: 'edit' },
+    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '删除', type: 'danger', size: 'small', icon: 'delete' }
   ]
 };
@@ -169,23 +167,23 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: row => onView?.(row),
-      icon: 'eye-open'
-    },
     {
       label: '编辑',
       type: 'success',
       size: 'small',
       onClick: row => onEdit?.(row),
       icon: 'edit'
+    },
+    {
+      label: '查看',
+      type: 'primary',
+      size: 'small',
+      onClick: row => onView?.(row),
+      icon: 'eye-open'
     },
     {
       label: '删除',
@@ -197,7 +195,7 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   ]
 });
 
-// 搜索字段（正确提取 + 关键字）
+// 搜索字段
 export const searchFields = columns
   .filter(col => col.searchable && col.show !== false)
   .map(col => ({

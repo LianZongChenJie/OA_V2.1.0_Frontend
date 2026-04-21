@@ -38,8 +38,8 @@
 
       <el-row :gutter="20">
         <el-col :span="8">
-          <el-form-item label="项目类别" prop="cateId" required>
-            <el-select v-model="form.cateId" :disabled="isView" placeholder="请选择" filterable clearable>
+          <el-form-item label="项目类型" prop="cateId" required>
+            <el-select v-model="form.cateId" :disabled="isView " placeholder="请选择" filterable clearable>
               <el-option v-for="item in cateOptions" :key="item.id" :label="item.title" :value="item.id" />
             </el-select>
           </el-form-item>
@@ -235,7 +235,7 @@ const dialogTitle = computed(() => {
 
 const rules = {
   name: [{ required: true, message: "请输入项目名称", trigger: "blur" }],
-  cateId: [{ required: true, message: "请选择项目类别", trigger: "change" }],
+  cateId: [{ required: true, message: "请选择项目类型", trigger: "change" }],
   directorUid: [{ required: true, message: "请选择项目经理", trigger: "change" }],
   did: [{ required: true, message: "请选择归属部门", trigger: "change" }],
   dateRange: [{ required: true, message: "请选择起止日期", trigger: "change" }],
@@ -292,7 +292,7 @@ const loadContractList = async () => {
 };
 
 const loadProjectCategory = async () => {
-  const res = await getPageList({ pageSize: 100, pageNum: 1 });
+  const res = await getPageList({ pageSize: 100, pageNum: 1});
   cateOptions.value = res.rows || [];
 };
 

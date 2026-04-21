@@ -7,9 +7,9 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-      <el-form-item label="员工姓名" prop="empName" required>
+      <el-form-item label="员工姓名" prop="uid" required>
         <el-select
-          v-model="form.empName"
+          v-model="form.uid"
           :disabled="isView"
           placeholder="请选择员工"
           clearable
@@ -18,36 +18,43 @@
           <el-option
             v-for="item in userOptions"
             :key="item.userId"
-            :label="item.userName"
-            :value="item.userName"
+            :label="item.nickName"
+            :value="item.userId"
           />
         </el-select>
       </el-form-item>
 
-      <el-form-item label="关怀项目" prop="careItem" required>
-        <el-select v-model="form.careItem" :disabled="isView" placeholder="请选择" style="width: 100%">
-          <el-option label="请选择" value="" />
-          <el-option label="礼品" value="礼品" />
-          <el-option label="生日" value="生日" />
-          <el-option label="节日" value="节日" />
-          <el-option label="其他" value="其他" />
+      <el-form-item label="关怀项目" prop="careCate" required>
+        <el-select
+          v-model="form.careCate"
+          :disabled="isView"
+          placeholder="请选择"
+          clearable
+          style="width: 100%"
+        >
+          <el-option
+            v-for="item in careItemList"
+            :key="item.id"
+            :label="item.title"
+            :value="item.id"
+          />
         </el-select>
       </el-form-item>
 
       <el-form-item label="当前状态" prop="status" required>
         <el-radio-group v-model="form.status" :disabled="isView">
-          <el-radio label="1">待执行</el-radio>
-          <el-radio label="0">已执行</el-radio>
+          <el-radio :label="1">待执行</el-radio>
+          <el-radio :label="2">已执行</el-radio>
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="关怀金额(元)" prop="amount" required>
-        <el-input v-model="form.amount" :disabled="isView" placeholder="请输入金额" style="width: 100%" />
+      <el-form-item label="关怀金额(元)" prop="cost" required>
+        <el-input v-model="form.cost" :disabled="isView" placeholder="请输入金额" style="width: 100%" />
       </el-form-item>
 
-      <el-form-item label="关怀日期" prop="careDate" required>
+      <el-form-item label="关怀日期" prop="careTime" required>
         <el-date-picker
-          v-model="form.careDate"
+          v-model="form.careTime"
           :disabled="isView"
           type="date"
           placeholder="请选择"
@@ -57,8 +64,8 @@
         />
       </el-form-item>
 
-      <el-form-item label="关怀物品" prop="gift">
-        <el-input v-model="form.gift" :disabled="isView" placeholder="请输入关怀物品" style="width: 100%" />
+      <el-form-item label="关怀物品" prop="thing">
+        <el-input v-model="form.thing" :disabled="isView" placeholder="请输入关怀物品" style="width: 100%" />
       </el-form-item>
 
       <el-form-item label="关怀描述" prop="remark">
@@ -76,7 +83,6 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <!-- 查看模式隐藏提交按钮 -->
         <el-button v-if="!isView" type="primary" @click="handleSubmit">立即提交</el-button>
         <el-button @click="handleClose">关闭</el-button>
       </div>
@@ -88,22 +94,24 @@
 import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage } from "element-plus";
 import { listUser } from "@/api/system/user.js";
+import { getPageList } from '@/api/base/hr/careProgram/index.js';
+import { addDeptChange, updateDeptChange } from "@/api/personnel/employeeCare/index.js";
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 const userOptions = ref([]);
+const careItemList = ref([]);
 
-// 修复：字段名和columns、业务完全一致
 const form = reactive({
-  careItem: "",
-  status: "1",
-  empName: "",
+  careCate: "",
+  status: 1,
+  uid: "",
   copyUids: [],
-  amount: "",
-  careDate: "",
-  gift: "",
+  cost: "",
+  careTime: "",
+  thing: "",
   remark: ""
 });
 
@@ -112,32 +120,33 @@ const dialogTitle = computed(() => {
 });
 
 const rules = {
-  careItem: [{ required: true, message: "请选择关怀项目", trigger: "change" }],
+  careCate: [{ required: true, message: "请选择关怀项目", trigger: "change" }],
   status: [{ required: true, message: "请选择当前状态", trigger: "change" }],
-  empName: [{ required: true, message: "请选择员工姓名", trigger: "change" }],
-  amount: [{ required: true, message: "请输入关怀金额", trigger: "blur" }],
-  careDate: [{ required: true, message: "请选择关怀日期", trigger: "change" }],
+  uid: [{ required: true, message: "请选择员工姓名", trigger: "change" }],
+  cost: [
+    { required: true, message: "请输入关怀金额", trigger: "blur" },
+    { pattern: /^(?!0+(?:\.0+)?$)\d+(?:\.\d{1,2})?$/, message: "请输入大于0的正数，最多保留2位小数", trigger: "blur" }
+  ],
+  careTime: [{ required: true, message: "请选择关怀日期", trigger: "change" }],
 };
 
-// 获取用户列表
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-  });
-}
-
 onMounted(() => {
-  getUserList();
+  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
+    userOptions.value = (response.rows || []).filter(user => user.status === '0' || user.status === 0);
+  });
+  getPageList({ pageNum: 1, pageSize: 1000 }).then((response) => {
+    careItemList.value = response.rows || [];
+  });
 });
 
 function reset() {
-  form.careItem = "";
-  form.status = "1";
-  form.empName = "";
+  form.careCate = "";
+  form.status = 1;
+  form.uid = "";
   form.copyUids = [];
-  form.amount = "";
-  form.careDate = "";
-  form.gift = "";
+  form.cost = "";
+  form.careTime = "";
+  form.thing = "";
   form.remark = "";
   isEdit.value = false;
   isView.value = false;
@@ -172,7 +181,21 @@ async function handleSubmit() {
   const valid = await formRef.value?.validate?.();
   if (!valid) return;
 
+  // 所有数字类型强转，careTime 保持字符串
+  const submitData = {
+    ...form,
+    uid: Number(form.uid),
+    careCate: Number(form.careCate),
+    status: Number(form.status),
+    cost: Number(form.cost)
+  };
+
   try {
+    if (isEdit.value) {
+      await updateDeptChange(submitData);
+    } else {
+      await addDeptChange(submitData);
+    }
     ElMessage.success(isEdit.value ? "编辑成功" : "新增成功");
     dialogVisible.value = false;
     emit("success");
@@ -182,7 +205,7 @@ async function handleSubmit() {
 }
 
 const emit = defineEmits(["success"]);
-defineExpose({ open, openEdit, openView, getUserList });
+defineExpose({ open, openEdit, openView });
 </script>
 
 <style lang="scss" scoped>
