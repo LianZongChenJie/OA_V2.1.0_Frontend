@@ -112,15 +112,13 @@ export const getHeaderButs = (onAdd) => [
   }
 ];
 
-// 操作列 - 注意参数顺序：调整工时、编辑、删除、查看
-export const getOperationColumn = (onAdjustHour, onEdit, onDelete, onView) => ({
+// 操作列
+export const getOperationColumn = (onDelete, onView) => ({
   label: '操作',
-  width: 280,
+  width: 200,
   fixed: 'right',
   show: true,
   actions: [
-    { label: '调整工时', type: 'warning', size: 'small', onClick: (row) => onAdjustHour?.(row) },
-    { label: '编辑', type: 'success', size: 'small', onClick: (row) => onEdit?.(row) },
     { label: '删除', type: 'danger', size: 'small', onClick: (row) => onDelete?.(row) },
     { label: '查看', type: 'primary', size: 'small', onClick: (row) => onView?.(row) },
   ]

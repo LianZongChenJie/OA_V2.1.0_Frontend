@@ -1,14 +1,12 @@
 <template>
   <div class="main-content">
     <TableList
-      :key="tableKey"
       :api="getPageList"
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
       row-key="id"
       ref="tableList"
-      :search-enum="searchEnum"
     />
 
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
@@ -36,16 +34,6 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
-function handleAdjustHour(row) {
-  // 调整工时逻辑
-  console.log('调整工时', row);
-}
-
-function handleEdit(row) {
-  // 编辑逻辑
-  console.log('编辑', row);
-}
-
 async function handleView(row) {
   const res = await getDetail(row.id);
   if (res) addDialogRef.value.openView(res.data || res);
@@ -63,7 +51,6 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
-// 注意：这里有4个参数：调整工时、编辑、删除、查看
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleAdjustHour, handleEdit, handleDelete, handleView);
+const operationColumn = getOperationColumn(handleDelete, handleView);
 </script>
