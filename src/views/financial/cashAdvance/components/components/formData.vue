@@ -72,7 +72,7 @@
             :precision="2"
             placeholder="请输入借支金额"
             :disabled="readonly"
-            style="width: 100%"
+            style="width: 100%; padding-right: 30px"
           />
         </el-form-item>
       </el-col>

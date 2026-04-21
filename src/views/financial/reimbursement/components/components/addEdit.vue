@@ -2,7 +2,7 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="50%"
+    width="70%"
     append-to-body
     class="documents-dialog"
     @close="handleClose"
@@ -38,7 +38,7 @@ const isEdit = ref(false); // 是否为编辑模式
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  return isEdit.value ? "编辑借支" : "新增借支";
+  return isEdit.value ? "编辑报销" : "新增报销";
 });
 
 /** 关闭弹窗 */

@@ -43,3 +43,12 @@ export function getDetail(id) {
   })
 }
 
+// 获取借支列表（用于冲抵借支下拉选择）
+export function getList(query) {
+  return request({
+    url: '/finance/loan/list',
+    method: 'get',
+    params: query
+  })
+}
+

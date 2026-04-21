@@ -77,7 +77,9 @@
 .el-range-editor.el-input__inner {
   display: inline-flex !important;
 }
-
+.el-input__inner{
+  --el-input-inner-height: calc(var(--el-input-height, 32px) - 1px);
+}
 // to fix el-date-picker css style
 .el-range-separator {
   box-sizing: content-box;
