@@ -13,10 +13,10 @@ export const columns = [
     minWidth: 100,
     align: 'center',
     isDict: true,
-    dict: 'seal_check_status',
+    dict: 'check_status',
     searchable: {
       type: 'select',
-      dictKey: 'seal_check_status',
+      dictKey: 'check_status',
       fieldName: 'checkStatus',
       placeholder: '请选择审批状态',
       label: '审批状态',
@@ -95,6 +95,9 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
+        isShow: (row) => {
+          return [0, 3, 4].includes(row.checkStatus);
+        },
       },
       {
         label: '详情',
@@ -109,6 +112,9 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
         label: '删除',
         type: 'danger',
         size: 'small',
+        isShow: (row) => {
+          return [0, 3, 4].includes(row.checkStatus);
+        },
         onClick: (row) => {
           onDelete && onDelete(row);
         },

@@ -13,7 +13,7 @@
         <dict-tag :options="balance_status" :value="Number(row.balanceStatus)" />
       </template>
        <template #checkStatus="{ row }">
-        <dict-tag :options="contract_check_status" :value="Number(row.checkStatus)" />
+        <dict-tag :options="check_status" :value="Number(row.checkStatus)" />
       </template>
       <template #types="{ row }">
         <dict-tag :options="cash_advance_types" :value="Number(row.types)" />
@@ -48,7 +48,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { balance_status, cash_advance_types, cash_pay_status,contract_check_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status","contract_check_status");
+const { balance_status, cash_advance_types, cash_pay_status,check_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status","check_status");
 
 const route = useRoute();
 const router = useRouter();

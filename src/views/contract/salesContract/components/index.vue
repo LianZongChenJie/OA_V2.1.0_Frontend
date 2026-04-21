@@ -10,7 +10,7 @@
       ref="tableList"
     >
       <template #checkStatus="{ row }">
-        <dict-tag :options="contract_check_status" :value="Number(row.checkStatus)" />
+        <dict-tag :options="check_status" :value="Number(row.checkStatus)" />
       </template>
       <template #types="{ row }">
         <dict-tag :options="seal_contract_types" :value="Number(row.types)" />
@@ -42,7 +42,7 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { contract_check_status, seal_contract_types } = proxy.useDict("contract_check_status", "seal_contract_types");
+const { check_status, seal_contract_types } = proxy.useDict("check_status", "seal_contract_types");
 
 const route = useRoute();
 const router = useRouter();

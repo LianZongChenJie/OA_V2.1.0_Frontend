@@ -22,10 +22,10 @@ export const columns = [
     minWidth: 100,
     align: 'center',
     isDict: true,
-    dict: 'contract_check_status',
+    dict: 'check_status',
     searchable: {
       type: 'select',
-      dictKey: 'contract_check_status',
+      dictKey: 'check_status',
       fieldName: 'checkStatus',
       placeholder: '请选择审批状态',
       label: '审批状态',

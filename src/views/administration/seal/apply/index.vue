@@ -9,7 +9,7 @@
       ref="tableList"
     >
       <template #checkStatus="{ row }">
-        <dict-tag :options="seal_check_status" :value="row.checkStatus" />
+        <dict-tag :options="check_status" :value="row.checkStatus" />
       </template>
        <template #sealCateId="{ row }">
         <dict-tag :options="seal_type" :value="row.sealCateId" />
@@ -29,7 +29,7 @@ import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { seal_check_status,seal_type } = proxy.useDict("seal_check_status","seal_type");
+const { check_status,seal_type } = proxy.useDict("check_status","seal_type");
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
