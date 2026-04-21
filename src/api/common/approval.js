@@ -21,7 +21,7 @@ export function approval(data) {
 // 获取审批信息接口 /api/flow/getFlowNodes
 export function getFlowNodes(data) {
   return request({
-    url: '/basicdata/check/getFlow',
+    url: '/basicdata/check/getFlowNodes',
     method: 'get',
     params: data
   }) 

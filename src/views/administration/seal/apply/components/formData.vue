@@ -273,6 +273,7 @@ async function resetForm() {
   form.content = "";
 }
 
+const completeData = ref({});
 /** 填充表单数据 */
 function setFormData(data) {
   const info = data?.info || data;
@@ -286,11 +287,12 @@ function setFormData(data) {
   form.startTime = info.startTime || "";
   form.endTime = info.endTime || "";
   form.content = info.content || "";
+  completeData.value = data;
 }
 
 /** 获取表单数据 */
 function getFormData() {
-  return { ...form };
+  return { ...completeData.value.info };
 }
 
 /** 初始化数据 - 开始加载用户列表 */

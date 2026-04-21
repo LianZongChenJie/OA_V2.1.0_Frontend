@@ -64,7 +64,7 @@
             >
               <div class="flow-header">
                 <span class="flow-index">第 {{ index + 1 }} 步</span>
-                <el-tag size="small" class="flow-mode">{{
+                <el-tag v-if="flow.check_types" size="small" class="flow-mode">{{
                   getApprovalModeLabel(flow.check_types)
                 }}</el-tag>
               </div>
