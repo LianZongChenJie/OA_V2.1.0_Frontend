@@ -299,8 +299,34 @@ function setDefaultCopyUser() {
   }
 }
 
+function getSelectedFlow() {
+  return selectedFlow.value;
+}
+
+function getFlowId() {
+  return flowId.value;
+}
+
+function getCopyUids() {
+  return copyUids.value;
+}
+
+function setFlowId(id) {
+  flowId.value = id;
+  handleFlowChange(id);
+}
+
+function setCopyUids(uids) {
+  copyUids.value = uids;
+}
+
 defineExpose({
   setDefaultCopyUser,
+  getSelectedFlow,
+  getFlowId,
+  getCopyUids,
+  setFlowId,
+  setCopyUids,
 });
 
 /** 初始化数据 */
