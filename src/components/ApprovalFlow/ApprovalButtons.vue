@@ -112,8 +112,9 @@ function handleApprove() {
     })
     .then(({ value }) => {
       approvalFlow({
-        id: info.id,
-        status: 2,
+        actionId: info.id,
+        flowId: info.checkFlowId,
+        checkStatus: 2,
         remark: value,
       }).then(() => {
         proxy.$modal.msgSuccess("审批通过");

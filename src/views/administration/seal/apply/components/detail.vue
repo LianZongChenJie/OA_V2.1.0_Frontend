@@ -14,6 +14,7 @@
       <div class="form-section-title">审批流程信息</div>
       <ApprovalFlow
         ref="approvalFlowRef"
+        :approval-flow="{flowId: currentApplyData.value?.checkFlowId, actionId:currentApplyData.value?.id }"
         :disabled="!isApprovalFlowEditable"
         flow-title="用章"
       />
@@ -40,6 +41,7 @@ import { ref, computed, nextTick } from "vue";
 import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
 import FormData from "./formData.vue";
+import { getFlowNodes } from "@/api/common/approval";
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
@@ -89,6 +91,19 @@ async function openView(data) {
         ? data.checkCopyUids
         : data.checkCopyUids.split(",");
       approvalFlowRef.value?.setCopyUids(copyUids);
+    }
+
+    // 当审批流不可编辑时，调用 getFlowNodes 接口获取审批步骤信息
+    if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
+      try {
+        const result = await getFlowNodes({
+          flowId: data.checkFlowId,
+          actionId: data.id
+        });
+        console.log("审批步骤信息:", result);
+      } catch (error) {
+        console.error("获取审批步骤信息失败:", error);
+      }
     }
   });
 }

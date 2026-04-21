@@ -95,6 +95,7 @@ import { ref, reactive, watch, computed, getCurrentInstance, onMounted } from "v
 import { listUser } from "@/api/system/user.js";
 import { listPost } from "@/api/system/post.js";
 import { getPageList as getApprovalFlowList } from "@/api/base/common/approvalFlow/index.js";
+import { getFlowNodes } from "@/api/common/approval.js";
 import useUserStore from "@/store/modules/user";
 
 const props = defineProps({
