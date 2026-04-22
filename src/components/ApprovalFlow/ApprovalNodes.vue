@@ -6,10 +6,10 @@
         v-for="node in nodes"
         :key="node.id"
         :type="getTimelineItemType(node)"
-        :timestamp="'步骤 ' + (Number(node.sort)+1) || ''"
+        :timestamp="node.stepName"
         placement="top"
       >
-        <div class="timeline-node">
+        <div class="timeline-node" v-if="node.isFinished != 1">
           <div class="node-title">
             <span class="node-flow-name">{{ node.flowName }}</span>
             <el-tag :type="getNodeStatusTag(node).type" size="small">
@@ -18,7 +18,9 @@
           </div>
           <div class="node-content">
             <span class="node-label">审批人：</span>
-            <span class="node-user">{{ node.checkUserInfo?.[0]?.nickName || '-' }}</span>
+            <span class="node-user">{{
+              node.checkUserInfo?.[0]?.nickName || "-"
+            }}</span>
           </div>
         </div>
       </el-timeline-item>
@@ -46,14 +48,16 @@ function getTimelineItemType(node) {
   const nodeSort = node.sort;
   const currentSort = props.currentStepSort;
 
+  // 已通过的节点（sort < 当前步骤）
+  if (nodeSort < currentSort || node.isFinished === 1) {
+    return "success";
+  }
+
   // 当前审批节点
   if (nodeSort === currentSort) {
     return "primary"; // 审批中
   }
-  // 已通过的节点（sort < 当前步骤）
-  if (nodeSort < currentSort) {
-    return "success";
-  }
+
   // 未审批的节点（sort > 当前步骤）
   return "info";
 }

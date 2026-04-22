@@ -160,8 +160,13 @@ function handleRevoke() {
   const info = props.currentData || {};
 
   proxy.$modal
-    .confirm("确认撤销该审批吗？")
-    .then(() => {
+    .prompt("请输入撤销原因", "拒绝撤销", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      inputPattern: /\S+/,
+      inputErrorMessage: "拒绝原因不能为空",
+    })
+    .then(({ value }) => {
       approvalFlow({
         actionId: info.id,
         flowId: info.checkFlowId,
@@ -169,12 +174,31 @@ function handleRevoke() {
         checkStatus: 3,
         content: value,
       }).then(() => {
-        proxy.$modal.msgSuccess("撤销成功");
+        proxy.$modal.msgSuccess("已撤销");
         emit("closeDialog");
         emit("success");
       });
     })
     .catch(() => {});
+
+  // proxy.$modal
+  //   .confirm("确认撤销该审批吗？")
+  //   .then(() => {
+  //     console.log("======1212===>");
+      
+  //     approvalFlow({
+  //       actionId: info.id,
+  //       flowId: info.checkFlowId,
+  //       checkNode: info.checkStepSort,
+  //       checkStatus: 3,
+  //       content: value,
+  //     }).then(() => {
+  //       proxy.$modal.msgSuccess("撤销成功");
+  //       emit("closeDialog");
+  //       emit("success");
+  //     });
+  //   })
+  //   .catch(() => {});
 }
 </script>
 

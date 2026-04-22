@@ -122,10 +122,18 @@ async function openView(data) {
         const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
 
         // 保存审批节点数据 - 数据在 result.data.nodes 中
-        const nodesData = result.data?.nodes || [];
+        const nodesData = result.data?.nodes.map(item=>{
+          return {
+            ...item,
+            isFinished:0,
+            stepName: '步骤 ' + (Number(item.sort)+1) || ''
+          }
+        }) || [];
 
+        console.log("===data==11=>",data.checkStatus);
+        
         if (nodesData.length > 0) {
-          flowNodes.value = nodesData;
+          flowNodes.value = data.checkStatus === 1? nodesData : [...nodesData,{stepName:'完结',sort:nodesData.length,isFinished:1}];
           currentCheckStepSort.value = stepSort;
         }
       } catch (error) {
