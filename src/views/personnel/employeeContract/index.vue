@@ -44,7 +44,7 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getMessageModuleDetail, updateStatus, deleteMessageModule } from "@/api/base/contract/supplier/index.js";
+import { getPageList, getDetail, deleteDeptChange } from "@/api/personnel/employeeContract/index.js";
 import { columns, getHeaderButs, getOperationColumn, basicSearchFields, advancedSearchFields, queryForm } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -75,20 +75,20 @@ function selectType(val) {
 
 // 编辑
 async function handleEdit(row) {
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id);
   addDialogRef.value.openEdit(res.data);
 }
 
 // 查看
 async function handleView(row) {
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id);
   addDialogRef.value.openView(res.data);
 }
 
 // 删除
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定要删除该合同吗？删除后无法恢复！").then(async () => {
-    await deleteMessageModule(row.id);
+  proxy.$modal.confirm("确定要删除该合同吗？").then(async () => {
+    await deleteDeptChange(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
   }).catch(() => {});

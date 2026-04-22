@@ -105,29 +105,29 @@ const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
   return rows.map(row => {
-    let showText = row.endTimeStr || '-';
+    let showText = row.end_time_str || '-';
 
     if (row.status === 3) {
-      showText = row.endTimeStr || '-';
+      showText = row.end_time_str || '-';
     } 
-    else if (row.endTimeStr) {
-      const dateStr = row.endTimeStr.split(' ')[0];
+    else if (row.end_time_str) {
+      const dateStr = row.end_time_str.split(' ')[0];
       const end = new Date(dateStr.replace(/-/g, '/')).getTime();
       const now = Date.now();
       const diffDay = Math.ceil((end - now) / 86400000);
 
       if (diffDay > 0) {
-        showText = `${row.endTimeStr}（剩余 ${diffDay} 天）`;
+        showText = `${row.end_time_str}（剩余 ${diffDay} 天）`;
       } else if (diffDay === 0) {
-        showText = `${row.endTimeStr}（今日到期）`;
+        showText = `${row.end_time_str}（今日到期）`;
       } else {
-        showText = `${row.endTimeStr}（逾期 ${Math.abs(diffDay)} 天）`;
+        showText = `${row.end_time_str}（逾期 ${Math.abs(diffDay)} 天）`;
       }
     }
 
     return {
       ...row,
-      endTimeStr: showText, 
+      end_time_str: showText, 
       statusText: statusMap[row.status] || "未知"
     };
   });
@@ -153,7 +153,7 @@ async function handleView(row) {
 }
 
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定删除该项目吗？").then(async () => {
+  proxy.$modal.confirm("确定删除该任务吗？").then(async () => {
     await deletereward(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();

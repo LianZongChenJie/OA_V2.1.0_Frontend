@@ -11,43 +11,46 @@ export const columns = [
     label: '姓名',
     width: "10%",
     minWidth: 150, 
+    align: 'center',
       searchable: {
       type: 'input',
-      fieldName: 'title',
+      fieldName: 'keyword',
       placeholder: '请输入',
       label: '关键字',
       order: 1,
     },
   },
   {
-    fieldName: 'title',
+    fieldName: 'mobile',
     label: '手机号',
     width: "10%",
     minWidth: 150,
   },
   {
-    fieldName: 'title',
+    fieldName: 'remark',
     label: '备注信息',
     width: "35%",
     minWidth: 150,
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '创建人',
     width: "10%",
     minWidth: 150,
+    align: 'center'
   },
   {
     fieldName: 'createTime',
     label: '创建时间',
     width: "auto",
     minWidth: 100,
+    align: 'center'
   },
 ];
 
 export const operationColumn = {
   label: '操作',
-  width: 200,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [
@@ -62,7 +65,7 @@ export const getHeaderButs = (onAdd) => [
 
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 200,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [

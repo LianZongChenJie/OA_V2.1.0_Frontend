@@ -101,12 +101,12 @@ const isView = ref(false);
 
 // 数据列表
 const projectList = ref([]);
-const attachFileList = ref([]); // 附件列表
+const attachFileList = ref([]); 
 
 // 上传地址
 const uploadUrl = import.meta.env.VITE_APP_BASE_API + "/common/upload";
 
-// 精简表单（只保留需要的字段）
+// 精简表单
 const form = reactive({
   id: undefined,
   title: "",        // 文件名称

@@ -22,7 +22,7 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getMessageModuleDetail, updateStatus, deleteMessageModule } from "@/api/base/contract/supplier/index.js";
+import { getPageList, getDetail, deleteDeptChange } from "@/api/personnel/employeeCare/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -41,13 +41,13 @@ function handleAdd() {
 
 // 编辑前先调用详情接口，拿到完整数据（含contactList）
 async function handleEdit(row) {
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id);
   addDialogRef.value.openEdit(res.data);
 }
 
 // 查看前先调用详情接口
 async function handleView(row) {
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id);
   addDialogRef.value.openView(res.data);
 }
 
@@ -69,7 +69,7 @@ async function handleDisable(row) {
 
 // 删除
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定要删除该供应商吗？删除后无法恢复！").then(async () => {
+  proxy.$modal.confirm("确定要删除该关怀信息吗？").then(async () => {
     await deleteMessageModule(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
@@ -85,8 +85,6 @@ const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(
   handleEdit, 
   handleView, 
-  handleDisable, 
-  handleDisable, 
   handleDelete
 );
 </script>

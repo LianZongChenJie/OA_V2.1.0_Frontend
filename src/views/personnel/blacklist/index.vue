@@ -19,7 +19,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getMessageModuleDetail } from "@/api/base/common/messageModule/index.js";
+import { getPageList, getDetail, deleteDeptChange } from "@/api/personnel/blacklist/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -38,8 +38,7 @@ function handleAdd() {
 
 /** 编辑按钮操作 */
 async function handleEdit(row) {
-  // 获取详情数据
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openEdit(res.data || res);
   }
@@ -47,11 +46,19 @@ async function handleEdit(row) {
 
 /** 查看按钮操作 */
 async function handleView(row) {
-  // 获取详情数据
-  const res = await getMessageModuleDetail(row.id);
+  const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openView(res.data || res);
   }
+}
+
+// 删除
+async function handleDelete(row) {
+  proxy.$modal.confirm("确定要删除该黑名单吗？").then(async () => {
+    await deleteDeptChange(row.id);
+    proxy.$modal.msgSuccess("删除成功");
+    tableList.value.refresh();
+  }).catch(() => {});
 }
 
 /** 新增成功回调 */
@@ -60,6 +67,6 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
 <style lang="scss" scoped></style>

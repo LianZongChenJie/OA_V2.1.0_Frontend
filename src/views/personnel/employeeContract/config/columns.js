@@ -1,4 +1,4 @@
-// 搜索表单（完全匹配截图：合同状态、类别、类型、属性、员工、日期）
+
 export const queryForm = {
   contractStatus: '',   
   contractCategory: '', 
@@ -9,7 +9,6 @@ export const queryForm = {
   keywords: ''         
 };
 
-// 列表列配置（1:1 还原截图表头）
 export const columns = [
   {
     fieldName: 'id',
@@ -19,7 +18,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'status',
+    fieldName: 'statusName',
     label: '合同状态',
     width: "8%",
     minWidth: 100,
@@ -55,13 +54,13 @@ export const columns = [
     },
   },
   {
-    fieldName: 'contractName',
+    fieldName: 'title',
     label: '合同名称',
     width: "12%",
     minWidth: 140,
   },
   {
-    fieldName: 'contractCategory',
+    fieldName: 'cateName',
     label: '合同类别',
     width: "10%",
     minWidth: 120,
@@ -80,7 +79,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'contractType',
+    fieldName: 'typesName',
     label: '合同类型',
     width: "10%",
     minWidth: 120,
@@ -96,42 +95,26 @@ export const columns = [
       ]
     },
   },
-  {
-    fieldName: 'contractAttr',
-    label: '合同属性',
-    width: "10%",
-    minWidth: 120,
-    searchable: {
-      type: 'select',
-      fieldName: 'contractAttr',
-      label: '合同属性',
-      placeholder: '请选择',
-      order: 6,
-      options: [
-        { label: '正式', value: '正式' },
-        { label: '临时', value: '临时' }
-      ]
-    },
-  },
     {
-    fieldName: 'company',
+    fieldName: 'enterpriseName',
     label: '签约主体公司',
     width: "10%",
     minWidth: 120,
       searchable: {
       type: 'input',
-      fieldName: 'keywords',
+      fieldName: 'keyword',
       placeholder: '请输入',
       label: '关键字',
       order: 7,
     },
   },
   {
-    fieldName: 'signDate',
+    fieldName: 'signTime',
     label: '签订日期',
     width: "10%",
     minWidth: 140,
     align: 'center',
+    format: (val) => val?.split(' ')[0] || '',
     searchable: {
       type: 'dateRange',
       fieldName: 'signDate',
@@ -178,12 +161,12 @@ export const columns = [
 // 操作列
 export const operationColumn = {
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '编辑', type: 'success', size: 'small', icon: 'edit' },
+    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
     { label: '删除', type: 'danger', size: 'small', icon: 'delete' }
   ]
 };
@@ -202,23 +185,23 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: row => onView?.(row),
-      icon: 'eye-open'
-    },
     {
       label: '编辑',
       type: 'success',
       size: 'small',
       onClick: row => onEdit?.(row),
       icon: 'edit'
+    },
+    {
+      label: '查看',
+      type: 'primary',
+      size: 'small',
+      onClick: row => onView?.(row),
+      icon: 'eye-open'
     },
     {
       label: '删除',

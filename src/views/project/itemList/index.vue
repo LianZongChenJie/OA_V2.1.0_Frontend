@@ -104,7 +104,7 @@ const handleView = async (row) => {
 };
 
 const handleDelete = (row) => {
-  proxy.$modal.confirm("确定删除？").then(async () => {
+  proxy.$modal.confirm("确定删除该项目吗？").then(async () => {
     await deletereward(row.id);
     ElMessage.success("删除成功");
     tableList.value?.refresh();
