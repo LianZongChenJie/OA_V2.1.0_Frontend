@@ -136,7 +136,7 @@
           </el-button>
           
           <el-button 
-            v-if="isEdit && !isView && projectStatus === 2" 
+            v-if="isEdit && !isView && projectStatus === 2 && currentStageIndex < form.stageList.length"
             type="warning" 
             @click="completeCurrentStage"
           >
@@ -229,27 +229,27 @@
           </el-table-column>
 
           <el-table-column fixed="right" label="操作" width="200" align="center">
-            <template #default="{ $index }">
-              <el-button 
-                size="small" 
-                type="success" 
-                @click="moveUp($index)" 
-                :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex)"
-              >上移</el-button>
-              <el-button 
-                size="small" 
-                type="primary" 
-                @click="moveDown($index)" 
-                :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index >= currentStageIndex)"
-              >下移</el-button>
-              <el-button 
-                size="small" 
-                type="danger" 
-                @click="delStage($index)" 
-                :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex)"
-              >删除</el-button>
-            </template>
-          </el-table-column>
+          <template #default="{ $index }">
+            <el-button 
+              size="small" 
+              type="success" 
+              @click="moveUp($index)" 
+              :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex) || isAllStagesCompleted"
+            >上移</el-button>
+            <el-button 
+              size="small" 
+              type="primary" 
+              @click="moveDown($index)" 
+              :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index >= currentStageIndex) || isAllStagesCompleted"
+            >下移</el-button>
+            <el-button 
+              size="small" 
+              type="danger" 
+              @click="delStage($index)" 
+              :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex) || isAllStagesCompleted"
+            >删除</el-button>
+          </template>
+        </el-table-column>
         </el-table>
       </el-form-item>
     </el-form>
@@ -266,7 +266,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { addenterPrise, updateenterPrise } from "@/api/project/itemList/index.js";
+import { addenterPrise, updateenterPrise, updateStatus } from "@/api/project/itemList/index.js";
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import { getPageList } from "@/api/base/project/projectClassify/index.js";
 import { getPageList as getContractList } from "@/api/contract/salesContract/index.js";
@@ -469,6 +469,12 @@ const handleChangeStatus = async () => {
     return;
   }
 
+  // 检查项目ID是否存在
+  if (!form.id) {
+    ElMessage.error("项目ID不存在，请先保存项目");
+    return;
+  }
+
   try {
     await ElMessageBox.confirm(confirmMessage, "提示", {
       confirmButtonText: "确定",
@@ -478,11 +484,8 @@ const handleChangeStatus = async () => {
 
     statusLoading.value = true;
     
-    // ====================== 预留状态更新接口 ======================
-    // await updateProjectStatus({
-    //   id: form.id,
-    //   status: next
-    // });
+    // 调用状态更新接口
+    await updateStatus(form.id, { status: next });
 
     projectStatus.value = next;
     
@@ -493,9 +496,13 @@ const handleChangeStatus = async () => {
     } else if (next === 4) {
       ElMessage.success("项目已关闭");
     }
+    
+    // 状态变更成功后，刷新列表
+    emit("success");
   } catch (err) {
     if (err !== "cancel") {
-      ElMessage.error("状态更新失败");
+      console.error("状态更新失败:", err);
+      ElMessage.error(err.msg || "状态更新失败");
     }
   } finally {
     statusLoading.value = false;
@@ -632,15 +639,27 @@ const handleSubmit = () => {
       status: projectStatus.value,
       content: form.content,
       currentStage: currentStageIndex.value, // 保存当前阶段进度
-      stages: form.stageList.map(({ name, directorUid, memberUids, timeRange, remark }) => {
+      stages: form.stageList.map(({ name, directorUid, memberUids, timeRange, remark }, index) => {
         const [s, e] = timeRange || [];
+        
+        // 计算 isCurrent 值
+        let isCurrent = 0; // 默认空
+        if (projectStatus.value === 2) {
+          if (index === currentStageIndex.value) {
+            isCurrent = 1; // 进行中
+          } else if (index < currentStageIndex.value) {
+            isCurrent = 2; // 已完成
+          }
+        }
+        
         return {
           name,
           directorUid,
           memberUids: (memberUids || []).join(","),
           startTime: toSeconds(s),
           endTime: toSeconds(e),
-          remark
+          remark,
+          isCurrent // 1-进行中，2-已完成，0-空
         };
       })
     };

@@ -44,3 +44,12 @@ export function deletereward(id) {
     method: 'delete'
   })
 }
+
+// 修改项目状态
+export function updateStatus(id,data) {
+  return request({
+    url: `/project/status`,
+    method: 'put',
+    data: { id, ...data }
+  })
+}
