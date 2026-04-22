@@ -39,7 +39,7 @@ export function updateenterPrise(data) {
 // 修改项目分类状态
 export function updateStatus(id,data) {
   return request({
-    url: `/basicdata/project/step/changeStatus`,
+    url: `/basicdata/project/cate/changeStatus`,
     method: 'put',
     data: { id, ...data }
   })

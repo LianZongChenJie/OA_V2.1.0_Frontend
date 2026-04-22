@@ -103,24 +103,36 @@ export const columns = [
   }
 ];
 
-// 头部按钮
-export const getHeaderButs = (onAdd) => [
-  {
-    label: '新增',
-    type: 'primary',
-    onClick: onAdd
-  }
-];
 
-// 操作列
-export const getOperationColumn = (onDelete, onView) => ({
+
+// 操作列生成函数
+export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 200,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
-    { label: '删除', type: 'danger', size: 'small', onClick: (row) => onDelete?.(row) },
-    { label: '查看', type: 'primary', size: 'small', onClick: (row) => onView?.(row) },
+    {
+      label: '编辑',
+      type: 'success',
+      size: 'small',
+      onClick: (row) => onEdit?.(row),
+      icon: 'edit'
+    },
+    {
+      label: '查看',
+      type: 'primary',
+      size: 'small',
+      onClick: (row) => onView?.(row),
+      icon: 'eye-open'
+    },
+    {
+      label: '删除',
+      type: 'danger',
+      size: 'small',
+      onClick: (row) => onDelete?.(row),
+      icon: 'delete'
+    }
   ]
 });
 
@@ -163,7 +175,6 @@ export const searchFields = [
 
 export default {
   columns,
-  getHeaderButs,
   getOperationColumn,
   searchFields,
   queryForm

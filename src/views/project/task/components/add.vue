@@ -180,11 +180,12 @@
       <el-table :data="workLogList" border size="small" style="width: 100%;">
         <el-table-column label="ID" prop="id" align="center" width="70" />
         <el-table-column label="工作内容" prop="workContent" align="center" />
-        <el-table-column label="所属人员" prop="executorName" align="center" />
         <el-table-column label="工作时间范围" prop="workTimeRange" align="center" />
-        <el-table-column label="工作类别" prop="workType" align="center" />
+        <el-table-column label="工作类别" prop="workTypeName" align="center" />
+        <el-table-column label="工作类型" prop="workTypeRadio" align="center" />
         <el-table-column label="工时" prop="workHour" align="center" width="70" />
-        <el-table-column label="创建时间" prop="createTime" align="center" />
+        <el-table-column label="补充描述" prop="remark" align="center" />
+        <el-table-column label="创建时间" prop="createTimeStr" align="center" />
         <el-table-column label="操作" align="center" width="120">
           <template #default="{ row }">
             <el-button type="success" size="small" @click="openEditWorkLog(row)">编辑</el-button>
@@ -205,10 +206,10 @@
     <el-dialog
       title="添加工作日志"
       v-model="addLogVisible"
-      width="450px"
+      width="550px"
       append-to-body
     >
-      <el-form ref="logFormRef" :model="logForm" :rules="logRules" label-width="80px">
+      <el-form ref="logFormRef" :model="logForm" :rules="logRules" label-width="100px" label-suffix="：">
         <el-form-item label="时间范围" prop="timeRange">
           <el-date-picker
             v-model="logForm.timeRange"
@@ -218,6 +219,7 @@
             end-placeholder="结束时间"
             format="YYYY-MM-DD HH:mm"
             value-format="YYYY-MM-DD HH:mm:ss"
+            style="width:100%"
           />
         </el-form-item>
 
@@ -232,6 +234,13 @@
           </el-select>
         </el-form-item>
 
+        <el-form-item label="工作类型" prop="workTypeRadio" required>
+          <el-radio-group v-model="logForm.workTypeRadio">
+            <el-radio label="案头工作" />
+            <el-radio label="外勤工作" />
+          </el-radio-group>
+        </el-form-item>
+
         <el-form-item label="工时" prop="workHour">
           <el-input v-model="logForm.workHour" placeholder="请输入工时" />
         </el-form-item>
@@ -239,20 +248,21 @@
         <el-form-item label="工作内容" prop="workContent">
           <el-input v-model="logForm.workContent" type="textarea" rows="3" placeholder="请输入工作内容" />
         </el-form-item>
-      </el-form>
 
+        <el-form-item label="补充描述" prop="remark">
+          <el-input 
+            v-model="logForm.remark" 
+            type="textarea" 
+            rows="4" 
+            placeholder="请输入补充描述" 
+          />
+        </el-form-item>
+      </el-form>
       <template #footer>
         <el-button @click="addLogVisible = false">取消</el-button>
         <el-button type="primary" @click="submitWorkLog">确认提交</el-button>
       </template>
     </el-dialog>
-
-    <template #footer>
-      <div style="text-align: center">
-        <el-button v-if="!isView" type="primary" @click="handleSubmit">立即提交</el-button>
-        <el-button @click="handleClose">关闭</el-button>
-      </div>
-    </template>
   </el-dialog>
 </template>
 
@@ -262,9 +272,9 @@ import { ElMessage } from "element-plus";
 import { addenterPrise, updateenterPrise, getWorkCateList} from "@/api/project/task/index.js";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/project/itemList/index.js";
-import { getPageList as getTaskHourList, getDetail, updateenterPrise as saveWorkHour } from "@/api/project/workingHour/index.js";
+import { getPageList as getTaskHourList, getDetail, addenterPrise as addWorkHour, updateenterPrise as updateWorkHour } from "@/api/project/workingHour/index.js";
 
-const { proxy } = getCurrentInstance();
+const { proxy } = getCurrentInstance(); 
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
@@ -288,7 +298,9 @@ const logForm = reactive({
   timeRange: null,
   workType: "",
   workHour: "",
-  workContent: ""
+  workContent: "",
+  remark: "",
+  workTypeRadio: ""
 });
 
 // 表单数据
@@ -305,7 +317,7 @@ const form = reactive({
   content: ""
 });
 
-// 日志校验
+// 日志校验规则
 const logRules = {
   timeRange: [{ required: true, message: "请选择时间范围", trigger: "change" }],
   workType: [{ required: true, message: "请选择工作类别", trigger: "change" }],
@@ -320,7 +332,7 @@ const logRules = {
         if (isNaN(num)) {
           callback(new Error('请输入数字'));
         } else if (num <= 0) {
-          callback(new Error('预估工时必须大于0'));
+          callback(new Error('工时必须大于0'));
         } else if (!Number.isInteger(num) && !/^\d+(\.\d{1,2})?$/.test(value)) {
           callback(new Error('最多保留两位小数'));
         } else {
@@ -330,7 +342,8 @@ const logRules = {
       trigger: 'blur'
     }
   ],
-  workContent: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
+  workContent: [{ required: true, message: "请输入工作内容", trigger: "blur" }],
+  workTypeRadio: [{ required: true, message: "请选择工作类型", trigger: "change" }]
 };
 
 // 加载工作类型接口
@@ -401,14 +414,34 @@ const rules = {
   content: [{ required: true, message: "请输入详细描述", trigger: "blur" }],
 };
 
+// 格式化时间戳为日期时间字符串
+function formatTimestamp(timestamp) {
+  if (!timestamp || timestamp === 0) return null;
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
 // 打开添加工作日志
 function openAddWorkLog() {
+  if (!form.id) {
+    ElMessage.warning("请先保存任务后再添加工作日志");
+    return;
+  }
+  
   logForm.id = null;
   logForm.taskId = form.id;
   logForm.timeRange = null;
   logForm.workType = "";
   logForm.workHour = "";
   logForm.workContent = "";
+  logForm.remark = "";
+  logForm.workTypeRadio = "";
   nextTick(() => {
     logFormRef.value?.clearValidate();
   });
@@ -419,18 +452,32 @@ function openAddWorkLog() {
 async function openEditWorkLog(row) {
   try {
     const res = await getDetail(row.id);
-    const data = res.data;
+    const data = res.data || res;
     logForm.id = data.id;
     logForm.taskId = form.id;
-    logForm.timeRange = [data.startTime, data.endTime];
-    logForm.workType = data.workType;
-    logForm.workHour = data.workHour;
-    logForm.workContent = data.workContent;
+    
+    // 处理时间范围 - 将时间戳转换为日期时间字符串
+    const startTime = data.startTime ? formatTimestamp(data.startTime) : null;
+    const endTime = data.endTime ? formatTimestamp(data.endTime) : null;
+    logForm.timeRange = startTime && endTime ? [startTime, endTime] : null;
+    
+    logForm.workType = data.workType || "";
+    logForm.workHour = data.workHour || "";
+    logForm.workContent = data.workContent || "";
+    logForm.remark = data.remark || "";
+    logForm.workTypeRadio = data.workTypeRadio || "";
     nextTick(() => logFormRef.value?.clearValidate());
     addLogVisible.value = true;
   } catch (e) {
+    console.error("加载数据失败:", e);
     ElMessage.error("加载数据失败");
   }
+}
+
+// 将日期时间字符串转换为时间戳
+function dateTimeToTimestamp(dateTimeStr) {
+  if (!dateTimeStr) return 0;
+  return Math.floor(new Date(dateTimeStr.replace(/-/g, '/')).getTime() / 1000);
 }
 
 // 提交工作日志
@@ -438,24 +485,39 @@ async function submitWorkLog() {
   const valid = await logFormRef.value.validate();
   if (!valid) return;
 
+  if (!logForm.taskId) {
+    ElMessage.error("任务ID不存在，请重新打开弹窗");
+    return;
+  }
+
+  // 构建提交参数
   const params = {
-    id: logForm.id || undefined,
     taskId: logForm.taskId,
     workType: logForm.workType,
     workHour: logForm.workHour,
     workContent: logForm.workContent,
-    startTime: logForm.timeRange[0],
-    endTime: logForm.timeRange[1]
+    startTime: logForm.timeRange ? dateTimeToTimestamp(logForm.timeRange[0]) : 0,
+    endTime: logForm.timeRange ? dateTimeToTimestamp(logForm.timeRange[1]) : 0,
+    remark: logForm.remark,
+    workTypeRadio: logForm.workTypeRadio
   };
 
   try {
-    await saveWorkHour(params);
-    ElMessage.success(logForm.id ? "编辑成功" : "添加成功");
+    if (logForm.id) {
+      // 编辑：需要传入 id
+      params.id = logForm.id;
+      await updateWorkHour(params);
+      ElMessage.success("编辑成功");
+    } else {
+      // 新增：不传 id
+      await addWorkHour(params);
+      ElMessage.success("添加成功");
+    }
     addLogVisible.value = false;
     loadWorkLogList();
   } catch (err) {
     console.error(err);
-    ElMessage.error("操作失败");
+    ElMessage.error(err.msg || "操作失败");
   }
 }
 
@@ -468,7 +530,13 @@ async function loadWorkLogList() {
       pageNum: 1,
       pageSize: 20
     });
-    workLogList.value = res.rows || [];
+    // 处理列表数据，格式化时间显示
+    workLogList.value = (res.rows || []).map(item => ({
+      ...item,
+      workTimeRange: item.startTime && item.endTime ? 
+        `${formatTimestamp(item.startTime)} 至 ${formatTimestamp(item.endTime)}` : '',
+      createTimeStr: item.createTime ? formatTimestamp(item.createTime) : ''
+    }));
     workLogTotal.value = res.total || 0;
   } catch (err) {
     console.error("加载任务工时列表失败:", err);
@@ -482,7 +550,7 @@ onMounted(() => {
   loadWorkCateList();
 });
 
-// 提交
+// 提交任务
 function handleSubmit() {
   formRef.value.validate(valid => {
     if (!valid) return;

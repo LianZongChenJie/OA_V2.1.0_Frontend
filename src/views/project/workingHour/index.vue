@@ -21,7 +21,7 @@ import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, deletereward } from "@/api/project/workingHour/index.js";
 
 // 表格配置
-import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
+import { columns,  getOperationColumn } from "./config/columns";
 
 // 弹窗
 import AddDialog from "./components/add.vue";
@@ -39,6 +39,11 @@ async function handleView(row) {
   if (res) addDialogRef.value.openView(res.data || res);
 }
 
+const handleEdit = async (row) => {
+  const res = await getDetail(row.id);
+  addDialogRef.value.openEdit(res.data || res);
+};
+
 async function handleDelete(row) {
   proxy.$modal.confirm("确定删除该记录吗？").then(async () => {
     await deletereward(row.id);
@@ -51,6 +56,5 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
-const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleDelete, handleView);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>

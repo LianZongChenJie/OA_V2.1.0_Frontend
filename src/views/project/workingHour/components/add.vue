@@ -16,85 +16,69 @@
       label-width="100px"
       style="margin-top: 15px"
     >
-      <el-row :gutter="20">
-        <!-- 时间范围 -->
-        <el-col :span="12">
-          <el-form-item label="时间范围" prop="timeRange" required>
-            <el-date-picker
-              v-model="form.timeRange"
-              type="datetimerange"
-              format="YYYY-MM-DD HH:mm"
-              value-format="YYYY-MM-DD HH:mm:ss"
-              range-separator="至"
-              start-placeholder="开始时间"
-              end-placeholder="结束时间"
-              :disabled="isView"
-              style="width: 100%;"
-            />
-          </el-form-item>
-        </el-col>
+      <!-- 时间范围 -->
+      <el-form-item label="时间范围" prop="timeRange" required>
+        <el-date-picker
+          v-model="form.timeRange"
+          type="datetimerange"
+          format="YYYY-MM-DD HH:mm"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          range-separator="至"
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
+          :disabled="isView"
+          style="width: 100%;"
+        />
+      </el-form-item>
 
-        <!-- 工作类别 → 从接口获取 -->
-        <el-col :span="12">
-          <el-form-item label="工作类别" prop="workCategory" required>
-            <el-select 
-              v-model="form.workCategory" 
-              :disabled="isView" 
-              placeholder="请选择工作类别" 
-              filterable 
-              clearable
-              style="width: 100%"
-            >
-              <el-option 
-                v-for="item in workCateOptions" 
-                :key="item.id" 
-                :label="item.title" 
-                :value="item.id" 
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <!-- 工作类别 → 从接口获取 -->
+      <el-form-item label="工作类别" prop="workCategory" required>
+        <el-select 
+          v-model="form.workCategory" 
+          :disabled="isView" 
+          placeholder="请选择工作类别" 
+          filterable 
+          clearable
+          style="width: 100%"
+        >
+          <el-option 
+            v-for="item in workCateOptions" 
+            :key="item.id" 
+            :label="item.title" 
+            :value="item.id" 
+          />
+        </el-select>
+      </el-form-item>
 
-      <el-row :gutter="20">
-        <!-- 工作类型 -->
-        <el-col :span="24">
-          <el-form-item label="工作类型" prop="workType" required>
-            <el-radio-group v-model="form.workType" :disabled="isView">
-              <el-radio label="案头工作" />
-              <el-radio label="外勤工作" />
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <!-- 工作类型 -->
+      <el-form-item label="工作类型" prop="workType" required>
+        <el-radio-group v-model="form.workType" :disabled="isView">
+          <el-radio :label="1">案头工作</el-radio>
+          <el-radio :label="2">外勤工作</el-radio>
+        </el-radio-group>
+      </el-form-item>
 
-      <el-row :gutter="20">
-        <!-- 工作内容 -->
-        <el-col :span="24">
-          <el-form-item label="工作内容" prop="workContent" required>
-            <el-input 
-              v-model="form.workContent" 
-              placeholder="请输入工作内容" 
-              :disabled="isView" 
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <!-- 工作内容 -->
+      <el-form-item label="工作内容" prop="workContent" required>
+        <el-input 
+          v-model="form.workContent" 
+          type="textarea"
+          :rows="3"
+          placeholder="请输入工作内容" 
+          :disabled="isView" 
+        />
+      </el-form-item>
 
-      <el-row :gutter="20">
-        <!-- 补充描述 -->
-        <el-col :span="24">
-          <el-form-item label="补充描述" prop="remark">
-            <el-input 
-              v-model="form.remark" 
-              type="textarea" 
-              rows="4" 
-              placeholder="请输入补充描述" 
-              :disabled="isView" 
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
+      <!-- 补充描述 -->
+      <el-form-item label="补充描述" prop="remark">
+        <el-input 
+          v-model="form.remark" 
+          type="textarea" 
+          rows="4" 
+          placeholder="请输入补充描述" 
+          :disabled="isView" 
+        />
+      </el-form-item>
     </el-form>
 
     <template #footer>
@@ -109,7 +93,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from "vue";
 import { ElMessage } from "element-plus";
-import { updateenterPrise } from "@/api/project/workingHour/index.js";
+import { updateenterPrise as updateWorkHour, addenterPrise as addWorkHour } from "@/api/project/workingHour/index.js";
 import { getWorkCateList } from "@/api/project/task/index.js";
 
 const emit = defineEmits(["success"]);
@@ -126,7 +110,7 @@ const workCateOptions = ref([]);
 const form = reactive({
   id: undefined,
   timeRange: [],
-  workType: "案头工作",
+  workType: 1,        // 1-案头工作，2-外勤工作
   workCategory: null, // 存 ID
   workContent: "",
   remark: ""
@@ -211,15 +195,17 @@ const handleSubmit = () => {
       startTime,
       endTime,
       workHour,
-      workType: form.workType,
-      workCategory: form.workCategory, // 提交的是 ID
+      workType: form.workType,        // 1-案头工作，2-外勤工作
+      workCategory: form.workCategory,
       workContent: form.workContent,
       remark: form.remark
     };
 
-    updateWorkHour(data)
+    // 根据是否有 id 判断是新增还是编辑
+    const api = form.id ? updateWorkHour : addWorkHour;
+    api(data)
       .then(() => {
-        ElMessage.success("操作成功");
+        ElMessage.success(form.id ? "编辑成功" : "添加成功");
         handleClose();
         emit("success");
       })
@@ -232,7 +218,7 @@ const resetForm = () => {
   Object.assign(form, {
     id: undefined,
     timeRange: [],
-    workType: "案头工作",
+    workType: 1,
     workCategory: null,
     workContent: "",
     remark: ""
@@ -254,8 +240,8 @@ const openEdit = (row) => {
 
   Object.assign(form, {
     id: row.id,
-    workType: row.workType || "案头工作",
-    workCategory: row.workCategory, // 回填 ID
+    workType: row.workType || 1,
+    workCategory: row.workCategory,
     workContent: row.workContent || "",
     remark: row.remark || ""
   });

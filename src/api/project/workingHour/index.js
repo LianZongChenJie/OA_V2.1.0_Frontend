@@ -17,11 +17,19 @@ export function getDetail(id) {
   })
 }
 
+// 新增工时
+export function addenterPrise(data) {
+  return request({
+    url: '/project/task/hour',
+    method: 'put',
+    data: data
+  })
+}
 
 // 更新工时
 export function updateenterPrise(data) {
   return request({
-    url: `/project/task/hour`,
+    url: `/project/task/hour/${id}`,
     method: 'put',
     data: data
   })
@@ -39,10 +47,10 @@ export function deletereward(id) {
 
 
 // 调整工时
-export function updateChange(data) {
-  return request({
-    url: `/project/task/hour`,
-    method: 'put',
-    data: data
-  })
-}
+// export function updateChange(data) {
+//   return request({
+//     url: `/project/task/hour`,
+//     method: 'put',
+//     data: data
+//   })
+// }
