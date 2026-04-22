@@ -282,7 +282,9 @@ function setFormData(data) {
   form.did = info.did || "";
   form.num = info.num || 1;
   form.useTime = info.useTime || "";
-  form.sealCateId = info.sealCateId || "";
+  form.sealCateId = info.sealCateId !== undefined && info.sealCateId !== null
+    ? String(info.sealCateId)
+    : "";
   form.isBorrow = info.isBorrow ?? 0;
   form.startTime = info.startTime || "";
   form.endTime = info.endTime || "";
@@ -292,7 +294,7 @@ function setFormData(data) {
 
 /** 获取表单数据 */
 function getFormData() {
-  return { ...completeData.value.info };
+  return { ...form };
 }
 
 /** 初始化数据 - 开始加载用户列表 */

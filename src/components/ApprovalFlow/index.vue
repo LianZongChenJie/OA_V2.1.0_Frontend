@@ -351,7 +351,14 @@ function setFlowId(id) {
 }
 
 function setCopyUids(uids) {
-  copyUids.value = uids;
+  if (!uids) {
+    copyUids.value = [];
+    return;
+  }
+  // 确保转换为数字数组，与 el-option 的 value 类型一致
+  copyUids.value = Array.isArray(uids)
+    ? uids.map(id => Number(typeof id === 'string' ? id.trim() : id))
+    : String(uids).split(",").map(id => Number(id.trim()));
 }
 
 defineExpose({

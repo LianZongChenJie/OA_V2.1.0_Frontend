@@ -28,8 +28,8 @@ export function add(data) {
 // 编辑用章申请
 export function edit(data) {
   return request({
-    url: '/administrative/seal/edit',
-    method: 'post',
+    url: '/administrative/seal/update',
+    method: 'put',
     data
   })
 }
