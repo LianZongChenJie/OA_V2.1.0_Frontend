@@ -12,15 +12,6 @@
       :readonly="false"
     />
 
-    <!-- 审批流程信息 -->
-    <div class="form-section-title">审批流程信息</div>
-    <ApprovalFlow
-      ref="approvalFlowRef"
-      :flowId="currentApplyData?.checkFlowId"
-      :actionId="currentApplyData?.id"
-      flow-title="用章"
-    />
-
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSubmit">
@@ -38,14 +29,12 @@
 import { ref, computed, getCurrentInstance, nextTick } from "vue";
 import { add, edit } from "@/api/administration/seal/apply";
 import FormData from "./formData.vue";
-import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 
 const { proxy } = getCurrentInstance();
 const emit = defineEmits(["success"]);
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
-const approvalFlowRef = ref(null);
 const isEdit = ref(false);
 const currentApplyData = ref(null);
 
@@ -73,17 +62,6 @@ async function openEdit(data) {
   await nextTick();
   await formDataRef.value?.resetForm();
   formDataRef.value?.setFormData(data);
-
-  if (data.checkFlowId) {
-    approvalFlowRef.value?.setFlowId(data.checkFlowId);
-  }
-
-  if (data.checkCopyUids) {
-    const copyUids = Array.isArray(data.checkCopyUids)
-      ? data.checkCopyUids.map(id => Number(id))
-      : data.checkCopyUids.split(",").map(id => Number(id.trim()));
-    setTimeout(() => approvalFlowRef.value?.setCopyUids(copyUids), 100);
-  }
 }
 
 function handleSubmit() {
@@ -91,14 +69,8 @@ function handleSubmit() {
     if (!valid) return;
 
     const formData = formDataRef.value?.getFormData();
-    const flowData = approvalFlowRef.value?.getSelectedFlow() || {};
-    const flowId = flowData.id || approvalFlowRef.value?.getFlowId();
-    const copyUids = approvalFlowRef.value?.getCopyUids();
-
     const submitData = {
       ...formData,
-      checkFlowId: flowId,
-      checkCopyUids: Array.isArray(copyUids) ? copyUids.join(",") : copyUids,
     };
 
     const apiMethod = isEdit.value ? edit : add;
