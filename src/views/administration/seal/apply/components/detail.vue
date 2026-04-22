@@ -124,6 +124,11 @@ async function openView(data) {
 
 const emit = defineEmits(["success"]);
 
+/** 审批操作成功回调 - 刷新列表 */
+function handleSuccess() {
+  emit("success");
+}
+
 defineExpose({
   openView,
 });
