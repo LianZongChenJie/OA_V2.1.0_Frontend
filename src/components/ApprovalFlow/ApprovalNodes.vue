@@ -29,50 +29,21 @@
   </div>
 </template>
 
-<script setup name="ApprovalNodes">
+<script setup>
 const props = defineProps({
-  // 审批节点数据
-  nodes: {
-    type: Array,
-    default: () => [],
-  },
-  // 当前审批步骤序号
-  currentStepSort: {
-    type: [Number, String],
-    default: 0,
-  },
+  nodes: { type: Array, default: () => [] },
+  currentStepSort: { type: [Number, String], default: 0 },
 });
 
-/** 获取时间轴节点类型 */
 function getTimelineItemType(node) {
-  const nodeSort = node.sort;
-  const currentSort = props.currentStepSort;
-
-  // 已通过的节点（sort < 当前步骤）
-  if (nodeSort < currentSort || node.isFinished === 1) {
-    return "success";
-  }
-
-  // 当前审批节点
-  if (nodeSort === currentSort) {
-    return "primary"; // 审批中
-  }
-
-  // 未审批的节点（sort > 当前步骤）
+  if (node.sort < props.currentStepSort || node.isFinished === 1) return "success";
+  if (node.sort === props.currentStepSort) return "primary";
   return "info";
 }
 
-/** 获取节点状态标签 */
 function getNodeStatusTag(node) {
-  const nodeSort = node.sort;
-  const currentSort = props.currentStepSort;
-
-  if (nodeSort === currentSort) {
-    return { text: "审批中", type: "warning" };
-  }
-  if (nodeSort < currentSort) {
-    return { text: "已通过", type: "success" };
-  }
+  if (node.sort === props.currentStepSort) return { text: "审批中", type: "warning" };
+  if (node.sort < props.currentStepSort) return { text: "已通过", type: "success" };
   return { text: "待审批", type: "info" };
 }
 </script>
