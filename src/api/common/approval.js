@@ -12,8 +12,8 @@ export function submitToFlow(data) {
 // 审批接口
 export function approval(data) {
   return request({
-    url: '/basicdata/check/submitCheck',
-    method: 'post',
+    url: '/basicdata/check',
+    method: 'put',
     data
   })
 }

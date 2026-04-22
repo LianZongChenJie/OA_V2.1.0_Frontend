@@ -12,7 +12,15 @@
 
       <!-- 审批流程信息 -->
       <div class="form-section-title">审批流程信息</div>
+
+      <!-- 审批中/审批完结状态：显示审批节点时间轴 -->
+      <div v-if="!isApprovalFlowEditable">
+        <ApprovalNodes :nodes="flowNodes" :currentStepSort="currentCheckStepSort" />
+      </div>
+
+      <!-- 其他状态：显示审批流程选择组件 -->
       <ApprovalFlow
+        v-else
         ref="approvalFlowRef"
         :flowId="currentApplyData.value?.checkFlowId"
         :actionId="currentApplyData.value?.id"
@@ -41,12 +49,17 @@
 import { ref, computed, nextTick } from "vue";
 import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
+import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
 import FormData from "./formData.vue";
 import { getFlowNodes } from "@/api/common/approval";
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const approvalFlowRef = ref(null);
+
+// 审批节点时间轴数据
+const flowNodes = ref([]);
+const currentCheckStepSort = ref(null);
 
 // 当前申请数据（用于权限判断）
 const currentApplyData = ref(null);
@@ -67,6 +80,9 @@ function handleClose() {
   formDataRef.value?.resetForm();
   // 清空申请数据
   currentApplyData.value = null;
+  // 清空审批节点数据
+  flowNodes.value = [];
+  currentCheckStepSort.value = null;
 }
 
 /** 显示弹窗 - 查看模式 */
@@ -101,7 +117,17 @@ async function openView(data) {
           flowId: data.checkFlowId,
           actionId: data.id
         });
-        console.log("审批步骤信息:", result);
+
+        // 获取当前审批步骤序号
+        const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
+
+        // 保存审批节点数据 - 数据在 result.data.nodes 中
+        const nodesData = result.data?.nodes || [];
+
+        if (nodesData.length > 0) {
+          flowNodes.value = nodesData;
+          currentCheckStepSort.value = stepSort;
+        }
       } catch (error) {
         console.error("获取审批步骤信息失败:", error);
       }

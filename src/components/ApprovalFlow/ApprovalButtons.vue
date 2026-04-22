@@ -21,7 +21,10 @@
 
 <script setup name="ApprovalButtons">
 import { computed, getCurrentInstance } from "vue";
-import { submitToFlow, approval as approvalFlow } from "@/api/common/approval.js";
+import {
+  submitToFlow,
+  approval as approvalFlow,
+} from "@/api/common/approval.js";
 import useUserStore from "@/store/modules/user";
 
 const props = defineProps({
@@ -61,8 +64,7 @@ const canRevoke = computed(() => {
   const info = props.currentData || {};
   const adminId = info?.adminId;
   return (
-    Number(info?.checkStatus) === 1 &&
-    Number(adminId) === Number(userStore.id)
+    Number(info?.checkStatus) === 1 && Number(adminId) === Number(userStore.id)
   );
 });
 
@@ -114,8 +116,9 @@ function handleApprove() {
       approvalFlow({
         actionId: info.id,
         flowId: info.checkFlowId,
-        checkStatus: 2,
-        remark: value,
+        checkNode: info.checkStepSort,
+        checkStatus: 1,
+        content: value,
       }).then(() => {
         proxy.$modal.msgSuccess("审批通过");
         emit("closeDialog");
@@ -138,9 +141,11 @@ function handleReject() {
     })
     .then(({ value }) => {
       approvalFlow({
-        id: info.id,
-        status: 3,
-        remark: value,
+        actionId: info.id,
+        flowId: info.checkFlowId,
+        checkNode: info.checkStepSort,
+        checkStatus: 2,
+        content: value,
       }).then(() => {
         proxy.$modal.msgSuccess("已拒绝");
         emit("closeDialog");
@@ -158,8 +163,11 @@ function handleRevoke() {
     .confirm("确认撤销该审批吗？")
     .then(() => {
       approvalFlow({
-        id: info.id,
-        status: 0,
+        actionId: info.id,
+        flowId: info.checkFlowId,
+        checkNode: info.checkStepSort,
+        checkStatus: 3,
+        content: value,
       }).then(() => {
         proxy.$modal.msgSuccess("撤销成功");
         emit("closeDialog");
