@@ -255,40 +255,41 @@ function handleIsBorrowChange(value) {
 async function resetForm() {
   formRef.value?.clearValidate();
 
-  // 确保用户列表已加载，获取当前用户部门
   if (!userListPromise) {
     userListPromise = getUserList();
   }
   await userListPromise;
 
-  form.id = undefined;
-  form.title = "";
-  form.did = currentUserInfo.value.deptId;
-  form.num = 1;
-  form.useTime = "";
-  form.sealCateId = "";
-  form.isBorrow = 0;
-  form.startTime = "";
-  form.endTime = "";
-  form.content = "";
+  Object.assign(form, {
+    id: undefined,
+    title: "",
+    did: currentUserInfo.value.deptId,
+    num: 1,
+    useTime: "",
+    sealCateId: "",
+    isBorrow: 0,
+    startTime: "",
+    endTime: "",
+    content: "",
+  });
 }
 
 const completeData = ref({});
 /** 填充表单数据 */
 function setFormData(data) {
   const info = data?.info || data;
-  form.id = info.id;
-  form.title = info.title || "";
-  form.did = info.did || "";
-  form.num = info.num || 1;
-  form.useTime = info.useTime || "";
-  form.sealCateId = info.sealCateId !== undefined && info.sealCateId !== null
-    ? String(info.sealCateId)
-    : "";
-  form.isBorrow = info.isBorrow ?? 0;
-  form.startTime = info.startTime || "";
-  form.endTime = info.endTime || "";
-  form.content = info.content || "";
+  Object.assign(form, {
+    id: info.id,
+    title: info.title || "",
+    did: info.did || "",
+    num: info.num || 1,
+    useTime: info.useTime || "",
+    sealCateId: info.sealCateId != null ? String(info.sealCateId) : "",
+    isBorrow: info.isBorrow ?? 0,
+    startTime: info.startTime || "",
+    endTime: info.endTime || "",
+    content: info.content || "",
+  });
   completeData.value = data;
 }
 

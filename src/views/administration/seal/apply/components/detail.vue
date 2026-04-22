@@ -56,24 +56,15 @@ import { getFlowNodes } from "@/api/common/approval";
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const approvalFlowRef = ref(null);
-
-// 审批节点时间轴数据
 const flowNodes = ref([]);
 const currentCheckStepSort = ref(null);
-
-// 当前申请数据（用于权限判断）
 const currentApplyData = ref(null);
 
-// 审批流是否可编辑（审核中=1，审核通过=2时不可编辑）
 const isApprovalFlowEditable = computed(() => {
-  const info = currentApplyData.value || {};
-  return [0, 3, 4].includes(Number(info?.checkStatus));
+  return [0, 3, 4].includes(Number(currentApplyData.value?.checkStatus));
 });
 
-/** 处理审批操作成功 */
-function handleSuccess() {
-  emit("success");
-}
+
 
 /** 关闭弹窗 */
 function handleClose() {
@@ -87,60 +78,48 @@ function handleClose() {
 
 /** 显示弹窗 - 查看模式 */
 async function openView(data) {
-  // 保存原始数据用于权限判断
   currentApplyData.value = data;
-
   dialogVisible.value = true;
 
-  // 等待 DOM 更新后设置数据
-  nextTick(async () => {
-    await formDataRef.value?.resetForm();
-    formDataRef.value?.setFormData(data);
+  await nextTick();
+  await formDataRef.value?.resetForm();
+  formDataRef.value?.setFormData(data);
 
-    // 设置审批流程ID
-    if (data.checkFlowId) {
-      approvalFlowRef.value?.setFlowId(data.checkFlowId);
-    }
+  if (data.checkFlowId) {
+    approvalFlowRef.value?.setFlowId(data.checkFlowId);
+  }
 
-    // 设置抄送人
-    if (data.checkCopyUids) {
-      const copyUids = Array.isArray(data.checkCopyUids)
-        ? data.checkCopyUids
-        : data.checkCopyUids.split(",");
-      approvalFlowRef.value?.setCopyUids(copyUids);
-    }
+  if (data.checkCopyUids) {
+    const copyUids = Array.isArray(data.checkCopyUids)
+      ? data.checkCopyUids
+      : data.checkCopyUids.split(",");
+    approvalFlowRef.value?.setCopyUids(copyUids);
+  }
 
-    // 当审批流不可编辑时，调用 getFlowNodes 接口获取审批步骤信息
-    if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
-      try {
-        const result = await getFlowNodes({
-          flowId: data.checkFlowId,
-          actionId: data.id
-        });
+  if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
+    try {
+      const result = await getFlowNodes({
+        flowId: data.checkFlowId,
+        actionId: data.id
+      });
 
-        // 获取当前审批步骤序号
-        const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
+      const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
+      const nodesData = result.data?.nodes.map(item => ({
+        ...item,
+        isFinished: 0,
+        stepName: '步骤 ' + (Number(item.sort) + 1)
+      })) || [];
 
-        // 保存审批节点数据 - 数据在 result.data.nodes 中
-        const nodesData = result.data?.nodes.map(item=>{
-          return {
-            ...item,
-            isFinished:0,
-            stepName: '步骤 ' + (Number(item.sort)+1) || ''
-          }
-        }) || [];
-
-        console.log("===data==11=>",data.checkStatus);
-        
-        if (nodesData.length > 0) {
-          flowNodes.value = data.checkStatus === 1? nodesData : [...nodesData,{stepName:'完结',sort:nodesData.length,isFinished:1}];
-          currentCheckStepSort.value = stepSort;
-        }
-      } catch (error) {
-        console.error("获取审批步骤信息失败:", error);
+      if (nodesData.length > 0) {
+        flowNodes.value = data.checkStatus === 1
+          ? nodesData
+          : [...nodesData, { stepName: '完结', sort: nodesData.length, isFinished: 1 }];
+        currentCheckStepSort.value = stepSort;
       }
+    } catch (error) {
+      console.error("获取审批步骤信息失败:", error);
     }
-  });
+  }
 }
 
 const emit = defineEmits(["success"]);
