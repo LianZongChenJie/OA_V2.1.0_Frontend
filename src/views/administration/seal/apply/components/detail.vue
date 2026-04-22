@@ -14,7 +14,8 @@
       <div class="form-section-title">审批流程信息</div>
       <ApprovalFlow
         ref="approvalFlowRef"
-        :approval-flow="{flowId: currentApplyData.value?.checkFlowId, actionId:currentApplyData.value?.id }"
+        :flowId="currentApplyData.value?.checkFlowId"
+        :actionId="currentApplyData.value?.id"
         :disabled="!isApprovalFlowEditable"
         flow-title="用章"
       />

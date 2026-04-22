@@ -114,6 +114,14 @@ const props = defineProps({
     type: String,
     default: "", // 用于筛选审批流程的标题关键字
   },
+  flowId: {
+    type: [String, Number],
+    default: "", // 用于获取审批节点详情的流程ID
+  },
+  actionId: {
+    type: [String, Number],
+    default: "", // 用于获取审批节点详情的操作ID
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "flowChange"]);
@@ -161,6 +169,31 @@ watch(
   },
   { immediate: true, deep: true },
 );
+
+// 监听 flowId 和 actionId 变化，获取审批节点信息
+watch(
+  [() => props.flowId, () => props.actionId],
+  ([newFlowId, newActionId]) => {
+    if (newFlowId && newActionId) {
+      fetchFlowNodes(newFlowId, newActionId);
+    }
+  },
+  { immediate: true },
+);
+
+/** 获取审批节点信息 */
+function fetchFlowNodes(flowIdVal, actionIdVal) {
+  getFlowNodes({
+    flowId: flowIdVal,
+    actionId: actionIdVal,
+  }).then((response) => {
+    if (response.data && response.data.length > 0) {
+      handleFlowNodesChange(response.data);
+    }
+  }).catch((error) => {
+    console.error("获取审批节点信息失败:", error);
+  });
+}
 
 // 监听内部值变化，emit 到父组件
 watch(flowId, (val) => {
