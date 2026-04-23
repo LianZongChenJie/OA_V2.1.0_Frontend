@@ -52,3 +52,20 @@ export function getList(query) {
   })
 }
 
+// 打款功能 data: {id: 借支id}
+export function pay(data) {
+  return request({
+    url: '/finance/loan/pay',
+    method: 'put',
+    params: data
+  })
+}
+
+// 还款|冲抵功能 data: {id: 借支id}
+export function back(data) {
+  return request({
+    url: '/finance/loan/back',
+    method: 'put',
+    params: data
+  })
+}
