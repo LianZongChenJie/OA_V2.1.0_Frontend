@@ -21,7 +21,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'status',
+    fieldName: 'statusStr',
     label: '奖罚状态',
     width: "8%",
     minWidth: 100,
@@ -41,7 +41,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'uid',
+    fieldName: 'userName',
     label: '员工',
     width: "10%",
     minWidth: 120,
@@ -58,7 +58,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'typesName',
+    fieldName: 'typesStr',
     label: '奖惩类型',
     width: "10%",
     minWidth: 120,
@@ -78,7 +78,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'rewardsCateName',
+    fieldName: 'cateName',
     label: '奖惩项目',
     width: "12%",
     minWidth: 140,
@@ -94,10 +94,11 @@ export const columns = [
     },
   },
   {
-    fieldName: 'rewardsTimeStr',
+    fieldName: 'rewardsTime',
     label: '奖惩日期',
     width: "12%",
     minWidth: 140,
+    format: (val) => val?.split(' ')[0] || '', 
     searchable: {
       type: 'dateRange',
       fieldName: 'rewardDate',
@@ -127,7 +128,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '创建人',
     width: "10%",
     minWidth: 120,
