@@ -186,8 +186,13 @@
                 }"
               >
                 <el-radio-group v-model="flow.check_types" :disabled="isView">
-                  <el-radio :label="1">或签</el-radio>
-                  <el-radio :label="2">会签</el-radio>
+                  <el-radio
+                    v-for="dict in approval_mode"
+                    :key="dict.value"
+                    :label="dict.value"
+                  >
+                    {{ dict.label }}
+                  </el-radio>
                 </el-radio-group>
               </el-form-item>
             </div>
@@ -259,7 +264,7 @@ import { listPost } from "@/api/system/post.js";
 import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();
-const { approval_flow_type, flow_list_item_type } = proxy.useDict("approval_flow_type", "flow_list_item_type");
+const { approval_flow_type, flow_list_item_type, approval_mode } = proxy.useDict("approval_flow_type", "flow_list_item_type", "approval_mode");
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
@@ -398,7 +403,7 @@ function addFlowNode() {
     check_role: defaultCheckRole, // 审批人类型：1-当前部门负责人，2-上一级部门负责人，3-指定岗位职称人，4-指定成员
     check_uids: [], // 指定成员ID列表
     check_position_id: "", // 岗位ID
-    check_types: 1, // 审批方式：1-或签，2-会签
+    check_types: "1", // 审批方式：1-或签，2-会签（字符串类型以匹配数据字典）
   });
 }
 
@@ -485,7 +490,7 @@ function openEdit(data) {
       check_role: flow.check_role || "",
       check_uids: check_uids,
       check_position_id: flow.check_position_id || "",
-      check_types: flow.check_types ? Number(flow.check_types) : 1,
+      check_types: String(flow.check_types || 1),
     };
   });
 
@@ -536,7 +541,7 @@ function openView(data) {
       check_role: flow.check_role || "",
       check_uids: check_uids,
       check_position_id: flow.check_position_id || "",
-      check_types: flow.check_types ? Number(flow.check_types) : 1,
+      check_types: String(flow.check_types || 1),
     };
   });
 
