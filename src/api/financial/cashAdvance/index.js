@@ -57,7 +57,7 @@ export function pay(data) {
   return request({
     url: '/finance/loan/pay',
     method: 'put',
-    params: data
+    data
   })
 }
 
@@ -66,6 +66,6 @@ export function back(data) {
   return request({
     url: '/finance/loan/back',
     method: 'put',
-    params: data
+    data
   })
 }

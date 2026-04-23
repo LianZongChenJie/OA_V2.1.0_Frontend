@@ -146,6 +146,15 @@ export const columns = [
     width: 150,
     minWidth: 120,
   },
+  {
+    fieldName: 'backStatus',
+    label: '还款状态',
+    width: 100,
+    minWidth: 100,
+    align: 'center',
+    isDict: true,
+    dict: 'cash_back_status',
+  },
 ];
 
 
@@ -153,7 +162,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onBack, currentUserId) => {
   return {
     label: '操作',
     width: 240,
@@ -188,6 +197,16 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
           onDelete && onDelete(row);
         },
         icon: 'delete',
+      },
+      {
+        label: '还款',
+        type: 'success',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.payStatus) === 1 && Number(row.adminId) === Number(currentUserId)  && Number(row.backStatus) === 0,
+        onClick: (row) => {
+          onBack && onBack(row);
+        },
+        icon: 'money',
       },
     ],
   };

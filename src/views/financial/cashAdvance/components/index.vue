@@ -21,6 +21,9 @@
       <template #payStatus="{ row }">
         <dict-tag :options="cash_pay_status" :value="Number(row.payStatus)" />
       </template>
+      <template #backStatus="{ row }">
+        <dict-tag :options="cash_back_status" :value="Number(row.backStatus)" />
+      </template>
       <template #effTime="{ row }">
         {{ row.startTime }} ~ {{ row.endTime }}
       </template>
@@ -32,9 +35,10 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/financial/cashAdvance";
+import { getPageList, getDetail, del, back } from "@/api/financial/cashAdvance";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
+import useUserStore from "@/store/modules/user";
 
 const props = defineProps({
   type: {
@@ -48,7 +52,8 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { balance_status, cash_advance_types, cash_pay_status,check_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status","check_status");
+const userStore = useUserStore();
+const { balance_status, cash_advance_types, cash_pay_status,check_status,cash_back_status } = proxy.useDict("balance_status", "cash_advance_types", "cash_pay_status","check_status","cash_back_status");
 
 const route = useRoute();
 const router = useRouter();
@@ -95,8 +100,20 @@ async function handleDelete(row) {
   }
 }
 
+/** 还款按钮操作 */
+async function handleBack(row) {
+  try {
+    await proxy.$modal.confirm('确认还款吗？');
+    await back({ id: row.id });
+    proxy.$modal.msgSuccess("还款成功");
+    handleSuccess();
+  } catch (e) {
+    console.error('还款失败', e);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleBack, userStore.id);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

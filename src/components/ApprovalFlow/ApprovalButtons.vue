@@ -19,16 +19,13 @@
     <el-button v-if="canPay" type="primary" @click="handlePay">
       打款
     </el-button>
-    <el-button v-if="canBack" type="success" @click="handleBack">
-      还款
-    </el-button>
   </div>
 </template>
 
 <script setup>
 import { computed, getCurrentInstance } from "vue";
 import { submitToFlow, approval } from "@/api/common/approval.js";
-import { pay, back } from "@/api/financial/cashAdvance";
+import { pay } from "@/api/financial/cashAdvance";
 import useUserStore from "@/store/modules/user";
 
 const props = defineProps({
@@ -58,16 +55,10 @@ const canRevoke = computed(() => {
   return Number(info?.checkStatus) === 1 && Number(info?.adminId) === Number(userStore.id);
 });
 
-// 打款按钮: 审批通过后(checkStatus === 1)，且是待打款状态(payStatus === 0)
+// 打款按钮: 审批通过后(checkStatus === 2)，且是待打款状态(payStatus === 0)
 const canPay = computed(() => {
   const info = props.currentData || {};
-  return Number(info?.checkStatus) === 1 && Number(info?.payStatus) === 0;
-});
-
-// 还款按钮: 审批通过后(checkStatus === 1)，且是已打款状态(payStatus === 1)
-const canBack = computed(() => {
-  const info = props.currentData || {};
-  return Number(info?.checkStatus) === 1 && Number(info?.payStatus) === 1;
+  return Number(info?.checkStatus) === 2 && Number(info?.payStatus) === 0;
 });
 
 function handleSubmitApproval() {
@@ -168,17 +159,6 @@ function handlePay() {
   proxy.$modal.confirm("确认打款吗？").then(() => {
     pay({ id: info.id }).then(() => {
       proxy.$modal.msgSuccess("打款成功");
-      emit("closeDialog");
-      emit("success");
-    });
-  }).catch(() => {});
-}
-
-function handleBack() {
-  const info = props.currentData || {};
-  proxy.$modal.confirm("确认还款吗？").then(() => {
-    back({ id: info.id }).then(() => {
-      proxy.$modal.msgSuccess("还款成功");
       emit("closeDialog");
       emit("success");
     });
