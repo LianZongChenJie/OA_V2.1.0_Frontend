@@ -30,12 +30,12 @@ export const columns = [
     slotName: 'status',
     searchable: {
       type: 'select',
-      fieldName: 'rewardStatus',
+      fieldName: 'status',
       label: '奖惩状态',
       placeholder: '请选择',
       order: 1,
       options: [
-        { label: '待执行', value: 1 },
+        { label: '未执行', value: 1 },
         { label: '已执行', value: 2 }
       ]
     },
@@ -67,13 +67,13 @@ export const columns = [
     slotName: 'rewardType',
     searchable: {
       type: 'select',
-      fieldName: 'rewardType',
+      fieldName: 'types',
       label: '奖惩类型',
       placeholder: '请选择',
       order: 2,
       options: [
         { label: '奖励', value: 1 },
-        { label: '惩罚', value: 0 }
+        { label: '惩罚', value: 2 }
       ]
     },
   },
@@ -85,28 +85,28 @@ export const columns = [
     searchable: {
       type: 'selectApi',
       api: getPageList,
-      optionValue: 'title',
+      optionValue: 'id',
       optionLabel: 'title',
-      fieldName: 'rewardItem',
+      fieldName: 'rewardsCate',
       label: '奖惩项目',
       placeholder: '请选择',
       order: 3,
     },
   },
-  {
-    fieldName: 'rewardsTime',
+{
+  fieldName: 'rewardsTime',
+  label: '奖惩日期',
+  width: "12%",
+  minWidth: 140,
+  format: (val) => val?.split(' ')[0] || '', 
+  searchable: {
+    type: 'dateRange',
+    fieldName: 'rewardDate',
     label: '奖惩日期',
-    width: "12%",
-    minWidth: 140,
-    format: (val) => val?.split(' ')[0] || '', 
-    searchable: {
-      type: 'dateRange',
-      fieldName: 'rewardDate',
-      label: '奖惩日期',
-      placeholder: '请选择',
-      order: 4,
-    },
-  },
+    placeholder: '请选择时间',
+    order: 4,
+  }
+},
   {
     fieldName: 'cost',
     label: '金额(元)',
@@ -157,7 +157,7 @@ export const operationColumn = {
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
-    label: '添加奖罚管理',
+    label: '添加奖惩管理',
     type: 'success',
     icon: 'plus',
     size: 'default',

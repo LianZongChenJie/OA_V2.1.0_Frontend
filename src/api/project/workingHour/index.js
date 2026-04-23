@@ -20,8 +20,8 @@ export function getDetail(id) {
 // 新增工时
 export function addenterPrise(data) {
   return request({
-    url: '/project/task/hour',
-    method: 'put',
+    url: '/project/task/hours',
+    method: 'post',
     data: data
   })
 }

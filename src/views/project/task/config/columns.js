@@ -22,7 +22,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'status_name',
+    fieldName: 'statusName',
     label: '任务状态',
     width: "12%",
     minWidth: 100,
@@ -48,7 +48,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'priority_name',
+    fieldName: 'priorityName',
     label: '优先级',
     width: "10%",
     minWidth: 80,
@@ -89,7 +89,7 @@ export const columns = [
     }
   },
   {
-    fieldName: 'project_name',
+    fieldName: 'projectName',
     label: '所属项目',
     width: "18%",
     minWidth: 150,
@@ -106,7 +106,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'admin_name',
+    fieldName: 'adminName',
     label: '负责人',
     width: "12%",
     minWidth: 100,
@@ -137,7 +137,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'director_name',
+    fieldName: 'directorName',
     label: '协作人',
     width: "15%",
     minWidth: 120,
@@ -151,7 +151,7 @@ export const columns = [
     align: 'center',
   },
   {
-  fieldName: 'end_time_str',  
+  fieldName: 'endTimeStr',  
   label: '预计结束日期',
   width: "25%", 
   minWidth: 200,

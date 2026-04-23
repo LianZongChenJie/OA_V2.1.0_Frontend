@@ -21,8 +21,8 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'statusName',
-    label: '状态',
+    fieldName: 'statusStr',
+    label: '关怀状态',
     width: "8%",
     minWidth: 100,
     align: 'center',
@@ -30,18 +30,18 @@ export const columns = [
     slotName: 'status',
     searchable: {
       type: 'select',
-      fieldName: 'rewardStatus',
+      fieldName: 'status',
       label: '关怀状态',
       placeholder: '请选择',
       order: 1,
       options: [
-        { label: '待执行', value: 1 },
-        { label: '已执行', value: 0 }
+        { label: '未执行', value: 1 },
+        { label: '已执行', value: 2 }
       ]
     },
   },
   {
-    fieldName: 'empName',
+    fieldName: 'userName',
     label: '员工',
     width: "10%",
     minWidth: 120,
@@ -50,23 +50,23 @@ export const columns = [
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',
-      fieldName: 'rewardEmp',
+      fieldName: 'uid',
       label: '关怀员工',
       placeholder: '请选择人员',
       order: 3,
     },
   },
   {
-    fieldName: 'careCateName',
+    fieldName: 'cateName',
     label: '关怀项目',
     width: "12%",
     minWidth: 140,
     searchable: {
       type: 'selectApi',
       api: getPageList,
-      optionValue: 'title',
+      optionValue: 'id',
       optionLabel: 'title',
-      fieldName: 'rewardItem',
+      fieldName: 'rewardsCate',
       label: '关怀项目',
       placeholder: '请选择',
       order: 2,
@@ -107,7 +107,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'createBy',
+    fieldName: 'adminName',
     label: '创建人',
     width: "10%",
     minWidth: 120,

@@ -43,7 +43,7 @@
 
       <el-form-item label="当前状态" prop="status" required>
         <el-radio-group v-model="form.status" :disabled="isView">
-          <el-radio :label="1">待执行</el-radio>
+          <el-radio :label="1">未执行</el-radio>
           <el-radio :label="2">已执行</el-radio>
         </el-radio-group>
       </el-form-item>
@@ -97,6 +97,8 @@ import { listUser } from "@/api/system/user.js";
 import { getPageList } from '@/api/base/hr/careProgram/index.js';
 import { addDeptChange, updateDeptChange } from "@/api/personnel/employeeCare/index.js";
 
+const emit = defineEmits(["success"]);
+
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
@@ -141,7 +143,7 @@ onMounted(() => {
 
 function reset() {
   form.careCate = "";
-  form.status = 1;
+  form.status = 2;
   form.uid = "";
   form.copyUids = [];
   form.cost = "";
@@ -165,30 +167,92 @@ function open() {
 
 function openEdit(data) {
   reset();
-  Object.assign(form, data);
+  // 处理日期格式：如果后端返回的是完整时间格式，只取年月日部分
+  if (data.careTime) {
+    data.careTime = formatDateOnly(data.careTime);
+  }
+  // 移除 createTime 和 updateTime 等不需要的字段
+  const { createTime, updateTime, ...cleanData } = data;
+  Object.assign(form, cleanData);
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
 function openView(data) {
   reset();
-  Object.assign(form, data);
+  // 处理日期格式：如果后端返回的是完整时间格式，只取年月日部分
+  if (data.careTime) {
+    data.careTime = formatDateOnly(data.careTime);
+  }
+  // 移除 createTime 和 updateTime 等不需要的字段
+  const { createTime, updateTime, ...cleanData } = data;
+  Object.assign(form, cleanData);
   isView.value = true;
   dialogVisible.value = true;
+}
+
+// 格式化日期：只保留年月日
+function formatDateOnly(dateTime) {
+  if (!dateTime) return "";
+  
+  // 如果是字符串格式
+  if (typeof dateTime === "string") {
+    // 如果已经是 YYYY-MM-DD 格式，直接返回
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateTime)) {
+      return dateTime;
+    }
+    // 如果是 YYYY-MM-DD HH:mm:ss 格式，只取前面部分
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateTime)) {
+      return dateTime.split(' ')[0];
+    }
+  }
+  
+  // 如果是时间戳（秒或毫秒）
+  if (typeof dateTime === "number") {
+    const timestamp = dateTime.toString().length === 10 ? dateTime * 1000 : dateTime;
+    const date = new Date(timestamp);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  
+  return dateTime;
+}
+
+// 将日期加上时分秒（默认 00:00:00）
+function addTimeToDate(dateStr) {
+  if (!dateStr) return "";
+  // 如果已经是完整格式，直接返回
+  if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(dateStr)) {
+    return dateStr;
+  }
+  // 如果是 YYYY-MM-DD 格式，加上 00:00:00
+  if (typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return `${dateStr} 00:00:00`;
+  }
+  return dateStr;
 }
 
 async function handleSubmit() {
   const valid = await formRef.value?.validate?.();
   if (!valid) return;
 
-  // 所有数字类型强转，careTime 保持字符串
+  // 构建提交数据，排除不需要的字段
   const submitData = {
-    ...form,
-    uid: Number(form.uid),
     careCate: Number(form.careCate),
     status: Number(form.status),
-    cost: Number(form.cost)
+    uid: Number(form.uid),
+    cost: Number(form.cost),
+    careTime: addTimeToDate(form.careTime),
+    thing: form.thing || "",
+    remark: form.remark || ""
   };
+
+  // 如果是编辑，需要加上 id
+  if (isEdit.value && form.id) {
+    submitData.id = form.id;
+  }
 
   try {
     if (isEdit.value) {
@@ -200,11 +264,11 @@ async function handleSubmit() {
     dialogVisible.value = false;
     emit("success");
   } catch (err) {
-    ElMessage.error("操作失败");
+    console.error("操作失败:", err);
+    ElMessage.error(err.msg || "操作失败");
   }
 }
 
-const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
 

@@ -28,14 +28,14 @@
       <el-form-item label="奖惩类型" prop="types" required>
         <el-radio-group v-model="form.types" :disabled="isView">
           <el-radio :label="1">奖励</el-radio>
-          <el-radio :label="0">惩罚</el-radio>
+          <el-radio :label="2">惩罚</el-radio>
         </el-radio-group>
       </el-form-item>
 
-      <el-form-item label="当前状态" prop="status" required>
+      <el-form-item label="奖惩状态" prop="status" required>
         <el-radio-group v-model="form.status" :disabled="isView">
-          <el-radio :label="1">待执行</el-radio>
-          <el-radio :label="0">已执行</el-radio>
+          <el-radio :label="1">未执行</el-radio>
+          <el-radio :label="2">已执行</el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -116,7 +116,7 @@ const rewardsCateList = ref([]);
 
 const form = reactive({
   id: undefined,
-  rewardsCate: null,  // 改为存 ID，int 类型
+  rewardsCate: null,  
   types: 1,
   status: 1,
   uid: null,
@@ -186,7 +186,7 @@ function reset() {
   form.id = undefined;
   form.rewardsCate = null;
   form.types = 1;
-  form.status = 1;
+  form.status = 2;
   form.uid = null;
   form.copyUids = [];
   form.cost = "";

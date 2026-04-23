@@ -105,29 +105,29 @@ const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
   return rows.map(row => {
-    let showText = row.end_time_str || '-';
+    let showText = row.endTimeStr || '-';
 
     if (row.status === 3) {
-      showText = row.end_time_str || '-';
+      showText = row.endTimeStr || '-';
     } 
-    else if (row.end_time_str) {
-      const dateStr = row.end_time_str.split(' ')[0];
+    else if (row.endTimeStr) {
+      const dateStr = row.endTimeStr.split(' ')[0];
       const end = new Date(dateStr.replace(/-/g, '/')).getTime();
       const now = Date.now();
       const diffDay = Math.ceil((end - now) / 86400000);
 
       if (diffDay > 0) {
-        showText = `${row.end_time_str}（剩余 ${diffDay} 天）`;
+        showText = `${row.endTimeStr}（剩余 ${diffDay} 天）`;
       } else if (diffDay === 0) {
-        showText = `${row.end_time_str}（今日到期）`;
+        showText = `${row.endTimeStr}（今日到期）`;
       } else {
-        showText = `${row.end_time_str}（逾期 ${Math.abs(diffDay)} 天）`;
+        showText = `${row.endTimeStr}（逾期 ${Math.abs(diffDay)} 天）`;
       }
     }
 
     return {
       ...row,
-      end_time_str: showText, 
+      endTimeStr: showText, 
       statusText: statusMap[row.status] || "未知"
     };
   });

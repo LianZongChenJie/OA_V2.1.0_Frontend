@@ -229,34 +229,34 @@
           </el-table-column>
 
           <el-table-column fixed="right" label="操作" width="200" align="center">
-          <template #default="{ $index }">
-            <el-button 
-              size="small" 
-              type="success" 
-              @click="moveUp($index)" 
-              :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex) || isAllStagesCompleted"
-            >上移</el-button>
-            <el-button 
-              size="small" 
-              type="primary" 
-              @click="moveDown($index)" 
-              :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index >= currentStageIndex) || isAllStagesCompleted"
-            >下移</el-button>
-            <el-button 
-              size="small" 
-              type="danger" 
-              @click="delStage($index)" 
-              :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex) || isAllStagesCompleted"
-            >删除</el-button>
-          </template>
-        </el-table-column>
+            <template #default="{ $index }">
+              <el-button 
+                size="small" 
+                type="success" 
+                @click="moveUp($index)" 
+                :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex) || isAllStagesCompleted"
+              >上移</el-button>
+              <el-button 
+                size="small" 
+                type="primary" 
+                @click="moveDown($index)" 
+                :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index >= currentStageIndex) || isAllStagesCompleted"
+              >下移</el-button>
+              <el-button 
+                size="small" 
+                type="danger" 
+                @click="delStage($index)" 
+                :disabled="isView || projectStatus === 3 || projectStatus === 4 || (projectStatus === 2 && $index <= currentStageIndex) || isAllStagesCompleted"
+              >删除</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </el-form-item>
     </el-form>
 
     <template #footer>
       <div style="text-align:center">
-        <el-button type="primary" @click="handleSubmit" v-if="!isView">提交</el-button>
+        <el-button type="primary" @click="handleSubmit" v-if="!isView" :loading="submitLoading">提交</el-button>
         <el-button @click="handleClose">关闭</el-button>
       </div>
     </template>
@@ -274,6 +274,13 @@ import { getPageList as getContractList } from "@/api/contract/salesContract/ind
 const emit = defineEmits(["success"]);
 
 // ========== 常量配置 ==========
+const PROJECT_STATUS = {
+  NOT_STARTED: 1,
+  IN_PROGRESS: 2,
+  COMPLETED: 3,
+  CLOSED: 4
+};
+
 const cascaderProps = {
   value: "id",
   label: "label",
@@ -300,6 +307,7 @@ const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
+const submitLoading = ref(false);
 
 const userOptions = ref([]);
 const deptOptions = ref([]);
@@ -307,7 +315,7 @@ const contractOptions = ref([]);
 const cateOptions = ref([]);
 
 // 项目状态：1-未开始，2-进行中，3-已完成，4-已关闭
-const projectStatus = ref(1);
+const projectStatus = ref(PROJECT_STATUS.NOT_STARTED);
 const statusLoading = ref(false);
 
 // 阶段管理
@@ -326,7 +334,7 @@ const form = reactive({
   did: null,
   dateRange: [],
   content: "",
-  stageList: structuredClone(defaultStageList)
+  stageList: JSON.parse(JSON.stringify(defaultStageList))
 });
 
 // 判断是否所有阶段都已完成
@@ -336,33 +344,33 @@ const isAllStagesCompleted = computed(() => {
 
 // 状态按钮是否禁用
 const isStatusBtnDisabled = computed(() => {
-  if (projectStatus.value === 4 || statusLoading.value) return true;
+  if (projectStatus.value === PROJECT_STATUS.CLOSED || statusLoading.value) return true;
   // 未开始状态不禁用
-  if (projectStatus.value === 1) return false;
+  if (projectStatus.value === PROJECT_STATUS.NOT_STARTED) return false;
   // 进行中状态需要所有阶段完成才能点击完成
-  if (projectStatus.value === 2) {
+  if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) {
     return !isAllStagesCompleted.value;
   }
   // 已完成状态可以点击关闭
-  if (projectStatus.value === 3) return false;
+  if (projectStatus.value === PROJECT_STATUS.COMPLETED) return false;
   return false;
 });
 
 // 状态按钮文本
 const statusBtnText = computed(() => {
-  if (projectStatus.value === 1) return "开始";
-  if (projectStatus.value === 2) return "完成";
-  if (projectStatus.value === 3) return "关闭";
-  if (projectStatus.value === 4) return "已关闭";
+  if (projectStatus.value === PROJECT_STATUS.NOT_STARTED) return "开始";
+  if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) return "完成";
+  if (projectStatus.value === PROJECT_STATUS.COMPLETED) return "关闭";
+  if (projectStatus.value === PROJECT_STATUS.CLOSED) return "已关闭";
   return "未知状态";
 });
 
 // 状态按钮类型
 const statusBtnType = computed(() => {
-  if (projectStatus.value === 1) return "primary";
-  if (projectStatus.value === 2) return "success";
-  if (projectStatus.value === 3) return "danger";
-  if (projectStatus.value === 4) return "info";
+  if (projectStatus.value === PROJECT_STATUS.NOT_STARTED) return "primary";
+  if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) return "success";
+  if (projectStatus.value === PROJECT_STATUS.COMPLETED) return "danger";
+  if (projectStatus.value === PROJECT_STATUS.CLOSED) return "info";
   return "default";
 });
 
@@ -379,6 +387,43 @@ const rules = {
   did: [{ required: true, message: "请选择归属部门", trigger: "change" }],
   dateRange: [{ required: true, message: "请选择起止日期", trigger: "change" }],
   customerId: [{ required: true, message: "请选择项目成员", trigger: "change" }],
+};
+
+// ========== 辅助函数 ==========
+/**
+ * 根据后端返回的阶段数据计算当前阶段索引
+ * @param {Array} stages 后端返回的阶段列表
+ * @returns {number} 当前进行中的阶段索引
+ */
+const calculateCurrentStageIndex = (stages) => {
+  if (!stages || stages.length === 0) return 0;
+  
+  // 查找进行中的阶段 (isCurrent === 1)
+  const currentStageIndex = stages.findIndex(s => s.isCurrent === 1);
+  if (currentStageIndex !== -1) return currentStageIndex;
+  
+  // 如果没有进行中的阶段，统计已完成的阶段数量 (isCurrent === 2)
+  const completedCount = stages.filter(s => s.isCurrent === 2).length;
+  return completedCount;
+};
+
+/**
+ * 将后端阶段数据转换为前端表单格式
+ * @param {Array} stages 后端返回的阶段列表
+ * @returns {Array} 前端表单使用的阶段列表
+ */
+const transformStagesToForm = (stages) => {
+  if (!stages || stages.length === 0) {
+    return JSON.parse(JSON.stringify(defaultStageList));
+  }
+  
+  return stages.map(s => ({
+    name: s.name || "",
+    directorUid: s.directorUid || null,
+    memberUids: safeSplit(s.memberUids),
+    timeRange: (s.startTime && s.endTime) ? [formatTime(s.startTime), formatTime(s.endTime)] : [],
+    remark: s.remark || ""
+  }));
 };
 
 // ========== 阶段管理方法 ==========
@@ -449,21 +494,21 @@ const handleChangeStatus = async () => {
   let next;
   let confirmMessage = "";
 
-  if (old === 1) {
+  if (old === PROJECT_STATUS.NOT_STARTED) {
     // 未开始 -> 进行中
-    next = 2;
+    next = PROJECT_STATUS.IN_PROGRESS;
     confirmMessage = "确认开始项目吗？开始后将进入阶段管理流程。";
-  } else if (old === 2) {
+  } else if (old === PROJECT_STATUS.IN_PROGRESS) {
     // 进行中 -> 已完成
     if (!isAllStagesCompleted.value) {
       ElMessage.warning("请先完成所有项目阶段");
       return;
     }
-    next = 3;
+    next = PROJECT_STATUS.COMPLETED;
     confirmMessage = "确认完成项目吗？";
-  } else if (old === 3) {
+  } else if (old === PROJECT_STATUS.COMPLETED) {
     // 已完成 -> 已关闭
-    next = 4;
+    next = PROJECT_STATUS.CLOSED;
     confirmMessage = "确认关闭项目吗？";
   } else {
     return;
@@ -489,11 +534,11 @@ const handleChangeStatus = async () => {
 
     projectStatus.value = next;
     
-    if (next === 2) {
+    if (next === PROJECT_STATUS.IN_PROGRESS) {
       ElMessage.success("项目已开始，现在可以管理项目阶段了");
-    } else if (next === 3) {
+    } else if (next === PROJECT_STATUS.COMPLETED) {
       ElMessage.success("项目已完成");
-    } else if (next === 4) {
+    } else if (next === PROJECT_STATUS.CLOSED) {
       ElMessage.success("项目已关闭");
     }
     
@@ -576,6 +621,10 @@ onMounted(() => {
 
 // ========== 阶段操作 ==========
 const addStage = () => {
+  if (form.stageList.length >= 20) {
+    ElMessage.warning("阶段数量不能超过20个");
+    return;
+  }
   form.stageList.push({ name: "", directorUid: null, memberUids: [], timeRange: [], remark: "" });
 };
 
@@ -616,6 +665,8 @@ const handleSubmit = () => {
   formRef.value.validate((valid) => {
     if (!valid) return;
 
+    submitLoading.value = true;
+
     const [startDate, endDate] = form.dateRange || [];
     const startTime = toSeconds(startDate);
     const endTime = toSeconds(endDate);
@@ -644,12 +695,15 @@ const handleSubmit = () => {
         
         // 计算 isCurrent 值
         let isCurrent = 0; // 默认空
-        if (projectStatus.value === 2) {
+        if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) {
           if (index === currentStageIndex.value) {
             isCurrent = 1; // 进行中
           } else if (index < currentStageIndex.value) {
             isCurrent = 2; // 已完成
           }
+        } else if (projectStatus.value === PROJECT_STATUS.COMPLETED || projectStatus.value === PROJECT_STATUS.CLOSED) {
+          // 项目已完成或已关闭，所有阶段都标记为已完成
+          isCurrent = 2;
         }
         
         return {
@@ -671,7 +725,13 @@ const handleSubmit = () => {
         handleClose();
         emit("success");
       })
-      .catch((e) => console.error("提交失败", e));
+      .catch((e) => {
+        console.error("提交失败", e);
+        ElMessage.error(e.msg || "提交失败");
+      })
+      .finally(() => {
+        submitLoading.value = false;
+      });
   });
 };
 
@@ -690,12 +750,13 @@ const resetForm = () => {
     did: null,
     dateRange: [],
     content: "",
-    stageList: structuredClone(defaultStageList)
+    stageList: JSON.parse(JSON.stringify(defaultStageList))
   });
-  projectStatus.value = 1;
+  projectStatus.value = PROJECT_STATUS.NOT_STARTED;
   currentStageIndex.value = 0;
   isEdit.value = false;
   isView.value = false;
+  submitLoading.value = false;
   formRef.value?.clearValidate();
 };
 
@@ -716,10 +777,21 @@ const openEdit = (row) => {
   resetForm();
   
   // 回填状态
-  projectStatus.value = row.status ?? 1;
-  // 回填阶段进度
-  currentStageIndex.value = row.currentStage ?? 0;
+  projectStatus.value = row.status ?? PROJECT_STATUS.NOT_STARTED;
+  
+  // 处理阶段数据
+  if (row.stages?.length) {
+    form.stageList = transformStagesToForm(row.stages);
+    currentStageIndex.value = calculateCurrentStageIndex(row.stages);
+  } else {
+    currentStageIndex.value = row.currentStage ?? 0;
+    // 确保阶段列表长度足够
+    while (form.stageList.length < currentStageIndex.value) {
+      form.stageList.push({ name: "", directorUid: null, memberUids: [], timeRange: [], remark: "" });
+    }
+  }
 
+  // 回填基本信息
   Object.assign(form, {
     id: row.id,
     name: row.name,
@@ -732,18 +804,9 @@ const openEdit = (row) => {
     customerId: safeSplit(row.customerId)
   });
 
+  // 回填日期范围
   if (row.startTime && row.endTime) {
     form.dateRange = [formatTime(row.startTime), formatTime(row.endTime)];
-  }
-
-  if (row.stages?.length) {
-    form.stageList = row.stages.map(s => ({
-      name: s.name || "",
-      directorUid: s.directorUid || null,
-      memberUids: safeSplit(s.memberUids),
-      timeRange: (s.startTime && s.endTime) ? [formatTime(s.startTime), formatTime(s.endTime)] : [],
-      remark: s.remark || ""
-    }));
   }
 
   isEdit.value = true;

@@ -18,14 +18,14 @@ export const columns = [
     formatter: (row, index) => index + 1
   },
   {
-    fieldName: 'laborType',
+    fieldName: 'laborTypeName',
     label: '工作类型',
     width: "10%",
     minWidth: 90,
     align: 'center',
   },
   {
-    fieldName: 'workCategoryName',
+    fieldName: 'workTitle',
     label: '工作类别',
     width: "10%",
     minWidth: 90,
