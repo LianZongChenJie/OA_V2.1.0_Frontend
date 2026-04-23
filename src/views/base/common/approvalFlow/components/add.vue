@@ -102,14 +102,14 @@
               >
                 <el-select
                   v-model="flow.check_role"
-                  :disabled="isView"
+                  :disabled="isView || isRollbackFlow"
                   placeholder="请选择审批人类型"
                   clearable
                   @change="handleApproverTypeChange(index)"
                   style="width: 100%"
                 >
                   <el-option
-                    v-for="dict in flow_list_item_type"
+                    v-for="dict in filteredFlowListItemType"
                     :key="dict.value"
                     :label="dict.label"
                     :value="dict.value"
@@ -309,10 +309,23 @@ const dialogTitle = computed(() => {
   return isEdit.value ? "编辑审批流程" : "新增审批流程";
 });
 
-// 是否显示审批流程配置（固定审批流程时显示）
+// 是否显示审批流程配置（固定审批流程或可回退审批流时显示）
 const showFlowConfig = computed(() => {
-  // 假设 value="2" 是固定审批流程，使用字符串比较
-  return form.checkType == "2";
+  // 假设 value="2" 是固定审批流程，value="3" 是可回退审批流
+  return form.checkType == "2" || form.checkType == "3";
+});
+
+// 是否是可回退审批流
+const isRollbackFlow = computed(() => {
+  return form.checkType == "3";
+});
+
+// 审批人类型选项（可回退审批流时只能选择指定成员）
+const filteredFlowListItemType = computed(() => {
+  if (isRollbackFlow.value) {
+    return flow_list_item_type.value.filter(item => item.value === "4");
+  }
+  return flow_list_item_type.value;
 });
 
 const rules = {
@@ -368,21 +381,21 @@ function getPostList() {
 
 /** 审批流程类型变更处理 */
 function handleCheckTypeChange(value) {
-  if (value == "2") {
-    // 固定审批流程，初始化一个默认审批节点
-    if (form.flowList.length === 0) {
-      addFlowNode();
-    }
-  } else {
-    // 自由审批流程，清空审批流程配置
-    form.flowList = [];
+  // 切换审批流程类型时，重置审批流程配置
+  form.flowList = [];
+
+  if (value == "2" || value == "3") {
+    // 固定审批流程或可回退审批流，初始化一个默认审批节点
+    addFlowNode();
   }
 }
 
 /** 添加审批节点 */
 function addFlowNode() {
+  // 可回退审批流时，审批人类型默认为指定成员
+  const defaultCheckRole = form.checkType == "3" ? "4" : "";
   form.flowList.push({
-    check_role: "", // 审批人类型：1-当前部门负责人，2-上一级部门负责人，3-指定岗位职称人，4-指定成员
+    check_role: defaultCheckRole, // 审批人类型：1-当前部门负责人，2-上一级部门负责人，3-指定岗位职称人，4-指定成员
     check_uids: [], // 指定成员ID列表
     check_position_id: "", // 岗位ID
     check_types: 1, // 审批方式：1-或签，2-会签
