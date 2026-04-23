@@ -18,9 +18,9 @@
           </div>
           <div class="node-content">
             <span class="node-label">审批人：</span>
-            <span class="node-user">{{
-              node.checkUserInfo?.[0]?.nickName || "-"
-            }}</span>
+            <span class="node-user">
+               <el-tag type="info" style="margin-right:10px"  v-for="(item, index) in node.checkUserInfo">{{ item.nickName }}</el-tag>
+            </span>
           </div>
         </div>
       </el-timeline-item>
@@ -36,14 +36,17 @@ const props = defineProps({
 });
 
 function getTimelineItemType(node) {
-  if (node.sort < props.currentStepSort || node.isFinished === 1) return "success";
+  if (node.sort < props.currentStepSort || node.isFinished === 1)
+    return "success";
   if (node.sort === props.currentStepSort) return "primary";
   return "info";
 }
 
 function getNodeStatusTag(node) {
-  if (node.sort === props.currentStepSort) return { text: "审批中", type: "warning" };
-  if (node.sort < props.currentStepSort) return { text: "已通过", type: "success" };
+  if (node.sort === props.currentStepSort)
+    return { text: "审批中", type: "warning" };
+  if (node.sort < props.currentStepSort)
+    return { text: "已通过", type: "success" };
   return { text: "待审批", type: "info" };
 }
 </script>
@@ -78,6 +81,7 @@ function getNodeStatusTag(node) {
 }
 
 .node-label {
-  color: #909399;
+  color: #303133;
+  font-weight: bold;
 }
 </style>
