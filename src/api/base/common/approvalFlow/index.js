@@ -27,7 +27,7 @@ export function addFlow(data) {
 }
 
 // 修改审批流程
-export function updateFlow(id, data) {
+export function updateFlow(data) {
   return request({
     url: `/basicdata/flow/update`,
     method: 'put',

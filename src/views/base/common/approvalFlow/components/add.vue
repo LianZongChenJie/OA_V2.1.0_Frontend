@@ -13,26 +13,6 @@
       :rules="isView ? {} : rules"
       label-width="120px"
     >
-      <el-form-item label="应用部门" prop="departmentIds">
-        <el-cascader
-          v-model="form.departmentIds"
-          :options="departmentOptions"
-          :multiple="true"
-          :props="{
-            value: 'id',
-            label: 'label',
-            children: 'children',
-            checkStrictly: true,
-            emitPath: false,
-          }"
-          :disabled="isView"
-          placeholder="请选择应用部门"
-          clearable
-          collapse-tags
-          collapse-tags-tooltip
-          style="width: 100%"
-        />
-      </el-form-item>
       <el-form-item label="流程名称" prop="title">
         <el-input
           v-model="form.title"
@@ -53,6 +33,25 @@
             :key="item.id"
             :label="item.title"
             :value="item.id"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="应用部门" prop="departmentIds">
+        <el-select
+          v-model="form.departmentIds"
+          :disabled="isView"
+          placeholder="请选择应用部门"
+          multiple
+          clearable
+          collapse-tags
+          collapse-tags-tooltip
+          style="width: 100%"
+        >
+          <el-option
+            v-for="item in flatDepartmentOptions"
+            :key="item.deptId"
+            :label="item.deptName"
+            :value="item.deptId"
           />
         </el-select>
       </el-form-item>
@@ -94,7 +93,7 @@
               </div>
               <el-form-item
                 :label="`审批人类型${index + 1}`"
-                :prop="`flowList.${index}.type`"
+                :prop="`flowList.${index}.check_role`"
                 :rules="{
                   required: true,
                   message: '请选择审批人类型',
@@ -102,7 +101,7 @@
                 }"
               >
                 <el-select
-                  v-model="flow.type"
+                  v-model="flow.check_role"
                   :disabled="isView"
                   placeholder="请选择审批人类型"
                   clearable
@@ -120,9 +119,9 @@
 
               <!-- 指定成员时显示成员选择 -->
               <el-form-item
-                v-if="flow.type === '4'"
+                v-if="flow.check_role === '4'"
                 :label="`选择成员${index + 1}`"
-                :prop="`flowList.${index}.user_ids`"
+                :prop="`flowList.${index}.check_uids`"
                 :rules="{
                   required: true,
                   message: '请选择成员',
@@ -130,7 +129,7 @@
                 }"
               >
                 <el-select
-                  v-model="flow.user_ids"
+                  v-model="flow.check_uids"
                   :disabled="isView"
                   placeholder="请选择成员"
                   multiple
@@ -139,12 +138,11 @@
                   collapse-tags
                   collapse-tags-tooltip
                   style="width: 100%"
-                  @change="(val) => handleUserChange(index, val)"
                 >
                   <el-option
                     v-for="item in userOptions"
                     :key="item.userId"
-                    :label="item.userName"
+                    :label="item.nickName"
                     :value="item.userId"
                   />
                 </el-select>
@@ -152,9 +150,9 @@
 
               <!-- 指定岗位职称人时显示岗位选择 -->
               <el-form-item
-                v-if="flow.type === '3'"
+                v-if="flow.check_role === '3'"
                 :label="`选择岗位${index + 1}`"
-                :prop="`flowList.${index}.roleId`"
+                :prop="`flowList.${index}.check_position_id`"
                 :rules="{
                   required: true,
                   message: '请选择岗位',
@@ -162,7 +160,7 @@
                 }"
               >
                 <el-select
-                  v-model="flow.roleId"
+                  v-model="flow.check_position_id"
                   :disabled="isView"
                   placeholder="请选择岗位"
                   clearable
@@ -180,14 +178,14 @@
               <!-- 审批方式选择 -->
               <el-form-item
                 :label="`审批方式${index + 1}`"
-                :prop="`flowList.${index}.approvalMode`"
+                :prop="`flowList.${index}.check_types`"
                 :rules="{
                   required: true,
                   message: '请选择审批方式',
                   trigger: 'change',
                 }"
               >
-                <el-radio-group v-model="flow.approvalMode" :disabled="isView">
+                <el-radio-group v-model="flow.check_types" :disabled="isView">
                   <el-radio :label="1">或签</el-radio>
                   <el-radio :label="2">会签</el-radio>
                 </el-radio-group>
@@ -223,7 +221,7 @@
           <el-option
             v-for="item in userOptions"
             :key="item.userId"
-            :label="item.userName"
+            :label="item.nickName"
             :value="item.userId"
           />
         </el-select>
@@ -255,7 +253,8 @@
 import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
 import { addFlow, updateFlow } from "@/api/base/common/approvalFlow/index.js";
 import { getPageList as getApprovalTypeList } from "@/api/base/common/approvalType/index.js";
-import { deptTreeSelect, listUser } from "@/api/system/user.js";
+import { listUser } from "@/api/system/user.js";
+import { listDept } from "@/api/system/dept.js";
 import { listPost } from "@/api/system/post.js";
 import useUserStore from "@/store/modules/user";
 
@@ -284,6 +283,26 @@ const approvalTypeOptions = ref([]);
 const userOptions = ref([]);
 const postOptions = ref([]); // 岗位选项
 
+// 扁平化部门选项（用于下拉选择）
+const flatDepartmentOptions = computed(() => {
+  const result = [];
+  const flatten = (list) => {
+    if (!Array.isArray(list)) return;
+    list.forEach((item) => {
+      // 映射字段名：确保有 deptId 和 deptName
+      result.push({
+        deptId: item.deptId || item.id,
+        deptName: item.deptName || item.label || item.deptName,
+      });
+      if (item.children && item.children.length > 0) {
+        flatten(item.children);
+      }
+    });
+  };
+  flatten(departmentOptions.value);
+  return result;
+});
+
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
   if (isView.value) return "查看审批流程";
@@ -292,15 +311,12 @@ const dialogTitle = computed(() => {
 
 // 是否显示审批流程配置（固定审批流程时显示）
 const showFlowConfig = computed(() => {
-  // 假设 value="2" 是固定审批流程
-  return form.checkType === "2";
+  // 假设 value="2" 是固定审批流程，使用字符串比较
+  return form.checkType == "2";
 });
 
 const rules = {
   title: [{ required: true, message: "请输入流程名称", trigger: "blur" }],
-  departmentIds: [
-    { required: true, message: "请选择应用部门", trigger: "change" },
-  ],
   cateId: [{ required: true, message: "请选择审批类型", trigger: "change" }],
   checkType: [
     { required: true, message: "请选择审批流程类型", trigger: "change" },
@@ -322,10 +338,10 @@ function reset() {
   proxy.resetForm("formRef");
 }
 
-/** 获取部门树数据 */
-function getDepartmentTree() {
-  deptTreeSelect().then((response) => {
-    departmentOptions.value = response.data;
+/** 获取部门列表 */
+function getDepartmentList() {
+  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
+    departmentOptions.value = response.data || [];
   });
 }
 
@@ -352,7 +368,7 @@ function getPostList() {
 
 /** 审批流程类型变更处理 */
 function handleCheckTypeChange(value) {
-  if (value === "2") {
+  if (value == "2") {
     // 固定审批流程，初始化一个默认审批节点
     if (form.flowList.length === 0) {
       addFlowNode();
@@ -365,55 +381,33 @@ function handleCheckTypeChange(value) {
 
 /** 添加审批节点 */
 function addFlowNode() {
-  const step = form.flowList.length + 1;
   form.flowList.push({
-    step: step, // 步骤顺序
-    type: "", // 审批人类型：1-当前部门负责人，2-上一级部门负责人，3-指定岗位职称人，4-指定成员
-    user_ids: [], // 指定成员ID列表
-    name: "", // 指定人员名称
-    roleId: "", // 岗位ID
-    approvalMode: 1, // 审批方式：1-或签，2-会签
+    check_role: "", // 审批人类型：1-当前部门负责人，2-上一级部门负责人，3-指定岗位职称人，4-指定成员
+    check_uids: [], // 指定成员ID列表
+    check_position_id: "", // 岗位ID
+    check_types: 1, // 审批方式：1-或签，2-会签
   });
 }
 
 /** 删除审批节点 */
 function removeFlow(index) {
   form.flowList.splice(index, 1);
-  // 删除后重新编号 step
-  form.flowList.forEach((flow, idx) => {
-    flow.step = idx + 1;
-  });
 }
 
 /** 审批人类型变更处理 */
 function handleApproverTypeChange(index) {
   const flow = form.flowList[index];
-  if (flow.type !== "4") {
-    flow.user_ids = [];
-    flow.name = "";
+  if (flow.check_role !== "4") {
+    flow.check_uids = [];
   }
-  if (flow.type !== "3") {
-    flow.roleId = "";
-  }
-}
-
-/** 选择成员时更新 name 字段 */
-function handleUserChange(index, userIds) {
-  const flow = form.flowList[index];
-  if (userIds && userIds.length > 0) {
-    // 根据选中的用户ID获取登录账号
-    const selectedUsers = userOptions.value.filter((user) =>
-      userIds.includes(user.userId)
-    );
-    flow.name = selectedUsers.map((user) => user.userName).join(",");
-  } else {
-    flow.name = "";
+  if (flow.check_role !== "3") {
+    flow.check_position_id = "";
   }
 }
 
 /** 初始化数据 */
 onMounted(() => {
-  getDepartmentTree();
+  getDepartmentList();
   getApprovalTypes();
   getUserList();
   getPostList();
@@ -427,8 +421,13 @@ function handleClose() {
 /** 显示弹窗 - 新增模式 */
 function open() {
   reset();
+  // 默认选中固定审批流程（值为"2"）
+  form.checkType = "2";
+  // 初始化一个默认审批节点
+  addFlowNode();
   dialogVisible.value = true;
 }
+
 
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
@@ -436,19 +435,21 @@ function openEdit(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  // 将 departmentIds 字符串转换为数组
+  // 将 departmentIds 字符串转换为数组（转换为数字）
   form.departmentIds = data.departmentIds
     ? Array.isArray(data.departmentIds)
-      ? data.departmentIds
-      : data.departmentIds.split(",")
+      ? data.departmentIds.map(id => Number(id))
+      : data.departmentIds.split(",").map(id => Number(id.trim()))
     : [];
   form.cateId = data.cateId || "";
   form.remark = data.remark || "";
-  form.checkType = data.checkType || "";
+  // 确保 checkType 是字符串类型
+  form.checkType = data.checkType ? String(data.checkType) : "";
+  // 将 copyUids 字符串转换为数组（转换为数字）
   form.copyUids = data.copyUids
     ? Array.isArray(data.copyUids)
-      ? data.copyUids
-      : data.copyUids.split(",")
+      ? data.copyUids.map(id => Number(id))
+      : data.copyUids.split(",").map(id => Number(id.trim()))
     : [];
   // 解析 flowList
   const flowList = data.flowList
@@ -456,15 +457,24 @@ function openEdit(data) {
       ? JSON.parse(data.flowList)
       : data.flowList
     : [];
-  // 确保 approvalMode 是字符串类型，并映射字段名
-  form.flowList = flowList.map((flow) => ({
-    step: flow.step || "",
-    type: flow.type || flow.checkType || flow.approverType || "", // 兼容旧字段 checkType/approverType
-    user_ids: flow.user_ids || flow.userIds || [], // 兼容旧字段 userIds
-    name: flow.name || "",
-    roleId: flow.roleId || flow.postId || "", // 兼容旧字段 postId
-    approvalMode: flow.approvalMode ? String(flow.approvalMode) : "1",
-  }));
+  // 直接使用后端字段格式
+  form.flowList = flowList.map((flow) => {
+    // 处理 check_uids：可能是字符串或数组
+    let check_uids = [];
+    if (flow.check_uids) {
+      if (Array.isArray(flow.check_uids)) {
+        check_uids = flow.check_uids;
+      } else if (typeof flow.check_uids === "string") {
+        check_uids = flow.check_uids.split(",").map(id => Number(id.trim()));
+      }
+    }
+    return {
+      check_role: flow.check_role || "",
+      check_uids: check_uids,
+      check_position_id: flow.check_position_id || "",
+      check_types: flow.check_types ? Number(flow.check_types) : 1,
+    };
+  });
 
   isEdit.value = true;
   dialogVisible.value = true;
@@ -476,19 +486,21 @@ function openView(data) {
   // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  // 将 departmentIds 字符串转换为数组
+  // 将 departmentIds 字符串转换为数组（转换为数字）
   form.departmentIds = data.departmentIds
     ? Array.isArray(data.departmentIds)
-      ? data.departmentIds
-      : data.departmentIds.split(",")
+      ? data.departmentIds.map(id => Number(id))
+      : data.departmentIds.split(",").map(id => Number(id.trim()))
     : [];
   form.cateId = data.cateId || "";
   form.remark = data.remark || "";
-  form.checkType = data.checkType || "";
+  // 确保 checkType 是字符串类型
+  form.checkType = data.checkType ? String(data.checkType) : "";
+  // 将 copyUids 字符串转换为数字数组
   form.copyUids = data.copyUids
     ? Array.isArray(data.copyUids)
-      ? data.copyUids
-      : data.copyUids.split(",")
+      ? data.copyUids.map(id => Number(id))
+      : data.copyUids.split(",").map(id => Number(id.trim())).filter(id => !isNaN(id))
     : [];
   // 解析 flowList
   const flowList = data.flowList
@@ -496,15 +508,24 @@ function openView(data) {
       ? JSON.parse(data.flowList)
       : data.flowList
     : [];
-  // 确保 approvalMode 是字符串类型，并映射字段名
-  form.flowList = flowList.map((flow) => ({
-    step: flow.step || "",
-    type: flow.type || flow.checkType || flow.approverType || "", // 兼容旧字段 checkType/approverType
-    user_ids: flow.user_ids || flow.userIds || [], // 兼容旧字段 userIds
-    name: flow.name || "",
-    roleId: flow.roleId || flow.postId || "", // 兼容旧字段 postId
-    approvalMode: flow.approvalMode ? String(flow.approvalMode) : "1",
-  }));
+  // 直接使用后端字段格式
+  form.flowList = flowList.map((flow) => {
+    // 处理 check_uids：可能是字符串或数组
+    let check_uids = [];
+    if (flow.check_uids) {
+      if (Array.isArray(flow.check_uids)) {
+        check_uids = flow.check_uids;
+      } else if (typeof flow.check_uids === "string") {
+        check_uids = flow.check_uids.split(",").map(id => Number(id.trim()));
+      }
+    }
+    return {
+      check_role: flow.check_role || "",
+      check_uids: check_uids,
+      check_position_id: flow.check_position_id || "",
+      check_types: flow.check_types ? Number(flow.check_types) : 1,
+    };
+  });
 
   isView.value = true;
   dialogVisible.value = true;
@@ -515,6 +536,13 @@ function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
       const userStore = useUserStore();
+      // 转换 flowList 中的 check_uids 为逗号分隔字符串
+      const submitFlowList = form.flowList.map((flow) => ({
+        check_role: flow.check_role,
+        check_uids: Array.isArray(flow.check_uids) ? flow.check_uids.join(",") : flow.check_uids,
+        check_position_id: flow.check_position_id,
+        check_types: flow.check_types,
+      }));
       // 将 copyUids 数组转换为以逗号分隔的字符串
       const submitData = {
         ...form,
@@ -528,7 +556,7 @@ function handleSubmit() {
           ? form.departmentIds.join(",")
           : form.departmentIds + "",
         // 将 flowList 转换为 JSON 字符串
-        flowList: JSON.stringify(form.flowList),
+        flowList: JSON.stringify(submitFlowList),
       };
 
       const apiMethod = isEdit.value ? updateFlow : addFlow;

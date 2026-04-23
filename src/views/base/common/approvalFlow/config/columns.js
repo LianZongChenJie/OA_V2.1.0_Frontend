@@ -27,14 +27,14 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'departmentIds',
+    fieldName: 'departmentNames',
     label: '应用部门',
     width: "15%",
     minWidth: 200,
     align: 'center',
   },
   {
-    fieldName: 'copyUids',
+    fieldName: 'copyNames',
     label: '抄送人',
     width: "15%",
     minWidth: 200,
