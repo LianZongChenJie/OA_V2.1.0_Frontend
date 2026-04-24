@@ -36,7 +36,7 @@ const searchEnum = ref({
   userList: []
 });
 
-// 终极修复：强制解析 rewardDate 数组
+
 const handleBeforeSearch = (params) => {
   console.log('处理前参数：', params);
 
@@ -48,7 +48,7 @@ const handleBeforeSearch = (params) => {
     if (Array.isArray(params.rewardDate)) {
       arr = params.rewardDate;
     }
-    // 如果是字符串 [2026-04-17,2026-04-24]
+    // 如果是字符串
     else if (typeof params.rewardDate === 'string') {
       arr = params.rewardDate.replace(/[\[\]]/g, '').split(',');
     }

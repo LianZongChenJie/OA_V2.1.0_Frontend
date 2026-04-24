@@ -41,7 +41,6 @@ function handleAdd() {
 
 /** 编辑按钮操作 */
 async function handleEdit(row) {
-  // 获取详情数据
   const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openEdit(res.data || res);
@@ -50,7 +49,6 @@ async function handleEdit(row) {
 
 /** 查看按钮操作 */
 async function handleView(row) {
-  // 获取详情数据
   const res = await getDetail(row.id);
   if (res) {
     addDialogRef.value.openView(res.data || res);

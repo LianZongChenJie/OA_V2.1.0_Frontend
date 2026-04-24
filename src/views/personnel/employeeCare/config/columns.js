@@ -45,6 +45,7 @@ export const columns = [
     label: '员工',
     width: "10%",
     minWidth: 120,
+    align: 'center',
     searchable: {
       type: 'selectApi',
       api: listUser,
@@ -66,7 +67,7 @@ export const columns = [
       api: getPageList,
       optionValue: 'id',
       optionLabel: 'title',
-      fieldName: 'rewardsCate',
+      fieldName: 'careCate',
       label: '关怀项目',
       placeholder: '请选择',
       order: 2,
@@ -76,16 +77,18 @@ export const columns = [
   fieldName: 'careTime',
   label: '关怀日期',
   width: "12%",
-  minWidth: 140,
+  minWidth: 100,
+  align: 'center',
   format: (val) => val?.split(' ')[0] || '', 
   searchable: {
     type: 'dateRange',
     fieldName: 'rewardDate',
+    searchKey: ['beginTime','endTime'],
     label: '关怀日期',
     placeholder: '请选择',
-    order: 4,
+    order: 4
+    },
   },
-},
   {
     fieldName: 'cost',
     label: '金额(元)',
@@ -100,7 +103,7 @@ export const columns = [
     minWidth: 120,
     searchable: {
       type: 'input',
-      fieldName: 'keyword',
+      fieldName: 'thing',
       placeholder: '请输入',
       label: '关键字',
       order: 5,
@@ -111,12 +114,14 @@ export const columns = [
     label: '创建人',
     width: "10%",
     minWidth: 120,
+    align: 'center',
   },
   {
     fieldName: 'createTime',
     label: '创建时间',
     width: "15%",
     minWidth: 180,
+    align: 'center',
   },
 ];
 

@@ -135,14 +135,14 @@
           <el-date-picker
             v-model="form.trialEndTime"
             type="date"
-            value-format="timestamp"
+            value-format="YYYY-MM-DD"
             :disabled="isView"
             style="width:100%"
             placeholder="请选择试用期结束日期"
           />
         </el-form-item>
 
-        <el-form-item label="试用工资" prop="trialSalary">
+        <el-form-item label="试用工资" prop="trialSalary" required>
           <el-input
             v-model="form.trialSalary"
             :disabled="isView"
@@ -151,7 +151,7 @@
           />
         </el-form-item>
 
-        <el-form-item label="转正工资" prop="workerSalary">
+        <el-form-item label="转正工资" prop="workerSalary" required>
           <el-input
             v-model="form.workerSalary"
             :disabled="isView"
@@ -163,7 +163,7 @@
 
       <!-- 劳务/实习专属 -->
       <template v-if="form.cate === 2 || form.cate === 3">
-        <el-form-item label="工资费用" prop="workerSalary">
+        <el-form-item label="工资费用" prop="workerSalary" required>
           <el-input
             v-model="form.workerSalary"
             :disabled="isView"
@@ -206,6 +206,8 @@ import { ElMessage } from "element-plus";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from '@/api/base/common/businessEntity/index.js';
 import { addDeptChange, updateDeptChange } from "@/api/personnel/employeeContract/index.js";
+
+const emit = defineEmits(["success"]);
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
@@ -254,8 +256,48 @@ const rules = {
   startTime: [{ required: true, message: "请选择生效时间" }],
   endTime: [{ required: true, message: "请选择失效时间" }],
   trialMonths: [{ pattern: /^[1-9]\d*$/, message: "试用月数必须是正整数" }],
-  trialSalary: [{ pattern: /^(?!0+(?:\.0+)?$)\d+(?:\.\d{1,2})?$/, message: "请输入正数，可带小数" }],
-  workerSalary: [{ pattern: /^(?!0+(?:\.0+)?$)\d+(?:\.\d{1,2})?$/, message: "请输入正数，可带小数" }],
+  trialSalary: [{ required: true, message: "请输入工资费用" },
+    { 
+      validator: (rule, value, callback) => {
+        if (value === '' || value === null || value === undefined) {
+          callback();
+          return;
+        }
+        const num = Number(value);
+        if (isNaN(num)) {
+          callback(new Error('请输入数字'));
+        } else if (num <= 0) {
+          callback(new Error('工资必须大于0'));
+        } else if (!Number.isInteger(num) && !/^\d+(\.\d{1,2})?$/.test(value)) {
+          callback(new Error('最多保留两位小数'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
+  workerSalary: [{ required: true, message: "请输入工资费用" },
+    { 
+      validator: (rule, value, callback) => {
+        if (value === '' || value === null || value === undefined) {
+          callback();
+          return;
+        }
+        const num = Number(value);
+        if (isNaN(num)) {
+          callback(new Error('请输入数字'));
+        } else if (num <= 0) {
+          callback(new Error('工资必须大于0'));
+        } else if (!Number.isInteger(num) && !/^\d+(\.\d{1,2})?$/.test(value)) {
+          callback(new Error('最多保留两位小数'));
+        } else {
+          callback();
+        }
+      },
+      trigger: 'blur'
+    }
+  ],
 };
 
 onMounted(() => {
@@ -297,7 +339,6 @@ function handleClose() {
 // 新增时 cate 传数字
 function open(category) {
   reset();
-  // 如果是文字，转换为数字；如果已经是数字，直接使用
   if (typeof category === 'string') {
     form.cate = categoryMap[category];
   } else {
@@ -308,34 +349,79 @@ function open(category) {
 
 function openEdit(data) {
   reset();
-  Object.assign(form, data);
+  // 只复制需要的字段，排除多余字段
+  form.id = data.id;
+  form.cate = data.cate;
+  form.types = data.types;
+  form.uid = data.uid;
+  form.enterpriseId = data.enterpriseId;
+  form.title = data.title;
+  form.code = data.code;
+  form.signTime = data.signTime;
+  form.startTime = data.startTime;
+  form.endTime = data.endTime;
+  form.trialMonths = data.trialMonths;
+  form.trialEndTime = data.trialEndTime;
+  form.trialSalary = data.trialSalary;
+  form.workerSalary = data.workerSalary;
+  form.remark = data.remark;
+  
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
 function openView(data) {
   reset();
-  Object.assign(form, data);
+  // 只复制需要的字段，排除多余字段
+  form.id = data.id;
+  form.cate = data.cate;
+  form.types = data.types;
+  form.uid = data.uid;
+  form.enterpriseId = data.enterpriseId;
+  form.title = data.title;
+  form.code = data.code;
+  form.signTime = data.signTime;
+  form.startTime = data.startTime;
+  form.endTime = data.endTime;
+  form.trialMonths = data.trialMonths;
+  form.trialEndTime = data.trialEndTime;
+  form.trialSalary = data.trialSalary;
+  form.workerSalary = data.workerSalary;
+  form.remark = data.remark;
+  
   isView.value = true;
   dialogVisible.value = true;
 }
+
+// 构建提交数据（新增和编辑使用相同的结构）
+const buildSubmitData = () => {
+  return {
+    cate: parseInt(form.cate) || 1,
+    types: parseInt(form.types) || 1,
+    uid: parseInt(form.uid) || 0,
+    enterpriseId: parseInt(form.enterpriseId) || 0,
+    title: form.title || "",
+    code: form.code || "",
+    signTime: form.signTime || "",
+    startTime: form.startTime || "",
+    endTime: form.endTime || "",
+    trialMonths: parseInt(form.trialMonths) || 1,
+    trialEndTime: form.trialEndTime || "",
+    trialSalary: form.trialSalary || "",
+    workerSalary: form.workerSalary || "",
+    remark: form.remark || ""
+  };
+};
 
 async function handleSubmit() {
   const valid = await formRef.value?.validate();
   if (!valid) return;
 
-  const submitData = {
-    ...form,
-    uid: Number(form.uid),
-    types: Number(form.types),
-    enterpriseId: Number(form.enterpriseId),
-    cate: Number(form.cate),
-    trialMonths: Number(form.trialMonths),
-    trialEndTime: form.trialEndTime ? Number(form.trialEndTime) : null,
-  };
-
-  if (isEdit.value) {
-    delete submitData.createTime;
+  const submitData = buildSubmitData();
+  
+  // 编辑时添加 id
+  if (isEdit.value && form.id) {
+    submitData.id = form.id;
   }
   
   try {
@@ -349,11 +435,10 @@ async function handleSubmit() {
     emit("success");
   } catch (err) {
     console.error('提交失败:', err);
-    ElMessage.error("操作失败");
+    ElMessage.error(err.msg || "操作失败");
   }
 }
 
-const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
 

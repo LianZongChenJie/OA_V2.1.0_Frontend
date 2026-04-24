@@ -32,9 +32,9 @@
       </el-form-item>
 
       <!-- 工作类别 → 从接口获取 -->
-      <el-form-item label="工作类别" prop="workCategory" required>
+      <el-form-item label="工作类别" prop="cid" required>
         <el-select 
-          v-model="form.workCategory" 
+          v-model="form.cid" 
           :disabled="isView" 
           placeholder="请选择工作类别" 
           filterable 
@@ -51,17 +51,17 @@
       </el-form-item>
 
       <!-- 工作类型 -->
-      <el-form-item label="工作类型" prop="workType" required>
-        <el-radio-group v-model="form.workType" :disabled="isView">
+      <el-form-item label="工作类型" prop="laborType" required>
+        <el-radio-group v-model="form.laborType" :disabled="isView">
           <el-radio :label="1">案头工作</el-radio>
           <el-radio :label="2">外勤工作</el-radio>
         </el-radio-group>
       </el-form-item>
 
       <!-- 工作内容 -->
-      <el-form-item label="工作内容" prop="workContent" required>
+      <el-form-item label="工作内容" prop="title" required>
         <el-input 
-          v-model="form.workContent" 
+          v-model="form.title" 
           type="textarea"
           :rows="3"
           placeholder="请输入工作内容" 
@@ -109,25 +109,30 @@ const workCateOptions = ref([]);
 
 const form = reactive({
   id: undefined,
-  timeRange: [],
-  workType: 1,        // 1-案头工作，2-外勤工作
-  workCategory: null, // 存 ID
-  workContent: "",
-  remark: ""
+  timeRange: [],   
+  laborType: 1,   
+  cid: null,         
+  title: "",       
+  remark: "",    
+  tid: null,         
+  ptid: 0,           
+  cmid: 0,          
+  did: null,          
+  adminId: 0          
 });
 
 // ========== 计算属性 ==========
 const dialogTitle = computed(() => {
   if (isView.value) return "查看工时记录";
-  return "编辑工时记录";
+  return isEdit.value ? "编辑工时记录" : "添加工时记录";
 });
 
 // ========== 表单校验 ==========
 const rules = {
   timeRange: [{ required: true, message: "请选择时间范围", trigger: "change" }],
-  workType: [{ required: true, message: "请选择工作类型", trigger: "change" }],
-  workCategory: [{ required: true, message: "请选择工作类别", trigger: "change" }],
-  workContent: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
+  laborType: [{ required: true, message: "请选择工作类型", trigger: "change" }],
+  cid: [{ required: true, message: "请选择工作类别", trigger: "change" }],
+  title: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
 };
 
 // ========== 加载工作类别 ==========
@@ -156,61 +161,75 @@ const toSeconds = (dateStr) => {
   return null;
 };
 
-const formatTime = (ts) => {
-  if (!ts) return "";
-  let date;
-  if (typeof ts === "number") {
-    const timeMs = ts.toString().length === 10 ? ts * 1000 : ts;
-    date = new Date(timeMs);
-  } else if (typeof ts === "string") {
-    date = new Date(ts);
-    if (isNaN(date.getTime())) date = new Date(ts.replace(/-/g, "/"));
-  } else if (ts instanceof Date) {
-    date = ts;
-  } else {
-    return "";
-  }
-  if (isNaN(date.getTime())) return "";
+
+const formatTimestampToDateTime = (timestamp) => {
+  if (!timestamp) return "";
+  const date = new Date(timestamp * 1000);
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   const hours = String(date.getHours()).padStart(2, "0");
   const minutes = String(date.getMinutes()).padStart(2, "0");
-  return `${year}-${month}-${day} ${hours}:${minutes}`;
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 // ========== 提交 ==========
-const handleSubmit = () => {
-  formRef.value.validate((valid) => {
+const handleSubmit = async () => {
+  try {
+    const valid = await formRef.value.validate();
     if (!valid) return;
 
     const [startTimeStr, endTimeStr] = form.timeRange || [];
     const startTime = toSeconds(startTimeStr);
     const endTime = toSeconds(endTimeStr);
-    const workHour = startTime && endTime ? ((endTime - startTime) / 3600).toFixed(2) : 0;
+    
+    if (!startTime || !endTime) {
+      ElMessage.error("请正确选择时间范围");
+      return;
+    }
+    
+    if (endTime <= startTime) {
+      ElMessage.error("结束时间必须大于开始时间");
+      return;
+    }
+    
+    const laborTime = ((endTime - startTime) / 3600).toFixed(2);
 
-    // 提交给后端的字段
+    // 提交给后端的字段（使用下划线命名）
     const data = {
-      id: form.id,
-      startTime,
-      endTime,
-      workHour,
-      workType: form.workType,        // 1-案头工作，2-外勤工作
-      workCategory: form.workCategory,
-      workContent: form.workContent,
-      remark: form.remark
+      start_time: startTime,
+      end_time: endTime,
+      labor_time: laborTime,
+      labor_type: form.laborType,
+      cid: form.cid,
+      title: form.title,
+      remark: form.remark,
+      tid: form.tid,
+      ptid: form.ptid || 0,
+      cmid: form.cmid || 0,
+      admin_id: 0
     };
+    
+    if (form.id) {
+      data.id = form.id;
+    }
+    
+    if (!form.id && form.did) {
+      data.did = form.did;
+    }
 
-    // 根据是否有 id 判断是新增还是编辑
+
     const api = form.id ? updateWorkHour : addWorkHour;
-    api(data)
-      .then(() => {
-        ElMessage.success(form.id ? "编辑成功" : "添加成功");
-        handleClose();
-        emit("success");
-      })
-      .catch((e) => console.error("提交失败", e));
-  });
+    await api(data);
+    
+    ElMessage.success(form.id ? "编辑成功" : "添加成功");
+    handleClose();
+    emit("success");
+  } catch (err) {
+    console.error("提交失败:", err);
+    ElMessage.error(err.msg || err.message || "操作失败");
+  }
 };
 
 // ========== 重置 / 关闭 ==========
@@ -218,10 +237,15 @@ const resetForm = () => {
   Object.assign(form, {
     id: undefined,
     timeRange: [],
-    workType: 1,
-    workCategory: null,
-    workContent: "",
-    remark: ""
+    laborType: 1,
+    cid: null,
+    title: "",
+    remark: "",
+    tid: null,
+    ptid: 0,
+    cmid: 0,
+    did: null,
+    adminId: 0
   });
   isEdit.value = false;
   isView.value = false;
@@ -233,46 +257,68 @@ const handleClose = () => {
   dialogVisible.value = false;
 };
 
-// ========== 打开编辑 / 查看 ==========
-const openEdit = (row) => {
+// ========== 打开新增 ==========
+const open = (taskId, projectId, deptId) => {
   resetForm();
-  loadWorkCate(); // 每次打开重新拉取最新类别
+  loadWorkCate();
+  form.tid = taskId;
+  form.ptid = projectId || 0;
+  form.did = deptId || null;
+  dialogVisible.value = true;
+};
 
-  Object.assign(form, {
-    id: row.id,
-    workType: row.workType || 1,
-    workCategory: row.workCategory,
-    workContent: row.workContent || "",
-    remark: row.remark || ""
-  });
+// ========== 打开编辑 ==========
+const openEdit = (row) => {
+  console.log("编辑接收到的数据:", row);
+  
+  resetForm();
+  loadWorkCate();
 
-  if (row.startTime && row.endTime) {
-    form.timeRange = [formatTime(row.startTime), formatTime(row.endTime)];
+  const data = row;
+  
+  if (!data.id) {
+    console.error("数据中没有 id 字段:", data);
+    ElMessage.error("数据格式错误，无法编辑");
+    return;
+  }
+
+
+  form.id = data.id;
+  form.laborType = data.labor_type || 1;
+  form.cid = data.cid;
+  form.title = data.title || "";
+  form.remark = data.remark || "";
+  form.tid = data.tid;
+  form.ptid = data.ptid || 0;
+  form.cmid = data.cmid || 0;
+
+  
+
+  const startTime = data.start_time;
+  const endTime = data.end_time;
+  
+  console.log("原始时间戳:", { startTime, endTime });
+  
+  if (startTime && endTime && startTime !== 0 && endTime !== 0) {
+    const startStr = formatTimestampToDateTime(startTime);
+    const endStr = formatTimestampToDateTime(endTime);
+    form.timeRange = [startStr, endStr];
+    console.log("时间范围设置:", form.timeRange);
+  } else {
+    console.warn("时间戳不存在或为0，无法设置时间范围");
+    form.timeRange = [];
   }
 
   isEdit.value = true;
   dialogVisible.value = true;
 };
 
+// ========== 打开查看 ==========
 const openView = (row) => {
+  console.log("查看接收到的数据:", row);
   openEdit(row);
   isView.value = true;
 };
 
-defineExpose({ openEdit, openView });
+defineExpose({ open, openEdit, openView });
 </script>
-
-<style>
-.work-hour-dialog.el-dialog {
-  max-height: 85vh;
-  display: flex;
-  flex-direction: column;
-}
-.work-hour-dialog .el-dialog__body {
-  overflow-y: auto;
-}
-.work-hour-dialog .el-form-item__label {
-  white-space: nowrap !important;
-  overflow: visible !important;
-}
-</style>

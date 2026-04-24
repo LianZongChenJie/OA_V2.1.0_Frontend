@@ -1,3 +1,4 @@
+import { listUser } from '@/api/system/user.js';
 
 export const queryForm = {
   contractStatus: '',   
@@ -27,30 +28,31 @@ export const columns = [
     slotName: 'status',
     searchable: {
       type: 'select',
-      fieldName: 'contractStatus',
+      fieldName: 'status',
       label: '合同状态',
       placeholder: '请选择',
       order: 1,
       options: [
-        { label: '未到期', value: 1 },
-        { label: '已到期', value: 0 }
+        { label: '正常', value: 1 },
+        { label: '已到期', value: 2 }
       ]
     },
   },
   {
-    fieldName: 'empName',
+    fieldName: 'userName',
     label: '员工',
     width: "8%",
     minWidth: 120,
+    align: 'center',
     searchable: {
-      type: 'select',
-      fieldName: 'signEmp',
-      label: '签订员工',
-      placeholder: '请选择人员',
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userId',
+      optionLabel: 'nickName',
+      fieldName: 'uid',
+      placeholder: '请选择员工',
+      label: '员工',
       order: 5,
-      api: () => import('@/api/system/user.js').then(m => m.listUser({ pageSize: 1000 })),
-      labelField: 'userName',
-      valueField: 'userId',
     },
   },
   {
@@ -66,15 +68,15 @@ export const columns = [
     minWidth: 120,
     searchable: {
       type: 'select',
-      fieldName: 'contractCategory',
+      fieldName: 'cate',
       label: '合同类别',
       placeholder: '请选择',
       order: 2,
       options: [
-        { label: '劳动合同', value: '劳动合同' },
-        { label: '劳务合同', value: '劳务合同' },
-        { label: '实习协议', value: '实习协议' },
-        { label: '保密协议', value: '保密协议' },
+        { label: '劳动合同', value: '1' },
+        { label: '劳务合同', value: '2' },
+        { label: '实习协议', value: '3' },
+        { label: '保密协议', value: '4' },
       ]
     },
   },
@@ -83,30 +85,25 @@ export const columns = [
     label: '合同类型',
     width: "10%",
     minWidth: 120,
+    align: 'center',
     searchable: {
       type: 'select',
-      fieldName: 'contractType',
+      fieldName: 'types',
       label: '合同类型',
       placeholder: '请选择',
       order: 3,
       options: [
-        { label: '新签合同', value: '新签合同' },
-        { label: '续签合同', value: '续签合同' }
+        { label: '新签合同', value: '1' },
+        { label: '续签合同', value: '2' },
+        { label: '合同变更', value: '3' }
       ]
     },
   },
-    {
+  {
     fieldName: 'enterpriseName',
     label: '签约主体公司',
-    width: "10%",
-    minWidth: 120,
-      searchable: {
-      type: 'input',
-      fieldName: 'keyword',
-      placeholder: '请输入',
-      label: '关键字',
-      order: 7,
-    },
+    width: "25%",
+    minWidth: 200,
   },
   {
     fieldName: 'signTime',
@@ -118,43 +115,48 @@ export const columns = [
     searchable: {
       type: 'dateRange',
       fieldName: 'signDate',
+      searchKey: ['beginTime','endTime'],
       label: '签订日期',
       placeholder: '请选择',
       order: 4,
     },
   },
   {
-    fieldName: 'validPeriod',
+    fieldName: 'workTimeRange',
     label: '合同有效期间',
-    width: "15%",
-    minWidth: 180,
+    width: "25%",
+    minWidth: 200,
     align: 'center',
+    slot: true,
+    slotName: 'workTimeRange',
   },
+  // {
+  //   fieldName: 'renewalStatus',
+  //   label: '续签状态',
+  //   width: "8%",
+  //   minWidth: 100,
+  //   align: 'center',
+  // },
+  // {
+  //   fieldName: 'changeStatus',
+  //   label: '变更状态',
+  //   width: "8%",
+  //   minWidth: 100,
+  //   align: 'center',
+  // },
   {
-    fieldName: 'renewStatus',
-    label: '续签状态',
-    width: "8%",
-    minWidth: 100,
-    align: 'center',
-  },
-  {
-    fieldName: 'changeStatus',
-    label: '变更状态',
-    width: "8%",
-    minWidth: 100,
-    align: 'center',
-  },
-  {
-    fieldName: 'createBy',
+    fieldName: 'adminName',
     label: '创建人',
     width: "10%",
     minWidth: 120,
+    align: 'center',
   },
   {
     fieldName: 'createTime',
     label: '创建时间',
     width: "15%",
     minWidth: 180,
+    align: 'center',
   },
 ];
 

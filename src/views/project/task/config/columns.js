@@ -47,6 +47,19 @@ export const columns = [
       ]
     },
   },
+    {
+    fieldName: 'title',
+    label: '任务主题',
+    minWidth: 200,
+    align: 'center',
+    searchable: {
+      type: 'input',
+      fieldName: 'keywords',
+      placeholder: '请输入任务主题/描述内容',
+      label: '关键字',
+      order: 6,
+    },
+  },
   {
     fieldName: 'priorityName',
     label: '优先级',
@@ -124,19 +137,6 @@ export const columns = [
     },
   },
   {
-    fieldName: 'title',
-    label: '任务主题',
-    minWidth: 200,
-    align: 'center',
-    searchable: {
-      type: 'input',
-      fieldName: 'keywords',
-      placeholder: '请输入任务主题/描述内容',
-      label: '关键字',
-      order: 6,
-    },
-  },
-  {
     fieldName: 'directorName',
     label: '协作人',
     width: "15%",
@@ -153,8 +153,8 @@ export const columns = [
   {
   fieldName: 'endTimeStr',  
   label: '预计结束日期',
-  width: "25%", 
-  minWidth: 200,
+  width: "20%", 
+  minWidth: 180,
   align: 'center',
 },
 ];

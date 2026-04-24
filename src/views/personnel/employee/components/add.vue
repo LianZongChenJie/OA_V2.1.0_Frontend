@@ -120,7 +120,7 @@
   </style>  
 
   <style>
-  /* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
+
   .approval-module-dialog .el-dialog {
     max-height: 88vh;
     display: flex;
