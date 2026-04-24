@@ -33,7 +33,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '报销员工',
     width: "10%",
     minWidth: 100,
@@ -49,7 +49,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'did',
+    fieldName: 'deptName',
     label: '报销部门',
     width: "10%",
     minWidth: 100,
@@ -102,7 +102,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'payAdminId',
+    fieldName: 'payName',
     label: '打款人',
     width: "10%",
     minWidth: 80,

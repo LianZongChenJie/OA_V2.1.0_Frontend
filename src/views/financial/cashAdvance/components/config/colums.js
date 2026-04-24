@@ -80,7 +80,7 @@ export const columns = [
     minWidth: 110,
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '借支员工',
     width: 120,
     minWidth: 100,
@@ -96,7 +96,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'did',
+    fieldName: 'deptName',
     label: '借支部门',
     width: 120,
     minWidth: 100,
@@ -135,7 +135,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'payAdminId',
+    fieldName: 'payName',
     label: '打款人',
     width: 100,
     minWidth: 80,
@@ -162,10 +162,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onBack, currentUserId) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onBack, onPay, currentUserId) => {
   return {
     label: '操作',
-    width: 240,
+    width: 280,
     fixed: 'right',
     show: true,
     actions: [
@@ -197,6 +197,16 @@ export const getOperationColumn = (onEdit, onView, onDelete, onBack, currentUser
           onDelete && onDelete(row);
         },
         icon: 'delete',
+      },
+      {
+        label: '打款',
+        type: 'warning',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.payStatus) === 0,
+        onClick: (row) => {
+          onPay && onPay(row);
+        },
+        icon: 'money',
       },
       {
         label: '还款',

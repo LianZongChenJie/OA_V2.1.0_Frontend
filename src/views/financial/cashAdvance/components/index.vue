@@ -35,7 +35,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del, back } from "@/api/financial/cashAdvance";
+import { getPageList, getDetail, del, back, pay } from "@/api/financial/cashAdvance";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import useUserStore from "@/store/modules/user";
@@ -112,8 +112,20 @@ async function handleBack(row) {
   }
 }
 
+/** 打款按钮操作 */
+async function handlePay(row) {
+  try {
+    await proxy.$modal.confirm('确认打款吗？');
+    await pay({ id: row.id });
+    proxy.$modal.msgSuccess("打款成功");
+    handleSuccess();
+  } catch (e) {
+    console.error('打款失败', e);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleBack, userStore.id);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleBack, handlePay, userStore.id);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
