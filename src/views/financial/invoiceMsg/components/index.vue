@@ -103,8 +103,20 @@ async function handleOpen(row) {
   }
 }
 
+/** 作废按钮操作 */
+async function handleInvalidate(row) {
+  try {
+    await proxy.$modal.confirm('确认作废吗？');
+    await updateStatus({ id: row.id, openStatus: 2 });
+    proxy.$modal.msgSuccess("操作成功");
+    handleSuccess();
+  } catch (e) {
+    console.error('操作失败', e);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen,handleInvalidate);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

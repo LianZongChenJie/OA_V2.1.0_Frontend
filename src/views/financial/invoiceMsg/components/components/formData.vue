@@ -168,20 +168,6 @@
     <!-- 其他信息 -->
     <div class="form-section-title">其他信息</div>
 
-    <!-- 第七行：部门 -->
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-form-item label="部门">
-          <el-input
-            v-model="deptName"
-            placeholder="当前登录用户所在部门"
-            disabled
-            style="width: 100%"
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
-
     <!-- 第八行：关联合同 + 关系项目 -->
     <el-row :gutter="20">
       <el-col :span="12">
@@ -405,6 +391,7 @@ function setCurrentUserInfo() {
     deptId: userStore.deptId || ""
   };
   form.adminId = currentUserInfo.value.userId;
+  form.adminName = userStore.nickName || "";
   form.did = currentUserInfo.value.deptId;
   deptName.value = userStore.deptName || "";
 }

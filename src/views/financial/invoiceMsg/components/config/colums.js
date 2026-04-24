@@ -59,6 +59,7 @@ export const columns = [
     label: '申请员工',
     width: 120,
     minWidth: 100,
+    show: false,
     searchable: {
       type: 'selectApi',
       api: listUser,
@@ -75,6 +76,7 @@ export const columns = [
     label: '申请部门',
     width: 120,
     minWidth: 100,
+    show: false,
   },
   {
     fieldName: 'createTime',
@@ -106,7 +108,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'openAdminId',
+    fieldName: 'openName',
     label: '开票人',
     width: 100,
     minWidth: 80,
@@ -130,7 +132,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onOpen) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onOpen,onInvalidate) => {
   return {
     label: '操作',
     width: 240,
@@ -174,7 +176,17 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen) => {
         onClick: (row) => {
           onOpen && onOpen(row);
         },
-        icon: 'document',
+        icon: 'documentation',
+      },
+      {
+        label: '作废',
+        type: 'danger',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus)  === 1,
+        onClick: (row) => {
+          onInvalidate && onInvalidate(row);
+        },
+        icon: 'delete',
       },
     ],
   };
