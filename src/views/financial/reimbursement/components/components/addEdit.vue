@@ -76,10 +76,28 @@ function handleSubmit() {
     if (valid) {
       const formData = formDataRef.value?.getFormData();
 
-      // 将数组转换为后端需要的格式
+      // 转换为后端需要的扁平化格式
       const submitData = {
-        ...formData,
+        adminId: formData.info.adminId,
+        did: formData.info.did,
+        subjectId: formData.info.subjectId,
+        code: formData.info.code,
+        expenseTime: formData.info.expenseTime,
+        incomeMonth: formData.info.incomeMonth,
+        projectId: formData.info.projectId,
+        loanId: formData.info.loanId,
+        interfix: formData.interfix.map(item => ({
+          amount: item.amount,
+          cateId: item.cateId,
+          remarks: item.remarks,
+          adminId: item.adminId
+        }))
       };
+
+      // 编辑时添加 id
+      if (isEdit.value && formData.id) {
+        submitData.id = formData.id;
+      }
 
       const apiMethod = isEdit.value ? edit : add;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";

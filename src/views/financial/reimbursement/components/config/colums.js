@@ -120,10 +120,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onPay) => {
   return {
     label: '操作',
-    width: 240,
+    width: 300,
     fixed: 'right',
     show: true,
     actions: [
@@ -145,6 +145,16 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
           onView && onView(row);
         },
         icon: 'eye-open',
+      },
+      {
+        label: '打款',
+        type: 'warning',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.payStatus) === 0,
+        onClick: (row) => {
+          onPay && onPay(row);
+        },
+        icon: 'money',
       },
       {
         label: '删除',

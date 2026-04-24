@@ -446,9 +446,10 @@ function setFormData(data) {
     loanId: data.loanId || "",
   };
 
-  // 处理报销明细数据
-  if (data.interfix && data.interfix.length > 0) {
-    form.interfix = data.interfix.map(item => ({
+  // 处理报销明细数据 - 兼容多种可能的字段名
+  const detailList = data.interfix || data.items || data.details || data.list || [];
+  if (detailList.length > 0) {
+    form.interfix = detailList.map(item => ({
       amount: item.amount,
       cateId: item.cateId,
       remarks: item.remarks,
@@ -460,7 +461,7 @@ function setFormData(data) {
         amount: undefined,
         cateId: "",
         remarks: "",
-        adminId: form.adminId
+        adminId: form.info.adminId
       }
     ];
   }

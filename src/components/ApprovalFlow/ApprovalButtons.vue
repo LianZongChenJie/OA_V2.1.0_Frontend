@@ -72,7 +72,7 @@ function handleSubmitApproval() {
 
   const checkCopyUids = props.approvalFlowRef?.getCopyUids?.() || [];
 
-  proxy.$modal.confirm("确认提交审批吗？").then(() => {
+  proxy.$modal.confirm("确认提交审批吗1？").then(() => {
     submitToFlow({
       content: "提交审批",
       actionId: info.id,

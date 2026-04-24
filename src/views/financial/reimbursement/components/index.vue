@@ -24,6 +24,7 @@ import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/financial/reimbursement";
+import { pay } from "@/api/finance/reimbursement";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -86,8 +87,20 @@ async function handleDelete(row) {
   }
 }
 
+/** 打款按钮操作 */
+async function handlePay(row) {
+  try {
+    await proxy.$modal.confirm('确认打款该报销吗？');
+    await pay({ id: row.id });
+    proxy.$modal.msgSuccess("打款成功");
+    handleSuccess();
+  } catch (e) {
+    console.error('打款失败', e);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handlePay);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

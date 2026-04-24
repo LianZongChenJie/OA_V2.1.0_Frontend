@@ -40,3 +40,11 @@ export function updateStatus(data) {
   })
 }
 
+// 打款接口
+export function pay(data) {
+  return request({
+    url: `/finance/expense/pay`,
+    method: 'put',
+    data
+  })
+}
