@@ -79,7 +79,7 @@ export const columns = [
     minWidth: 120,
   },
   {
-    fieldName: 'checkUids',
+    fieldName: 'checkName',
     label: '当前审核人',
     width: "10%",
     minWidth: 100,

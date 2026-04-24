@@ -55,7 +55,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '申请员工',
     width: 120,
     minWidth: 100,
@@ -71,7 +71,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'did',
+    fieldName: 'deptName',
     label: '申请部门',
     width: 120,
     minWidth: 100,
@@ -83,7 +83,7 @@ export const columns = [
     minWidth: 120,
   },
   {
-    fieldName: 'checkUids',
+    fieldName: 'checkName',
     label: '当前审核人',
     width: 120,
     minWidth: 100,

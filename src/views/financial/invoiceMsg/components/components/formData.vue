@@ -168,7 +168,21 @@
     <!-- 其他信息 -->
     <div class="form-section-title">其他信息</div>
 
-    <!-- 第七行：关联合同 + 关系项目 -->
+    <!-- 第七行：部门 -->
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="部门">
+          <el-input
+            v-model="deptName"
+            placeholder="当前登录用户所在部门"
+            disabled
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <!-- 第八行：关联合同 + 关系项目 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="关联合同" prop="contractId">
@@ -232,6 +246,7 @@ import { ref, reactive, getCurrentInstance, onMounted } from "vue";
 import { getPageList as getContractPageList } from "@/api/contract/salesContract";
 import { getPageList as getProjectPageList } from "@/api/project/itemList";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
+import { deptTreeSelect } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();
@@ -259,12 +274,16 @@ const formRef = ref(null);
 const contractOptions = ref([]);
 const projectOptions = ref([]);
 const enterpriseOptions = ref([]);
+const deptOptions = ref([]);
 
 // 当前登录用户信息
 const currentUserInfo = ref({
   userId: "",
   deptId: ""
 });
+
+// 当前登录用户部门名称
+const deptName = ref("");
 
 // 表单数据
 const form = reactive({
@@ -288,19 +307,19 @@ const form = reactive({
 });
 
 // 验证规则
-const rules = {
-  types: [{ required: true, message: "请选择抬头类型", trigger: "change" }],
-  invoiceType: [{ required: true, message: "请选择开票类型", trigger: "change" }],
-  invoiceTitle: [{ required: true, message: "请输入发票抬头", trigger: "blur" }],
-  invoiceTax: [{ required: true, message: "请输入纳税人识别号", trigger: "blur" }],
-  amount: [{ required: true, message: "请输入发票金额", trigger: "blur" }],
-  invoiceSubject: [{ required: true, message: "请选择开票主体", trigger: "change" }],
-  invoicePhone: [{ required: true, message: "请输入电话号码", trigger: "blur" }],
-  invoiceAddress: [{ required: true, message: "请输入地址", trigger: "blur" }],
-  invoiceBank: [{ required: true, message: "请输入开户行", trigger: "blur" }],
-  invoiceAccount: [{ required: true, message: "请输入银行账户", trigger: "blur" }],
-  invoiceBanking: [{ required: true, message: "请输入银行营业网点", trigger: "blur" }],
-};
+  const rules = {
+    types: [{ required: true, message: "请选择抬头类型", trigger: "change" }],
+    invoiceType: [{ required: true, message: "请选择开票类型", trigger: "change" }],
+    invoiceTitle: [{ required: true, message: "请输入发票抬头", trigger: "blur" }],
+    invoiceTax: [{ required: true, message: "请输入纳税人识别号", trigger: "blur" }],
+    amount: [{ required: true, message: "请输入发票金额", trigger: "blur" }],
+    invoiceSubject: [{ required: true, message: "请选择开票主体", trigger: "change" }],
+    invoicePhone: [{ required: true, message: "请输入电话号码", trigger: "blur" }],
+    invoiceAddress: [{ required: true, message: "请输入地址", trigger: "blur" }],
+    invoiceBank: [{ required: true, message: "请输入开户行", trigger: "blur" }],
+    invoiceAccount: [{ required: true, message: "请输入银行账户", trigger: "blur" }],
+    invoiceBanking: [{ required: true, message: "请输入银行营业网点", trigger: "blur" }],
+  };
 
 /** 获取合同列表 */
 function getContractList() {
@@ -320,6 +339,13 @@ function getProjectList() {
 function getEnterpriseList() {
   getEnterprisePageList({ pageNum: 1, pageSize: 20 }).then((response) => {
     enterpriseOptions.value = response.rows || [];
+  });
+}
+
+/** 获取部门树 */
+function getDeptTree() {
+  deptTreeSelect().then((response) => {
+    deptOptions.value = response.data || [];
   });
 }
 
@@ -363,7 +389,8 @@ function setFormData(data) {
   form.projectId = data.projectId || "";
   form.remark = data.remark || "";
   form.adminId = data.adminId || "";
-  form.did = data.did || "";
+  // did 始终设置为当前登录人所在的部门
+  form.did = currentUserInfo.value.deptId;
 }
 
 /** 获取表单数据 */
@@ -379,6 +406,7 @@ function setCurrentUserInfo() {
   };
   form.adminId = currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
+  deptName.value = userStore.deptName || "";
 }
 
 /** 初始化数据 */
@@ -387,6 +415,7 @@ onMounted(() => {
   getContractList();
   getProjectList();
   getEnterpriseList();
+  getDeptTree();
 });
 
 // 暴露方法给父组件
