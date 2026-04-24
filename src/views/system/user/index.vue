@@ -214,6 +214,19 @@
                 </template>
               </el-table-column>
               <el-table-column
+                label="部门负责人"
+                align="center"
+                key="isLeader"
+                v-if="columns.isLeader.visible"
+                width="100"
+              >
+                <template #default="scope">
+                  <el-tag :type="scope.row.isLeader === true ? 'success' : 'info'">
+                    {{ scope.row.isLeader === true ? '是' : '否' }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column
                 label="创建时间"
                 align="center"
                 prop="createTime"
@@ -299,8 +312,8 @@
     </el-row>
 
     <!-- 添加或修改用户配置对话框 -->
-    <el-dialog :title="title" v-model="open" width="600px" append-to-body>
-      <el-form :model="form" :rules="rules" ref="userRef" label-width="80px">
+    <el-dialog :title="title" v-model="open" width="60%" minWidth="600px" append-to-body>
+      <el-form :model="form" :rules="rules" ref="userRef" label-width="140px">
         <el-row>
           <el-col :span="12">
             <el-form-item label="员工姓名" prop="nickName">
@@ -389,12 +402,22 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
+            <el-form-item label="部门负责人">
+              <el-radio-group v-model="form.isLeader">
+                <el-radio :label="false">否</el-radio>
+                <el-radio :label="true">是</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
             <el-form-item label="状态">
               <el-radio-group v-model="form.status">
                 <el-radio
                   v-for="dict in sys_normal_disable"
                   :key="dict.value"
-                  :value="dict.value"
+                  :label="dict.value"
                   >{{ dict.label }}</el-radio
                 >
               </el-radio-group>
@@ -564,6 +587,7 @@ const columns = ref({
   deptName: { label: "部门", visible: true },
   phonenumber: { label: "手机号码", visible: true },
   status: { label: "状态", visible: true },
+  isLeader: { label: "部门负责人", visible: true },
   createTime: { label: "创建时间", visible: true },
 });
 
@@ -832,6 +856,7 @@ function reset() {
     phonenumber: undefined,
     email: undefined,
     sex: undefined,
+    isLeader: false,
     status: "0",
     remark: undefined,
     postIds: [],
@@ -865,6 +890,9 @@ function handleUpdate(row) {
     roleOptions.value = response.roles;
     form.value.postIds = response.postIds;
     form.value.roleIds = response.roleIds;
+    if (form.value.isLeader === undefined) {
+      form.value.isLeader = false;
+    }
     open.value = true;
     title.value = "修改用户";
     form.value.password = undefined;
