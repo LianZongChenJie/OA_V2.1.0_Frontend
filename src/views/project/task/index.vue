@@ -101,33 +101,30 @@ onMounted(() => {
 
 
 
+// 只显示逾期提示，不显示剩余天数/今日到期
 const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
   return rows.map(row => {
     let showText = row.endTimeStr || '-';
 
-    if (row.status === 3) {
-      showText = row.endTimeStr || '-';
-    } 
-    else if (row.endTimeStr) {
+
+    if (row.status !== 3 && row.endTimeStr) {
       const dateStr = row.endTimeStr.split(' ')[0];
       const end = new Date(dateStr.replace(/-/g, '/')).getTime();
       const now = Date.now();
       const diffDay = Math.ceil((end - now) / 86400000);
 
-      if (diffDay > 0) {
-        showText = `${row.endTimeStr}（剩余 ${diffDay} 天）`;
-      } else if (diffDay === 0) {
-        showText = `${row.endTimeStr}（今日到期）`;
-      } else {
+
+      if (diffDay < 0) {
         showText = `${row.endTimeStr}（逾期 ${Math.abs(diffDay)} 天）`;
       }
+
     }
 
     return {
       ...row,
-      endTimeStr: showText, 
+      endTimeStr: showText,
       statusText: statusMap[row.status] || "未知"
     };
   });

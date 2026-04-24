@@ -7,7 +7,11 @@
       :toolbar-buttons="headerButs"
       row-key="id"
       ref="tableList"
-    />
+    >
+      <template #workTimeRange="{ row }">
+        <span>{{ row.startTimeStr?.substring(0, 16) }} 至 {{ row.endTimeStr?.substring(0, 16) }}</span>
+      </template>
+    </TableList>
 
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
@@ -16,8 +20,6 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-
-// 使用 workingHour 接口
 import { getPageList, getDetail, deletereward } from "@/api/project/workingHour/index.js";
 
 // 表格配置

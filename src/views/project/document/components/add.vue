@@ -109,10 +109,10 @@ const uploadUrl = import.meta.env.VITE_APP_BASE_API + "/common/upload";
 // 精简表单
 const form = reactive({
   id: undefined,
-  title: "",        // 文件名称
-  projectId: "",    // 关联项目
-  content: "",      // 文件内容
-  fileIds: ""       // 附件ID（多个逗号分隔）
+  title: "",        
+  projectId: "",   
+  content: "",     
+  fileIds: ""      
 });
 
 // 加载项目列表

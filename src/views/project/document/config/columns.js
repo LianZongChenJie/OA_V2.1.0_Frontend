@@ -26,8 +26,8 @@ export const columns = [
       fieldName: 'keywords',
       placeholder: '请输入关键字',
       label: '关键字',
-      order: 6,
-      },
+      order: 2,
+    },
   },
   {
     fieldName: 'projectName',
@@ -36,14 +36,12 @@ export const columns = [
     minWidth: 180,
     align: 'center',
     searchable: {
-      type: 'selectApi',
-      api: getPageList,
-      optionValue: 'id',       
-      optionLabel: 'title',
-      fieldName: 'projectId',  
-      placeholder: '请选择所属项目',
+      type: 'select',
+      fieldName: 'projectId',
       label: '所属项目',
-      order: 4,
+      placeholder: '请选择所属项目',
+      order: 1,
+      options: [], 
     },
   },
   {
@@ -52,36 +50,24 @@ export const columns = [
     width: "12%",
     minWidth: 100,
     align: 'center',
+    searchable: {
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userId',
+      optionLabel: 'nickName',
+      fieldName: 'uid',
+      placeholder: '请选择创建人',
+      label: '请选择创建人',
+      order: 3,
+    },
   },
   {
-  fieldName: 'updateTime',
-  label: '创建时间',
-  width: "aotn",
-  minWidth: 180,
-  align: 'center',
-  formatter: (row) => {
-    let timestamp = row.create_time;
-    if (!timestamp) return '-';
-    
-    // 秒级时间戳（10位）转毫秒
-    if (String(timestamp).length === 10) {
-      timestamp = timestamp * 1000;
-    }
-    
-    const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return '-';
-    
-    // YYYY-MM-DD HH:mm:ss
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    fieldName: 'updateTimeStr',
+    label: '创建时间',
+    width: "auto",
+    minWidth: 100,
+    align: 'center',
   }
-}
 ];
 
 // 操作列
@@ -141,20 +127,10 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   ]
 });
 
-// 生成搜索字段
-export const searchFields = columns
-  .filter(col => col.searchable)
-  .map(col => ({
-    ...col.searchable,
-    field: col.searchable.fieldName || col.fieldName,
-  }))
-  .sort((a, b) => (a.order || 0) - (b.order || 0));
-
 export default {
   columns,
   operationColumn,
   getHeaderButs,
   getOperationColumn,
-  searchFields,
   queryForm
 };

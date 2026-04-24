@@ -39,7 +39,7 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
-// 编辑前先调用详情接口，拿到完整数据（含contactList）
+// 编辑前先调用详情接口，
 async function handleEdit(row) {
   const res = await getDetail(row.id);
   addDialogRef.value.openEdit(res.data);

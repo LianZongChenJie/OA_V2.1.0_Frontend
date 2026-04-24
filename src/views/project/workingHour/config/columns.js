@@ -7,7 +7,6 @@ export const queryForm = {
   keywords: ''
 };
 
-// 表格列配置 - 字段名与 formatTaskData 返回的字段保持一致
 export const columns = [
   {
     fieldName: 'id',
@@ -37,15 +36,11 @@ export const columns = [
     width: "18%",
     minWidth: 160,
     align: 'center',
-    formatter: (row) => {
-      if (!row.startTime || !row.endTime) return '-';
-      const start = formatDateTime(row.startTime, 'YYYY-MM-DD HH:mm');
-      const end = formatDateTime(row.endTime, 'HH:mm');
-      return `${start}至${end}`;
-    }
+    slot: true,  
+    slotName: 'workTimeRange'  
   },
   {
-    fieldName: 'executorName',
+    fieldName: 'adminName',
     label: '执行人',
     width: "10%",
     minWidth: 90,
@@ -55,34 +50,34 @@ export const columns = [
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',
-      fieldName: 'userIdFilter',
+      fieldName: 'uid',
       placeholder: '请选择员工',
       label: '请选择员工',
       order: 2,
     },
   },
   {
-    fieldName: 'workHour',
+    fieldName: 'laborTime',
     label: '工时',
     width: "6%",
     minWidth: 60,
     align: 'center',
   },
   {
-    fieldName: 'workContent',
+    fieldName: 'title',
     label: '工作内容',
     minWidth: 150,
     align: 'center',
     searchable: {
       type: 'input',
       fieldName: 'keywords',
-      placeholder: '关键字，输入工作内容',
+      placeholder: '关键字',
       label: '工作内容',
       order: 3,
     },
   },
   {
-    fieldName: 'taskName',
+    fieldName: 'taskTitle',
     label: '关联任务',
     minWidth: 150,
     align: 'center',
@@ -94,12 +89,11 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'recordTime',
+    fieldName: 'createTimeStr',
     label: '记录时间',
     width: "16%",
     minWidth: 140,
     align: 'center',
-    formatter: (row) => formatDateTime(row.recordTime, 'YYYY-MM-DD HH:mm:ss')
   }
 ];
 

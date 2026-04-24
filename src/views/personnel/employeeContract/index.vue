@@ -11,8 +11,23 @@
       row-key="id"
       ref="tableList"
     >
+      <!-- 合同状态插槽 -->
       <template #status="{ row }">
         <dict-tag :options="supplier_status" :value="row.status" />
+      </template>
+      
+      <!-- 合同有效期间插槽 -->
+      <template #workTimeRange="{ row }">
+        <span v-if="row.startTime && row.endTime">
+          {{ formatDate(row.startTime) }} 至 {{ formatDate(row.endTime) }}
+        </span>
+        <span v-else-if="row.start_time && row.end_time">
+          {{ formatDate(row.start_time) }} 至 {{ formatDate(row.end_time) }}
+        </span>
+        <span v-else-if="row.startTimeStr && row.endTimeStr">
+          {{ formatDate(row.startTimeStr) }} 至 {{ formatDate(row.endTimeStr) }}
+        </span>
+        <span v-else>-</span>
       </template>
     </TableList>
 
@@ -61,6 +76,31 @@ const typeList = ref([
   { label: "实习协议", value: "实习协议" },
   { label: "保密协议", value: "保密协议" },
 ]);
+
+// 格式化日期
+const formatDate = (dateValue) => {
+  if (!dateValue) return '-';
+  
+  // 如果是时间戳
+  if (typeof dateValue === 'number') {
+    if (dateValue === 0) return '-';
+    const date = new Date(dateValue * 1000);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  // 如果是字符串格式
+  if (typeof dateValue === 'string') {
+    if (dateValue.includes(' ')) {
+      return dateValue.split(' ')[0];
+    }
+    return dateValue;
+  }
+  
+  return '-';
+};
 
 // 点击新增 → 弹出选择
 function handleAdd() {

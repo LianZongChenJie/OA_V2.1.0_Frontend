@@ -181,8 +181,8 @@
         <el-table-column label="ID" prop="id" align="center" width="70" />
         <el-table-column label="工作内容" prop="title" align="center" />
         <el-table-column label="工作时间范围" prop="workTimeRange" align="center" />
-        <el-table-column label="工作类别" prop="workTypeName" align="center" />
-        <el-table-column label="工作类型" prop="laborType" align="center" />
+        <el-table-column label="工作类别" prop="workTitle" align="center" />
+        <el-table-column label="工作类型" prop="laborTypeName" align="center" />
         <el-table-column label="工时" prop="workHour" align="center" width="70" />
         <el-table-column label="补充描述" prop="remark" align="center" />
         <el-table-column label="创建时间" prop="createTimeStr" align="center" />
@@ -221,6 +221,7 @@
             end-placeholder="结束时间"
             format="YYYY-MM-DD HH:mm"
             value-format="YYYY-MM-DD HH:mm:ss"
+            :disabled-date="disabledDate"
             style="width:100%"
           />
         </el-form-item>
@@ -258,9 +259,17 @@
       </el-form>
       <template #footer>
         <el-button @click="addLogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitWorkLog">确认提交</el-button>
+        <el-button type="primary" @click="submitWorkLog">提交</el-button>
       </template>
     </el-dialog>
+
+    <!-- 底部按钮 -->
+    <template #footer>
+      <div style="text-align:center">
+        <el-button type="primary" @click="handleSubmit" v-if="!isView">提交</el-button>
+        <el-button @click="handleClose">关闭</el-button>
+      </div>
+    </template>
   </el-dialog>
 </template>
 
@@ -270,7 +279,7 @@ import { ElMessage } from "element-plus";
 import { addenterPrise, updateenterPrise, getWorkCateList} from "@/api/project/task/index.js";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/project/itemList/index.js";
-import { getPageList as getTaskHourList, getDetail, addenterPrise as addWorkHour, updateenterPrise as updateWorkHour } from "@/api/project/workingHour/index.js";
+import { getPageList as getTaskHourList, addenterPrise as addWorkHour, updateenterPrise as updateWorkHour } from "@/api/project/workingHour/index.js";
 
 const { proxy } = getCurrentInstance(); 
 
@@ -293,17 +302,19 @@ const addLogVisible = ref(false);
 const logFormRef = ref(null);
 const logForm = reactive({
   id: null,
-  tid: null,        // 任务ID
-  title: "",        // 工作内容标题
-  startTime: null,  // 开始时间（时间戳）
-  endTime: null,    // 结束时间（时间戳）
-  cid: null,        // 工作内容分类ID
-  laborType: 1,     // 工作类型：1-案头工作，2-外勤工作
-  remark: "",       // 补充描述
-  cmid: 0,          // 客户ID，默认0
-  ptid: 0,          // 项目ID，默认0
-  did: null,        // 部门ID
-  adminId: 0        // 创建人ID，默认0使用当前登录用户
+  tid: null,
+  title: "",
+  timeRange: null,
+  startTime: null,
+  endTime: null,
+  cid: null,
+  laborType: 1,
+  remark: "",
+  cmid: 0,
+  ptid: 0,
+  did: null,
+  adminId: 0,
+  taskEndTime: null  // 任务的预计结束时间
 });
 
 // 表单数据
@@ -317,7 +328,8 @@ const form = reactive({
   directorUid: null,
   assistAdminIds: [],
   projectId: "",
-  content: ""
+  content: "",
+  did: null
 });
 
 // 日志校验规则
@@ -326,6 +338,14 @@ const logRules = {
   cid: [{ required: true, message: "请选择工作类别", trigger: "change" }],
   laborType: [{ required: true, message: "请选择工作类型", trigger: "change" }],
   title: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
+};
+
+// 禁用超过任务预计结束时间的日期
+const disabledDate = (time) => {
+  if (!logForm.taskEndTime) return false;
+  const taskEndDate = new Date(logForm.taskEndTime);
+  // 禁用大于任务预计结束日期的日期
+  return time.getTime() > taskEndDate.getTime();
 };
 
 // 加载工作类型接口
@@ -396,6 +416,16 @@ const rules = {
   content: [{ required: true, message: "请输入详细描述", trigger: "blur" }],
 };
 
+// 将时间戳转换为日期字符串（YYYY-MM-DD）
+function formatTimestampToDate(timestamp) {
+  if (!timestamp || timestamp === 0) return "";
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 // 格式化时间戳为日期时间字符串
 function formatTimestamp(timestamp) {
   if (!timestamp || timestamp === 0) return null;
@@ -430,19 +460,25 @@ function openAddWorkLog() {
     return;
   }
   
-  // 重置日志表单
+  if (!form.endTime) {
+    ElMessage.warning("请先设置任务的预计结束时间");
+    return;
+  }
+  
   logForm.id = null;
   logForm.tid = form.id;
   logForm.title = "";
+  logForm.timeRange = null;
   logForm.startTime = null;
   logForm.endTime = null;
   logForm.cid = null;
   logForm.laborType = 1;
   logForm.remark = "";
   logForm.cmid = 0;
-  logForm.ptid = form.projectId || 0;  // 关联项目ID
-  logForm.did = form.did || null;       // 部门ID
-  logForm.adminId = 0;                  // 使用当前登录用户
+  logForm.ptid = form.projectId || 0;
+  logForm.did = form.did || null;
+  logForm.adminId = 0;
+  logForm.taskEndTime = form.endTime;
   
   nextTick(() => {
     logFormRef.value?.clearValidate();
@@ -453,26 +489,25 @@ function openAddWorkLog() {
 // 编辑工作日志
 async function openEditWorkLog(row) {
   try {
-    const res = await getDetail(row.id);
-    const data = res.data || res;
-    
-    logForm.id = data.id;
+    logForm.id = row.id;
     logForm.tid = form.id;
-    logForm.title = data.title || "";
-    logForm.startTime = data.startTime || null;
-    logForm.endTime = data.endTime || null;
-    logForm.cid = data.cid || null;
-    logForm.laborType = data.laborType || 1;
-    logForm.remark = data.remark || "";
-    logForm.cmid = data.cmid || 0;
-    logForm.ptid = data.ptid || form.projectId || 0;
-    logForm.did = data.did || null;
-    logForm.adminId = data.adminId || 0;
+    logForm.title = row.title || "";
+    logForm.cid = row.cid || null;
+    logForm.laborType = row.laborType || 1;
+    logForm.remark = row.remark || "";
+    logForm.cmid = row.cmid || 0;
+    logForm.ptid = row.ptid || form.projectId || 0;
+    logForm.did = row.did || null;
+    logForm.adminId = row.adminId || 0;
+    logForm.taskEndTime = form.endTime;
     
-    // 转换时间范围用于显示
-    const startTimeStr = data.startTime ? formatTimestamp(data.startTime) : null;
-    const endTimeStr = data.endTime ? formatTimestamp(data.endTime) : null;
-    logForm.timeRangeForDisplay = startTimeStr && endTimeStr ? [startTimeStr, endTimeStr] : null;
+    const startTimeStr = row.startTime ? formatTimestamp(row.startTime) : null;
+    const endTimeStr = row.endTime ? formatTimestamp(row.endTime) : null;
+    if (startTimeStr && endTimeStr) {
+      logForm.timeRange = [startTimeStr, endTimeStr];
+    } else {
+      logForm.timeRange = null;
+    }
     
     nextTick(() => logFormRef.value?.clearValidate());
     addLogVisible.value = true;
@@ -492,7 +527,6 @@ async function submitWorkLog() {
     return;
   }
 
-  // 获取时间范围（从表单的 timeRange 字段获取）
   const timeRange = logForm.timeRange;
   if (!timeRange || !timeRange[0] || !timeRange[1]) {
     ElMessage.error("请选择时间范围");
@@ -506,25 +540,44 @@ async function submitWorkLog() {
     ElMessage.error("结束时间必须大于开始时间");
     return;
   }
+  
+  // 验证工作日志的时间不能超过任务的预计结束时间
+  if (logForm.taskEndTime) {
+    const taskEndDate = new Date(logForm.taskEndTime.replace(/-/g, '/'));
+    const taskEndTimestamp = Math.floor(taskEndDate.getTime() / 1000);
+    
+    if (startTime > taskEndTimestamp) {
+      ElMessage.error(`工作开始时间不能超过任务预计结束时间（${logForm.taskEndTime}）`);
+      return;
+    }
+    
+    if (endTime > taskEndTimestamp) {
+      ElMessage.error(`工作结束时间不能超过任务预计结束时间（${logForm.taskEndTime}）`);
+      return;
+    }
+  }
 
-  // 自动计算工时
-  const workHour = calculateWorkHour(startTime, endTime);
-
-  // 构建提交参数（按照后端字段说明）
   const params = {
-    id: logForm.id || undefined,           // 编辑时传入ID
-    tid: logForm.tid,                      // 任务ID（必填）
-    title: logForm.title,                  // 工作内容标题（必填）
-    startTime: startTime,                  // 开始时间戳（必填）
-    endTime: endTime,                      // 结束时间戳（必填）
-    cid: logForm.cid,                      // 工作内容分类ID（必填）
-    laborType: logForm.laborType,          // 工作类型：1-案头工作，2-外勤工作（必填）
-    remark: logForm.remark || "",          // 补充描述
-    cmid: logForm.cmid || 0,               // 客户ID，默认0
-    ptid: logForm.ptid || 0,               // 项目ID，默认0
-    did: logForm.did || null,              // 部门ID
-    adminId: 0                             // 使用当前登录用户
+    tid: logForm.tid,
+    title: logForm.title,
+    startTime: startTime,
+    endTime: endTime,
+    cid: logForm.cid,
+    laborType: logForm.laborType,
+    remark: logForm.remark || "",
+    cmid: logForm.cmid || 0,
+    ptid: logForm.ptid || 0,
+    adminId: 0
   };
+
+
+  if (logForm.id) {
+    params.id = logForm.id;
+  } 
+
+  else if (logForm.did) {
+    params.did = logForm.did;
+  }
 
   try {
     if (logForm.id) {
@@ -551,16 +604,19 @@ async function loadWorkLogList(pageNum = 1) {
       pageNum: pageNum,
       pageSize: 20
     });
-    // 处理列表数据，格式化时间显示
-    workLogList.value = (res.rows || []).map(item => ({
-      ...item,
-      workTimeRange: item.startTime && item.endTime ? 
-        `${formatTimestamp(item.startTime)} 至 ${formatTimestamp(item.endTime)}` : '',
-      createTimeStr: item.createTime ? formatTimestamp(item.createTime) : '',
-      workHour: item.startTime && item.endTime ? 
-        calculateWorkHour(item.startTime, item.endTime) : 0,
-      laborType: item.laborType === 1 ? '案头工作' : item.laborType === 2 ? '外勤工作' : '-'
-    }));
+    workLogList.value = (res.rows || []).map(item => {
+      const workCate = workCateList.value.find(cate => cate.id === item.cid);
+      return {
+        ...item,
+        workTimeRange: item.startTime && item.endTime ? 
+          `${formatTimestamp(item.startTime)} 至 ${formatTimestamp(item.endTime)}` : '',
+        createTimeStr: item.createTime ? formatTimestamp(item.createTime) : '',
+        workHour: item.startTime && item.endTime ? 
+          calculateWorkHour(item.startTime, item.endTime) : 0,
+        laborTypeName: item.laborType === 1 ? '案头工作' : item.laborType === 2 ? '外勤工作' : '-',
+        workTitle: workCate ? workCate.title : ''
+      };
+    });
     workLogTotal.value = res.total || 0;
     workLogPageNum.value = pageNum;
   } catch (err) {
@@ -613,6 +669,7 @@ function handleSubmit() {
       emit("success");
     }).catch(err => {
       console.error("提交失败", err);
+      ElMessage.error(err.msg || "提交失败");
     });
   });
 }
@@ -629,7 +686,8 @@ function resetForm() {
     directorUid: null,
     assistAdminIds: [],
     projectId: "",
-    content: ""
+    content: "",
+    did: null
   });
   workLogList.value = [];
   workLogTotal.value = 0;
@@ -658,16 +716,24 @@ function open() {
 function openEdit(data) {
   resetForm();
   loadProjectList();
+  
+
+  let formattedEndTime = data.endTime;
+  if (data.endTime && typeof data.endTime === 'number') {
+    formattedEndTime = formatTimestampToDate(data.endTime);
+  }
+  
   Object.assign(form, {
     ...data,
     priority: data.priority || "",
     workId: data.workId || "",
     planHours: data.planHours || "",
-    endTime: data.endTime || "",
+    endTime: formattedEndTime,
     directorUid: data.directorUid || null,
     assistAdminIds: data.assistAdminIds ? data.assistAdminIds.split(',').map(Number) : [],
     projectId: data.projectId || "",
-    content: data.content || ""
+    content: data.content || "",
+    did: data.did || null
   });
   isEdit.value = true;
   dialogVisible.value = true;
@@ -677,12 +743,19 @@ function openEdit(data) {
 function openView(data) {
   resetForm();
   loadProjectList();
+  
+
+  let formattedEndTime = data.endTime;
+  if (data.endTime && typeof data.endTime === 'number') {
+    formattedEndTime = formatTimestampToDate(data.endTime);
+  }
+  
   Object.assign(form, {
     ...data,
     priority: data.priority || "",
     workId: data.workId || "",
     planHours: data.planHours || "",
-    endTime: data.endTime || "",
+    endTime: formattedEndTime,
     directorUid: data.directorUid || null,
     assistAdminIds: data.assistAdminIds ? data.assistAdminIds.split(',').map(Number) : [],
     projectId: data.projectId || "",
@@ -691,7 +764,9 @@ function openView(data) {
   });
   isView.value = true;
   dialogVisible.value = true;
-  loadWorkLogList();
+  nextTick(() => {
+    loadWorkLogList();
+  });
 }
 
 const emit = defineEmits(["success"]);

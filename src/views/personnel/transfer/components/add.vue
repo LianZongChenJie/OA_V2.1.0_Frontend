@@ -131,8 +131,8 @@ const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false); // 是否为编辑模式
-const isView = ref(false); // 是否为查看模式
+const isEdit = ref(false); 
+const isView = ref(false); 
 
 // 员工下拉选项
 const userOptions = ref([]);
@@ -219,10 +219,7 @@ function handleUserChange(userId) {
 
 // 审批流程选择变化
 function handleFlowChange(flowId) {
-  // TODO: 根据实际需求获取审批流程中的默认抄送人
   if (flowId) {
-    // 可以在这里获取审批流程的抄送人信息并填充
-    // form.checkCopyUids = ...
   } else {
     form.checkCopyUids = [];
   }
@@ -264,7 +261,6 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.uid = data.uid;
   form.fromDid = data.fromDid;
@@ -283,7 +279,6 @@ function openEdit(data) {
 /** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.uid = data.uid;
   form.fromDid = data.fromDid;
@@ -304,7 +299,6 @@ function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
       const submitData = { ...form };
-      // 处理抄送人数组
       if (submitData.checkCopyUids && submitData.checkCopyUids.length > 0) {
         submitData.checkCopyUids = submitData.checkCopyUids.join(",");
       } else {

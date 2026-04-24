@@ -153,7 +153,6 @@
         </div>
         
         <el-table :data="form.stageList" border size="small" style="margin-top: 10px">
-          <!-- 修改序号列，加入标签 -->
           <el-table-column label="序号" width="120" align="center">
             <template #default="{ $index }">
               <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -314,12 +313,12 @@ const deptOptions = ref([]);
 const contractOptions = ref([]);
 const cateOptions = ref([]);
 
-// 项目状态：1-未开始，2-进行中，3-已完成，4-已关闭
+
 const projectStatus = ref(PROJECT_STATUS.NOT_STARTED);
 const statusLoading = ref(false);
 
 // 阶段管理
-const currentStageIndex = ref(0); // 当前进行中的阶段索引
+const currentStageIndex = ref(0);
 
 const form = reactive({
   id: undefined,
@@ -345,13 +344,10 @@ const isAllStagesCompleted = computed(() => {
 // 状态按钮是否禁用
 const isStatusBtnDisabled = computed(() => {
   if (projectStatus.value === PROJECT_STATUS.CLOSED || statusLoading.value) return true;
-  // 未开始状态不禁用
   if (projectStatus.value === PROJECT_STATUS.NOT_STARTED) return false;
-  // 进行中状态需要所有阶段完成才能点击完成
   if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) {
     return !isAllStagesCompleted.value;
   }
-  // 已完成状态可以点击关闭
   if (projectStatus.value === PROJECT_STATUS.COMPLETED) return false;
   return false;
 });
@@ -389,29 +385,20 @@ const rules = {
   customerId: [{ required: true, message: "请选择项目成员", trigger: "change" }],
 };
 
-// ========== 辅助函数 ==========
-/**
- * 根据后端返回的阶段数据计算当前阶段索引
- * @param {Array} stages 后端返回的阶段列表
- * @returns {number} 当前进行中的阶段索引
- */
+
 const calculateCurrentStageIndex = (stages) => {
   if (!stages || stages.length === 0) return 0;
   
-  // 查找进行中的阶段 (isCurrent === 1)
+ 
   const currentStageIndex = stages.findIndex(s => s.isCurrent === 1);
   if (currentStageIndex !== -1) return currentStageIndex;
   
-  // 如果没有进行中的阶段，统计已完成的阶段数量 (isCurrent === 2)
+
   const completedCount = stages.filter(s => s.isCurrent === 2).length;
   return completedCount;
 };
 
-/**
- * 将后端阶段数据转换为前端表单格式
- * @param {Array} stages 后端返回的阶段列表
- * @returns {Array} 前端表单使用的阶段列表
- */
+
 const transformStagesToForm = (stages) => {
   if (!stages || stages.length === 0) {
     return JSON.parse(JSON.stringify(defaultStageList));
@@ -426,10 +413,10 @@ const transformStagesToForm = (stages) => {
   }));
 };
 
-// ========== 阶段管理方法 ==========
+
 // 完成当前阶段
 const completeCurrentStage = async () => {
-  // 检查是否还有未完成的阶段
+
   if (currentStageIndex.value >= form.stageList.length) {
     ElMessage.warning("所有阶段已完成");
     return;
@@ -437,7 +424,7 @@ const completeCurrentStage = async () => {
   
   const currentStage = form.stageList[currentStageIndex.value];
   
-  // 验证当前阶段信息是否完整
+
   if (!currentStage?.name || currentStage.name.trim() === "") {
     ElMessage.warning("请填写阶段名称");
     return;
@@ -466,11 +453,11 @@ const completeCurrentStage = async () => {
       ElMessage.success(`已完成${currentStage.name}阶段，进入${form.stageList[currentStageIndex.value].name}阶段`);
     }
   } catch {
-    // 取消操作
+    
   }
 };
 
-// 退回上一阶段
+
 const rollbackPreviousStage = async () => {
   if (currentStageIndex.value <= 0) return;
   
@@ -484,7 +471,7 @@ const rollbackPreviousStage = async () => {
     currentStageIndex.value--;
     ElMessage.info(`已退回到${form.stageList[currentStageIndex.value].name}阶段`);
   } catch {
-    // 取消操作
+
   }
 };
 
@@ -495,11 +482,11 @@ const handleChangeStatus = async () => {
   let confirmMessage = "";
 
   if (old === PROJECT_STATUS.NOT_STARTED) {
-    // 未开始 -> 进行中
+   
     next = PROJECT_STATUS.IN_PROGRESS;
     confirmMessage = "确认开始项目吗？开始后将进入阶段管理流程。";
   } else if (old === PROJECT_STATUS.IN_PROGRESS) {
-    // 进行中 -> 已完成
+    
     if (!isAllStagesCompleted.value) {
       ElMessage.warning("请先完成所有项目阶段");
       return;
@@ -507,14 +494,14 @@ const handleChangeStatus = async () => {
     next = PROJECT_STATUS.COMPLETED;
     confirmMessage = "确认完成项目吗？";
   } else if (old === PROJECT_STATUS.COMPLETED) {
-    // 已完成 -> 已关闭
+   
     next = PROJECT_STATUS.CLOSED;
     confirmMessage = "确认关闭项目吗？";
   } else {
     return;
   }
 
-  // 检查项目ID是否存在
+
   if (!form.id) {
     ElMessage.error("项目ID不存在，请先保存项目");
     return;
@@ -689,11 +676,11 @@ const handleSubmit = () => {
       endTime,
       status: projectStatus.value,
       content: form.content,
-      currentStage: currentStageIndex.value, // 保存当前阶段进度
+      currentStage: currentStageIndex.value, 
       stages: form.stageList.map(({ name, directorUid, memberUids, timeRange, remark }, index) => {
         const [s, e] = timeRange || [];
         
-        // 计算 isCurrent 值
+  
         let isCurrent = 0; // 默认空
         if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) {
           if (index === currentStageIndex.value) {
@@ -702,7 +689,7 @@ const handleSubmit = () => {
             isCurrent = 2; // 已完成
           }
         } else if (projectStatus.value === PROJECT_STATUS.COMPLETED || projectStatus.value === PROJECT_STATUS.CLOSED) {
-          // 项目已完成或已关闭，所有阶段都标记为已完成
+
           isCurrent = 2;
         }
         
@@ -713,7 +700,7 @@ const handleSubmit = () => {
           startTime: toSeconds(s),
           endTime: toSeconds(e),
           remark,
-          isCurrent // 1-进行中，2-已完成，0-空
+          isCurrent 
         };
       })
     };

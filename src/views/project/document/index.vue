@@ -9,7 +9,8 @@
       row-key="id"
       ref="tableList"
       :search-enum="searchEnum"
-    />
+    >
+    </TableList>
 
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
@@ -19,10 +20,10 @@
 import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
 
-// 任务接口
+// 文档接口
 import { getPageList, getDetail, deletereward } from "@/api/project/document/index.js";
 
-// 项目列表接口（改成获取项目列表）
+// 项目列表接口
 import { getPageList as getProjectList } from "@/api/project/itemList/index.js";
 
 // 用户接口
@@ -49,18 +50,34 @@ const statusMap = {
   4: "已关闭"
 };
 
-// 下拉枚举：项目列表 + 负责人
+// 格式化时间戳为日期时间字符串（年月日 时分秒）
+const formatDateTime = (timestamp) => {
+  if (!timestamp || timestamp === 0) return '-';
+  const milliseconds = timestamp.toString().length === 10 ? timestamp * 1000 : timestamp;
+  const date = new Date(milliseconds);
+  
+  if (isNaN(date.getTime())) return '-';
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+// 下拉枚举：项目列表 + 用户列表
 const searchEnum = ref({
-  projectList: [],     // 改成项目列表
-  userList: [],
+  projectList: [],    
+  userList: [],        
 });
 
-// ==============================================
-// 加载：项目列表（已改成获取项目列表）
-// ==============================================
+// 加载：项目列表
 const fetchProjectList = async () => {
   try {
-    const res = await getProjectList({ pageNum: 1, pageSize: 100 });
+    const res = await getProjectList({ pageNum: 1, pageSize: 1000 });
     let list = [];
     if (res.rows) list = res.rows;
     else if (res.data?.rows) list = res.data.rows;
@@ -70,12 +87,15 @@ const fetchProjectList = async () => {
       label: item.name || item.title || "未命名",
       value: item.id,
     }));
+    
+    console.log("项目列表加载成功:", searchEnum.value.projectList.length);
   } catch (err) {
     console.error("加载项目列表失败", err);
+    searchEnum.value.projectList = [];
   }
 };
 
-// 加载：负责人下拉
+// 加载：用户列表
 const fetchUserList = async () => {
   try {
     const res = await listUser({ pageSize: 1000 });
@@ -85,23 +105,27 @@ const fetchUserList = async () => {
     else if (Array.isArray(res)) users = res;
 
     searchEnum.value.userList = users
-      .filter((u) => u.status === 0)
+      .filter((u) => u.status === "0" || u.status === 0)
       .map((u) => ({
         label: u.realName || u.nickName || u.userName || "未命名",
         value: u.userId,
       }));
+    
+    console.log("用户列表加载成功:", searchEnum.value.userList.length);
   } catch (err) {
-    console.error("加载负责人失败", err);
+    console.error("加载用户列表失败", err);
+    searchEnum.value.userList = [];
   }
 };
 
+// 初始化加载
 onMounted(() => {
-  fetchProjectList();   // 调用项目列表
+  fetchProjectList();
   fetchUserList();
   tableKey.value++;
 });
 
-
+// 格式化任务数据
 const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
@@ -129,33 +153,54 @@ const formatTaskData = (rows) => {
 
 // 列表请求适配
 const getPageListFix = async (params) => {
-  const res = await getPageList(params);
-  if (res?.rows) {
-    res.rows = formatTaskData(res.rows);
+  try {
+    const res = await getPageList(params);
+    if (res?.rows) {
+      res.rows = formatTaskData(res.rows);
+    }
+    return res;
+  } catch (err) {
+    console.error("获取文档列表失败:", err);
+    return { rows: [], total: 0 };
   }
-  return res;
 };
 
-// 操作
+
+// 操作函数
 function handleAdd() {
   addDialogRef.value.open();
 }
 
 const handleEdit = async (row) => {
-  const res = await getDetail(row.id);
-  addDialogRef.value.openEdit(res.data || res);
+  try {
+    const res = await getDetail(row.id);
+    addDialogRef.value.openEdit(res.data || res);
+  } catch (err) {
+    console.error("获取文档详情失败:", err);
+    proxy.$modal.msgError("获取文档详情失败");
+  }
 };
 
 async function handleView(row) {
-  const res = await getDetail(row.id);
-  if (res) addDialogRef.value.openView(res.data || res);
+  try {
+    const res = await getDetail(row.id);
+    if (res) addDialogRef.value.openView(res.data || res);
+  } catch (err) {
+    console.error("获取文档详情失败:", err);
+    proxy.$modal.msgError("获取文档详情失败");
+  }
 }
 
 async function handleDelete(row) {
   proxy.$modal.confirm("确定删除该文档吗？").then(async () => {
-    await deletereward(row.id);
-    proxy.$modal.msgSuccess("删除成功");
-    tableList.value.refresh();
+    try {
+      await deletereward(row.id);
+      proxy.$modal.msgSuccess("删除成功");
+      tableList.value.refresh();
+    } catch (err) {
+      console.error("删除失败:", err);
+      proxy.$modal.msgError("删除失败");
+    }
   }).catch(() => {});
 }
 
@@ -166,3 +211,9 @@ function handleSuccess() {
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
+
+<style lang="scss" scoped>
+.main-content {
+  height: 100%;
+}
+</style>

@@ -212,7 +212,7 @@ function openEdit(data) {
   reset();
   Object.assign(form, {
     ...data,
-    rewardsCate: data.rewardsCate,  // 直接使用 ID
+    rewardsCate: data.rewardsCate,  
     uid: data.uid,
     types: data.types,
     status: data.status
@@ -247,7 +247,7 @@ async function handleSubmit() {
 
   const submitData = {
     id: form.id,
-    rewardsCate: Number(form.rewardsCate),  // 转为 int 类型
+    rewardsCate: Number(form.rewardsCate),  
     types: Number(form.types),
     status: Number(form.status),
     uid: Number(form.uid),

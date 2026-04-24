@@ -82,6 +82,7 @@ export const columns = [
     label: '奖惩项目',
     width: "12%",
     minWidth: 140,
+    align: 'center',
     searchable: {
       type: 'selectApi',
       api: getPageList,
@@ -98,10 +99,12 @@ export const columns = [
   label: '奖惩日期',
   width: "12%",
   minWidth: 140,
+  align: 'center',
   format: (val) => val?.split(' ')[0] || '', 
   searchable: {
     type: 'dateRange',
-    fieldName: 'rewardDate',
+    fieldName: 'rewardsTime',
+    searchKey: ['beginTime', 'endTime'],
     label: '奖惩日期',
     placeholder: '请选择时间',
     order: 4,
@@ -121,7 +124,7 @@ export const columns = [
     minWidth: 120,
     searchable: {
       type: 'input',
-      fieldName: 'keyword',
+      fieldName: 'thing',
       placeholder: '请输入',
       label: '关键字',
       order: 5,
@@ -132,12 +135,14 @@ export const columns = [
     label: '创建人',
     width: "10%",
     minWidth: 120,
+    align: 'center',
   },
   {
     fieldName: 'createTime',
     label: '创建时间',
     width: "15%",
     minWidth: 180,
+    align: 'center',
   },
 ];
 
