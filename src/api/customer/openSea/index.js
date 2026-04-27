@@ -19,9 +19,19 @@ export function toOpenSea(data) {
 }
 
 // 领取公海客户
-export function getCustomer(id) {
+export function getCustomer(ids) {
   return request({
-    url: '/customer/index/to-get/'+id,
+    url: '/customer/index/to-get',
     method: 'post',
+    params: { id:ids }
+  })
+}
+
+// 还原客户接口
+export function restoreCustomer(ids) {
+  return request({
+    url: '/customer/index/to-revert',
+    method: 'post',
+    params: { ids }
   })
 }

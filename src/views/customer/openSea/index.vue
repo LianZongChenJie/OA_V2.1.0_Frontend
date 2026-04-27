@@ -20,37 +20,41 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList } from "@/api/customer/openSea";
+import { getPageList, getCustomer, restoreCustomer } from "@/api/customer/openSea";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 
 const { proxy } = getCurrentInstance();
 const { customer_status, customer_intent_status } = proxy.useDict("customer_status", "customer_intent_status");
 
 const tableList = ref(null);
+const headerButs = getHeaderButs();
 
-/** 编辑按钮操作 */
-async function handleEdit(row) {
-  // 获取详情数据
-  const res = await getDetail(row.id);
-  if (res) {
-    // TODO: 处理编辑逻辑
+/** 领取按钮操作 */
+async function handleReceive(row) {
+  try {
+    await proxy.$modal.confirm("确认领取该客户吗？");
+    await getCustomer(row.id);
+    proxy.$modal.msgSuccess("领取成功");
+    tableList.value.refresh();
+  } catch (e) {
+    console.error("领取失败", e);
   }
 }
 
-/** 删除按钮操作 */
-async function handleDelete(row) {
+/** 还原按钮操作 */
+async function handleRestore(row) {
   try {
-    await proxy.$modal.confirm("确认删除该客户吗？");
-    await del(row.id);
-    proxy.$modal.msgSuccess("删除成功");
+    await proxy.$modal.confirm("确认还原该客户吗？");
+    await restoreCustomer(row.id);
+    proxy.$modal.msgSuccess("还原成功");
     tableList.value.refresh();
   } catch (e) {
-    console.error("删除失败", e);
+    console.error("还原失败", e);
   }
 }
 
 const operationColumn = getOperationColumn(
-  handleEdit,
-  handleDelete,
+  handleReceive,
+  handleRestore,
 );
 </script>

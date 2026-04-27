@@ -1,4 +1,4 @@
-import {getPageList as getCustomerLevelList} from '@/api/base/customer/level';
+import { getPageList as getCustomerLevelList } from '@/api/base/customer/level';
 import { getPageList as getChannelPageList } from '@/api/base/customer/channel';
 import { getPageList as getIndustryTypePageList } from '@/api/base/customer/industryType';
 
@@ -168,30 +168,30 @@ export const columns = [
 export const getHeaderButs = () => [
 ];
 
-export const getOperationColumn = (onEdit, onDelete) => {
+export const getOperationColumn = (onReceive, onRestore) => {
   return {
     label: '操作',
-    width: 180,
+    width: 120,
     fixed: 'right',
     show: true,
     actions: [
       {
-        label: '编辑',
-        type: 'success',
+        label: '领取',
+        type: 'primary',
         size: 'small',
         onClick: (row) => {
-          onEdit && onEdit(row);
+          onReceive && onReceive(row);
         },
         icon: 'edit',
       },
       {
-        label: '删除',
-        type: 'danger',
+        label: '还原',
+        type: 'warning',
         size: 'small',
         onClick: (row) => {
-          onDelete && onDelete(row);
+          onRestore && onRestore(row);
         },
-        icon: 'delete',
+        icon: 'edit',
       },
     ],
   };

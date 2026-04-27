@@ -373,7 +373,7 @@ const form = reactive({
   content: "",
   remark: "",
   customerStatus: 1,
-  intentStatus: "D",
+  intentStatus: "4",
   contactInfo: {
     name: "",
     mobile: "",
@@ -454,7 +454,7 @@ function reset() {
   form.content = "";
   form.remark = "";
   form.customerStatus = 1;
-  form.intentStatus = "D";
+  form.intentStatus = "4";
   form.contactInfo = {
     name: "",
     mobile: "",
