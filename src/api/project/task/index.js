@@ -53,3 +53,12 @@ export function getWorkCateList(params) {
     params
   })
 }
+
+// 修改任务状态
+export function updateStatus(id,data) {
+  return request({
+    url: `/project/task/changeStatus`,
+    method: 'put',
+    data: { id, ...data }
+  })
+}

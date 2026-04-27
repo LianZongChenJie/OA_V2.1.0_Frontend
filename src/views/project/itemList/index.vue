@@ -80,11 +80,17 @@ const formatTableData = (rows) => {
 };
 
 const getPageListFix = async (params) => {
-  const cleanParams = Object.fromEntries(
-    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
-  );
-  const res = await getPageList(cleanParams);
-  if (res?.rows) res.rows = formatTableData(res.rows);
+  const res = await getPageList(params);
+  if (res?.rows) {
+    res.rows = res.rows.map(item => ({
+      ...item,
+      // 确保数字字段有值
+      tasksOngoing: item.tasksOngoing ?? 0,
+      tasksFinish: item.tasksFinish ?? 0,
+      // 处理完成率
+      tasksPensent: item.tasksPensent || (item.tasksTotal > 0 ? `${Math.round((item.tasksFinish / item.tasksTotal) * 100)}%` : '0%')
+    }));
+  }
   return res;
 };
 

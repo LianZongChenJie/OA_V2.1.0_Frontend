@@ -8,6 +8,23 @@
     @close="handleClose"
     :close-on-click-modal="false"
   >
+    <!-- 标题右侧 + 状态按钮 -->
+  <template #header>
+    <div style="display: flex; align-items: center; gap:10px;">
+      <span>{{ dialogTitle }}</span>
+        <!-- 新增：状态切换按钮 -->
+        <el-button
+          type="primary"
+          size="small" 
+          v-if="isView"
+          @click="handleChangeStatus"
+          :disabled="form.status === 3"
+        >
+          {{ statusButtonText }}
+        </el-button>
+      </div>
+    </template>
+
     <el-form 
       ref="formRef" 
       :model="form" 
@@ -276,7 +293,8 @@
 <script setup>
 import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from "vue";
 import { ElMessage } from "element-plus";
-import { addenterPrise, updateenterPrise, getWorkCateList} from "@/api/project/task/index.js";
+// 新增：引入状态切换接口
+import { addenterPrise, updateenterPrise, getWorkCateList, updateStatus } from "@/api/project/task/index.js";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/project/itemList/index.js";
 import { getPageList as getTaskHourList, addenterPrise as addWorkHour, updateenterPrise as updateWorkHour } from "@/api/project/workingHour/index.js";
@@ -329,7 +347,8 @@ const form = reactive({
   assistAdminIds: [],
   projectId: "",
   content: "",
-  did: null
+  did: null,
+  status: 1 // 新增：状态字段 1-待办 2-进行中 3-已完成
 });
 
 // 日志校验规则
@@ -381,6 +400,14 @@ async function loadUserList() {
 const dialogTitle = computed(() => {
   if (isView.value) return "查看任务";
   return isEdit.value ? "编辑任务" : "新建任务";
+});
+
+// 新增：状态按钮文字
+const statusButtonText = computed(() => {
+  if (form.status === 1) return "开始";
+  if (form.status === 2) return "已完成";
+  if (form.status === 3) return "已完成";
+  return "";
 });
 
 const rules = {
@@ -600,7 +627,7 @@ async function loadWorkLogList(pageNum = 1) {
   if (!form.id) return;
   try {
     const res = await getTaskHourList({
-      taskId: form.id,  
+      tid: form.id,  
       pageNum: pageNum,
       pageSize: 20
     });
@@ -627,6 +654,31 @@ async function loadWorkLogList(pageNum = 1) {
 // 分页切换
 function handleWorkLogPageChange(page) {
   loadWorkLogList(page);
+}
+
+async function handleChangeStatus() {
+  // 已完成直接return，不执行
+  if (form.status === 3) return;
+
+  if (!form.id) {
+    ElMessage.warning("任务ID不存在");
+    return;
+  }
+
+  let nextStatus;
+  if (form.status === 1) nextStatus = 2;
+  else if (form.status === 2) nextStatus = 3;
+  else return;
+
+  try {
+    await updateStatus(Number(form.id), { status: nextStatus });
+    ElMessage.success("状态更新成功");
+    form.status = nextStatus;
+    emit("success");
+  } catch (err) {
+    console.error(err);
+    ElMessage.error(err.msg || "状态更新失败");
+  }
 }
 
 // 初始化加载
@@ -687,7 +739,8 @@ function resetForm() {
     assistAdminIds: [],
     projectId: "",
     content: "",
-    did: null
+    did: null,
+    status: 1 // 重置状态
   });
   workLogList.value = [];
   workLogTotal.value = 0;
@@ -717,7 +770,6 @@ function openEdit(data) {
   resetForm();
   loadProjectList();
   
-
   let formattedEndTime = data.endTime;
   if (data.endTime && typeof data.endTime === 'number') {
     formattedEndTime = formatTimestampToDate(data.endTime);
@@ -733,7 +785,8 @@ function openEdit(data) {
     assistAdminIds: data.assistAdminIds ? data.assistAdminIds.split(',').map(Number) : [],
     projectId: data.projectId || "",
     content: data.content || "",
-    did: data.did || null
+    did: data.did || null,
+    status: data.status || 1 // 赋值状态
   });
   isEdit.value = true;
   dialogVisible.value = true;
@@ -744,7 +797,6 @@ function openView(data) {
   resetForm();
   loadProjectList();
   
-
   let formattedEndTime = data.endTime;
   if (data.endTime && typeof data.endTime === 'number') {
     formattedEndTime = formatTimestampToDate(data.endTime);
@@ -760,7 +812,8 @@ function openView(data) {
     assistAdminIds: data.assistAdminIds ? data.assistAdminIds.split(',').map(Number) : [],
     projectId: data.projectId || "",
     content: data.content || "",
-    did: data.did || null
+    did: data.did || null,
+    status: data.status || 1 // 赋值状态
   });
   isView.value = true;
   dialogVisible.value = true;
