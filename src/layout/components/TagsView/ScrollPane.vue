@@ -18,7 +18,7 @@ const { proxy } = getCurrentInstance();
 const scrollWrapper = computed(() => proxy.$refs.scrollContainer.$refs.wrapRef);
 
 onMounted(() => {
-  scrollWrapper.value.addEventListener('scroll', emitScroll, true)
+  scrollWrapper.value.addEventListener('scroll', emitScroll, { passive: true })
 })
 onBeforeUnmount(() => {
   scrollWrapper.value.removeEventListener('scroll', emitScroll)

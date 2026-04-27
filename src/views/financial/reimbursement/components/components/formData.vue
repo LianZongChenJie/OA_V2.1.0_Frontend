@@ -115,11 +115,22 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="关联项目" prop="info.projectId">
-          <el-input
+          <el-select
             v-model="form.info.projectId"
-            placeholder="请输入关联项目"
             :disabled="readonly"
-          />
+            placeholder="请选择关联项目"
+            clearable
+            filterable
+            style="width: 100%"
+            @change="handleProjectChange"
+          >
+            <el-option
+              v-for="item in projectOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
         </el-form-item>
       </el-col>
       <el-col :span="12">
@@ -135,10 +146,23 @@
             <el-option
               v-for="item in loanOptions"
               :key="item.id"
-              :label="`${item.code} - ${item.adminId}`"
+              :label="`${item.title}(${item.code})`"
               :value="item.id"
             />
           </el-select>
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <!-- 报销总金额 -->
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="报销总金额">
+          <el-input
+            :model-value="totalCost"
+            disabled
+            style="width: 100%"
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -237,11 +261,12 @@
 </template>
 
 <script setup name="ReimbursementFormData">
-import { ref, reactive, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, getCurrentInstance, onMounted, computed } from "vue";
 import { listUser } from "@/api/system/user.js";
 import { listDept } from "@/api/system/dept.js";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import { getList as getLoanList } from "@/api/financial/cashAdvance";
+import { getPageList as getProjectList } from "@/api/project/itemList";
 import { getPageList as getReimbursementCateList } from "@/api/finance/reimbursement";
 import useUserStore from "@/store/modules/user";
 import { Plus } from "@element-plus/icons-vue";
@@ -266,12 +291,20 @@ const emit = defineEmits(["update:modelValue"]);
 
 const formRef = ref(null);
 
+// 计算报销总金额
+const totalCost = computed(() => {
+  return form.interfix.reduce((sum, item) => {
+    return sum + (Number(item.amount) || 0);
+  }, 0).toFixed(2);
+});
+
 // 下拉选项数据
 const userOptions = ref([]);
 const deptOptions = ref([]);
 const enterpriseOptions = ref([]);
 const loanOptions = ref([]);
 const reimbursementCateOptions = ref([]);
+const projectOptions = ref([]);
 
 // 当前登录用户信息
 const currentUserInfo = ref({
@@ -290,6 +323,7 @@ const form = reactive({
     expenseTime: "",
     incomeMonth: "",
     projectId: "",
+    projectName: "",
     loanId: "",
   },
   interfix: [
@@ -348,8 +382,15 @@ function getEnterpriseList() {
 
 /** 获取借支列表（用于冲抵借支） */
 function getLoanOptions() {
-  getLoanList({ pageNum: 1, pageSize: 1000 }).then((response) => {
+  getLoanList({ pageNum: 1, pageSize: 200 }).then((response) => {
     loanOptions.value = response.rows || [];
+  });
+}
+
+/** 获取项目列表 */
+function getProjectOptions() {
+  getProjectList({ pageNum: 1, pageSize: 1000 }).then((response) => {
+    projectOptions.value = response.rows || [];
   });
 }
 
@@ -389,6 +430,22 @@ function handleDeptChange(deptId) {
   }
 }
 
+/** 项目选择变更 */
+function handleProjectChange(projectId) {
+  if (projectId) {
+    form.info.projectId = projectId;
+    const selectedProject = projectOptions.value.find(
+      (item) => item.id === projectId,
+    );
+    if (selectedProject) {
+      form.info.projectName = selectedProject.name;
+    }
+  } else {
+    form.info.projectId = "";
+    form.info.projectName = "";
+  }
+}
+
 /** 新增报销明细 */
 function addInterfix() {
   form.interfix.push({
@@ -419,6 +476,7 @@ function resetForm() {
     expenseTime: "",
     incomeMonth: "",
     projectId: "",
+    projectName: "",
     loanId: "",
   };
   form.interfix = [
@@ -443,6 +501,7 @@ function setFormData(data) {
     expenseTime: data.expenseTime || "",
     incomeMonth: data.incomeMonth || "",
     projectId: data.projectId || "",
+    projectName: data.projectName || "",
     loanId: data.loanId || "",
   };
 
@@ -479,6 +538,7 @@ onMounted(() => {
   getEnterpriseList();
   getLoanOptions();
   fetchReimbursementCateList();
+  getProjectOptions();
 });
 
 // 暴露方法给父组件

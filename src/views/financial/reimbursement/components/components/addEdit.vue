@@ -76,6 +76,11 @@ function handleSubmit() {
     if (valid) {
       const formData = formDataRef.value?.getFormData();
 
+      // 计算报销总金额
+      const totalCost = formData.interfix.reduce((sum, item) => {
+        return sum + (Number(item.amount) || 0);
+      }, 0);
+
       // 转换为后端需要的扁平化格式
       const submitData = {
         adminId: formData.info.adminId,
@@ -86,6 +91,7 @@ function handleSubmit() {
         incomeMonth: formData.info.incomeMonth,
         projectId: formData.info.projectId,
         loanId: formData.info.loanId,
+        cost: totalCost,
         interfix: formData.interfix.map(item => ({
           amount: item.amount,
           cateId: item.cateId,
