@@ -41,7 +41,7 @@ export const columns = [
       placeholder: '请选择任务状态',
       order: 1,
       options: [
-        { label: '未开始', value: 1 },
+        { label: '待办的', value: 1 },
         { label: '进行中', value: 2 },
         { label: '已完成', value: 3 },
       ]
@@ -119,7 +119,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminName',
+    fieldName: 'directorName',
     label: '负责人',
     width: "12%",
     minWidth: 100,
@@ -130,14 +130,14 @@ export const columns = [
       optionValue: 'userId',
       optionLabel: 'nickName',
       fieldName: 'directorUid',  
-      placeholder: '请选择任务负责人（可多选）',
-      label: '任务负责人',
+      placeholder: '请选择负责人',
+      label: '负责人',
       order: 5,
       multiple: true 
     },
   },
   {
-    fieldName: 'directorName',
+    fieldName: 'assistAdminNames',
     label: '协作人',
     width: "15%",
     minWidth: 120,

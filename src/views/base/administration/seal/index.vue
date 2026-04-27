@@ -71,12 +71,12 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
-// 编辑
 async function handleEdit(row) {
   const res = await getDetail(row.id);
   if (res) {
     let data = res.data || res;
-    data.dids = data.dids ? data.dids.split(",") : [];
+    // 转为数字数组
+    data.dids = data.dids ? data.dids.split(",").map(Number) : [];
     addDialogRef.value.openEdit(data);
   }
 }

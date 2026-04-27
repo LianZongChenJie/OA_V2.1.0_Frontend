@@ -20,7 +20,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'statusText',
+    fieldName: 'statusName',
     label: '项目状态',
     width: "12%",
     minWidth: 100,
@@ -32,7 +32,6 @@ export const columns = [
       placeholder: '请选择项目状态',
       order: 1,
       options: [
-        // { label: '未设置', value: 0 },
         { label: '未开始', value: 1 },
         { label: '进行中', value: 2 },
         { label: '已完成', value: 3 },
@@ -99,15 +98,15 @@ export const columns = [
     label: '当前阶段及负责人',
     minWidth: 200,
     align: 'center',
-    formatter: () => '-'
+    
   },
   {
-    fieldName: 'tasksUnfinish',
+    fieldName: 'tasksOngoing',
     label: '进行中任务',
     width: "10%",
     minWidth: 80,
     align: 'center',
-    formatter: () => '-'
+    
   },
   {
     fieldName: 'tasksFinish',
@@ -115,7 +114,7 @@ export const columns = [
     width: "10%",
     minWidth: 80,
     align: 'center',
-    formatter: () => '-'
+    
   },
   {
     fieldName: 'tasksPensent',
@@ -123,7 +122,7 @@ export const columns = [
     width: "12%",
     minWidth: 100,
     align: 'center',
-    formatter: () => '-'
+    
   },
   {
     fieldName: 'adminName', 
@@ -133,34 +132,12 @@ export const columns = [
     align: 'center',
   },
   {
-  fieldName: 'updateTime',
+  fieldName: 'createTime',
   label: '创建时间',
   width: "20%",
   minWidth: 180,
   align: 'center',
-  formatter: (row) => {
-    let timestamp = row.create_time;
-    if (!timestamp) return '-';
-    
-    // 秒级时间戳（10位）转毫秒
-    if (String(timestamp).length === 10) {
-      timestamp = timestamp * 1000;
-    }
-    
-    const date = new Date(timestamp);
-    if (isNaN(date.getTime())) return '-';
-    
-  
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    
-    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
-}
 ];
 
 // 头部按钮
