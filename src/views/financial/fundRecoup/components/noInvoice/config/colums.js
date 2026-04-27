@@ -149,7 +149,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidate, onFundDetail) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidate) => {
   return {
     label: '操作',
     width: 240,
@@ -196,7 +196,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
         icon: 'documentation',
       },
       {
-        label: '冲红发票',
+        label: '作废',
         type: 'danger',
         size: 'small',
         isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 && Number(row.enterStatus) === 2,
@@ -209,9 +209,9 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
         label: '回款详情',
         type: 'success',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && [0,1].includes(Number(row.enterStatus)),
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && Number(row.enterStatus) === 0,
         onClick: (row) => {
-          onFundDetail && onFundDetail(row);
+          onOpen && onOpen(row);
         },
         icon: 'enter',
       },
