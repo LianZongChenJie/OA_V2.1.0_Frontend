@@ -22,7 +22,7 @@ export const columns = [
   {
     fieldName: 'ticketId',
     label: '发票Id',
-    width: "10%",
+    width: "5%",
     minWidth: 80,
     align: 'center',
   },
