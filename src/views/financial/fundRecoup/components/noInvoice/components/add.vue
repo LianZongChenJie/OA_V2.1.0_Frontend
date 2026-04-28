@@ -5,6 +5,9 @@
 
     <!-- 详情弹窗 -->
     <Detail ref="detailRef" @success="handleSuccess" />
+
+    <!-- 开票弹窗 -->
+    <OpenInvoice ref="openInvoiceRef" @success="handleSuccess" />
   </div>
 </template>
 
@@ -12,6 +15,7 @@
 import { ref } from "vue";
 import AddEdit from "./addEdit.vue";
 import Detail from "./detail.vue";
+import OpenInvoice from "./openInvoice.vue";
 
 // 接收父组件传递的属性（即使不使用也要声明以避免警告）
 const props = defineProps({
@@ -27,6 +31,7 @@ const props = defineProps({
 
 const addEditRef = ref(null);
 const detailRef = ref(null);
+const openInvoiceRef = ref(null);
 
 /** 显示弹窗 - 新增模式 */
 function open() {
@@ -43,6 +48,11 @@ function openView(data) {
   detailRef.value?.openView(data);
 }
 
+/** 显示弹窗 - 开票模式 */
+function openOpen(row) {
+  openInvoiceRef.value?.open(row);
+}
+
 /** 处理成功事件 */
 function handleSuccess() {
   emit("success");
@@ -54,5 +64,6 @@ defineExpose({
   open,
   openEdit,
   openView,
+  openOpen
 });
 </script>

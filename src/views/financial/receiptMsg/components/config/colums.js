@@ -113,6 +113,15 @@ export const columns = [
     width: 150,
     minWidth: 120,
   },
+  {
+    fieldName: 'payStatus',
+    label: '付款状态',
+    width: 150,
+    minWidth: 120,
+    align: 'center',
+    isDict: true,
+    dict: 'open_status',
+  },
 ];
 
 

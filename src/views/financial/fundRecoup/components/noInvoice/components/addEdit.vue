@@ -38,7 +38,7 @@ const isEdit = ref(false); // 是否为编辑模式
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  return isEdit.value ? "编辑开票" : "新增开票";
+  return isEdit.value ? "编辑回款" : "新增回款";
 });
 
 /** 关闭弹窗 */

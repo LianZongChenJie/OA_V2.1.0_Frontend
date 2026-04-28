@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{ tab: type }"
+      :params="{ tab: type, invoiceType: 0 }"
       row-key="id"
       ref="tableList"
     >
@@ -23,6 +23,15 @@
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <!-- 回款详情弹窗 -->
+    <el-dialog
+      v-model="fundDialogVisible"
+      title="回款详情"
+      width="60%"
+      :close-on-click-modal="false"
+    >
+      <HaveInvoice v-if="fundDialogVisible" :invoiceId="currentRowId" :type="type" :label="label" />
+    </el-dialog>
   </div>
 </template>
 <script setup>
@@ -33,6 +42,8 @@ import { getPageList, getDetail, del, updateStatus } from "@/api/financial/invoi
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import useUserStore from "@/store/modules/user";
+
+import HaveInvoice from "@/views/financial/fundRecoup/components/haveInvoice/index.vue";
 
 const props = defineProps({
   type: {
@@ -53,6 +64,8 @@ const route = useRoute();
 const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
+const fundDialogVisible = ref(false);
+const currentRowId = ref(null);
 
 /** 新增按钮操作 */
 function handleAdd() {
@@ -95,22 +108,15 @@ async function handleDelete(row) {
 }
 
 /** 开票按钮操作 */
-async function handleOpen(row) {
-  try {
-    await proxy.$modal.confirm('确认开票吗？');
-    await updateStatus({ id: row.id, openStatus: 1 });
-    proxy.$modal.msgSuccess("开票成功");
-    handleSuccess();
-  } catch (e) {
-    console.error('开票失败', e);
-  }
+function handleOpen(row) {
+  addDialogRef.value.openOpen(row);
 }
 
 /** 作废按钮操作 */
 async function handleInvalidate(row) {
   try {
     await proxy.$modal.confirm('确认作废吗？');
-    await updateStatus({ id: row.id, openStatus: 2 });
+    await updateStatus({ id: row.id, openStatus: 0,code: "",openTime:"",delivery:"" });
     proxy.$modal.msgSuccess("操作成功");
     handleSuccess();
   } catch (e) {
@@ -118,8 +124,14 @@ async function handleInvalidate(row) {
   }
 }
 
+/** 回款详情按钮操作 */
+function handleFundDetail(row) {
+  currentRowId.value = row.id;
+  fundDialogVisible.value = true;
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen,handleInvalidate);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen, handleInvalidate, handleFundDetail);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

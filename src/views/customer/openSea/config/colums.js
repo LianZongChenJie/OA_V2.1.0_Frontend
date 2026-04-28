@@ -13,7 +13,7 @@ export const columns = [
   {
     fieldName: 'grade',
     label: '客户等级',
-    width: 120,
+    width: "15%",
     minWidth: 100,
     align: 'center',
     searchable: {
@@ -30,6 +30,7 @@ export const columns = [
   {
     fieldName: 'name',
     label: '客户名称',
+    width: "25%",
     minWidth: 200,
     searchable: {
       type: 'input',
@@ -42,7 +43,7 @@ export const columns = [
   {
     fieldName: 'customerStatus',
     label: '客户状态',
-    width: 120,
+    width: "15%",
     minWidth: 100,
     align: 'center',
     isDict: true,
@@ -59,7 +60,7 @@ export const columns = [
   {
     fieldName: 'intentStatus',
     label: '客户意向',
-    width: 120,
+    width: "15%",
     minWidth: 100,
     align: 'center',
     isDict: true,
@@ -76,19 +77,19 @@ export const columns = [
   {
     fieldName: 'contactName',
     label: '联系人',
-    width: 120,
+    width: "10%",
     minWidth: 100,
   },
   {
     fieldName: 'contactMobile',
     label: '联系电话',
-    width: 130,
+    width: "10%",
     minWidth: 120,
   },
   {
     fieldName: 'followTimeStr',
     label: '最近跟进时间',
-    width: 180,
+    width: "20%",
     minWidth: 160,
     searchable: {
       type: 'dateRange',
@@ -102,7 +103,7 @@ export const columns = [
   {
     fieldName: 'nextTimeStr',
     label: '下次跟进时间',
-    width: 180,
+    width: "20%",
     minWidth: 160,
     searchable: {
       type: 'dateRange',
@@ -116,7 +117,7 @@ export const columns = [
   {
     fieldName: 'source',
     label: '来源渠道',
-    width: 120,
+    width: "10%",
     minWidth: 100,
     searchable: {
       type: 'selectApi',
@@ -132,7 +133,7 @@ export const columns = [
   {
     fieldName: 'industry',
     label: '客户所属行业',
-    width: 140,
+    width: "10%",
     minWidth: 120,
     searchable: {
       type: 'selectApi',
@@ -160,7 +161,7 @@ export const columns = [
   {
     fieldName: 'createTimeStr',
     label: '创建时间',
-    width: 180,
+    width: "10%",
     minWidth: 160,
   },
 ];

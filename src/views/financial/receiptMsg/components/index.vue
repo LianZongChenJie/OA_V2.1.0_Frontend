@@ -18,6 +18,9 @@
       <template #openStatus="{ row }">
         <dict-tag :options="open_status" :value="Number(row.openStatus)" />
       </template>
+      <template #payStatus="{ row }">
+        <dict-tag :options="receipt_pay_status" :value="Number(row.payStatus)" />
+      </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
   </div>
@@ -44,7 +47,7 @@ const props = defineProps({
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
-const { invoice_type, check_status, open_status } = proxy.useDict("invoice_type", "check_status", "open_status");
+const { invoice_type, check_status, open_status,receipt_pay_status } = proxy.useDict("invoice_type", "check_status", "open_status","receipt_pay_status");
 
 const route = useRoute();
 const router = useRouter();
