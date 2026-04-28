@@ -39,6 +39,10 @@ const props = defineProps({
     type: [String, Number],
     default: null,
   },
+  payStatus: {
+    type: [String, Number],
+    default: null,
+  },
 });
 
 const currColumns = computed(() => {
@@ -59,7 +63,7 @@ const addDialogRef = ref(null);
 const tableParams = computed(() => {
   const params = { tab: props.type };
   if (props.invoiceId) {
-    params.id = props.invoiceId;
+    params.ticketId = props.invoiceId;
   }
   return params;
 });
@@ -86,7 +90,14 @@ async function handleDelete(row) {
   }
 }
 
-const headerButs = props.invoiceId ? getHeaderButs(handleAdd) : [];
+// 如果发票存在且付款状态不是"全款完成"(假设值为2)，则显示新增按钮
+const headerButs = computed(() => {
+  // payStatus: 2 表示全款完成，此时不显示新增按钮
+  if (props.invoiceId && props.payStatus !== 2) {
+    return getHeaderButs(handleAdd);
+  }
+  return [];
+});
 const operationColumn = getOperationColumn(handleDelete);
 </script>
 <style lang="scss" scoped>

@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{ tab: type,isTicket:1 }"
+      :params="{ tab: type, isTicket: 1 }"
       row-key="id"
       ref="tableList"
     >
@@ -19,10 +19,18 @@
         <dict-tag :options="open_status" :value="Number(row.openStatus)" />
       </template>
       <template #payStatus="{ row }">
-        <dict-tag :options="receipt_pay_status" :value="Number(row.payStatus)" />
+        <dict-tag
+          :options="receipt_pay_status"
+          :value="Number(row.payStatus)"
+        />
       </template>
     </TableList>
-    <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <AddDialog
+      ref="addDialogRef"
+      @success="handleSuccess"
+      :type="type"
+      :label="label"
+    />
     <!-- 付款详情对话框 -->
     <el-dialog
       v-model="paymentDetailVisible"
@@ -30,13 +38,16 @@
       width="60%"
       :close-on-click-modal="false"
       @close="paymentDetailVisible = false"
+      class="payment-detail-dialog"
     >
       <HaveInvoice
         v-if="paymentDetailVisible"
         :invoiceId="currentInvoiceId"
+        :payStatus="currentPayStatus"
         :type="2"
         :label="'付款'"
       />
+      <template #footer></template>
     </el-dialog>
   </div>
 </template>
@@ -44,7 +55,12 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del, updateStatus } from "@/api/financial/receiptMsg";
+import {
+  getPageList,
+  getDetail,
+  del,
+  updateStatus,
+} from "@/api/financial/receiptMsg";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import useUserStore from "@/store/modules/user";
@@ -63,7 +79,13 @@ const props = defineProps({
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
-const { invoice_type, check_status, open_status,receipt_pay_status } = proxy.useDict("invoice_type", "check_status", "open_status","receipt_pay_status");
+const { invoice_type, check_status, open_status, receipt_pay_status } =
+  proxy.useDict(
+    "invoice_type",
+    "check_status",
+    "open_status",
+    "receipt_pay_status",
+  );
 
 const route = useRoute();
 const router = useRouter();
@@ -71,6 +93,7 @@ const tableList = ref(null);
 const addDialogRef = ref(null);
 const paymentDetailVisible = ref(false);
 const currentInvoiceId = ref(null);
+const currentPayStatus = ref(null);
 
 /** 新增按钮操作 */
 function handleAdd() {
@@ -103,38 +126,58 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm('确认删除该发票吗？');
+    await proxy.$modal.confirm("确认删除该发票吗？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();
   } catch (e) {
-    console.error('删除失败', e);
+    console.error("删除失败", e);
   }
 }
 
 /** 开票按钮操作 */
 async function handleOpen(row) {
   try {
-    await proxy.$modal.confirm('确认开票吗？');
+    await proxy.$modal.confirm("确认开票吗？");
     await updateStatus({ id: row.id, openStatus: 1 });
     proxy.$modal.msgSuccess("开票成功");
     handleSuccess();
   } catch (e) {
-    console.error('开票失败', e);
+    console.error("开票失败", e);
   }
 }
 
 /** 付款详情按钮操作 */
 function handlePaymentDetail(row) {
   currentInvoiceId.value = row.id;
+  currentPayStatus.value = row.payStatus;
   paymentDetailVisible.value = true;
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen, handlePaymentDetail);
+const operationColumn = getOperationColumn(
+  handleEdit,
+  handleView,
+  handleDelete,
+  handleOpen,
+  handlePaymentDetail,
+);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
   height: calc(100% - 50px);
+}
+</style>
+<style lang="scss">
+// 付款详情弹窗滚动样式
+.payment-detail-dialog {
+  .el-dialog__body {
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+}
+.el-dialog__footer {
+  border-top:none;
+  box-shadow: none;
 }
 </style>

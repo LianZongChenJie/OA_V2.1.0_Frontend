@@ -28,7 +28,7 @@
         :flowId="currentData?.checkFlowId"
         :actionId="currentData?.id"
         :disabled="!isApprovalFlowEditable"
-        flow-title="收票"
+        flow-title="付款"
       />
     </div>
 

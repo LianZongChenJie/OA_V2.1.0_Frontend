@@ -3,78 +3,19 @@
     ref="formRef"
     :model="form"
     :rules="readonly ? {} : rules"
-    label-width="120px"
+    label-width="150px"
   >
     <!-- 收票信息 -->
-    <div class="form-section-title">收票信息</div>
+    <div class="form-section-title">付款信息</div>
 
-    <!-- 第一行：发票金额 + 发票号码 -->
+    <!-- 收款方 + 付款方 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="发票金额" prop="amount">
-          <el-input-number
-            v-model="form.amount"
-            :min="0"
-            :precision="2"
-            placeholder="请输入发票金额"
-            :disabled="readonly"
-            style="width: 100%; padding-right: 30px"
-          />
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item label="发票号码" prop="code">
-          <el-input
-            v-model="form.code"
-            placeholder="请输入发票号码"
-            :disabled="readonly"
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
-
-    <!-- 第二行：发票类型 + 发票日期 -->
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-form-item label="发票类型" prop="invoiceType">
-          <el-select
-            v-model="form.invoiceType"
-            :disabled="readonly"
-            placeholder="请选择发票类型"
-            clearable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="dict in invoice_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item label="发票日期" prop="openTime">
-          <el-date-picker
-            v-model="form.openTime"
-            type="date"
-            placeholder="请选择发票日期"
-            :disabled="readonly"
-            value-format="YYYY-MM-DD"
-            style="width: 100%"
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
-
-    <!-- 第三行：发票抬头 + 开票主体(供应商) -->
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-form-item label="发票抬头" prop="invoiceTitle">
+        <el-form-item label="付款方" prop="invoiceTitle">
           <el-select
             v-model="form.invoiceTitle"
             :disabled="readonly"
-            placeholder="请选择发票抬头"
+            placeholder="请选择付款方"
             clearable
             filterable
             style="width: 100%"
@@ -89,11 +30,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="开票主体" prop="supplierId">
+        <el-form-item label="收款方" prop="supplierId">
           <el-select
             v-model="form.supplierId"
             :disabled="readonly"
-            placeholder="请选择供应商"
+            placeholder="请选择收款方"
             clearable
             filterable
             style="width: 100%"
@@ -108,11 +49,25 @@
         </el-form-item>
       </el-col>
     </el-row>
-
+    <!-- 预付款金额 -->
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="预付款金额" prop="amount">
+          <el-input-number
+            v-model="form.amount"
+            :min="0"
+            :precision="2"
+            placeholder="请输入预付款金额"
+            :disabled="readonly"
+            style="width: 100%; padding-right: 30px"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
     <!-- 其他信息 -->
     <div class="form-section-title">其他信息</div>
 
-    <!-- 第四行：关联合同 + 关系项目 -->
+    <!-- 关联合同 + 关联项目 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="关联合同" prop="purchaseId">
@@ -134,11 +89,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="关系项目" prop="projectId">
+        <el-form-item label="关联项目" prop="projectId">
           <el-select
             v-model="form.projectId"
             :disabled="readonly"
-            placeholder="请选择关系项目"
+            placeholder="请选择关联项目"
             clearable
             filterable
             style="width: 100%"
@@ -154,15 +109,15 @@
       </el-col>
     </el-row>
 
-    <!-- 第五行：备注信息 -->
+    <!-- 备注 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="备注信息" prop="remark">
+        <el-form-item label="备注" prop="remark">
           <el-input
             v-model="form.remark"
             type="textarea"
             :rows="4"
-            placeholder="请输入备注信息"
+            placeholder="请输入备注"
             :disabled="readonly"
           />
         </el-form-item>
@@ -177,11 +132,9 @@ import { getPageList as getContractPageList } from "@/api/contract/salesContract
 import { getPageList as getProjectPageList } from "@/api/project/itemList";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import { getPageList as getCustomerPageList } from "@/api/customer/list";
-import { deptTreeSelect } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();
-const { invoice_type } = proxy.useDict("invoice_type");
 const userStore = useUserStore();
 
 const props = defineProps({
@@ -204,36 +157,33 @@ const contractOptions = ref([]);
 const projectOptions = ref([]);
 const enterpriseOptions = ref([]);
 const customerOptions = ref([]);
-const deptOptions = ref([]);
 
 // 当前登录用户信息
 const currentUserInfo = ref({
   userId: "",
-  deptId: ""
+  deptId: "",
 });
 
 // 表单数据
 const form = reactive({
   id: undefined,
   amount: undefined,
-  code: "",
-  invoiceType: "",
-  openTime: "",
   invoiceTitle: "",
   supplierId: "",
   purchaseId: "",
   projectId: "",
   remark: "",
+  isTicket: 1,
+  invoiceType: 0,
   adminId: "",
   did: "",
 });
 
 // 验证规则
 const rules = {
-  amount: [{ required: true, message: "请输入发票金额", trigger: "blur" }],
-  invoiceType: [{ required: true, message: "请选择发票类型", trigger: "change" }],
-  invoiceTitle: [{ required: true, message: "请选择发票抬头", trigger: "change" }],
-  supplierId: [{ required: true, message: "请选择供应商", trigger: "change" }],
+  amount: [{ required: true, message: "请输入预付款金额", trigger: "blur" }],
+  invoiceTitle: [{ required: true, message: "请选择付款方", trigger: "change" }],
+  supplierId: [{ required: true, message: "请选择收款方", trigger: "change" }],
 };
 
 /** 获取合同列表 */
@@ -264,25 +214,17 @@ function getCustomerList() {
   });
 }
 
-/** 获取部门树 */
-function getDeptTree() {
-  deptTreeSelect().then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
 /** 重置表单 */
 function resetForm() {
   form.id = undefined;
   form.amount = undefined;
-  form.code = "";
-  form.invoiceType = "";
-  form.openTime = "";
   form.invoiceTitle = "";
   form.supplierId = "";
   form.purchaseId = "";
   form.projectId = "";
   form.remark = "";
+  form.isTicket = 1;
+  form.invoiceType = 0;
   form.adminId = currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
   formRef.value?.clearValidate();
@@ -292,14 +234,13 @@ function resetForm() {
 function setFormData(data) {
   form.id = data.id;
   form.amount = data.amount || undefined;
-  form.code = data.code || "";
-  form.invoiceType = data.invoiceType !== undefined && data.invoiceType !== null ? String(data.invoiceType) : "";
-  form.openTime = data.openTime || "";
   form.invoiceTitle = data.invoiceTitle || "";
   form.supplierId = data.supplierId || "";
   form.purchaseId = data.purchaseId || "";
   form.projectId = data.projectId || "";
   form.remark = data.remark || "";
+  form.isTicket = 1;
+  form.invoiceType = 0;
   form.adminId = data.adminId || currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
 }
@@ -313,7 +254,7 @@ function getFormData() {
 function setCurrentUserInfo() {
   currentUserInfo.value = {
     userId: userStore.id || "",
-    deptId: userStore.deptId || ""
+    deptId: userStore.deptId || "",
   };
   form.adminId = currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
@@ -326,7 +267,6 @@ onMounted(() => {
   getProjectList();
   getEnterpriseList();
   getCustomerList();
-  getDeptTree();
 });
 
 // 暴露方法给父组件

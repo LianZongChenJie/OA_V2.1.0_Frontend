@@ -169,7 +169,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         label: '付款详情',
         type: 'warning',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 && [0,1].includes(Number(row.payStatus)),
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 ,
         onClick: (row) => {
           onPaymentDetail && onPaymentDetail(row);
         },
