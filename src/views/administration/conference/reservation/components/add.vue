@@ -239,7 +239,6 @@ function handleSubmit() {
   formRef.value.validate(valid => {
     if (!valid) return;
 
-    // 🔥 核心修复：所有数字字段强制转整数，避免null/字符串
     const data = {
       ...form,
       id: form.id || undefined,

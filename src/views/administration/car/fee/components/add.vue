@@ -244,7 +244,6 @@ function reset() {
   isView.value = false;
 }
 
-// 🔥 修复：关闭弹窗时强制清除校验
 function handleClose() {
   if (formRef.value) {
     formRef.value.clearValidate();
@@ -259,14 +258,13 @@ function open() {
   dialogVisible.value = true;
 }
 
-// 🔥 编辑：核心修复！强制转数字类型
+
 function openEdit(data) {
   reset();
   Object.assign(form, {
     id: data.id,
     carId: Number(data.carId),
     title: data.title,
-    // 🔥 关键：将字符串 "0.00" 转为数字
     amount: Number(data.amount),
     types: Number(data.types),
     feeTime: data.feeTime ? new Date(data.feeTime * 1000) : null,

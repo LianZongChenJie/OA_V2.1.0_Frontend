@@ -371,7 +371,7 @@ const disabledDate = (time) => {
 async function loadWorkCateList() {
   try {
     const res = await getWorkCateList({ pageSize: 1000 , pageNum: 1});
-    workCateList.value = (res.rows || []).filter(item => item.status === 0);
+    workCateList.value = (res.rows || []).filter(item => item.status === 1);
   } catch (err) {
     console.error("加载工作类型失败:", err);
   }
