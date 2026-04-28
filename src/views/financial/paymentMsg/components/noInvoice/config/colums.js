@@ -66,14 +66,14 @@ export const columns = [
   {
     fieldName: 'deptName',
     label: '所属部门',
-    width: "20%",
+    width: "15%",
     minWidth: 100,
     show: false,
   },
   {
     fieldName: 'createTime',
     label: '申请时间',
-    width: "10%",
+    width: "15%",
     minWidth: 120,
   },
 ];
@@ -118,7 +118,37 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
           onDelete && onDelete(row);
         },
         icon: 'delete',
-      }
+      },
+      {
+        label: '开票',
+        type: 'warning',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && Number(row.enterStatus) === 2,
+        onClick: (row) => {
+          onOpen && onOpen(row);
+        },
+        icon: 'documentation',
+      },
+      {
+        label: '冲红发票',
+        type: 'danger',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 && Number(row.enterStatus) === 2,
+        onClick: (row) => {
+          onInvalidate && onInvalidate(row);
+        },
+        icon: 'delete',
+      },
+      {
+        label: '回款详情',
+        type: 'success',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && [0, 1].includes(Number(row.enterStatus)),
+        onClick: (row) => {
+          onFundDetail && onFundDetail(row);
+        },
+        icon: 'enter',
+      },
     ],
   };
 };
