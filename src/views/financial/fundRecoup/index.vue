@@ -8,8 +8,8 @@
           :name="tab.name"
         ></el-tab-pane>
       </el-tabs>
-      <HaveInvoice v-if="activeType === 0" :activeLabel="activeLabel"></HaveInvoice>
-      <NoInvoice v-if="activeType === 1" :activeLabel="activeLabel"></NoInvoice>
+      <HaveInvoice v-if="activeType === 0" :type="activeType" :label="activeLabel"></HaveInvoice>
+      <NoInvoice v-if="activeType === 1" :type="activeType" :label="activeLabel"></NoInvoice>
     </div>
   </div>
 </template>
