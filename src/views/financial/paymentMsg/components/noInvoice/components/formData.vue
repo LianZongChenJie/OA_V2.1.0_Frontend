@@ -5,54 +5,47 @@
     :rules="readonly ? {} : rules"
     label-width="120px"
   >
-    <!-- 第一行：预回款金额 + 收款主体 -->
+    <!-- 收票信息 -->
+    <div class="form-section-title">收票信息</div>
+
+    <!-- 第一行：发票金额 + 发票号码 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="预回款金额" prop="amount">
+        <el-form-item label="发票金额" prop="amount">
           <el-input-number
             v-model="form.amount"
             :min="0"
             :precision="2"
-            placeholder="请输入预回款金额"
+            placeholder="请输入发票金额"
             :disabled="readonly"
             style="width: 100%; padding-right: 30px"
           />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="收款主体" prop="invoiceSubject">
-          <el-select
-            v-model="form.invoiceSubject"
+        <el-form-item label="发票号码" prop="code">
+          <el-input
+            v-model="form.code"
+            placeholder="请输入发票号码"
             :disabled="readonly"
-            placeholder="请选择收款主体"
-            clearable
-            filterable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in enterpriseOptions"
-              :key="item.id"
-              :label="item.title"
-              :value="item.id"
-            />
-          </el-select>
+          />
         </el-form-item>
       </el-col>
     </el-row>
 
-    <!-- 第二行：付款主体类型 + 付款方名称 -->
+    <!-- 第二行：发票类型 + 发票日期 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="付款主体类型" prop="types">
+        <el-form-item label="发票类型" prop="invoiceType">
           <el-select
-            v-model="form.types"
+            v-model="form.invoiceType"
             :disabled="readonly"
-            placeholder="请选择付款主体类型"
+            placeholder="请选择发票类型"
             clearable
             style="width: 100%"
           >
             <el-option
-              v-for="dict in invoice_title_type"
+              v-for="dict in invoice_type"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
@@ -61,35 +54,70 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="付款方名称" prop="invoiceTitle">
-          <el-input
-            v-model="form.invoiceTitle"
-            placeholder="请输入付款方名称"
+        <el-form-item label="发票日期" prop="openTime">
+          <el-date-picker
+            v-model="form.openTime"
+            type="date"
+            placeholder="请选择发票日期"
             :disabled="readonly"
+            value-format="YYYY-MM-DD"
+            style="width: 100%"
           />
         </el-form-item>
       </el-col>
     </el-row>
 
-    <!-- 第三行：纳税人识别号 -->
+    <!-- 第三行：发票抬头 + 开票主体(供应商) -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="纳税人识别号" prop="invoiceTax">
-          <el-input
-            v-model="form.invoiceTax"
-            placeholder="请输入纳税人识别号或者身份证"
-            :disabled="readonly"
-          />
-        </el-form-item>
-      </el-col>
-    </el-row>
-
-    <!-- 第四行：关联合同 + 关联项目 -->
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-form-item label="关联合同" prop="contractId">
+        <el-form-item label="发票抬头" prop="invoiceTitle">
           <el-select
-            v-model="form.contractId"
+            v-model="form.invoiceTitle"
+            :disabled="readonly"
+            placeholder="请选择发票抬头"
+            clearable
+            filterable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in enterpriseOptions"
+              :key="item.id"
+              :label="item.title"
+              :value="item.title"
+            />
+          </el-select>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item label="开票主体" prop="supplierId">
+          <el-select
+            v-model="form.supplierId"
+            :disabled="readonly"
+            placeholder="请选择供应商"
+            clearable
+            filterable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in customerOptions"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <!-- 其他信息 -->
+    <div class="form-section-title">其他信息</div>
+
+    <!-- 第四行：关联合同 + 关系项目 -->
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="关联合同" prop="purchaseId">
+          <el-select
+            v-model="form.purchaseId"
             :disabled="readonly"
             placeholder="请选择关联合同"
             clearable
@@ -106,11 +134,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="关联项目" prop="projectId">
+        <el-form-item label="关系项目" prop="projectId">
           <el-select
             v-model="form.projectId"
             :disabled="readonly"
-            placeholder="请选择关联项目"
+            placeholder="请选择关系项目"
             clearable
             filterable
             style="width: 100%"
@@ -126,23 +154,20 @@
       </el-col>
     </el-row>
 
-    <!-- 开票类型(隐藏) -->
-    <el-form-item label="开票类型" prop="invoiceType" v-show="false">
-      <el-select
-        v-model="form.invoiceType"
-        :disabled="readonly"
-        placeholder="请选择开票类型"
-        clearable
-        style="width: 100%"
-      >
-        <el-option
-          v-for="dict in invoice_type"
-          :key="dict.value"
-          :label="dict.label"
-          :value="dict.value"
-        />
-      </el-select>
-    </el-form-item>
+    <!-- 第五行：备注信息 -->
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-form-item label="备注信息" prop="remark">
+          <el-input
+            v-model="form.remark"
+            type="textarea"
+            :rows="4"
+            placeholder="请输入备注信息"
+            :disabled="readonly"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
   </el-form>
 </template>
 
@@ -151,19 +176,19 @@ import { ref, reactive, getCurrentInstance, onMounted } from "vue";
 import { getPageList as getContractPageList } from "@/api/contract/salesContract";
 import { getPageList as getProjectPageList } from "@/api/project/itemList";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
+import { getPageList as getCustomerPageList } from "@/api/customer/list";
+import { deptTreeSelect } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();
-const { invoice_title_type, invoice_type } = proxy.useDict("invoice_title_type", "invoice_type");
+const { invoice_type } = proxy.useDict("invoice_type");
 const userStore = useUserStore();
 
 const props = defineProps({
-  // 是否只读
   readonly: {
     type: Boolean,
     default: false,
   },
-  // 表单数据
   modelValue: {
     type: Object,
     default: () => ({}),
@@ -178,6 +203,8 @@ const formRef = ref(null);
 const contractOptions = ref([]);
 const projectOptions = ref([]);
 const enterpriseOptions = ref([]);
+const customerOptions = ref([]);
+const deptOptions = ref([]);
 
 // 当前登录用户信息
 const currentUserInfo = ref({
@@ -188,25 +215,25 @@ const currentUserInfo = ref({
 // 表单数据
 const form = reactive({
   id: undefined,
-  types: "",
-  invoiceType: "0",
-  invoiceTitle: "",
-  invoiceTax: "",
   amount: undefined,
-  invoiceSubject: "",
-  contractId: "",
+  code: "",
+  invoiceType: "",
+  openTime: "",
+  invoiceTitle: "",
+  supplierId: "",
+  purchaseId: "",
   projectId: "",
+  remark: "",
   adminId: "",
   did: "",
 });
 
 // 验证规则
 const rules = {
-  types: [{ required: true, message: "请选择付款主体类型", trigger: "change" }],
-  invoiceTitle: [{ required: true, message: "请输入付款方名称", trigger: "blur" }],
-  invoiceTax: [{ required: true, message: "请输入纳税人识别号", trigger: "blur" }],
-  amount: [{ required: true, message: "请输入预回款金额", trigger: "blur" }],
-  invoiceSubject: [{ required: true, message: "请选择收款主体", trigger: "change" }],
+  amount: [{ required: true, message: "请输入发票金额", trigger: "blur" }],
+  invoiceType: [{ required: true, message: "请选择发票类型", trigger: "change" }],
+  invoiceTitle: [{ required: true, message: "请选择发票抬头", trigger: "change" }],
+  supplierId: [{ required: true, message: "请选择供应商", trigger: "change" }],
 };
 
 /** 获取合同列表 */
@@ -230,17 +257,32 @@ function getEnterpriseList() {
   });
 }
 
+/** 获取客户列表 */
+function getCustomerList() {
+  getCustomerPageList({ pageNum: 1, pageSize: 100 }).then((response) => {
+    customerOptions.value = response.rows || [];
+  });
+}
+
+/** 获取部门树 */
+function getDeptTree() {
+  deptTreeSelect().then((response) => {
+    deptOptions.value = response.data || [];
+  });
+}
+
 /** 重置表单 */
 function resetForm() {
   form.id = undefined;
-  form.types = "";
-  form.invoiceType = "0";
-  form.invoiceTitle = "";
-  form.invoiceTax = "";
   form.amount = undefined;
-  form.invoiceSubject = "";
-  form.contractId = "";
+  form.code = "";
+  form.invoiceType = "";
+  form.openTime = "";
+  form.invoiceTitle = "";
+  form.supplierId = "";
+  form.purchaseId = "";
   form.projectId = "";
+  form.remark = "";
   form.adminId = currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
   formRef.value?.clearValidate();
@@ -249,16 +291,16 @@ function resetForm() {
 /** 填充表单数据 */
 function setFormData(data) {
   form.id = data.id;
-  form.types = data.types !== undefined && data.types !== null ? String(data.types) : "";
-  form.invoiceType = data.invoiceType !== undefined && data.invoiceType !== null ? String(data.invoiceType) : "0";
-  form.invoiceTitle = data.invoiceTitle || "";
-  form.invoiceTax = data.invoiceTax || "";
   form.amount = data.amount || undefined;
-  form.invoiceSubject = data.invoiceSubject || "";
-  form.contractId = data.contractId || "";
+  form.code = data.code || "";
+  form.invoiceType = data.invoiceType !== undefined && data.invoiceType !== null ? String(data.invoiceType) : "";
+  form.openTime = data.openTime || "";
+  form.invoiceTitle = data.invoiceTitle || "";
+  form.supplierId = data.supplierId || "";
+  form.purchaseId = data.purchaseId || "";
   form.projectId = data.projectId || "";
-  form.adminId = data.adminId || "";
-  // did 始终设置为当前登录人所在的部门
+  form.remark = data.remark || "";
+  form.adminId = data.adminId || currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
 }
 
@@ -274,7 +316,6 @@ function setCurrentUserInfo() {
     deptId: userStore.deptId || ""
   };
   form.adminId = currentUserInfo.value.userId;
-  form.adminName = userStore.nickName || "";
   form.did = currentUserInfo.value.deptId;
 }
 
@@ -284,6 +325,8 @@ onMounted(() => {
   getContractList();
   getProjectList();
   getEnterpriseList();
+  getCustomerList();
+  getDeptTree();
 });
 
 // 暴露方法给父组件
@@ -297,4 +340,12 @@ defineExpose({
 </script>
 
 <style scoped>
+.form-section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #303133;
+  margin: 20px 0 15px 0;
+  padding-left: 10px;
+  border-left: 3px solid #409eff;
+}
 </style>

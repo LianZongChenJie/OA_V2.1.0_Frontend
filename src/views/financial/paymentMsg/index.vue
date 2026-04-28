@@ -37,8 +37,8 @@ const activeLabel = computed(() => {
 });
 
 const tabs = reactive([
-  { label: "有发票的回款", name: "haveInVoice", type: 0 },
-  { label: "无发票的回款", name: "noInVoice", type: 1 },
+  { label: "有发票的付款", name: "haveInVoice", type: 0 },
+  { label: "无发票的付款", name: "noInVoice", type: 1 },
 ]);
 
 function handleClick(tab) {

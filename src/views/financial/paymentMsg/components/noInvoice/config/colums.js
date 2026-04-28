@@ -1,5 +1,3 @@
-import { listUser } from '@/api/system/user.js';
-
 export const columns = [
   {
     fieldName: 'id',
@@ -8,35 +6,31 @@ export const columns = [
     minWidth: 80,
     align: 'center',
   },
-
-  {
-    fieldName: 'enterStatus',
-    label: '回款状态',
-    width: "15%",
-    minWidth: 120,
-    align: 'center',
-    isDict: true,
-    dict: 'enter_status',
-    searchable: {
-      type: 'select',
-      dictKey: 'enter_status',
-      fieldName: 'enterStatus',
-      placeholder: '请选择回款状态',
-      label: '回款状态',
-      order: 5,
-    },
-  },
+  
   {
     fieldName: 'amount',
-    label: '预回款金额(元)',
+    label: '付款金额(元)',
     width: "10%",
     minWidth: 110,
     align: 'right',
   },
   {
+    fieldName: 'openTime',
+    label: '付款时间',
+    width: "10%",
+    minWidth: 120,
+  },
+  {
+    fieldName: 'customerName',
+    label: '供应商[发票主体]',
+    minWidth: 200,
+    width: "20%",
+  },
+
+  {
     fieldName: 'checkStatus',
     label: '审批状态',
-    width: "15%",
+    width: "10%",
     minWidth: 100,
     align: 'center',
     isDict: true,
@@ -58,23 +52,17 @@ export const columns = [
   },
   {
     fieldName: 'adminName',
-    label: '回款员工',
+    label: '申请员工',
     width: "10%",
     minWidth: 100,
     show: false,
   },
   {
     fieldName: 'deptName',
-    label: '所属部门',
-    width: "15%",
-    minWidth: 100,
+    label: '申请部门', 
+    width: "20%",
+    minWidth: 100, 
     show: false,
-  },
-  {
-    fieldName: 'createTime',
-    label: '申请时间',
-    width: "15%",
-    minWidth: 120,
   },
 ];
 
@@ -83,7 +71,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidate, onFundDetail) => {
+export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
     width: 240,
@@ -118,37 +106,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
           onDelete && onDelete(row);
         },
         icon: 'delete',
-      },
-      {
-        label: '开票',
-        type: 'warning',
-        size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && Number(row.enterStatus) === 2,
-        onClick: (row) => {
-          onOpen && onOpen(row);
-        },
-        icon: 'documentation',
-      },
-      {
-        label: '冲红发票',
-        type: 'danger',
-        size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 && Number(row.enterStatus) === 2,
-        onClick: (row) => {
-          onInvalidate && onInvalidate(row);
-        },
-        icon: 'delete',
-      },
-      {
-        label: '回款详情',
-        type: 'success',
-        size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && [0, 1].includes(Number(row.enterStatus)),
-        onClick: (row) => {
-          onFundDetail && onFundDetail(row);
-        },
-        icon: 'enter',
-      },
+      }
     ],
   };
 };

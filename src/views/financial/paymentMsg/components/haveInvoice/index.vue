@@ -21,7 +21,8 @@
 <script setup>
 import { ref, getCurrentInstance, computed } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, del } from "@/api/financial/fundRecoup";
+//src/api/financial/paymentMsg/index.js
+import { getPageList, del } from "@/api/financial/paymentMsg";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 

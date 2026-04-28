@@ -28,7 +28,7 @@
 
 <script setup name="AddEditInvoice">
 import { ref, getCurrentInstance, nextTick } from "vue";
-import { add } from "@/api/financial/fundRecoup";
+import { add } from "@/api/financial/paymentMsg";
 import FormData from "./formData.vue";
 
 const { proxy } = getCurrentInstance();

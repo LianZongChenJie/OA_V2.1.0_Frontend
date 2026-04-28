@@ -14,14 +14,21 @@ export const columns = [
     align: 'right',
   },
   {
-    fieldName: 'enterTime',
+    fieldName: 'payTime',
     label: '回款时间',
     width: "10%",
     minWidth: 120,
   },
   {
-    fieldName: 'invoiceId',
+    fieldName: 'ticketId',
     label: '发票Id',
+    width: "10%",
+    minWidth: 80,
+    align: 'center',
+  },
+  {
+    fieldName: 'ticketCode',
+    label: '发票编码',
     width: "10%",
     minWidth: 80,
     align: 'center',
@@ -39,7 +46,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'userName',
+    fieldName: 'adminName',
     label: '申请人',
     width: "10%",
     minWidth: 100,

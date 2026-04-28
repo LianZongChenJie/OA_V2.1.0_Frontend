@@ -27,7 +27,7 @@
 
 <script setup name="AddEditInvoice">
 import { ref, computed, getCurrentInstance, nextTick } from "vue";
-import { add, update } from "@/api/financial/invoiceMsg";
+import { add, update } from "@/api/financial/receiptMsg";
 import FormData from "./formData.vue";
 
 const { proxy } = getCurrentInstance();
@@ -38,7 +38,7 @@ const isEdit = ref(false); // 是否为编辑模式
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  return isEdit.value ? "编辑回款" : "新增回款";
+  return isEdit.value ? "编辑开票" : "新增开票";
 });
 
 /** 关闭弹窗 */
