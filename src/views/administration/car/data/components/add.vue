@@ -297,7 +297,7 @@ function reset() {
   isView.value = false;
 }
 
-// 关闭弹窗（修复版）
+// 关闭弹窗
 function handleClose() {
   if (formRef.value) {
     formRef.value.clearValidate();
@@ -312,7 +312,7 @@ function open() {
   dialogVisible.value = true;
 }
 
-// 编辑（已修复：数字类型 + 时间类型）
+// 编辑
 function openEdit(data) {
   reset();
   Object.assign(form, {
@@ -339,7 +339,7 @@ function openEdit(data) {
   dialogVisible.value = true;
 }
 
-// 查看（已修复）
+// 查看
 function openView(data) {
   reset();
   Object.assign(form, {
