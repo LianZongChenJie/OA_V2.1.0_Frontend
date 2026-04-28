@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{ tab: type }"
+      :params="{ tab: type,isTicket:1 }"
       row-key="id"
       ref="tableList"
     >
@@ -23,6 +23,21 @@
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <!-- 付款详情对话框 -->
+    <el-dialog
+      v-model="paymentDetailVisible"
+      title="付款详情"
+      width="60%"
+      :close-on-click-modal="false"
+      @close="paymentDetailVisible = false"
+    >
+      <HaveInvoice
+        v-if="paymentDetailVisible"
+        :invoiceId="currentInvoiceId"
+        :type="2"
+        :label="'付款'"
+      />
+    </el-dialog>
   </div>
 </template>
 <script setup>
@@ -33,6 +48,7 @@ import { getPageList, getDetail, del, updateStatus } from "@/api/financial/recei
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import useUserStore from "@/store/modules/user";
+import HaveInvoice from "@/views/financial/paymentMsg/components/haveInvoice/index.vue";
 
 const props = defineProps({
   type: {
@@ -53,6 +69,8 @@ const route = useRoute();
 const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
+const paymentDetailVisible = ref(false);
+const currentInvoiceId = ref(null);
 
 /** 新增按钮操作 */
 function handleAdd() {
@@ -106,8 +124,14 @@ async function handleOpen(row) {
   }
 }
 
+/** 付款详情按钮操作 */
+function handlePaymentDetail(row) {
+  currentInvoiceId.value = row.id;
+  paymentDetailVisible.value = true;
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen, handlePaymentDetail);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

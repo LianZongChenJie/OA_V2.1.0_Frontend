@@ -8,23 +8,16 @@ export const columns = [
   },
   {
     fieldName: 'amount',
-    label: '回款金额(元)',
+    label: '付款金额(元)',
     width: "10%",
     minWidth: 110,
     align: 'right',
   },
   {
     fieldName: 'payTime',
-    label: '回款时间',
+    label: '付款时间',
     width: "10%",
     minWidth: 120,
-  },
-  {
-    fieldName: 'ticketId',
-    label: '发票Id',
-    width: "5%",
-    minWidth: 80,
-    align: 'center',
   },
   {
     fieldName: 'ticketCode',

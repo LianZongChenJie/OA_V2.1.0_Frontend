@@ -5,17 +5,17 @@
     :rules="readonly ? {} : rules"
     label-width="120px"
   >
-    <!-- 回款信息 -->
-    <div class="form-section-title">回款信息</div>
+    <!-- 付款信息 -->
+    <div class="form-section-title">付款信息</div>
 
-    <!-- 第一行：回款日期 + 回款金额 -->
+    <!-- 第一行：付款日期 + 付款金额 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="回款日期" prop="enterTime">
+        <el-form-item label="付款日期" prop="payTime">
           <el-date-picker
-            v-model="form.enterTime"
+            v-model="form.payTime"
             type="date"
-            placeholder="请选择回款日期"
+            placeholder="请选择付款日期"
             :disabled="readonly"
             style="width: 100%"
             value-format="YYYY-MM-DD"
@@ -23,12 +23,12 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="回款金额(元)" prop="amount">
+        <el-form-item label="付款金额(元)" prop="amount">
           <el-input-number
             v-model="form.amount"
             :min="0"
             :precision="2"
-            placeholder="请输入回款金额"
+            placeholder="请输入付款金额"
             :disabled="readonly"
             style="width: 100%; padding-right: 30px"
           />
@@ -91,27 +91,29 @@ const currentUserInfo = ref({
 // 表单数据
 const form = reactive({
   id: undefined,
-  invoiceId: undefined,
-  enterTime: "",
+  ticketId: undefined,
+  payTime: "",
   amount: undefined,
   remarks: "",
+  status: 1,
   adminId: "",
   did: "",
 });
 
 // 验证规则
 const rules = {
-  enterTime: [{ required: true, message: "请选择回款日期", trigger: "change" }],
-  amount: [{ required: true, message: "请输入回款金额", trigger: "blur" }],
+  payTime: [{ required: true, message: "请选择付款日期", trigger: "change" }],
+  amount: [{ required: true, message: "请输入付款金额", trigger: "blur" }],
 };
 
 /** 重置表单 */
 function resetForm() {
   form.id = undefined;
-  form.invoiceId = props.invoiceId || undefined;
-  form.enterTime = "";
+  form.ticketId = props.invoiceId || undefined;
+  form.payTime = "";
   form.amount = undefined;
   form.remarks = "";
+  form.status = 1;
   form.adminId = currentUserInfo.value.userId;
   form.did = currentUserInfo.value.deptId;
   formRef.value?.clearValidate();
@@ -120,9 +122,10 @@ function resetForm() {
 /** 填充表单数据 */
 function setFormData(data) {
   form.id = data.id;
-  form.enterTime = data.enterTime || "";
+  form.payTime = data.payTime || "";
   form.amount = data.amount || undefined;
   form.remarks = data.remarks || "";
+  form.status = data.status || 1;
   form.adminId = data.adminId || "";
   // did 始终设置为当前登录人所在的部门
   form.did = currentUserInfo.value.deptId;
