@@ -98,7 +98,15 @@ const headerButs = computed(() => {
   }
   return [];
 });
-const operationColumn = getOperationColumn(handleDelete);
+
+// 操作栏与新增按钮同步显示
+const operationColumn = computed(() => {
+  // 与新增按钮使用相同的条件 props.invoiceId && props.payStatus !== 2
+  if (props.invoiceId ) {
+    return getOperationColumn(handleDelete);
+  }
+  return null;
+});
 </script>
 <style lang="scss" scoped>
 .tabs-container {

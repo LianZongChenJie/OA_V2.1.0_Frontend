@@ -173,6 +173,7 @@ const operationColumn = getOperationColumn(
 .payment-detail-dialog {
   .el-dialog__body {
     max-height: 70vh;
+    min-height: 30vh;
     overflow-y: auto;
   }
 }
