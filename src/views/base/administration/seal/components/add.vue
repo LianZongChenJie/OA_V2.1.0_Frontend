@@ -36,14 +36,7 @@
           v-model="form.dids"
           :options="deptOptions"
           :multiple="true"
-          :props="{
-            value: 'id',
-            label: 'label',
-            children: 'children',
-            checkStrictly: true,
-            emitPath: false,
-            disabled: 'disabled'
-          }"
+          :props="cascaderProps"
           :disabled="isView"
           placeholder="请选择应用部门"
           clearable
@@ -87,13 +80,24 @@ const isEdit = ref(false);
 const isView = ref(false);
 const deptOptions = ref([]);
 const userOptions = ref([]);
-const deptLoaded = ref(false);
+const deptMap = ref(new Map()); 
+
+// 级联选择器配置
+const cascaderProps = {
+  value: 'id',
+  label: 'label',
+  children: 'children',
+  checkStrictly: true,
+  multiple: true,
+  emitPath: true, 
+  disabled: 'disabled'
+};
 
 const form = reactive({
   id: undefined,
   title: "",
   keepUid: null,
-  dids: [],
+  dids: [], 
   remark: "",
   status: 1
 });
@@ -127,9 +131,28 @@ async function loadDeptOptions() {
   const res = await deptTreeSelect();
   const treeData = setDeptDisabled(res.data || []);
   deptOptions.value = treeData;
-  deptLoaded.value = true;
+  
+  buildDeptMap(treeData);
+  
   console.log('部门树加载完成:', deptOptions.value);
   return deptOptions.value;
+}
+
+// 构建部门映射表
+function buildDeptMap(tree, parentPath = []) {
+  if (!tree || !Array.isArray(tree)) return;
+  
+  for (const node of tree) {
+    const currentPath = [...parentPath, node.id];
+    deptMap.value.set(node.id, {
+      ...node,
+      path: currentPath
+    });
+    
+    if (node.children && node.children.length) {
+      buildDeptMap(node.children, currentPath);
+    }
+  }
 }
 
 // 部门禁用递归处理
@@ -143,6 +166,35 @@ function setDeptDisabled(depts) {
     }
     return newItem;
   });
+}
+
+// 将部门ID数组转换为路径数组
+function convertIdsToPaths(deptIds) {
+  if (!deptIds || deptIds.length === 0) return [];
+  
+  const paths = [];
+  for (const id of deptIds) {
+    const deptInfo = deptMap.value.get(Number(id));
+    if (deptInfo && deptInfo.path) {
+      paths.push(deptInfo.path);
+    } else {
+      console.warn(`未找到部门ID ${id} 的路径，使用单值`);
+      paths.push([Number(id)]);
+    }
+  }
+  return paths;
+}
+
+// 从路径数组中提取部门ID
+function extractIdsFromPaths(paths) {
+  if (!paths || !Array.isArray(paths)) return [];
+  
+  return paths.map(path => {
+    if (Array.isArray(path) && path.length > 0) {
+      return path[path.length - 1];
+    }
+    return path;
+  }).filter(id => id !== null && id !== undefined);
 }
 
 function reset() {
@@ -169,76 +221,59 @@ function open() {
   dialogVisible.value = true;
 }
 
-// 编辑回显处理
+// 编辑回显
 async function openEdit(data) {
   reset();
   
-  console.log('=== 编辑回显调试 ===');
-  console.log('1. 原始 data:', data);
-  console.log('2. 原始 data.dids:', data.dids, typeof data.dids);
+  console.log('=== 编辑回显数据 ===', data);
   
-  // 确保部门树已加载
-  if (!deptLoaded.value && deptOptions.value.length === 0) {
-    console.log('等待部门树加载...');
+  if (deptOptions.value.length === 0) {
     await loadDeptOptions();
   }
   
-  console.log('3. deptOptions 加载完成，长度:', deptOptions.value.length);
-  console.log('4. deptOptions 中的部门ID示例:', deptOptions.value[0]?.id, typeof deptOptions.value[0]?.id);
-  
+  // 填充基础信息
   form.id = data.id;
   form.title = data.title || "";
   form.keepUid = data.keepUid ? Number(data.keepUid) : null;
   form.remark = data.remark || "";
   form.status = data.status ?? 1;
   
-  // 统一转为数字数组
+  // 处理部门ID
+  let deptIds = [];
   if (data.dids) {
     if (typeof data.dids === "string") {
-      form.dids = data.dids.split(",").filter(Boolean).map(Number);
+      deptIds = data.dids.split(",").filter(Boolean).map(Number);
     } else if (Array.isArray(data.dids)) {
-      form.dids = data.dids.map(item => Number(item));
-    } else {
-      form.dids = [];
+      deptIds = data.dids.map(id => Number(id));
     }
-  } else {
-    form.dids = [];
   }
   
-  console.log('5. 转换后 form.dids (数字数组):', form.dids);
+  console.log('部门ID数组:', deptIds);
   
-  // 检查部门是否存在
-  const checkDepts = form.dids.map(id => {
-    const found = findDeptById(deptOptions.value, id);
-    return { id, found: !!found, name: found?.label };
-  });
-  console.log('6. 部门检查结果:', checkDepts);
+  // 转换为路径数组
+  form.dids = convertIdsToPaths(deptIds);
+  
+  console.log('路径数组:', form.dids);
   
   isEdit.value = true;
-  
-  // 先打开弹窗
   dialogVisible.value = true;
   
-  // 等待 DOM 更新后强制刷新 cascader
+  // 强制刷新
   await nextTick();
-  await nextTick(); // 双重 nextTick 确保 DOM 完全渲染
-  
-  // 如果还是没显示，强制重新赋值
   if (form.dids.length > 0) {
     const temp = [...form.dids];
     form.dids = [];
     await nextTick();
     form.dids = temp;
-    console.log('7. 强制刷新后的 form.dids:', form.dids);
   }
 }
 
-// 查看回显处理
+// 查看回显
 async function openView(data) {
   reset();
   
   // 确保部门树已加载
-  if (!deptLoaded.value && deptOptions.value.length === 0) {
+  if (deptOptions.value.length === 0) {
     await loadDeptOptions();
   }
   
@@ -248,43 +283,30 @@ async function openView(data) {
   form.remark = data.remark || "";
   form.status = data.status ?? 1;
   
-  // 统一转为数字数组
+  // 处理部门ID
+  let deptIds = [];
   if (data.dids) {
     if (typeof data.dids === "string") {
-      form.dids = data.dids.split(",").filter(Boolean).map(Number);
+      deptIds = data.dids.split(",").filter(Boolean).map(Number);
     } else if (Array.isArray(data.dids)) {
-      form.dids = data.dids.map(item => Number(item));
-    } else {
-      form.dids = [];
+      deptIds = data.dids.map(id => Number(id));
     }
-  } else {
-    form.dids = [];
   }
-
+  
+  form.dids = convertIdsToPaths(deptIds);
+  
   isView.value = true;
   dialogVisible.value = true;
   
   await nextTick();
-  await nextTick();
-}
-
-// 辅助函数：递归查找部门
-function findDeptById(tree, id) {
-  if (!tree || !Array.isArray(tree)) return null;
-  for (const node of tree) {
-    if (node.id === id) return node;
-    if (node.children && node.children.length) {
-      const found = findDeptById(node.children, id);
-      if (found) return found;
-    }
-  }
-  return null;
 }
 
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (!valid) return;
 
+    const deptIds = extractIdsFromPaths(form.dids);
+    
     const submitData = {
       id: form.id,
       title: form.title,
@@ -293,17 +315,11 @@ function handleSubmit() {
       status: form.status
     };
     
-    // 确保 dids 是数组并转为字符串再 join
-    let didsArray = form.dids;
-    if (!Array.isArray(didsArray)) {
-      didsArray = didsArray ? [String(didsArray)] : [];
-    } else if (didsArray.length > 0) {
-      didsArray = didsArray.map(String);
+    if (deptIds.length > 0) {
+      submitData.dids = deptIds.join(",");
     }
     
-    if (didsArray.length > 0) {
-      submitData.dids = didsArray.join(",");
-    }
+    console.log('提交数据:', submitData);
 
     const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
     apiMethod(submitData).then(() => {

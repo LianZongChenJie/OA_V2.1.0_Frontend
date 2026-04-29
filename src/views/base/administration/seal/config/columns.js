@@ -9,7 +9,7 @@ export const columns = [
   {
     fieldName: 'title',
     label: '印章名称',
-    width: "20%",
+    width: "25%",
     minWidth: 120,
   },
   {
@@ -21,14 +21,14 @@ export const columns = [
   {
     fieldName: 'keeperName',
     label: '保管人',
-    width: "15%",
+    width: "20%",
     minWidth: 120,
     align: 'center',
   },
   {
     fieldName: 'status',
     label: '状态',
-    width: "10%",
+    width: "auto",
     minWidth: 100,
     align: 'center',
     formatter: (row) => {

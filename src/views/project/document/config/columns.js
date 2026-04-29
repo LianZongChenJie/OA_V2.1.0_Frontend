@@ -36,12 +36,14 @@ export const columns = [
     minWidth: 180,
     align: 'center',
     searchable: {
-      type: 'select',
-      fieldName: 'projectId',
-      label: '所属项目',
+      type: 'selectApi',
+      api: getPageList,
+      optionValue: 'id',       
+      optionLabel: 'title',
+      fieldName: 'projectId',  
       placeholder: '请选择所属项目',
+      label: '所属项目',
       order: 1,
-      options: [], 
     },
   },
   {
