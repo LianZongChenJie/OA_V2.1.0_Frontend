@@ -86,7 +86,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable, onenable) => {
+export const getOperationColumn = (onEdit, onView,onDisable, onenable) => {
   return {
     label: '操作',
     width: 280,

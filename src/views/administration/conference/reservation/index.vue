@@ -8,7 +8,6 @@
       row-key="id"
       ref="tableList"
     >
-      <!-- 时间格式化用本地函数，不依赖全局 $formatDate -->
       <template #createTime="{ row }">
         <span>{{ row.createTime }}</span>
       </template>
@@ -34,7 +33,6 @@ const getPageListFix = async (params) => {
     res.rows = res.rows.map(item => {
       if (Array.isArray(item)) {
         const data = item[0] || {};
-        // 把会议室名称赋值进去
         data.roomName = item[1] || ""; 
         return data;
       }
@@ -50,14 +48,12 @@ function handleAdd() {
 
 // 编辑
 async function handleEdit(row) {
-  // 🔥 直接用列表里的真实对象，不请求详情
   const realRow = Array.isArray(row) ? row[0] : row;
   addDialogRef.value.openEdit(realRow);
 }
 
 // 查看
 async function handleView(row) {
-  // 🔥 直接用列表里的真实对象
   const realRow = Array.isArray(row) ? row[0] : row;
   addDialogRef.value.openView(realRow);
 }

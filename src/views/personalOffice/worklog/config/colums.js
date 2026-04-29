@@ -9,7 +9,7 @@ export const getColumns = () => [
     align: 'center',
   },
   {
-    fieldName: 'cid',
+    fieldName: 'laborName',
     label: '工作类型',
     width: 100, 
     minWidth: 80,
@@ -33,16 +33,14 @@ export const getColumns = () => [
   },
   {
     fieldName: 'userName',
-    label: '执行人',
-    width: 100, 
-    minWidth: 80,
+    label: '执行人', 
+    minWidth: 100,
     align: 'center',
   },
   {
     fieldName: 'laborTime',
-    label: '工时',
-    width: 100, 
-    minWidth: 80,
+    label: '工时', 
+    minWidth: 60,
     align: 'center',
   },
   {
@@ -60,7 +58,7 @@ export const getColumns = () => [
   {
     fieldName: 'createTime',
     label: '记录时间',
-    width: 180,
+    width: "auto",
     minWidth: 160,
     align: 'center',
   },

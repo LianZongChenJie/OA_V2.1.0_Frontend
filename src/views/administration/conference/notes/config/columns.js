@@ -17,8 +17,8 @@ export const columns = [
   {
     fieldName: 'meetingDate',
     label: '会议时间',
-    width: "15%",
-    minWidth: 120,
+    width: "20%",
+    minWidth: 100,
     align: 'center',
     searchable: {
       type: 'date',
@@ -30,7 +30,6 @@ export const columns = [
     // 时间戳转日期格式化
     formatter: (row) => {
       if (!row.meetingDate) return '-';
-      // 兼容10位/13位时间戳
       const timestamp = row.meetingDate.toString().length === 10 ? row.meetingDate * 1000 : row.meetingDate;
       return new Date(timestamp).toLocaleString('zh-CN', {
         year: 'numeric',
@@ -57,7 +56,7 @@ export const columns = [
   {
     fieldName: 'deptName',
     label: '主办部门',
-    width: "25%",
+    width: "20%",
     minWidth: 150,
     align: 'center',
   },

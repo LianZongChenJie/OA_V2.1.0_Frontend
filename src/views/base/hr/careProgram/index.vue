@@ -19,7 +19,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, deletereward } from "@/api/base/hr/careprogram/index.js";
+import { getPageList, getDetail, deletereward , updateStatus} from "@/api/base/hr/careprogram/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
@@ -54,14 +54,19 @@ async function handleView(row) {
   }
 }
 
-/** 删除按钮操作 */
-async function handleDelete(row) {
+/** 禁用/启用按钮操作 */
+async function handleDisable(row) {
+  const newStatus = row.status === 1 ? 0 : 1;
   proxy.$modal
-    .confirm("确定要永久删除该数据吗？删除后无法恢复！")
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该关怀项目吗?`)
     .then(async () => {
-      const res = await deletereward(row.id);
+      const res = await updateStatus({
+        id: row.id,
+        status: newStatus
+      });
+      
       if (res) {
-        proxy.$modal.msgSuccess("删除成功");
+        proxy.$modal.msgSuccess(`${newStatus === 1 ? '启用' : '禁用'}成功`);
         tableList.value.refresh();
       }
     })
@@ -74,6 +79,6 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleDelete, handleView);
+const operationColumn = getOperationColumn(handleEdit, handleDisable, handleDisable);
 </script>
 <style lang="scss" scoped></style>
