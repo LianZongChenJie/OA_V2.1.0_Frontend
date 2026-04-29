@@ -58,7 +58,7 @@ async function handleView(row) {
 async function handleDisable(row) {
   const newStatus = row.status === 1 ? 0 : 1;
   proxy.$modal
-    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}吗?`)
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该奖罚项目吗?`)
     .then(async () => {
       const res = await updateStatus({
         id: row.id,

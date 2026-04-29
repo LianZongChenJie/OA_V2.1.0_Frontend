@@ -41,17 +41,17 @@ const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false); // 是否为编辑模式
-const isView = ref(false); // 是否为查看模式
+const isEdit = ref(false);
+const isView = ref(false);
 
+// ✅ 修复：types 强制字符串
 const form = reactive({
   id: undefined,
   title: "",
-  types: props.type,
+  types: String(props.type),
   status: 1,
 });
 
-// 根据模式动态显示标题
 const dialogTitle = computed(() => {
   if (isView.value) return `查看${props.label}`;
   return isEdit.value ? `编辑${props.label}` : `新增${props.label}`;
@@ -61,11 +61,10 @@ const rules = computed(() => ({
   title: [{ required: true, message: `请输入${props.label}`, trigger: "blur" }],
 }));
 
-/** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.types = props.type;
+  form.types = String(props.type); // ✅ 修复
   form.status = 1;
 
   isEdit.value = false;
@@ -73,46 +72,37 @@ function reset() {
   formRef.value?.clearValidate();
 }
 
-/** 关闭弹窗 */
 function handleClose() {
   reset();
 }
 
-/** 显示弹窗 - 新增模式 */
 function open() {
-  console.log("===open====>");
-  
   reset();
   dialogVisible.value = true;
 }
 
-/** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.types = data.types || props.type;
+  form.types = String(data.types || props.type); // ✅ 修复
   form.status = data.status;
 
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-/** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.types = data.types || props.type;
+  form.types = String(data.types || props.type); // ✅ 修复
   form.status = data.status;
 
   isView.value = true;
   dialogVisible.value = true;
 }
 
-/** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
@@ -141,13 +131,11 @@ defineExpose({
 </style>  
 
 <style>
-/* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
 .approval-module-dialog .el-dialog {
   max-height: 88vh;
   display: flex;
   flex-direction: column;
 }
-
 .approval-module-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
   overflow-y: auto;
