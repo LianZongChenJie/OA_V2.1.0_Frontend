@@ -16,7 +16,7 @@ export const getColumns = () => [
     align: 'center',
   },
   {
-    fieldName: 'cid',
+    fieldName: 'cateName',
     label: '工作类别',
     width: 100, 
     minWidth: 80,
@@ -24,7 +24,7 @@ export const getColumns = () => [
   },
   {
     fieldName: 'workTimeRange',
-    label: '日程时间范围',
+    label: '工作时间范围',
     width: "20%",
     minWidth: 160,
     align: 'center',
@@ -32,14 +32,14 @@ export const getColumns = () => [
     slotName: 'workTimeRange',
   },
   {
-    fieldName: 'cid',
+    fieldName: 'userName',
     label: '执行人',
     width: 100, 
     minWidth: 80,
     align: 'center',
   },
   {
-    fieldName: 'cid',
+    fieldName: 'laborTime',
     label: '工时',
     width: 100, 
     minWidth: 80,
@@ -58,7 +58,7 @@ export const getColumns = () => [
     },
   },
   {
-    fieldName: 'remindTime',
+    fieldName: 'createTime',
     label: '记录时间',
     width: 180,
     minWidth: 160,
