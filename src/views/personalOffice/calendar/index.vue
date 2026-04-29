@@ -2,6 +2,28 @@
   <div class="main-content">
     <div class="calendar-box">
       <el-calendar v-model="currentDate">
+        <template #header="{ date }">
+          <div class="calendar-toolbar">
+            <el-select v-model="selectedUid" placeholder="请选择员工" clearable>
+              <el-option
+                v-for="item in userOptions"
+                :key="item.userId"
+                :label="item.nickName"
+                :value="item.userId"
+              />
+            </el-select>
+          </div>
+          <div class="calendar-toolbar-center">
+            {{ date }}
+          </div>
+          <div class="calendar-toolbar-right">
+            <el-button-group>
+              <el-button @click="selectDate('prev-month')"> 上个月 </el-button>
+              <el-button @click="selectDate('today')">当月</el-button>
+              <el-button @click="selectDate('next-month')"> 下个月 </el-button>
+            </el-button-group>
+          </div>
+        </template>
         <template #date-cell="{ data }">
           <div
             :class="['calendar-cell', { 'is-selected': isSelected(data.date) }]"
@@ -29,14 +51,25 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
-import { ElCalendar } from "element-plus";
-import { ElMessage } from "element-plus";
+import { ref, watch, onMounted } from "vue";
+import { ElCalendar, ElMessage } from "element-plus";
 import { getDateList } from "@/api/personalOffice/calendar";
+import { listUser } from "@/api/system/user";
+import useUserStore from "@/store/modules/user";
 import ScheduleModal from "./components/ScheduleModal.vue";
 
+const userStore = useUserStore();
+const selectedUid = ref(userStore.id);
+const userOptions = ref([]);
+
+// 加载员工列表
+const loadUserOptions = () => {
+  listUser({ pageNum: 1, pageSize: 1000 }).then((res) => {
+    userOptions.value = res.rows || [];
+  });
+};
+
 const currentDate = ref(new Date());
-const selectedDates = ref([]);
 
 const isSelected = (date) => {
   return dateList.value[getDateKey(date)]?.length > 0;
@@ -54,13 +87,15 @@ const isCurrentMonth = (date) => {
 // 判断日期是否属于当前日期之前的日期
 const isBeforeCurrentDate = (date) => {
   const d = new Date(date);
+  const currentDate = new Date();
+
   return (
-    d.getFullYear() < currentDate.value.getFullYear() ||
-    (d.getFullYear() === currentDate.value.getFullYear() &&
-      d.getMonth() < currentDate.value.getMonth()) ||
-    (d.getFullYear() === currentDate.value.getFullYear() &&
-      d.getMonth() === currentDate.value.getMonth() &&
-      d.getDate() < currentDate.value.getDate())
+    d.getFullYear() < currentDate.getFullYear() ||
+    (d.getFullYear() === currentDate.getFullYear() &&
+      d.getMonth() < currentDate.getMonth()) ||
+    (d.getFullYear() === currentDate.getFullYear() &&
+      d.getMonth() === currentDate.getMonth() &&
+      d.getDate() < currentDate.getDate())
   );
 };
 
@@ -104,7 +139,6 @@ const dateList = ref({});
 
 // 将接口返回数据转换为 dateList 格式
 const transformDateList = (data) => {
-
   const result = {};
 
   data.forEach((item) => {
@@ -152,27 +186,79 @@ const getMonthRange = (date) => {
 // 加载日历数据
 const loadCalendarData = () => {
   const { beginTime, endTime } = getMonthRange(currentDate.value);
-  getDateList({ beginTime, endTime }).then((res) => {
+  const params = { beginTime, endTime };
+  if (selectedUid.value) {
+    params.uid = selectedUid.value;
+  }
+  getDateList(params).then((res) => {
     if (res.data) {
       dateList.value = transformDateList(res.data);
     }
   });
 };
+const selectDate = (type) => {
+  const now = new Date();
 
+  if (type === "prev-month") {
+    currentDate.value = new Date(
+      currentDate.value.getFullYear(),
+      currentDate.value.getMonth() - 1,
+      1,
+    );
+    if (
+      currentDate.value.getMonth() === now.getMonth() &&
+      currentDate.value.getFullYear() === now.getFullYear()
+    ) {
+      currentDate.value = new Date();
+    }
+  } else if (type === "next-month") {
+    currentDate.value = new Date(
+      currentDate.value.getFullYear(),
+      currentDate.value.getMonth() + 1,
+      1,
+    );
+    if (
+      currentDate.value.getMonth() === now.getMonth() &&
+      currentDate.value.getFullYear() === now.getFullYear()
+    ) {
+      currentDate.value = new Date();
+    }
+  } else if (type === "today") {
+    currentDate.value = new Date();
+  }
+};
 // 监听日期变化，切换月份时重新加载数据
 watch(currentDate, () => {
   loadCalendarData();
 });
 
+// 监听员工选择变化，重新加载数据
+watch(selectedUid, () => {
+  loadCalendarData();
+});
+
 onMounted(() => {
+  loadUserOptions();
   loadCalendarData();
 });
 </script>
 
 <style scoped>
+.calendar-toolbar,
+.calendar-toolbar-right,
+.calendar-toolbar-center {
+  min-width: 300px;
+  margin: 5px 0;
+}
+.calendar-toolbar-right {
+  text-align: right;
+}
+.calendar-toolbar-center {
+  text-align: center;
+}
 .calendar-box {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 50px);
   background-color: #fff;
   border-radius: 4px;
 }
