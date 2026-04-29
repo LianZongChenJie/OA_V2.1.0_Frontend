@@ -96,8 +96,8 @@
         />
       </el-form-item>
 
-      <!-- 审批流程（新增必填校验） -->
-      <el-form-item label="审批流程" prop="flowId" >
+      <!-- 审批流程 -->
+      <el-form-item label="审批流程" prop="flowId">
         <el-select
           v-model="form.flowId"
           :disabled="isView"
@@ -115,7 +115,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="审批人" prop="adminId" >
+      <el-form-item label="审批人" prop="adminId">
         <el-select
           v-model="form.adminId"
           :disabled="isView"
@@ -168,8 +168,6 @@ import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from
 import { addenterPrise, updateenterPrise } from "@/api/administration/conference/reservation/index.js";
 import { listUser } from "@/api/system/user.js";
 import { getPageList } from "@/api/administration/conference/room/index.js";
-// 新增审批流程接口（如果有后端接口，替换为真实接口）
-// import { getFlowList } from "@/api/system/flow.js";
 
 const { proxy } = getCurrentInstance();
 
@@ -180,7 +178,7 @@ const isView = ref(false);
 
 const userOptions = ref([]);
 const roomOptions = ref([]);
-const flowOptions = ref([]); // 审批流程选项
+const flowOptions = ref([]);
 
 const form = reactive({
   id: undefined,
@@ -197,8 +195,8 @@ const form = reactive({
 });
 
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看";
-  return isEdit.value ? "编辑" : "新增";
+  if (isView.value) return "查看会议预订";
+  return isEdit.value ? "编辑会议预订" : "新增会议预订";
 });
 
 const rules = {
@@ -209,9 +207,7 @@ const rules = {
   num: [
     { required: true, message: "请输入会议人数", trigger: "blur" },
     { pattern: /^[1-9]\d*$/, message: "必须是正整数", trigger: "blur" }
-  ],
-  // flowId: [{ required: true, message: "请选择审批流程", trigger: "change" }], 
-  // adminId: [{ required: true, message: "请选择审批人", trigger: "change" }],
+  ]
 };
 
 onMounted(() => {
@@ -219,6 +215,7 @@ onMounted(() => {
   listUser({ pageSize: 1000 }).then(res => {
     userOptions.value = (res.rows || []).filter(u => u.status === "0");
   });
+  
   // 加载会议室列表
   getPageList({ pageSize: 1000 }).then(res => {
     let list = [];
@@ -229,28 +226,49 @@ onMounted(() => {
     }
     roomOptions.value = list;
   });
-  // 加载审批流程列表（替换为真实接口）
-  // getFlowList({ pageSize: 1000 }).then(res => {
-  //   flowOptions.value = res.rows || [];
-  // });
 });
 
 function handleSubmit() {
   formRef.value.validate(valid => {
     if (!valid) return;
 
-    const data = {
-      ...form,
-      id: form.id || undefined,
-      roomId: Number(form.roomId) || 0,
-      flowId: Number(form.flowId) || 0,
-      adminId: Number(form.adminId) || 0,
-      num: Number(form.num) || 0,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      requirements: form.requirementList.join('、') + (form.requirements ? '；' + form.requirements : ''),
-      ccUids: form.ccUids.join(',') || ''
-    };
+    // 处理需求字段
+    let requirementsText = form.requirementList.join('、');
+    if (form.requirements && form.requirements.trim()) {
+      requirementsText += (requirementsText ? '；' : '') + form.requirements;
+    }
+
+    // 只构建需要提交的字段，不包含后端自动生成的字段
+    const data = {};
+    
+    // 基础必填字段
+    data.title = form.title;
+    data.roomId = Number(form.roomId);
+    data.startDate = form.startDate;
+    data.endDate = form.endDate;
+    data.num = Number(form.num);
+    data.requirements = requirementsText;
+    
+    // 处理抄送人（如果有值）
+    if (form.ccUids && form.ccUids.length > 0) {
+      data.ccUids = form.ccUids.join(',');
+    }
+    
+    // 编辑时传id
+    if (isEdit.value && form.id) {
+      data.id = form.id;
+    }
+    
+    // 可选字段，只在有值时传递
+    if (form.flowId) {
+      data.flowId = Number(form.flowId);
+    }
+    
+    if (form.adminId) {
+      data.adminId = Number(form.adminId);
+    }
+
+    console.log('提交数据（不包含后端自动字段）:', data);
 
     const api = isEdit.value ? updateenterPrise : addenterPrise;
     api(data).then(() => {
@@ -258,16 +276,25 @@ function handleSubmit() {
       dialogVisible.value = false;
       emit("success");
     }).catch(err => {
-      console.error("提交失败详情：", err.response?.data);
-      proxy.$modal.msgError("操作失败，请检查数据");
+      console.error("提交失败详情：", err);
+      proxy.$modal.msgError(err.msg || "操作失败，请检查数据");
     });
   });
 }
 
 function reset() {
   Object.assign(form, {
-    id: undefined, title: "", roomId: null, startDate: "", endDate: "",
-    flowId: null, adminId: null, num: "", requirements: "", requirementList: [], ccUids: []
+    id: undefined, 
+    title: "", 
+    roomId: null, 
+    startDate: "", 
+    endDate: "",
+    flowId: null, 
+    adminId: null, 
+    num: "", 
+    requirements: "", 
+    requirementList: [], 
+    ccUids: []
   });
   isEdit.value = false;
   isView.value = false;
@@ -288,20 +315,52 @@ function open() {
 
 function openEdit(data) {
   reset();
-  const reqList = data.requirements ? data.requirements.split('、').filter(Boolean) : [];
   
-  Object.assign(form, {
-    ...data,
-    startDate: data.startDate || "",
-    endDate: data.endDate || "",
-    roomId: data.roomId || null,
-    flowId: data.flowId || null,
-    adminId: data.adminId || null,
-    num: (data.num ?? "").toString(),
-    ccUids: data.ccUids ? data.ccUids.split(',').map(Number) : [],
-    requirementList: reqList,
-    requirements: data.requirements || ""
-  });
+  console.log('编辑数据:', data);
+  
+  // 解析需求字段
+  let requirementList = [];
+  let requirements = "";
+  
+  if (data.requirements) {
+    // 按中文分号分隔
+    const parts = data.requirements.split('；');
+    if (parts.length > 0) {
+      // 第一部分可能包含checkbox选中的值（用顿号分隔）
+      const firstPart = parts[0];
+      const checkboxCandidates = firstPart.split('、').filter(Boolean);
+      
+      // 预定义的checkbox选项
+      const checkboxOptions = ['电子屏', '投影背景', '电脑', '视频', '购买水果', '订餐'];
+      
+      // 分离checkbox选中的值和其他文本
+      requirementList = checkboxCandidates.filter(item => checkboxOptions.includes(item));
+      
+      // 其他文本作为其他要求
+      const otherTexts = checkboxCandidates.filter(item => !checkboxOptions.includes(item));
+      if (otherTexts.length > 0) {
+        requirements = otherTexts.join('、');
+      }
+      
+      // 如果有更多部分，追加到其他要求
+      if (parts.length > 1) {
+        requirements += (requirements ? '；' : '') + parts.slice(1).join('；');
+      }
+    }
+  }
+  
+  // 只赋值需要的字段，不包含后端自动生成的字段
+  form.id = data.id;
+  form.title = data.title || "";
+  form.startDate = data.startDate || "";
+  form.endDate = data.endDate || "";
+  form.roomId = data.roomId ? Number(data.roomId) : null;
+  form.flowId = data.flowId ? Number(data.flowId) : null;
+  form.adminId = data.adminId ? Number(data.adminId) : null;
+  form.num = data.num ? String(data.num) : "";
+  form.ccUids = data.ccUids ? data.ccUids.split(',').filter(Boolean).map(Number) : [];
+  form.requirementList = requirementList;
+  form.requirements = requirements;
 
   isEdit.value = true;
   dialogVisible.value = true;
@@ -313,23 +372,51 @@ function openEdit(data) {
 
 function openView(data) {
   reset();
-  const reqList = data.requirements ? data.requirements.split('、').filter(Boolean) : [];
   
-  Object.assign(form, {
-    ...data,
-    startDate: data.startDate || "",
-    endDate: data.endDate || "",
-    roomId: data.roomId || null,
-    flowId: data.flowId || null,
-    adminId: data.adminId || null,
-    num: (data.num ?? "").toString(),
-    ccUids: data.ccUids ? data.ccUids.split(',').map(Number) : [],
-    requirementList: reqList,
-    requirements: data.requirements || ""
-  });
+  // 解析需求字段
+  let requirementList = [];
+  let requirements = "";
+  
+  if (data.requirements) {
+    const parts = data.requirements.split('；');
+    if (parts.length > 0) {
+      const firstPart = parts[0];
+      const checkboxCandidates = firstPart.split('、').filter(Boolean);
+      
+      const checkboxOptions = ['电子屏', '投影背景', '电脑', '视频', '购买水果', '订餐'];
+      
+      requirementList = checkboxCandidates.filter(item => checkboxOptions.includes(item));
+      
+      const otherTexts = checkboxCandidates.filter(item => !checkboxOptions.includes(item));
+      if (otherTexts.length > 0) {
+        requirements = otherTexts.join('、');
+      }
+      
+      if (parts.length > 1) {
+        requirements += (requirements ? '；' : '') + parts.slice(1).join('；');
+      }
+    }
+  }
+  
+  // 只赋值需要的字段
+  form.id = data.id;
+  form.title = data.title || "";
+  form.startDate = data.startDate || "";
+  form.endDate = data.endDate || "";
+  form.roomId = data.roomId ? Number(data.roomId) : null;
+  form.flowId = data.flowId ? Number(data.flowId) : null;
+  form.adminId = data.adminId ? Number(data.adminId) : null;
+  form.num = data.num ? String(data.num) : "";
+  form.ccUids = data.ccUids ? data.ccUids.split(',').filter(Boolean).map(Number) : [];
+  form.requirementList = requirementList;
+  form.requirements = requirements;
 
   isView.value = true;
   dialogVisible.value = true;
+  
+  nextTick(() => {
+    formRef.value?.clearValidate();
+  });
 }
 
 const emit = defineEmits(["success"]);

@@ -36,8 +36,8 @@ export const columns = [
   {
     fieldName: 'keepName',
     label: '管理员',
-    width: "8%",
-    minWidth: 100,
+    width: "10%",
+    minWidth: 120,
     align: 'center',
   },
   {

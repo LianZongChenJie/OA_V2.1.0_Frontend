@@ -20,7 +20,6 @@ export const columns = [
     fieldName: 'title',
     label: '文档主题',
     minWidth: 160,
-    align: 'center',
     searchable: {
       type: 'input',
       fieldName: 'keywords',

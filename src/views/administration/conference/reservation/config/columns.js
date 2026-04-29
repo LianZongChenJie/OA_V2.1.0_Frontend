@@ -14,7 +14,7 @@ export const columns = [
   },
   { fieldName: 'checkStatus', 
     label: '审批状态',
-     width: "10%", 
+     width: "8%", 
      align: 'center',
     formatter: (row) => {
       const map = {0:'待提交',1:'审批中',2:'已通过',3:'已驳回'};
@@ -34,7 +34,8 @@ export const columns = [
   },
   { fieldName: 'meetingTimeStr', 
     label: '会议时间', 
-    width: "20%", 
+    width: "18%", 
+    minWidth: 120,
     align: 'center',
   },
   { 
@@ -46,7 +47,7 @@ export const columns = [
   { 
     fieldName: 'num', 
     label: '人数',
-     width: "8%", 
+     width: "6%", 
      align: 'center'
   },
   {
@@ -64,7 +65,7 @@ export const columns = [
   { 
     fieldName: 'createTime',
      label: '创建时间',
-      width: "12%",
+      width: "18%",
        align: 'center' 
   }
 ];
@@ -72,7 +73,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
@@ -120,7 +121,7 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
