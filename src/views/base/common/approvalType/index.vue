@@ -67,7 +67,7 @@ const addDialogRef = ref(null);
 
 /** 行过滤函数 - 只显示 isList 为 1 的行 */
 const rowFilter = (row) => {
-  return row.isList === 1;
+  return true;
 };
 
 /** 新增按钮操作 */

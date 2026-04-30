@@ -91,7 +91,7 @@ export const columns = [
   },
   {
     fieldName: 'isList',
-    label: '列表显示',
+    label: '快捷展示',
     width: "5%",
     minWidth: 100,
     align: 'center',
