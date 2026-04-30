@@ -94,6 +94,8 @@
           clearable
           :disabled="isView"
           style="width: 100%"
+          check-strictly
+          value-key="id"
         />
       </el-form-item>
       <el-divider class="divider" content-position="left">消息配置</el-divider>
@@ -118,38 +120,38 @@
       <el-divider class="divider" content-position="left">功能配置</el-divider>
       <el-form-item label="审批通过通知抄送" prop="isCopy">
         <el-radio-group v-model="form.isCopy" :disabled="isView">
-          <el-radio :value="1">抄送</el-radio>
-          <el-radio :value="0">不抄送</el-radio>
+          <el-radio :label="1">抄送</el-radio>
+          <el-radio :label="0">不抄送</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="支持上传附件" prop="isFile">
         <el-radio-group v-model="form.isFile" :disabled="isView">
-          <el-radio :value="1">支持</el-radio>
-          <el-radio :value="0">不支持</el-radio>
+          <el-radio :label="1">支持</el-radio>
+          <el-radio :label="0">不支持</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="支持导出PDF打印" prop="isExport">
         <el-radio-group v-model="form.isExport" :disabled="isView">
-          <el-radio :value="1">支持</el-radio>
-          <el-radio :value="0">不支持</el-radio>
+          <el-radio :label="1">支持</el-radio>
+          <el-radio :label="0">不支持</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="支持撤回" prop="isBack">
         <el-radio-group v-model="form.isBack" :disabled="isView">
-          <el-radio :value="1">支持</el-radio>
-          <el-radio :value="0">不支持</el-radio>
+          <el-radio :label="1">支持</el-radio>
+          <el-radio :label="0">不支持</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="支持反确认" prop="isReversed">
         <el-radio-group v-model="form.isReversed" :disabled="isView">
-          <el-radio :value="1">支持</el-radio>
-          <el-radio :value="0">不支持</el-radio>
+          <el-radio :label="1">支持</el-radio>
+          <el-radio :label="0">不支持</el-radio>
         </el-radio-group>
       </el-form-item>
       <el-form-item label="工作台快捷展示" prop="isList">
         <el-radio-group v-model="form.isList" :disabled="isView">
-          <el-radio :value="1">展示</el-radio>
-          <el-radio :value="0">不展示</el-radio>
+          <el-radio :label="1">展示</el-radio>
+          <el-radio :label="0">不展示</el-radio>
         </el-radio-group>
       </el-form-item>
 
@@ -244,6 +246,9 @@ const rules = {
   moduleId: [
     { required: true, message: "请选择关联审批模块", trigger: "change" },
   ],
+  templateId: [
+    { required: true, message: "请选择消息模板", trigger: "change" },
+  ],
 };
 
 /** 获取审批模块列表 */
@@ -280,7 +285,12 @@ function getTemplates() {
 /** 获取部门树 */
 function getDeptTree() {
   deptTreeSelect().then((response) => {
-    deptOptions.value = response.data;
+    // 兼容多种返回格式
+    const data = response?.data ?? response ?? [];
+    deptOptions.value = Array.isArray(data) ? data : [];
+  }).catch((error) => {
+    console.error("部门树加载失败:", error);
+    deptOptions.value = [];
   });
 }
 
@@ -390,7 +400,15 @@ function handleSubmit() {
       const apiMethod = isEdit.value ? updateApprovalType : addApprovalType;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
 
-      apiMethod(form).then(() => {
+      // 将 departmentIds 数组转为逗号分隔的字符串
+      const submitData = {
+        ...form,
+        departmentIds: Array.isArray(form.departmentIds)
+          ? form.departmentIds.join(",")
+          : form.departmentIds,
+      };
+
+      apiMethod(submitData).then(() => {
         proxy.$modal.msgSuccess(successMsg);
         dialogVisible.value = false;
         emit("success");
