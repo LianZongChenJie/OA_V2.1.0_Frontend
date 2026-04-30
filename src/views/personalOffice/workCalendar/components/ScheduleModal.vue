@@ -98,7 +98,7 @@
 
 <script setup>
 import { ref, reactive, getCurrentInstance, watch, nextTick } from "vue";
-import { addDate, detail } from "@/api/personalOffice/calendar/index.js";
+import { addDate, detail } from "@/api/personalOffice/workCalendar/index.js";
 import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();

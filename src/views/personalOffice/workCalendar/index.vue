@@ -191,8 +191,8 @@ const loadCalendarData = () => {
     params.uid = selectedUid.value;
   }
   getDateList(params).then((res) => {
-    if (res.data) {
-      dateList.value = transformDateList(res.data);
+    if (res.rows) {
+      dateList.value = transformDateList(res.rows);
     }
   });
 };
