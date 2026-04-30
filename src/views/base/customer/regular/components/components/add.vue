@@ -9,10 +9,21 @@
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
       <el-form-item :label="label" prop="title">
-        <el-input v-model="form.title" :placeholder="`请输入${label}`" :disabled="isView" />
+        <el-input 
+          v-model="form.title" 
+          :placeholder="`请输入${label}`" 
+          :disabled="isView" 
+          maxlength="50"
+          show-word-limit
+        />
       </el-form-item>
-
+      
+      <!-- 可选：显示当前类型（调试用，正式环境可删除） -->
+      <el-form-item label="类型标识" v-if="false">
+        <el-input v-model="form.types" disabled />
+      </el-form-item>
     </el-form>
+    
     <template #footer>
       <div class="dialog-footer">
         <el-button v-if="!isView" type="primary" @click="handleSubmit">确 定</el-button>
@@ -23,12 +34,12 @@
 </template>
 
 <script setup name="Addlevel">
-import { ref, reactive, computed, getCurrentInstance } from "vue";
+import { ref, reactive, computed, getCurrentInstance, watch } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/base/customer/regular/index.js";
 
 const props = defineProps({
   type: {
-    type: [String, Number],
+    type: String,  // 改为 String 类型
     required: true,
   },
   label: {
@@ -41,17 +52,23 @@ const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false); // 是否为编辑模式
-const isView = ref(false); // 是否为查看模式
+const isEdit = ref(false);
+const isView = ref(false);
 
 const form = reactive({
   id: undefined,
   title: "",
-  types: props.type,
+  types: props.type,  // 接收字符串类型的 type
   status: 1,
 });
 
-// 根据模式动态显示标题
+// 监听 props.type 变化，更新 form.types
+watch(() => props.type, (newVal) => {
+  if (!isEdit.value && !isView.value) {
+    form.types = newVal;
+  }
+});
+
 const dialogTitle = computed(() => {
   if (isView.value) return `查看${props.label}`;
   return isEdit.value ? `编辑${props.label}` : `新增${props.label}`;
@@ -61,11 +78,10 @@ const rules = computed(() => ({
   title: [{ required: true, message: `请输入${props.label}`, trigger: "blur" }],
 }));
 
-/** 表单重置 */
 function reset() {
   form.id = undefined;
   form.title = "";
-  form.types = props.type;
+  form.types = props.type;  // 重置时使用最新的 type
   form.status = 1;
 
   isEdit.value = false;
@@ -73,36 +89,29 @@ function reset() {
   formRef.value?.clearValidate();
 }
 
-/** 关闭弹窗 */
 function handleClose() {
   reset();
 }
 
-/** 显示弹窗 - 新增模式 */
 function open() {
-  console.log("===open====>");
-  
+  console.log("===open====>", props.type);  // 打印传入的 type
   reset();
   dialogVisible.value = true;
 }
 
-/** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.title = data.title;
-  form.types = data.types || props.type;
+  form.types = data.types || props.type;  // 优先使用编辑数据的 types
   form.status = data.status;
 
   isEdit.value = true;
   dialogVisible.value = true;
 }
 
-/** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 填充表单数据
   form.id = data.id;
   form.title = data.title;
   form.types = data.types || props.type;
@@ -112,17 +121,23 @@ function openView(data) {
   dialogVisible.value = true;
 }
 
-/** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
       const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
 
-      apiMethod(form).then(() => {
+      const submitData = {
+        ...form,
+        types: String(form.types)  
+      };
+
+      apiMethod(submitData).then(() => {
         proxy.$modal.msgSuccess(successMsg);
         dialogVisible.value = false;
         emit("success");
+      }).catch(error => {
+        console.error("提交失败:", error);
       });
     }
   });
@@ -138,10 +153,9 @@ defineExpose({
 </script>
 
 <style scoped>
-</style>  
+</style>
 
 <style>
-/* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
 .approval-module-dialog .el-dialog {
   max-height: 88vh;
   display: flex;

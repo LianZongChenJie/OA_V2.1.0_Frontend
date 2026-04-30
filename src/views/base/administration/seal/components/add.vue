@@ -328,7 +328,6 @@ function handleSubmit() {
       emit("success");
     }).catch(error => {
       console.error('提交失败:', error);
-      proxy.$modal.msgError("操作失败");
     });
   });
 }

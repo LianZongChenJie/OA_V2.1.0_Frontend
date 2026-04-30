@@ -84,9 +84,17 @@ async function handleEdit(row) {
 // 禁用/启用
 async function handleDisable(row) {
   const newStatus = row.status === 1 ? 0 : 1;
-  await updateStatus(row.id, { status: newStatus });
-  proxy.$modal.msgSuccess("操作成功");
-  tableList.value.refresh();
+  proxy.$modal
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该印章吗?`)
+    .then(async () => {
+      const res = await updateStatus(row.id, { status: newStatus });
+      
+      if (res) {
+        proxy.$modal.msgSuccess(`${newStatus === 1 ? '启用' : '禁用'}成功`);
+        tableList.value.refresh();
+      }
+    })
+    .catch(() => {});
 }
 
 // 删除

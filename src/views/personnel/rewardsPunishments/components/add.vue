@@ -267,8 +267,7 @@ async function handleSubmit() {
     dialogVisible.value = false;
     emit("success");
   } catch (err) {
-    console.error("操作失败:", err);
-    ElMessage.error(err.msg || "操作失败");
+    console.error("提交失败:", err);
   }
 }
 

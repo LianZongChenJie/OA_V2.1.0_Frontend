@@ -228,7 +228,6 @@ const handleSubmit = async () => {
     emit("success");
   } catch (err) {
     console.error("提交失败:", err);
-    ElMessage.error(err.msg || err.message || "操作失败");
   }
 };
 

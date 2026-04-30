@@ -240,7 +240,6 @@ async function handleSubmit() {
     emit("success");
   } catch (err) {
     console.error(err);
-    ElMessage.error("操作失败");
   }
 }
 

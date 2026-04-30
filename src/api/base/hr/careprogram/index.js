@@ -39,7 +39,7 @@ export function updateenterPrise(data) {
 // 修改关怀项目状态
 export function updateStatus(data) {
   return request({
-    url: `/basicdata/public/enterprise/changeStatus`,
+    url: `/system/careCate/set`,
     method: 'put',
     data: data
   })

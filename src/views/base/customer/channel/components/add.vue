@@ -8,8 +8,8 @@
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
-      <el-form-item label="客户等级" prop="title">
-        <el-input v-model="form.title" placeholder="请输入客户等级" :disabled="isView" />
+      <el-form-item label="客户来源" prop="title">
+        <el-input v-model="form.title" placeholder="请输入客户来源" :disabled="isView" />
       </el-form-item>
 
     </el-form>
@@ -42,12 +42,12 @@ const form = reactive({
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看客户等级";
-  return isEdit.value ? "编辑客户等级" : "新增客户等级";
+  if (isView.value) return "查看客户来源";
+  return isEdit.value ? "编辑客户来源" : "新增客户来源";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入客户等级", trigger: "blur" }],
+  title: [{ required: true, message: "请输入客户来源", trigger: "blur" }],
  };
 
 /** 表单重置 */

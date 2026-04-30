@@ -618,7 +618,6 @@ async function submitWorkLog() {
     loadWorkLogList();
   } catch (err) {
     console.error(err);
-    ElMessage.error(err.msg || "操作失败");
   }
 }
 

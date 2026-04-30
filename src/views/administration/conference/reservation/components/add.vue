@@ -277,7 +277,6 @@ function handleSubmit() {
       emit("success");
     }).catch(err => {
       console.error("提交失败详情：", err);
-      proxy.$modal.msgError(err.msg || "操作失败，请检查数据");
     });
   });
 }

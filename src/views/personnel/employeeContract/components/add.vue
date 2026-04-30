@@ -435,7 +435,6 @@ async function handleSubmit() {
     emit("success");
   } catch (err) {
     console.error('提交失败:', err);
-    ElMessage.error(err.msg || "操作失败");
   }
 }
 

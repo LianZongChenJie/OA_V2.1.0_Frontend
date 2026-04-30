@@ -9,7 +9,7 @@
   >
     <el-form ref="formRef" :model="form" :rules="isView ? {} : rules" label-width="120px">
       <el-form-item label="合同分类" prop="title">
-        <el-input v-model="form.title" placeholder="请输入类型" :disabled="isView" />
+        <el-input v-model="form.title" placeholder="请输入合同分类" :disabled="isView" />
       </el-form-item>
 
     </el-form>
