@@ -26,7 +26,7 @@ export const columns = [
     },
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '创建人',
     width: "10%",
     minWidth: 150,

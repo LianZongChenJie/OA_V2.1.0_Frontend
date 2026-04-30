@@ -11,7 +11,7 @@
     >
       <template #isCopy="{ row }">
         <el-tag :type="row.isCopy === 1 ? 'success' : 'info'">
-          {{ row.isCopy === 1 ? "支持" : "不支持" }}
+          {{ row.isCopy === 1 ? "抄送" : "不抄送" }}
         </el-tag>
       </template>
       <template #isFile="{ row }">
@@ -35,8 +35,8 @@
         </el-tag>
       </template>
       <template #isList="{ row }">
-        <el-tag :type="row.isList === 1 ? 'success' : 'info'">
-          {{ row.isList === 1 ? "显示" : "不显示" }}
+        <el-tag :type="row.isList === true ? 'success' : 'info'">
+          {{ row.isList === true ? "显示" : "不显示" }}
         </el-tag>
       </template>
       <template #status="{ row }">

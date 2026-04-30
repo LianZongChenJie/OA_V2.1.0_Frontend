@@ -13,7 +13,7 @@ export const columns = [
     minWidth: 200,
   },
   {
-    fieldName: 'cateId',
+    fieldName: 'cateName',
     label: '关联审批类型',
     width: "15%",
     minWidth: 200,

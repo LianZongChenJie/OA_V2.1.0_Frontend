@@ -19,7 +19,7 @@ export const columns = [
     minWidth: 150
   },
   {
-    fieldName: 'moduleId',
+    fieldName: 'moduleName',
     label: '审批模块',
     width: "10%",
     minWidth: 150,
@@ -31,16 +31,10 @@ export const columns = [
     minWidth: 150,
   },
   {
-    fieldName: 'departmentIds',
+    fieldName: 'deptName',
     label: '应用部门',
     width: "10%",
     minWidth: 150,
-    format: (value) => {
-      if (!value || !Array.isArray(value) || value.length === 0) {
-        return '-';
-      }
-      return value.join(', ');
-    }
   },
   {
     fieldName: 'addUrl',
@@ -96,13 +90,13 @@ export const columns = [
     minWidth: 100,
     align: 'center',
   },
-  {
-    fieldName: 'sort',
-    label: '排序',
-    width: "5%",
-    minWidth: 100,
-    align: 'center',
-  },
+  // {
+  //   fieldName: 'sort',
+  //   label: '排序',
+  //   width: "5%",
+  //   minWidth: 100,
+  //   align: 'center',
+  // },
   {
     fieldName: 'status',
     label: '状态',
