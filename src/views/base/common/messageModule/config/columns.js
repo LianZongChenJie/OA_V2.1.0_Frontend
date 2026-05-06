@@ -53,7 +53,7 @@ export const columns = [
 export const getOperationColumn = (onEdit, onView, onChangeStatus, onCopy) => {
   return {
     label: '操作',
-    width: 360,
+    width: 180,
     fixed: 'right',
     show: true,
     actions: [
@@ -73,7 +73,6 @@ export const getOperationColumn = (onEdit, onView, onChangeStatus, onCopy) => {
         onClick: (row) => {
           onView && onView(row);
         },
-        isShow: (row) => row.status === 1,
         icon: 'eye-open',
       },
       {
@@ -94,7 +93,7 @@ export const getOperationColumn = (onEdit, onView, onChangeStatus, onCopy) => {
           onChangeStatus && onChangeStatus(row);
         },
         isShow: (row) => row.status === 0,
-        icon: 'unlock',
+        icon: 'enter',
       },
       {
         label: '复制',
