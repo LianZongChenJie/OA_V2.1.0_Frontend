@@ -46,57 +46,11 @@ export const columns = [
   },
 ];
 
-export const operationColumn = {
-  label: '操作',
-  width: 360,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===查看', row)
-      },
-      isShow: (row) => row.status === 1,
-      icon: 'eye-open',
-    },
-    {
-      label: '禁用',
-      type: 'danger',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===禁用', row)
-      },
-      icon: 'lock',
-    },
-    {
-      label: '复制',
-      type: 'primary',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===复制', row)
-      },
-      icon: 'clipboard',
-    },
-  ],
-};
-
-export const getHeaderButs = (onAdd) => [
+ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView) => {
+export const getOperationColumn = (onEdit, onView, onChangeStatus, onCopy) => {
   return {
     label: '操作',
     width: 360,
@@ -127,16 +81,27 @@ export const getOperationColumn = (onEdit, onView) => {
         type: 'danger',
         size: 'small',
         onClick: (row) => {
-          console.log('===禁用', row)
+          onChangeStatus && onChangeStatus(row);
         },
+        isShow: (row) => row.status === 1,
         icon: 'lock',
+      },
+      {
+        label: '启用',
+        type: 'warning',
+        size: 'small',
+        onClick: (row) => {
+          onChangeStatus && onChangeStatus(row);
+        },
+        isShow: (row) => row.status === 0,
+        icon: 'unlock',
       },
       {
         label: '复制',
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          console.log('===复制', row)
+          onCopy && onCopy(row);
         },
         icon: 'clipboard',
       },
@@ -146,6 +111,6 @@ export const getOperationColumn = (onEdit, onView) => {
 
 export default {
   columns,
-  operationColumn,
-  getHeaderButs
+  getHeaderButs,
+  getOperationColumn
 };

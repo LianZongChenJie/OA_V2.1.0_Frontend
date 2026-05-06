@@ -20,7 +20,7 @@
           <el-radio
             v-for="item in message_module_types"
             :key="item.value"
-            :value="parseInt(item.value)"
+            :label="parseInt(item.value)"
           >
             {{ item.label }}
           </el-radio>
@@ -312,6 +312,30 @@ function openView(data) {
   dialogVisible.value = true;
 }
 
+/** 显示弹窗 - 复制模式 */
+function openCopy(data) {
+  reset();
+  // 填充表单数据（不填充id，用于新增）
+  form.title = data.title;
+  form.name = data.name;
+  form.types = data.types;
+  form.remark = data.remark || "";
+  form.msgLink = data.msgLink || "";
+  form.msgTitle0 = data.msgTitle0 || "";
+  form.msgContent0 = data.msgContent0 || "";
+  form.msgTitle1 = data.msgTitle1 || "";
+  form.msgContent1 = data.msgContent1 || "";
+  form.msgTitle2 = data.msgTitle2 || "";
+  form.msgContent2 = data.msgContent2 || "";
+  form.msgTitle3 = data.msgTitle3 || "";
+  form.msgContent3 = data.msgContent3 || "";
+
+  // 复制模式不走编辑逻辑，提交时会调用新增接口
+  isEdit.value = false;
+  isView.value = false;
+  dialogVisible.value = true;
+}
+
 /** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
@@ -334,6 +358,7 @@ defineExpose({
   open,
   openEdit,
   openView,
+  openCopy,
 });
 </script>
 

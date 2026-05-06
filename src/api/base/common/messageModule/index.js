@@ -43,3 +43,11 @@ export function deleteMessageModule(id) {
   })
 }
 
+// 修改模版状态
+export function changeStatus(data) {
+  return request({
+    url: '/basicdata/template/changeStatus',
+    method: 'put',
+    data: data
+  })
+}

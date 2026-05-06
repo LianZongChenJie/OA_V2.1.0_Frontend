@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      row-key="name"
+      row-key="id"
       ref="tableList"
     >
       <template #status="{ row }">
@@ -19,8 +19,8 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getMessageModuleDetail } from "@/api/base/common/messageModule/index.js";
-import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
+import { getPageList, getMessageModuleDetail,changeStatus } from "@/api/base/common/messageModule/index.js";
+import { columns, getHeaderButs, getOperationColumn } from "./config/columns.js";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
@@ -59,7 +59,22 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
+/** 更改消息模版状态 */
+async function handleChangeStatus(row) {
+  const status = row.status === 1 ? 0 : 1;
+  await changeStatus({ id: row.id, status });
+  tableList.value.refresh();
+}
+
+/** 复制按钮操作 */
+async function handleCopy(row) {
+  const res = await getMessageModuleDetail(row.id);
+  if (res) {
+    addDialogRef.value.openCopy(res.data || res);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleChangeStatus, handleCopy);
 </script>
 <style lang="scss" scoped></style>
