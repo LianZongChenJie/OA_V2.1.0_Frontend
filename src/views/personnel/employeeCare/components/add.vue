@@ -143,7 +143,7 @@ onMounted(() => {
 
 function reset() {
   form.careCate = "";
-  form.status = 2;
+  form.status = 1;
   form.uid = "";
   form.copyUids = [];
   form.cost = "";

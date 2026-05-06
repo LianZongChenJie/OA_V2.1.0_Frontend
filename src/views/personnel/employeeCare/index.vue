@@ -70,7 +70,7 @@ async function handleDisable(row) {
 // 删除
 async function handleDelete(row) {
   proxy.$modal.confirm("确定要删除该关怀信息吗？").then(async () => {
-    await deleteMessageModule(row.id);
+    await deleteDeptChange(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
   }).catch(() => {});
