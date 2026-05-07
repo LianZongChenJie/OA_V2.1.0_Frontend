@@ -186,7 +186,7 @@ function reset() {
   form.id = undefined;
   form.rewardsCate = null;
   form.types = 1;
-  form.status = 2;
+  form.status = 1;
   form.uid = null;
   form.copyUids = [];
   form.cost = "";

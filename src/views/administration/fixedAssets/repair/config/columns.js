@@ -12,11 +12,7 @@ export const columns = [
     width: "12%",
     minWidth: 120,
     align: 'center',
-    format: (value) => {
-      if (!value) return '-';
-      // 精确到天，去掉时间部分
-      return value.split(' ')[0];
-    },
+    
     searchable: {
       type: 'dateRange',
       fieldName: 'repairTime',
@@ -58,7 +54,7 @@ export const columns = [
   {
     fieldName: 'directorName',
     label: '跟进人',
-    width: "10%",
+    width: "12%",
     minWidth: 100,
     align: 'center',
   },
@@ -73,7 +69,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 200,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
@@ -116,7 +112,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
-    width: 260,
+    width: 240,
     fixed: 'right',
     show: true,
     actions: [

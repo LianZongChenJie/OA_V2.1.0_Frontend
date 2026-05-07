@@ -9,21 +9,21 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'uid',
+    fieldName: 'nickName',
     label: '员工姓名',
     width: "10%",
     minWidth: 100,
     align: 'center',
   },
   {
-    fieldName: 'fromDid',
+    fieldName: 'fromName',
     label: '调出部门',
     width: "10%",
     minWidth: 100,
     align: 'center',
   },
   {
-    fieldName: 'toDid',
+    fieldName: 'toName',
     label: '调入部门',
     width: "10%",
     minWidth: 100,
@@ -52,7 +52,7 @@ export const columns = [
     align: 'center',
   },
   {
-    fieldName: 'adminId',
+    fieldName: 'adminName',
     label: '申请人',
     width: "10%",
     minWidth: 100,

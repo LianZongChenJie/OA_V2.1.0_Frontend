@@ -12,7 +12,7 @@ export function getPageList(query) {
 // 人事调动详情
 export function getDetail(id) {
   return request({
-    url: '/personnel/deptChange/' + id,
+    url: '/personnel/deptChange/detail/' + id,
     method: 'get'
   })
 }

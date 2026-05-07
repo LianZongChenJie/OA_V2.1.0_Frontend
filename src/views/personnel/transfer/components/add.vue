@@ -58,6 +58,16 @@
           style="width: 100%"
         />
       </el-form-item>
+      <el-form-item label="调动原因" prop="remark">
+        <el-input
+          v-model="form.remark"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入奖惩描述"
+          style="width: 100%"
+          :disabled="isView"
+        />
+      </el-form-item>
     </el-form>
 
     <div class="section-title">审批信息</div>
@@ -150,6 +160,7 @@ const form = reactive({
   fromDid: undefined,
   fromDidName: "",
   toDid: undefined,
+  remark: "",
   moveTime: "",
   checkFlowId: undefined,
   checkCopyUids: [],
@@ -241,6 +252,7 @@ function reset() {
   form.moveTime = "";
   form.checkFlowId = undefined;
   form.checkCopyUids = [];
+  form.remark = "";
 
   isEdit.value = false;
   isView.value = false;
@@ -271,6 +283,7 @@ function openEdit(data) {
   form.checkCopyUids = data.checkCopyUids
     ? data.checkCopyUids.split(",").map(Number)
     : [];
+  form.remark = data.remark;
 
   isEdit.value = true;
   dialogVisible.value = true;
@@ -289,6 +302,7 @@ function openView(data) {
   form.checkCopyUids = data.checkCopyUids
     ? data.checkCopyUids.split(",").map(Number)
     : [];
+  form.remark = data.remark;
 
   isView.value = true;
   dialogVisible.value = true;

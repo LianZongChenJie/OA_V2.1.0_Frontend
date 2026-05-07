@@ -66,6 +66,7 @@ export const columns = [
     label: '合同类别',
     width: "10%",
     minWidth: 120,
+    align: 'center',
     searchable: {
       type: 'select',
       fieldName: 'cate',

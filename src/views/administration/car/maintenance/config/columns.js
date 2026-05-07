@@ -89,7 +89,7 @@ export const columns = [
     width: "8%",
     minWidth: 100,
     slot: true, 
-    slotName: 'handled',
+    align: 'center',
   },
   {
     fieldName: 'updateTime',
@@ -104,7 +104,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [

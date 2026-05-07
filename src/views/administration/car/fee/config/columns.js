@@ -121,7 +121,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [

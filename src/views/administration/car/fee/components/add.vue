@@ -256,6 +256,12 @@ function handleClose() {
 function open() {
   reset();
   dialogVisible.value = true;
+
+  setTimeout(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  }, 0);
 }
 
 
@@ -274,6 +280,12 @@ function openEdit(data) {
   });
   isEdit.value = true;
   dialogVisible.value = true;
+
+  setTimeout(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  }, 0);
 }
 
 //  查看
