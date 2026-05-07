@@ -53,6 +53,7 @@ import TableList from "@/components/tableList/index.vue";
 import {
   getPageList,
   getDetail,
+  changeStatus,
 } from "@/api/base/common/approvalType/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
@@ -98,7 +99,24 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
+/** 禁用/启用按钮操作 */
+async function handleChangeStatus(row) {
+  const newStatus = row.status === 1 ? 0 : 1;
+  const actionText = newStatus === 0 ? '禁用' : '启用';
+
+  proxy.$modal.confirm(`确定要${actionText}该审批类型吗？`).then(async () => {
+    const res = await changeStatus({
+      id: row.id,
+      status: newStatus,
+    });
+    if (res) {
+      proxy.$modal.msgSuccess(`${actionText}成功`);
+      tableList.value.refresh();
+    }
+  });
+}
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleChangeStatus);
 </script>
 <style lang="scss" scoped></style>

@@ -109,7 +109,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView) => {
+export const getOperationColumn = (onEdit, onView, onChangeStatus) => {
   return {
     label: '操作',
     width: 180,
@@ -129,10 +129,21 @@ export const getOperationColumn = (onEdit, onView) => {
         label: '禁用',
         type: 'danger',
         size: 'small',
+        isShow: (row) => row.status === 1,
         onClick: (row) => {
-          console.log('===禁用', row)
+          onChangeStatus && onChangeStatus(row);
         },
         icon: 'lock',
+      },
+      {
+        label: '启用',
+        type: 'warning',
+        size: 'small',
+        isShow: (row) => row.status === 0,
+        onClick: (row) => {
+          onChangeStatus && onChangeStatus(row);
+        },
+        icon: 'enter',
       }
     ],
   };

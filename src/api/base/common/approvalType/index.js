@@ -36,9 +36,10 @@ export function updateApprovalType(data){
 }
 
 // 删除|禁用审批类型
-export function updateApprovalTypeStatus(id){
+export function changeStatus(data){
   return request({
-    url: '/basicdata/flowCate/delete/'+id,
+    url: '/basicdata/flowCate/changeStatus',
     method: 'put',
+    data
   })
 }
