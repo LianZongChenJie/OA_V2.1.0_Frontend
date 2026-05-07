@@ -84,7 +84,7 @@
         <el-tree-select
           v-model="form.departmentIds"
           :data="deptOptions"
-          :props="{ value: 'id', label: 'label', children: 'children' }"
+          :props="deptTreeProps"
           :render-after-expand="false"
           show-checkbox
           multiple
@@ -212,6 +212,12 @@ const templateOptions = ref([]);
 const templateLoading = ref(false);
 // 部门树
 const deptOptions = ref([]);
+// 部门树属性配置
+const deptTreeProps = {
+  value: 'id',
+  label: 'label',
+  children: 'children',
+};
 // 审批模块加载状态
 const moduleLoading = ref(false);
 
@@ -282,16 +288,36 @@ function getTemplates() {
     });
 }
 
+/** 转换部门树数据格式：将 deptId/deptName 转换为 id/label */
+function transformDeptTree(data) {
+  if (!data || !Array.isArray(data)) return [];
+  return data.map(item => ({
+    id: item.id ?? item.deptId,
+    label: item.label ?? item.deptName,
+    children: item.children ? transformDeptTree(item.children) : [],
+    disabled: item.disabled,
+  }));
+}
+
 /** 获取部门树 */
 function getDeptTree() {
   deptTreeSelect().then((response) => {
     // 兼容多种返回格式
     const data = response?.data ?? response ?? [];
-    deptOptions.value = Array.isArray(data) ? data : [];
+    const rawData = Array.isArray(data) ? data : [];
+    deptOptions.value = transformDeptTree(rawData);
   }).catch((error) => {
     console.error("部门树加载失败:", error);
     deptOptions.value = [];
   });
+}
+
+/** 处理 departmentIds：将逗号分隔的字符串转换为数字数组 */
+function handleDepartmentIds(departmentIds) {
+  if (!departmentIds) return [];
+  if (Array.isArray(departmentIds)) return departmentIds;
+  // 如果是逗号分隔的字符串，转换为数字数组
+  return departmentIds.split(",").map(id => Number(id.trim())).filter(id => !isNaN(id));
 }
 
 /** 展示下拉图标 */
@@ -346,6 +372,10 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
+  // 确保部门树已加载
+  if (deptOptions.value.length === 0) {
+    getDeptTree();
+  }
   // 填充表单数据
   form.id = data.id;
   form.title = data.title || "";
@@ -353,7 +383,8 @@ function openEdit(data) {
   form.moduleId = data.moduleId || "";
   form.checkTable = data.checkTable || "";
   form.icon = data.icon || "";
-  form.departmentIds = data.departmentIds || [];
+  // 处理 departmentIds：将逗号分隔的字符串转换为数组
+  form.departmentIds = handleDepartmentIds(data.departmentIds);
   form.isCopy = data.isCopy != null ? (data.isCopy === true ? 1 : (data.isCopy === false ? 0 : data.isCopy)) : 0;
   form.isFile = data.isFile != null ? (data.isFile === true ? 1 : (data.isFile === false ? 0 : data.isFile)) : 0;
   form.isExport = data.isExport != null ? (data.isExport === true ? 1 : (data.isExport === false ? 0 : data.isExport)) : 0;
@@ -371,6 +402,10 @@ function openEdit(data) {
 /** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
+  // 确保部门树已加载
+  if (deptOptions.value.length === 0) {
+    getDeptTree();
+  }
   // 填充表单数据
   form.id = data.id;
   form.title = data.title || "";
@@ -378,7 +413,8 @@ function openView(data) {
   form.moduleId = data.moduleId || "";
   form.checkTable = data.checkTable || "";
   form.icon = data.icon || "";
-  form.departmentIds = data.departmentIds || [];
+  // 处理 departmentIds：将逗号分隔的字符串转换为数组
+  form.departmentIds = handleDepartmentIds(data.departmentIds);
   form.isCopy = data.isCopy != null ? (data.isCopy === true ? 1 : (data.isCopy === false ? 0 : data.isCopy)) : 0;
   form.isFile = data.isFile != null ? (data.isFile === true ? 1 : (data.isFile === false ? 0 : data.isFile)) : 0;
   form.isExport = data.isExport != null ? (data.isExport === true ? 1 : (data.isExport === false ? 0 : data.isExport)) : 0;

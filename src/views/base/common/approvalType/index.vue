@@ -6,7 +6,7 @@
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
       :row-filter="rowFilter"
-      row-key="name"
+      row-key="id"
       ref="tableList"
     >
       <template #isCopy="{ row }">
