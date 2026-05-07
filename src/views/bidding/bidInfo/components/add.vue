@@ -2,89 +2,53 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="50%"
+    width="70%"
     append-to-body
-    class="documents-dialog"
+    class="bid-dialog"
     @close="handleClose"
   >
     <el-form
       ref="formRef"
       :model="form"
       :rules="isView ? {} : rules"
-      label-width="100px"
+      label-width="140px"
     >
-      <!-- 第一行：公文名称 + 公文编号 -->
+      <!-- 标书基础信息 -->
+      <div class="section-title">标书基础信息</div>
+
+      <!-- 第一行：负责人 + 所属月份 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="公文名称" prop="title">
+          <el-form-item label="负责人" prop="tenderLeader">
             <el-input
-              v-model="form.title"
-              placeholder="请输入公文名称"
+              v-model="form.tenderLeader"
+              placeholder="请输入负责人"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="公文编号" prop="code">
-            <el-input
-              v-model="form.code"
-              placeholder="请输入公文编号"
-              :disabled="isView"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第二行：拟稿人 + 拟稿部门 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="拟稿人" prop="draftName">
-            <el-select
-              v-model="form.draftName"
-              :disabled="isView"
-              placeholder="请选择拟稿人"
-              clearable
-              style="width: 100%"
-              @change="handleDraftUserChange"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.nickName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="拟稿部门" prop="draftDname">
-            <el-select
-              v-model="form.draftDname"
-              :disabled="isView"
-              placeholder="请选择拟稿部门"
-              clearable
-              style="width: 100%"
-              @change="handleDeptChange"
-            >
-              <el-option
-                v-for="item in deptOptions"
-                :key="item.deptId"
-                :label="item.deptName"
-                :value="item.deptId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第三行：拟稿日期 + 主送人员 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="拟稿日期" prop="draftTime">
+          <el-form-item label="所属月份" prop="month">
             <el-date-picker
-              v-model="form.draftTime"
+              v-model="form.month"
+              type="month"
+              placeholder="请选择所属月份"
+              :disabled="isView"
+              style="width: 100%"
+              value-format="YYYY-MM"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 第二行：购买日期 + 客户名称 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="购买日期" prop="purchaseDate">
+            <el-date-picker
+              v-model="form.purchaseDate"
               type="date"
-              placeholder="请选择拟稿日期"
+              placeholder="请选择购买日期"
               :disabled="isView"
               style="width: 100%"
               value-format="YYYY-MM-DD"
@@ -92,121 +56,294 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="主送人员" prop="sendUids">
-            <el-select
-              v-model="form.sendUids"
-              :disabled="isView"
-              placeholder="请选择主送人员"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第四行：抄送人员 + 共享可查阅人 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="抄送人员" prop="copyUids">
-            <el-select
-              v-model="form.copyUids"
-              :disabled="isView"
-              placeholder="请选择抄送人员"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="共享可查阅人" prop="shareUids">
-            <el-select
-              v-model="form.shareUids"
-              :disabled="isView"
-              placeholder="请选择共享可查阅人"
-              multiple
-              filterable
-              clearable
-              collapse-tags
-              collapse-tags-tooltip
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.userName"
-                :value="item.userId"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第五行：密级程度 + 紧急程度 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="密级程度" prop="secrets">
-            <el-radio-group v-model="form.secrets" :disabled="isView">
-              <el-radio
-                v-for="dict in secrets_level"
-                :key="dict.value"
-                :label="Number(dict.value)"
-              >
-                {{ dict.label }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="紧急程度" prop="urgency">
-            <el-radio-group v-model="form.urgency" :disabled="isView">
-              <el-radio
-                v-for="dict in urgency_level"
-                :key="dict.value"
-                :label="Number(dict.value)"
-              >
-                {{ dict.label }}
-              </el-radio>
-            </el-radio-group>
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第六行：公文内容（独占一行） -->
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <el-form-item label="公文内容" prop="content">
+          <el-form-item label="客户名称" prop="customerName">
             <el-input
-              v-model="form.content"
-              type="textarea"
-              :rows="6"
-              placeholder="请输入公文内容"
+              v-model="form.customerName"
+              placeholder="请输入客户名称"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
       </el-row>
+
+      <!-- 第三行：项目名称 + 招标机构 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="项目名称" prop="projectName">
+            <el-input
+              v-model="form.projectName"
+              placeholder="请输入项目名称"
+              :disabled="isView"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="招标机构" prop="tenderAgency">
+            <el-input
+              v-model="form.tenderAgency"
+              placeholder="请输入招标机构"
+              :disabled="isView"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 第四行：项目周期 + 入围家数 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="项目周期(月)" prop="projectCycle">
+            <el-input-number
+              v-model="form.projectCycle"
+              :min="1"
+              :precision="0"
+              placeholder="请输入项目周期"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="入围家数" prop="shortlistedCountries">
+            <el-input-number
+              v-model="form.shortlistedCountries"
+              :min="0"
+              :precision="0"
+              placeholder="请输入入围家数"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 第五行：预算金额 + 开标日期 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="预算金额(元)" prop="budgetAmount">
+            <el-input-number
+              v-model="form.budgetAmount"
+              :min="0"
+              :precision="2"
+              placeholder="请输入预算金额"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="开标日期" prop="bidOpeningDate">
+            <el-date-picker
+              v-model="form.bidOpeningDate"
+              type="date"
+              placeholder="请选择开标日期"
+              :disabled="isView"
+              style="width: 100%"
+              value-format="YYYY-MM-DD"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 第六行：是否投标 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="是否投标" prop="isTenderSubmitted">
+            <el-radio-group v-model="form.isTenderSubmitted" :disabled="isView">
+              <el-radio
+                v-for="dict in sys_yes_no"
+                :key="dict.value"
+                :label="dict.value"
+              >
+                {{ dict.label }}
+              </el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12" v-if="form.isTenderSubmitted === 'N'">
+          <el-form-item label="未投原因" prop="nonTenderReason">
+            <el-input
+              v-model="form.nonTenderReason"
+              placeholder="请输入未投原因"
+              :disabled="isView"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 投标信息 - 只在是否投标为是时显示 -->
+      <template v-if="form.isTenderSubmitted === 'Y'">
+        <!-- 标书款信息 -->
+        <div class="section-title">投标信息 - 标书</div>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="标书款(元)" prop="tenderDocumentFee">
+              <el-input-number
+                v-model="form.tenderDocumentFee"
+                :min="0"
+                :precision="2"
+                placeholder="请输入标书款"
+                :disabled="isView"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="标书款发票" prop="hasTenderInvoice">
+              <el-radio-group v-model="form.hasTenderInvoice" :disabled="isView">
+                <el-radio
+                  v-for="dict in sys_yes_no"
+                  :key="dict.value"
+                  :label="dict.value"
+                >
+                  {{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 保证金信息 -->
+        <div class="section-title">投标信息 - 保证金</div>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="是否缴纳" prop="isDepositPaid">
+              <el-radio-group v-model="form.isDepositPaid" :disabled="isView">
+                <el-radio
+                  v-for="dict in sys_yes_no"
+                  :key="dict.value"
+                  :label="dict.value"
+                >
+                  {{ dict.label }}
+                </el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 保证金详细信息 - 只在是否缴纳为是时显示 -->
+        <template v-if="form.isDepositPaid === 'Y'">
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="金额(元)" prop="tenderDeposit">
+                <el-input-number
+                  v-model="form.tenderDeposit"
+                  :min="0"
+                  :precision="2"
+                  placeholder="请输入保证金金额"
+                  :disabled="isView"
+                  style="width: 100%"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="收款账户名" prop="depositAccountName">
+                <el-input
+                  v-model="form.depositAccountName"
+                  placeholder="请输入收款账户名"
+                  :disabled="isView"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="收款账号" prop="depositAccountNo">
+                <el-input
+                  v-model="form.depositAccountNo"
+                  placeholder="请输入收款账号"
+                  :disabled="isView"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="开户银行" prop="depositBank">
+                <el-input
+                  v-model="form.depositBank"
+                  placeholder="请输入开户银行"
+                  :disabled="isView"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="缴纳截止日期" prop="depositPaidTime">
+                <el-date-picker
+                  v-model="form.depositPaidTime"
+                  type="date"
+                  placeholder="请选择缴纳截止日期"
+                  :disabled="isView"
+                  style="width: 100%"
+                  value-format="YYYY-MM-DD"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="是否退回" prop="isDepositRefunded">
+                <el-radio-group v-model="form.isDepositRefunded" :disabled="isView">
+                  <el-radio
+                    v-for="dict in sys_yes_no"
+                    :key="dict.value"
+                    :label="dict.value"
+                  >
+                    {{ dict.label }}
+                  </el-radio>
+                </el-radio-group>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
+
+        <!-- 投标结果 -->
+        <div class="section-title">投标信息 - 投标结果</div>
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="中标结果" prop="bidResult">
+              <el-select
+                v-model="form.bidResult"
+                placeholder="请选择中标结果"
+                :disabled="isView"
+                style="width: 100%"
+                clearable
+              >
+                <el-option
+                  v-for="dict in bid_result"
+                  :key="dict.value"
+                  :label="dict.label"
+                  :value="dict.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="中标服务费(元)" prop="bidServiceFee">
+              <el-input-number
+                v-model="form.bidServiceFee"
+                :min="0"
+                :precision="2"
+                placeholder="请输入中标服务费"
+                :disabled="isView"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 附件管理 -->
+        <div class="section-title">投标信息 - 附件管理</div>
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="上传附件" prop="attachments">
+              <UploadAttachmentList
+                v-model="form.attachments"
+                :disabled="isView"
+                :limit="10"
+                action="/tender/attachment/upload"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </template>
     </el-form>
 
     <template #footer>
@@ -222,128 +359,103 @@
   </el-dialog>
 </template>
 
-<script setup name="AddDocuments">
+<script setup name="AddBidInfo">
 import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
-import { add, edit } from "@/api/administration/doc/documents/index.js";
-import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
+import { add, edit } from "@/api/bidding/bidInfo";
+import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
 
 const { proxy } = getCurrentInstance();
-const { secrets_level, urgency_level } = proxy.useDict(
-  "secrets_level",
-  "urgency_level"
+const { sys_yes_no, bid_result } = proxy.useDict(
+  "sys_yes_no",
+  "bid_result"
 );
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false); // 是否为编辑模式
-const isView = ref(false); // 是否为查看模式
-
-// 下拉选项数据
-const userOptions = ref([]);
-const deptOptions = ref([]);
+const isEdit = ref(false);
+const isView = ref(false);
 
 const form = reactive({
   id: undefined,
-  title: "",
-  code: "",
-  draftName: "",
-  draftUid: "",
-  draftDname: "",
-  did: "",
-  draftTime: "",
-  sendUids: [],
-  copyUids: [],
-  shareUids: [],
-  secrets: "",
-  urgency: "",
-  content: "",
+  // 标书基础信息
+  tenderLeader: "",
+  month: "",
+  purchaseDate: "",
+  customerName: "",
+  projectName: "",
+  tenderAgency: "",
+  projectCycle: undefined,
+  shortlistedCountries: undefined,
+  budgetAmount: undefined,
+  bidOpeningDate: "",
+  isTenderSubmitted: "",
+  nonTenderReason: "",
+  // 投标信息 - 标书
+  tenderDocumentFee: undefined,
+  hasTenderInvoice: "",
+  // 投标信息 - 保证金
+  isDepositPaid: "",
+  tenderDeposit: undefined,
+  depositAccountName: "",
+  depositAccountNo: "",
+  depositBank: "",
+  depositPaidTime: "",
+  isDepositRefunded: "",
+  // 投标信息 - 投标结果
+  bidResult: "待开标",
+  bidServiceFee: 0,
 });
 
-// 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看公文";
-  return isEdit.value ? "编辑公文" : "新增公文";
+  if (isView.value) return "查看招投标信息";
+  return isEdit.value ? "编辑招投标信息" : "新增招投标信息";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入公文名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入公文编号", trigger: "blur" }],
-  draftName: [{ required: true, message: "请选择拟稿人", trigger: "change" }],
-  draftDname: [{ required: true, message: "请选择拟稿部门", trigger: "change" }],
-  draftTime: [{ required: true, message: "请选择拟稿日期", trigger: "change" }],
-  sendUids: [{ required: true, message: "请选择主送人员", trigger: "change" }],
-  secrets: [{ required: true, message: "请选择密级程度", trigger: "change" }],
-  urgency: [{ required: true, message: "请选择紧急程度", trigger: "change" }],
-  content: [{ required: true, message: "请输入公文内容", trigger: "blur" }],
+  tenderLeader: [{ required: true, message: "请输入负责人", trigger: "blur" }],
+  month: [{ required: true, message: "请选择所属月份", trigger: "change" }],
+  purchaseDate: [{ required: true, message: "请选择购买日期", trigger: "change" }],
+  customerName: [{ required: true, message: "请输入客户名称", trigger: "blur" }],
+  projectName: [{ required: true, message: "请输入项目名称", trigger: "blur" }],
+  tenderAgency: [{ required: true, message: "请输入招标机构", trigger: "blur" }],
+  projectCycle: [{ required: true, message: "请输入项目周期", trigger: "blur" }],
+  budgetAmount: [{ required: true, message: "请输入预算金额", trigger: "blur" }],
+  bidOpeningDate: [{ required: true, message: "请选择开标日期", trigger: "change" }],
+  isTenderSubmitted: [{ required: true, message: "请选择是否投标", trigger: "change" }],
+  nonTenderReason: [{ required: true, message: "请输入未投原因", trigger: "blur" }],
+  isDepositPaid: [{ required: true, message: "请选择是否缴纳保证金", trigger: "change" }],
 };
 
 /** 表单重置 */
 function reset() {
   form.id = undefined;
-  form.title = "";
-  form.code = "";
-  form.draftName = "";
-  form.draftUid = "";
-  form.draftDname = "";
-  form.did = "";
-  form.draftTime = "";
-  form.sendUids = [];
-  form.copyUids = [];
-  form.shareUids = [];
-  form.secrets = "1";
-  form.urgency = "1";
-  form.content = "";
+  form.tenderLeader = "";
+  form.month = "";
+  form.purchaseDate = "";
+  form.customerName = "";
+  form.projectName = "";
+  form.tenderAgency = "";
+  form.projectCycle = undefined;
+  form.shortlistedCountries = undefined;
+  form.budgetAmount = undefined;
+  form.bidOpeningDate = "";
+  form.isTenderSubmitted = "Y";
+  form.nonTenderReason = "";
+  form.tenderDocumentFee = undefined;
+  form.hasTenderInvoice = "";
+  form.isDepositPaid = "Y";
+  form.tenderDeposit = undefined;
+  form.depositAccountName = "";
+  form.depositAccountNo = "";
+  form.depositBank = "";
+  form.depositPaidTime = "";
+  form.isDepositRefunded = "N";
+  form.bidResult = "待开标";
+  form.bidServiceFee = 0;
 
   isEdit.value = false;
   isView.value = false;
   formRef.value?.clearValidate();
-}
-
-/** 获取用户列表 */
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-  });
-}
-
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
-/** 拟稿人选择变更 */
-function handleDraftUserChange(userId) {
-  if (userId) {
-    form.draftUid = userId;
-    const selectedUser = userOptions.value.find(
-      (item) => item.userId === userId
-    );
-    if (selectedUser) {
-      form.draftName = selectedUser.userName;
-    }
-  } else {
-    form.draftUid = "";
-    form.draftName = "";
-  }
-}
-
-/** 拟稿部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    form.did = deptId;
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId
-    );
-    if (selectedDept) {
-      form.draftDname = selectedDept.deptName;
-    }
-  } else {
-    form.did = "";
-    form.draftDname = "";
-  }
 }
 
 /** 关闭弹窗 */
@@ -360,34 +472,7 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 填充表单数据
-  form.id = data.id;
-  form.title = data.title || "";
-  form.code = data.code || "";
-  form.draftName = data.draftName || "";
-  form.draftUid = data.draftUid || "";
-  form.draftDname = data.draftDname || "";
-  form.did = data.did || "";
-  form.draftTime = data.draftTime || "";
-  form.sendUids = data.sendUids
-    ? Array.isArray(data.sendUids)
-      ? data.sendUids.map(id => Number(id))
-      : data.sendUids.split(",").map(id => Number(id))
-    : [];
-  form.copyUids = data.copyUids
-    ? Array.isArray(data.copyUids)
-      ? data.copyUids.map(id => Number(id))
-      : data.copyUids.split(",").map(id => Number(id))
-    : [];
-  form.shareUids = data.shareUids
-    ? Array.isArray(data.shareUids)
-      ? data.shareUids.map(id => Number(id))
-      : data.shareUids.split(",").map(id => Number(id))
-    : [];
-  form.secrets = data.secrets !== undefined ? Number(data.secrets) : "";
-  form.urgency = data.urgency !== undefined ? Number(data.urgency) : "";
-  form.content = data.content || "";
-
+  fillForm(data);
   isEdit.value = true;
   dialogVisible.value = true;
 }
@@ -395,57 +480,74 @@ function openEdit(data) {
 /** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 填充表单数据
-  form.id = data.id;
-  form.title = data.title || "";
-  form.code = data.code || "";
-  form.draftName = data.draftName || "";
-  form.draftUid = data.draftUid || "";
-  form.draftDname = data.draftDname || "";
-  form.did = data.did || "";
-  form.draftTime = data.draftTime || "";
-  form.sendUids = data.sendUids
-    ? Array.isArray(data.sendUids)
-      ? data.sendUids.map((id) => Number(id))
-      : data.sendUids.split(",").map((id) => Number(id))
-    : [];
-  form.copyUids = data.copyUids
-    ? Array.isArray(data.copyUids)
-      ? data.copyUids.map((id) => Number(id))
-      : data.copyUids.split(",").map((id) => Number(id))
-    : [];
-  form.shareUids = data.shareUids
-    ? Array.isArray(data.shareUids)
-      ? data.shareUids.map((id) => Number(id))
-      : data.shareUids.split(",").map((id) => Number(id))
-    : [];
-  form.secrets = data.secrets ? Number(data.secrets) : "";
-  form.urgency = data.urgency ? Number(data.urgency) : "";
-  form.content = data.content || "";
-
+  fillForm(data);
   isView.value = true;
   dialogVisible.value = true;
+}
+
+/** 填充表单数据 */
+function fillForm(data) {
+  form.id = data.id;
+  form.tenderLeader = data.tenderLeader || "";
+  form.month = data.month || "";
+  form.purchaseDate = data.purchaseDate || "";
+  form.customerName = data.customerName || "";
+  form.projectName = data.projectName || "";
+  form.tenderAgency = data.tenderAgency || "";
+  form.projectCycle = data.projectCycle;
+  form.shortlistedCountries = data.shortlistedCountries;
+  form.budgetAmount = data.budgetAmount;
+  form.bidOpeningDate = data.bidOpeningDate || "";
+  form.isTenderSubmitted = data.isTenderSubmitted || "";
+  form.nonTenderReason = data.nonTenderReason || "";
+  form.tenderDocumentFee = data.tenderDocumentFee;
+  form.hasTenderInvoice = data.hasTenderInvoice || "";
+  form.isDepositPaid = data.isDepositPaid || "";
+  form.tenderDeposit = data.tenderDeposit;
+  form.depositAccountName = data.depositAccountName || "";
+  form.depositAccountNo = data.depositAccountNo || "";
+  form.depositBank = data.depositBank || "";
+  form.depositPaidTime = data.depositPaidTime || "";
+  form.isDepositRefunded = data.isDepositRefunded || "";
+  form.bidResult = data.bidResult || "";
+  form.bidServiceFee = data.bidServiceFee;
+  form.attachments = data.attachments || [];
 }
 
 /** 提交表单 */
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
-      // 将数组转换为逗号分隔的字符串，secrets 和 urgency 转为数字
+      // 处理附件数据
       const submitData = {
         ...form,
-        sendUids: Array.isArray(form.sendUids)
-          ? form.sendUids.join(",")
-          : form.sendUids,
-        copyUids: Array.isArray(form.copyUids)
-          ? form.copyUids.join(",")
-          : form.copyUids,
-        shareUids: Array.isArray(form.shareUids)
-          ? form.shareUids.join(",")
-          : form.shareUids,
-        secrets: form.secrets ? parseInt(form.secrets) : null,
-        urgency: form.urgency ? parseInt(form.urgency) : null,
       };
+
+      // 如果未投标，清空投标相关信息
+      if (form.isTenderSubmitted === 'N') {
+        submitData.tenderDocumentFee = undefined;
+        submitData.hasTenderInvoice = "";
+        submitData.isDepositPaid = "";
+        submitData.tenderDeposit = undefined;
+        submitData.depositAccountName = "";
+        submitData.depositAccountNo = "";
+        submitData.depositBank = "";
+        submitData.depositPaidTime = "";
+        submitData.isDepositRefunded = "";
+        submitData.bidResult = "待开标";
+        submitData.bidServiceFee = undefined;
+        submitData.attachments = [];
+      }
+
+      // 如果未缴纳保证金，清空保证金相关信息
+      if (form.isDepositPaid === 'N') {
+        submitData.tenderDeposit = undefined;
+        submitData.depositAccountName = "";
+        submitData.depositAccountNo = "";
+        submitData.depositBank = "";
+        submitData.depositPaidTime = "";
+        submitData.isDepositRefunded = "";
+      }
 
       const apiMethod = isEdit.value ? edit : add;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
@@ -466,26 +568,32 @@ defineExpose({
   openEdit,
   openView,
 });
-
-/** 初始化数据 */
-onMounted(() => {
-  getUserList();
-  getDeptList();
-});
 </script>
 
 <style scoped>
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+  margin: 20px 0 15px 0;
+  padding-left: 10px;
+  border-left: 4px solid #409EFF;
+}
+
+.section-title:first-child {
+  margin-top: 0;
+}
 </style>
 
 <style>
 /* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
-.documents-dialog .el-dialog {
+.bid-dialog .el-dialog {
   max-height: 88vh;
   display: flex;
   flex-direction: column;
 }
 
-.documents-dialog .el-dialog__body {
+.bid-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
   overflow-y: auto;
 }

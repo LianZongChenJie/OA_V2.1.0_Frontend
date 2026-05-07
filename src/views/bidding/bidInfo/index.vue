@@ -9,14 +9,17 @@
       row-key="name"
       ref="tableList"
     >
-      <template #checkStatus="{ row }">
-        <dict-tag :options="check_status" :value="row.checkStatus" />
+      <template #isTenderSubmitted="{ row }">
+        <dict-tag :options="sys_yes_no" :value="row.isTenderSubmitted" />
       </template>
-      <template #secrets="{ row }">
-        <dict-tag :options="secrets_level" :value="row.secrets" />
+      <template #isDepositPaid="{ row }">
+        <dict-tag :options="sys_yes_no" :value="row.isDepositPaid" />
       </template>
-      <template #urgency="{ row }">
-        <dict-tag :options="urgency_level" :value="row.urgency" />
+      <template #isDepositRefunded="{ row }">
+        <dict-tag :options="sys_yes_no" :value="row.isDepositRefunded" />
+      </template>
+      <template #bidResult="{ row }">
+        <dict-tag :options="bid_result" :value="row.bidResult" />
       </template>
     </TableList>
     <AddDialog
@@ -31,11 +34,7 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import {
-  getPageList,
-  getDetail,
-  del,
-} from "@/api/administration/doc/documents";
+import { getPageList, getDetail, del } from "@/api/bidding/bidInfo";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -51,10 +50,9 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { check_status, secrets_level, urgency_level } = proxy.useDict(
-  "check_status",
-  "secrets_level",
-  "urgency_level",
+const { sys_yes_no, bid_result } = proxy.useDict(
+  "sys_yes_no",
+  "bid_result",
 );
 
 const route = useRoute();
