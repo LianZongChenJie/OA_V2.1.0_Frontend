@@ -170,7 +170,9 @@ function getCateList(query = "") {
   getNoteCateList(params)
     .then((response) => {
       if (response.code === 200) {
-        cateOptions.value = response.rows || [];
+        cateOptions.value = (response.rows || []).filter(item => {
+          return item.status === '1' || item.status === 1;
+        });
       }
     })
     .finally(() => {

@@ -14,7 +14,7 @@ export const getColumns = () => [
     minWidth: 200,
     searchable: {
       type: 'input',
-      fieldName: 'keywords',
+      fieldName: 'keyword',
       placeholder: '请输入关键字',
       label: '关键字',
       order: 0,

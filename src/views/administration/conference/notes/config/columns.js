@@ -47,7 +47,7 @@ export const columns = [
     minWidth: 200,
     searchable: {
       type: 'input',
-      fieldName: 'title',
+      fieldName: 'keywords',
       placeholder: '会议主题',
       label: '会议主题',
       order: 3,

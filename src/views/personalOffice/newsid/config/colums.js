@@ -12,9 +12,9 @@ export const getColumns = () => [
     fieldName: 'title',
     label: '公告主题',
     minWidth: 200,
-    searchable: {
+    searchable: { 
       type: 'input',
-      fieldName: 'keywords',
+      fieldName: 'keyword',
       placeholder: '请输入关键字',
       label: '关键字',
       order: 0,
