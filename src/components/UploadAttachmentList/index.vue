@@ -23,18 +23,12 @@
         </el-button>
         <template #tip>
           <div class="el-upload__tip">
-            支持上传jpg/png/pdf/doc/docx等格式文件，单个文件不超过{{ limitSize }}MB
+            支持上传jpg/png/pdf/doc/docx等格式文件，单个文件不超过{{
+              limitSize
+            }}MB
           </div>
         </template>
       </el-upload>
-      <!-- 已上传文件列表 -->
-      <div v-if="fileList.length > 0" class="uploaded-list">
-        <div v-for="(file, index) in fileList" :key="index" class="uploaded-item">
-          <el-icon class="file-icon"><Document /></el-icon>
-          <span class="file-name" :title="file.fileName">{{ file.fileName }}</span>
-          <el-icon class="delete-icon" @click="handleDeleteFile(index)"><Close /></el-icon>
-        </div>
-      </div>
     </template>
 
     <!-- 查看模式：仅展示文件列表 -->
@@ -56,7 +50,7 @@
 
 <script setup>
 import { ref, watch, computed, getCurrentInstance } from "vue";
-import { Upload, Document, Close } from "@element-plus/icons-vue";
+import { Upload, Document } from "@element-plus/icons-vue";
 import { getToken } from "@/utils/auth";
 
 const props = defineProps({
@@ -124,6 +118,7 @@ watch(
     if (val && Array.isArray(val)) {
       fileList.value = val.map((item, index) => ({
         sort: item.sort || index + 1,
+        name: item.fileName || item.name || "",
         fileName: item.fileName || item.name || "",
         filePath: item.filePath || item.url || "",
         fileSize: item.fileSize || item.size || 0,
@@ -134,7 +129,7 @@ watch(
       fileList.value = [];
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // 文件上传成功
@@ -164,16 +159,6 @@ function handleChange(file, fileListData) {
 // 文件删除（el-upload 组件自带的删除）
 function handleRemove(file, fileListData) {
   fileList.value = fileListData.map((f) => f.response?.data || f);
-  emitFileList(fileList.value);
-}
-
-// 删除已上传的文件（手动删除按钮）
-function handleDeleteFile(index) {
-  fileList.value.splice(index, 1);
-  // 更新排序
-  fileList.value.forEach((item, i) => {
-    item.sort = i + 1;
-  });
   emitFileList(fileList.value);
 }
 
@@ -244,49 +229,8 @@ defineExpose({
   color: #909399;
   font-size: 12px;
 }
-
-.uploaded-list {
-  margin-top: 10px;
-  border: 1px solid #e4e7ed;
+:deep(.el-upload-list){
+  border: 1px solid #e1e1e1;
   border-radius: 4px;
-  padding: 8px;
-}
-
-.uploaded-item {
-  display: flex;
-  align-items: center;
-  padding: 6px 8px;
-  margin-bottom: 4px;
-  background-color: #f5f7fa;
-  border-radius: 4px;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-
-  .file-icon {
-    margin-right: 8px;
-    color: #409eff;
-  }
-
-  .file-name {
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 14px;
-    color: #606266;
-  }
-
-  .delete-icon {
-    margin-left: 8px;
-    cursor: pointer;
-    color: #909399;
-    font-size: 14px;
-
-    &:hover {
-      color: #f56c6c;
-    }
-  }
 }
 </style>
