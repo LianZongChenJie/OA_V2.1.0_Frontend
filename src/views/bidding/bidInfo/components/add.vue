@@ -184,7 +184,35 @@
             />
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="排序" prop="sort">
+            <el-input-number
+              v-model="form.sort"
+              :min="0"
+              :precision="0"
+              placeholder="请输入排序"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
       </el-row>
+
+      <!-- 查看模式下显示创建时间和更新时间 -->
+      <template v-if="isView">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="创建时间">
+              <el-input :model-value="formatDateTime(form.createTime)" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="更新时间">
+              <el-input :model-value="formatDateTime(form.updateTime)" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </template>
 
       <!-- 投标信息 - 只在是否投标为是时显示 -->
       <template v-if="form.isTenderSubmitted === 'Y'">
@@ -424,6 +452,7 @@ const form = reactive({
   bidOpeningDate: "",
   isTenderSubmitted: "",
   nonTenderReason: "",
+  sort: 0,
   // 投标信息 - 标书
   tenderDocumentFee: undefined,
   hasTenderInvoice: "",
@@ -438,6 +467,9 @@ const form = reactive({
   // 投标信息 - 投标结果
   bidResult: "待开标",
   bidServiceFee: 0,
+  // 时间字段
+  createTime: "",
+  updateTime: "",
 });
 
 const dialogTitle = computed(() => {
@@ -476,6 +508,7 @@ function reset() {
   form.bidOpeningDate = "";
   form.isTenderSubmitted = "Y";
   form.nonTenderReason = "";
+  form.sort = 0;
   form.tenderDocumentFee = undefined;
   form.hasTenderInvoice = "";
   form.isDepositPaid = "Y";
@@ -536,6 +569,7 @@ function fillForm(data) {
   form.bidOpeningDate = data.bidOpeningDate || "";
   form.isTenderSubmitted = data.isTenderSubmitted || "";
   form.nonTenderReason = data.nonTenderReason || "";
+  form.sort = data.sort ?? 0;
   form.tenderDocumentFee = data.tenderDocumentFee;
   form.hasTenderInvoice = data.hasTenderInvoice || "";
   form.isDepositPaid = data.isDepositPaid || "";
@@ -548,6 +582,8 @@ function fillForm(data) {
   form.bidResult = data.bidResult || "";
   form.bidServiceFee = data.bidServiceFee;
   form.attachments = data.attachments || [];
+  form.createTime = data.createTime || "";
+  form.updateTime = data.updateTime || "";
 
   // 编辑时回显负责人选项
   if (data.tenderLeaderId && !userOptions.value.length) {
@@ -603,6 +639,20 @@ function handleSubmit() {
 }
 
 const emit = defineEmits(["success"]);
+
+/** 格式化日期时间 */
+function formatDateTime(dateTime) {
+  if (!dateTime) return "";
+  const date = new Date(dateTime);
+  if (isNaN(date.getTime())) return dateTime;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  const seconds = String(date.getSeconds()).padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
 
 /** 员工搜索 */
 async function handleUserSearch(query) {
