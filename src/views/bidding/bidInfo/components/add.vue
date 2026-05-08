@@ -385,7 +385,7 @@
         <div class="section-title">投标信息 - 附件管理</div>
         <el-row :gutter="20">
           <el-col :span="24">
-            <el-form-item label="上传附件" prop="attachments">
+            <el-form-item label="附件列表" prop="attachments">
               <UploadAttachmentList
                 v-model="form.attachments"
                 :disabled="isView"

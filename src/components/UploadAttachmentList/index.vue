@@ -37,7 +37,7 @@
         <div v-if="fileList && fileList.length > 0" class="file-items">
           <div v-for="(file, index) in fileList" :key="index" class="file-item">
             <el-icon class="file-icon"><Document /></el-icon>
-            <el-link type="primary" @click="handleDownload(file)">
+            <el-link type="primary" @click="handleDownload(file)" title="点击下载">
               {{ file.fileName }}
             </el-link>
           </div>
