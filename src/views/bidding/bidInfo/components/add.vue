@@ -167,15 +167,15 @@
             <el-radio-group v-model="form.isTenderSubmitted" :disabled="isView">
               <el-radio
                 v-for="dict in sys_yes_no"
-                :key="dict.value"
-                :label="dict.value"
+                :key="dict.label"
+                :label="dict.label"
               >
                 {{ dict.label }}
               </el-radio>
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="form.isTenderSubmitted === 'N'">
+        <el-col :span="12" v-if="form.isTenderSubmitted === '否'">
           <el-form-item label="未投原因" prop="nonTenderReason">
             <el-input
               v-model="form.nonTenderReason"
@@ -215,7 +215,7 @@
       </template>
 
       <!-- 投标信息 - 只在是否投标为是时显示 -->
-      <template v-if="form.isTenderSubmitted === 'Y'">
+      <template v-if="form.isTenderSubmitted === '是'">
         <!-- 标书款信息 -->
         <div class="section-title">投标信息 - 标书</div>
         <el-row :gutter="20">
@@ -236,8 +236,8 @@
               <el-radio-group v-model="form.hasTenderInvoice" :disabled="isView">
                 <el-radio
                   v-for="dict in sys_yes_no"
-                  :key="dict.value"
-                  :label="dict.value"
+                  :key="dict.label"
+                  :label="dict.label"
                 >
                   {{ dict.label }}
                 </el-radio>
@@ -254,8 +254,8 @@
               <el-radio-group v-model="form.isDepositPaid" :disabled="isView">
                 <el-radio
                   v-for="dict in sys_yes_no"
-                  :key="dict.value"
-                  :label="dict.value"
+                  :key="dict.label"
+                  :label="dict.label"
                 >
                   {{ dict.label }}
                 </el-radio>
@@ -265,7 +265,7 @@
         </el-row>
 
         <!-- 保证金详细信息 - 只在是否缴纳为是时显示 -->
-        <template v-if="form.isDepositPaid === 'Y'">
+        <template v-if="form.isDepositPaid === '是'">
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="金额(元)" prop="tenderDeposit">
@@ -327,8 +327,8 @@
                 <el-radio-group v-model="form.isDepositRefunded" :disabled="isView">
                   <el-radio
                     v-for="dict in sys_yes_no"
-                    :key="dict.value"
-                    :label="dict.value"
+                    :key="dict.label"
+                    :label="dict.label"
                   >
                     {{ dict.label }}
                   </el-radio>
@@ -506,18 +506,18 @@ function reset() {
   form.shortlistedCountries = undefined;
   form.budgetAmount = undefined;
   form.bidOpeningDate = "";
-  form.isTenderSubmitted = "Y";
+  form.isTenderSubmitted = "是";
   form.nonTenderReason = "";
   form.sort = 0;
   form.tenderDocumentFee = undefined;
   form.hasTenderInvoice = "";
-  form.isDepositPaid = "Y";
+  form.isDepositPaid = "是";
   form.tenderDeposit = undefined;
   form.depositAccountName = "";
   form.depositAccountNo = "";
   form.depositBank = "";
   form.depositPaidTime = "";
-  form.isDepositRefunded = "N";
+  form.isDepositRefunded = "否";
   form.bidResult = "待开标";
   form.bidServiceFee = 0;
 
@@ -601,7 +601,7 @@ function handleSubmit() {
       };
 
       // 如果未投标，清空投标相关信息
-      if (form.isTenderSubmitted === 'N') {
+      if (form.isTenderSubmitted === '否') {
         submitData.tenderDocumentFee = undefined;
         submitData.hasTenderInvoice = "";
         submitData.isDepositPaid = "";
@@ -617,7 +617,7 @@ function handleSubmit() {
       }
 
       // 如果未缴纳保证金，清空保证金相关信息
-      if (form.isDepositPaid === 'N') {
+      if (form.isDepositPaid === '否') {
         submitData.tenderDeposit = undefined;
         submitData.depositAccountName = "";
         submitData.depositAccountNo = "";

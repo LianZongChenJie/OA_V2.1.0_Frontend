@@ -10,13 +10,13 @@
       ref="tableList"
     >
       <template #isTenderSubmitted="{ row }">
-        <dict-tag :options="sys_yes_no" :value="row.isTenderSubmitted" />
+        <dict-tag :options="s_f_c" :value="row.isTenderSubmitted" />
       </template>
       <template #isDepositPaid="{ row }">
-        <dict-tag :options="sys_yes_no" :value="row.isDepositPaid" />
+        <dict-tag :options="s_f_c" :value="row.isDepositPaid" />
       </template>
       <template #isDepositRefunded="{ row }">
-        <dict-tag :options="sys_yes_no" :value="row.isDepositRefunded" />
+        <dict-tag :options="s_f_c" :value="row.isDepositRefunded" />
       </template>
       <template #bidResult="{ row }">
         <dict-tag :options="bid_result" :value="row.bidResult" />
@@ -40,8 +40,8 @@ import AddDialog from "./components/add.vue";
 
 
 const { proxy } = getCurrentInstance();
-const { sys_yes_no, bid_result } = proxy.useDict(
-  "sys_yes_no",
+const { s_f_c, bid_result } = proxy.useDict(
+  "s_f_c",
   "bid_result",
 );
 
@@ -58,8 +58,11 @@ function handleAdd() {
 async function handleEdit(row) {
   // 获取详情数据
   const res = await getDetail(row.id);
-  if (res) {
-    addDialogRef.value.openEdit(res.data || res);
+  if (res && res.data) {
+    // 接口返回结构: data.tender + data.attachments
+    const detailData = res.data.tender || {};
+    detailData.attachments = res.data.attachments || [];
+    addDialogRef.value.openEdit(detailData);
   }
 }
 
@@ -67,8 +70,11 @@ async function handleEdit(row) {
 async function handleView(row) {
   // 获取详情数据
   const res = await getDetail(row.id);
-  if (res) {
-    addDialogRef.value.openView(res.data || res);
+  if (res && res.data) {
+    // 接口返回结构: data.tender + data.attachments
+    const detailData = res.data.tender || {};
+    detailData.attachments = res.data.attachments || [];
+    addDialogRef.value.openView(detailData);
   }
 }
 
@@ -80,7 +86,7 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm("确认删除该公文吗？");
+    await proxy.$modal.confirm("确认删除该条信息么？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();

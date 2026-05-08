@@ -118,10 +118,10 @@ export const columns = [
     minWidth: 80,
     align: 'center',
     isDict: true,
-    dict: 'sys_yes_no',
+    dict: 's_f_c',
     searchable: {
       type: 'select',
-      dictKey: 'sys_yes_no',
+      dictKey: 's_f_c',
       fieldName: 'isTenderSubmitted',
       placeholder: '请选择是否投标',
       label: '是否投标',
@@ -141,7 +141,7 @@ export const columns = [
     minWidth: 110,
     align: 'center',
     isDict: true,
-    dict: 'sys_yes_no',
+    dict: 's_f_c',
   },
   {
     fieldName: 'tenderDeposit',
@@ -181,7 +181,7 @@ export const columns = [
     minWidth: 110,
     align: 'center',
     isDict: true,
-    dict: 'sys_yes_no',
+    dict: 's_f_c',
   },
   {
     fieldName: 'bidResult',
