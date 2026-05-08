@@ -27,7 +27,7 @@ export function add(data) {
 export function edit(data) {
   return request({
     url: '/tenderupd',
-    method: 'put',
+    method: 'post',
     data
   })
 }
