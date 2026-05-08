@@ -20,11 +20,27 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="负责人" prop="tenderLeader">
-            <el-input
-              v-model="form.tenderLeader"
-              placeholder="请输入负责人"
+            <el-select
+              v-model="form.tenderLeaderId"
+              placeholder="请选择负责人"
               :disabled="isView"
-            />
+              filterable
+              remote
+              reserve-keyword
+              :remote-method="(query) => handleUserSearch(query)"
+              :loading="userLoading"
+              style="width: 100%"
+              clearable
+              @focus="handleUserFocus"
+              @change="handleUserChange"
+            >
+              <el-option
+                v-for="item in userOptions"
+                :key="item.userId"
+                :label="item.nickName"
+                :value="item.userId"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -360,9 +376,21 @@
 </template>
 
 <script setup name="AddBidInfo">
-import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { add, edit } from "@/api/bidding/bidInfo";
+import { getPageList as getEmployeeList } from "@/api/personnel/employee/index.js";
 import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
+
+const props = defineProps({
+  type: {
+    type: [String, Number],
+    default: "",
+  },
+  label: {
+    type: String,
+    default: "",
+  },
+});
 
 const { proxy } = getCurrentInstance();
 const { sys_yes_no, bid_result } = proxy.useDict(
@@ -375,9 +403,15 @@ const formRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
 
+// 负责人选择相关
+const userOptions = ref([]);
+const userLoading = ref(false);
+
+// 表单数据
 const form = reactive({
   id: undefined,
   // 标书基础信息
+  tenderLeaderId: undefined,
   tenderLeader: "",
   month: "",
   purchaseDate: "",
@@ -412,7 +446,7 @@ const dialogTitle = computed(() => {
 });
 
 const rules = {
-  tenderLeader: [{ required: true, message: "请输入负责人", trigger: "blur" }],
+  tenderLeader: [{ required: true, message: "请选择负责人", trigger: "change" }],
   month: [{ required: true, message: "请选择所属月份", trigger: "change" }],
   purchaseDate: [{ required: true, message: "请选择购买日期", trigger: "change" }],
   customerName: [{ required: true, message: "请输入客户名称", trigger: "blur" }],
@@ -429,6 +463,7 @@ const rules = {
 /** 表单重置 */
 function reset() {
   form.id = undefined;
+  form.tenderLeaderId = undefined;
   form.tenderLeader = "";
   form.month = "";
   form.purchaseDate = "";
@@ -488,6 +523,7 @@ function openView(data) {
 /** 填充表单数据 */
 function fillForm(data) {
   form.id = data.id;
+  form.tenderLeaderId = data.tenderLeaderId;
   form.tenderLeader = data.tenderLeader || "";
   form.month = data.month || "";
   form.purchaseDate = data.purchaseDate || "";
@@ -512,6 +548,11 @@ function fillForm(data) {
   form.bidResult = data.bidResult || "";
   form.bidServiceFee = data.bidServiceFee;
   form.attachments = data.attachments || [];
+
+  // 编辑时回显负责人选项
+  if (data.tenderLeaderId && !userOptions.value.length) {
+    handleUserSearch(data.tenderLeader || "");
+  }
 }
 
 /** 提交表单 */
@@ -562,6 +603,40 @@ function handleSubmit() {
 }
 
 const emit = defineEmits(["success"]);
+
+/** 员工搜索 */
+async function handleUserSearch(query) {
+  userLoading.value = true;
+  try {
+    const res = await getEmployeeList({ pageNum: 1, pageSize: 20, keyword: query || "" });
+    if (res.code === 200) {
+      userOptions.value = res.rows || [];
+    }
+  } catch (e) {
+    console.error("查询员工失败", e);
+  } finally {
+    userLoading.value = false;
+  }
+}
+
+/** 获取焦点时加载默认数据 */
+function handleUserFocus() {
+  if (userOptions.value.length === 0) {
+    handleUserSearch("");
+  }
+}
+
+/** 员工选择变化 */
+function handleUserChange(userId) {
+  if (userId) {
+    const selectedUser = userOptions.value.find((item) => item.userId === userId);
+    form.tenderLeaderId = selectedUser ? selectedUser.userId : undefined;
+    form.tenderLeader = selectedUser ? selectedUser.nickName : "";
+  } else {
+    form.tenderLeaderId = undefined;
+    form.tenderLeader = "";
+  }
+}
 
 defineExpose({
   open,

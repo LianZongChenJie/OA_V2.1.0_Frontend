@@ -27,6 +27,14 @@
           </div>
         </template>
       </el-upload>
+      <!-- 已上传文件列表 -->
+      <div v-if="fileList.length > 0" class="uploaded-list">
+        <div v-for="(file, index) in fileList" :key="index" class="uploaded-item">
+          <el-icon class="file-icon"><Document /></el-icon>
+          <span class="file-name" :title="file.fileName">{{ file.fileName }}</span>
+          <el-icon class="delete-icon" @click="handleDeleteFile(index)"><Close /></el-icon>
+        </div>
+      </div>
     </template>
 
     <!-- 查看模式：仅展示文件列表 -->
@@ -36,7 +44,7 @@
           <div v-for="(file, index) in fileList" :key="index" class="file-item">
             <el-icon class="file-icon"><Document /></el-icon>
             <el-link type="primary" @click="handleDownload(file)">
-              {{ getFileName(file) }}
+              {{ file.fileName }}
             </el-link>
           </div>
         </div>
@@ -48,7 +56,7 @@
 
 <script setup>
 import { ref, watch, computed, getCurrentInstance } from "vue";
-import { Upload, Document } from "@element-plus/icons-vue";
+import { Upload, Document, Close } from "@element-plus/icons-vue";
 import { getToken } from "@/utils/auth";
 
 const props = defineProps({
@@ -91,6 +99,7 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "change"]);
 
+// 获取全局实例
 const { proxy } = getCurrentInstance();
 
 // 上传地址
@@ -104,7 +113,7 @@ const headers = ref({
   Authorization: "Bearer " + getToken(),
 });
 
-// 文件列表
+// 文件列表 - 存储后端返回的完整数据
 const fileList = ref([]);
 const uploadRef = ref(null);
 
@@ -113,18 +122,14 @@ watch(
   () => props.modelValue,
   (val) => {
     if (val && Array.isArray(val)) {
-      fileList.value = val.map((item) => {
-        if (typeof item === "string") {
-          return {
-            name: item,
-            url: item,
-          };
-        }
-        return {
-          name: item.name || item.fileName || "未命名文件",
-          url: item.url || item.fileUrl || "",
-        };
-      });
+      fileList.value = val.map((item, index) => ({
+        sort: item.sort || index + 1,
+        fileName: item.fileName || item.name || "",
+        filePath: item.filePath || item.url || "",
+        fileSize: item.fileSize || item.size || 0,
+        fileExt: item.fileExt || item.ext || "",
+        fileMime: item.fileMime || item.mime || "",
+      }));
     } else {
       fileList.value = [];
     }
@@ -132,37 +137,17 @@ watch(
   { immediate: true }
 );
 
-// 获取文件名
-function getFileName(file) {
-  if (file.name) return file.name;
-  if (file.fileName) return file.fileName;
-  if (file.url) {
-    const arr = file.url.split("/");
-    return arr[arr.length - 1];
-  }
-  return "未命名文件";
-}
-
 // 文件上传成功
 function handleSuccess(response, file, fileListData) {
-  if (response.code === 200) {
-    const uploadedFile = {
-      name: response.fileName || file.name,
-      url: response.fileName || response.url || file.response?.fileName,
-    };
-    // 更新本地文件列表
-    const newList = fileListData.map((f) => ({
-      name: f.name,
-      url: f.response?.fileName || f.url || "",
-    }));
-    fileList.value = newList;
-    emitFileList(newList);
+  if (response.code === 200 && response.data) {
+    const fileData = response.data;
+    // 添加排序号
+    fileData.sort = fileList.value.length + 1;
+    fileList.value.push(fileData);
+    emitFileList(fileList.value);
     proxy.$modal.msgSuccess("上传成功");
   } else {
     proxy.$modal.msgError(response.msg || "上传失败");
-    // 移除失败的文件
-    const newList = fileListData.filter((f) => f.status === "success");
-    uploadRef.value?.handleRemove(file);
   }
 }
 
@@ -173,21 +158,28 @@ function handleError(err, file, fileListData) {
 
 // 文件变化
 function handleChange(file, fileListData) {
-  fileList.value = fileListData;
+  // 不需要处理，因为上传成功时已经处理
 }
 
-// 文件删除
+// 文件删除（el-upload 组件自带的删除）
 function handleRemove(file, fileListData) {
-  fileList.value = fileListData;
-  emitFileList(fileListData.map((f) => ({
-    name: f.name,
-    url: f.response?.fileName || f.url || "",
-  })));
+  fileList.value = fileListData.map((f) => f.response?.data || f);
+  emitFileList(fileList.value);
+}
+
+// 删除已上传的文件（手动删除按钮）
+function handleDeleteFile(index) {
+  fileList.value.splice(index, 1);
+  // 更新排序
+  fileList.value.forEach((item, i) => {
+    item.sort = i + 1;
+  });
+  emitFileList(fileList.value);
 }
 
 // 文件下载
 function handleDownload(file) {
-  const url = file.url || file.fileUrl;
+  const url = file.filePath;
   if (url) {
     window.open(url, "_blank");
   } else {
@@ -207,10 +199,6 @@ defineExpose({
   clearFiles: () => {
     fileList.value = [];
     uploadRef.value?.clearFiles();
-  },
-  // 手动提交上传（如果需要）
-  submit: () => {
-    // 当前使用自动上传模式，无需手动提交
   },
   // 获取当前文件列表
   getFileList: () => fileList.value,
@@ -255,5 +243,50 @@ defineExpose({
   margin-top: 8px;
   color: #909399;
   font-size: 12px;
+}
+
+.uploaded-list {
+  margin-top: 10px;
+  border: 1px solid #e4e7ed;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.uploaded-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  background-color: #f5f7fa;
+  border-radius: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .file-icon {
+    margin-right: 8px;
+    color: #409eff;
+  }
+
+  .file-name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    color: #606266;
+  }
+
+  .delete-icon {
+    margin-left: 8px;
+    cursor: pointer;
+    color: #909399;
+    font-size: 14px;
+
+    &:hover {
+      color: #f56c6c;
+    }
+  }
 }
 </style>

@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{ tab: type }"
+
       row-key="name"
       ref="tableList"
     >
@@ -25,29 +25,19 @@
     <AddDialog
       ref="addDialogRef"
       @success="handleSuccess"
-      :type="type"
-      :label="label"
+
     />
   </div>
 </template>
 <script setup>
 import { reactive, ref, getCurrentInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/bidding/bidInfo";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
-const props = defineProps({
-  type: {
-    type: [String, Number],
-    required: true,
-  },
-  label: {
-    type: String,
-    required: true,
-  },
-});
+
 
 const { proxy } = getCurrentInstance();
 const { sys_yes_no, bid_result } = proxy.useDict(
@@ -56,7 +46,6 @@ const { sys_yes_no, bid_result } = proxy.useDict(
 );
 
 const route = useRoute();
-const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
@@ -108,7 +97,4 @@ const operationColumn = getOperationColumn(
 );
 </script>
 <style lang="scss" scoped>
-.tabs-container {
-  height: calc(100% - 50px);
-}
 </style>

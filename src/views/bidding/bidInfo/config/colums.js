@@ -221,24 +221,6 @@ export const columns = [
   },
 ];
 
-export const operationColumn = {
-  label: '操作',
-  width: 180,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-  ],
-};
-
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
@@ -285,6 +267,5 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
 
 export default {
   columns,
-  operationColumn,
   getHeaderButs
 };
