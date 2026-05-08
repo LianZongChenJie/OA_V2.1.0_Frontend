@@ -108,10 +108,8 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="项目周期(月)" prop="projectCycle">
-            <el-input-number
+            <el-input
               v-model="form.projectCycle"
-              :min="1"
-              :precision="0"
               placeholder="请输入项目周期"
               :disabled="isView"
               style="width: 100%"
@@ -120,10 +118,8 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="入围家数" prop="shortlistedCountries">
-            <el-input-number
+            <el-input
               v-model="form.shortlistedCountries"
-              :min="0"
-              :precision="0"
               placeholder="请输入入围家数"
               :disabled="isView"
               style="width: 100%"
@@ -203,12 +199,18 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item label="创建时间">
-              <el-input :model-value="formatDateTime(form.createTime)" disabled />
+              <el-input
+                :model-value="formatDateTime(form.createTime)"
+                disabled
+              />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="更新时间">
-              <el-input :model-value="formatDateTime(form.updateTime)" disabled />
+              <el-input
+                :model-value="formatDateTime(form.updateTime)"
+                disabled
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -233,7 +235,10 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="标书款发票" prop="hasTenderInvoice">
-              <el-radio-group v-model="form.hasTenderInvoice" :disabled="isView">
+              <el-radio-group
+                v-model="form.hasTenderInvoice"
+                :disabled="isView"
+              >
                 <el-radio
                   v-for="dict in sys_yes_no"
                   :key="dict.label"
@@ -324,7 +329,10 @@
             </el-col>
             <el-col :span="12">
               <el-form-item label="是否退回" prop="isDepositRefunded">
-                <el-radio-group v-model="form.isDepositRefunded" :disabled="isView">
+                <el-radio-group
+                  v-model="form.isDepositRefunded"
+                  :disabled="isView"
+                >
                   <el-radio
                     v-for="dict in sys_yes_no"
                     :key="dict.label"
@@ -383,6 +391,7 @@
                 :disabled="isView"
                 :limit="10"
                 action="/tender/attachment/upload"
+                @downloadApi="downFiles"
               />
             </el-form-item>
           </el-col>
@@ -408,23 +417,10 @@ import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { add, edit } from "@/api/bidding/bidInfo";
 import { getPageList as getEmployeeList } from "@/api/personnel/employee/index.js";
 import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
-
-const props = defineProps({
-  type: {
-    type: [String, Number],
-    default: "",
-  },
-  label: {
-    type: String,
-    default: "",
-  },
-});
+import { downloadFile } from "@/utils/download";
 
 const { proxy } = getCurrentInstance();
-const { sys_yes_no, bid_result } = proxy.useDict(
-  "sys_yes_no",
-  "bid_result"
-);
+const { sys_yes_no, bid_result } = proxy.useDict("sys_yes_no", "bid_result");
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
@@ -478,18 +474,38 @@ const dialogTitle = computed(() => {
 });
 
 const rules = {
-  tenderLeader: [{ required: true, message: "请选择负责人", trigger: "change" }],
+  tenderLeader: [
+    { required: true, message: "请选择负责人", trigger: "change" },
+  ],
   month: [{ required: true, message: "请选择所属月份", trigger: "change" }],
-  purchaseDate: [{ required: true, message: "请选择购买日期", trigger: "change" }],
-  customerName: [{ required: true, message: "请输入客户名称", trigger: "blur" }],
+  purchaseDate: [
+    { required: true, message: "请选择购买日期", trigger: "change" },
+  ],
+  customerName: [
+    { required: true, message: "请输入客户名称", trigger: "blur" },
+  ],
   projectName: [{ required: true, message: "请输入项目名称", trigger: "blur" }],
-  tenderAgency: [{ required: true, message: "请输入招标机构", trigger: "blur" }],
-  projectCycle: [{ required: true, message: "请输入项目周期", trigger: "blur" }],
-  budgetAmount: [{ required: true, message: "请输入预算金额", trigger: "blur" }],
-  bidOpeningDate: [{ required: true, message: "请选择开标日期", trigger: "change" }],
-  isTenderSubmitted: [{ required: true, message: "请选择是否投标", trigger: "change" }],
-  nonTenderReason: [{ required: true, message: "请输入未投原因", trigger: "blur" }],
-  isDepositPaid: [{ required: true, message: "请选择是否缴纳保证金", trigger: "change" }],
+  tenderAgency: [
+    { required: true, message: "请输入招标机构", trigger: "blur" },
+  ],
+  projectCycle: [
+    { required: true, message: "请输入项目周期", trigger: "blur" },
+  ],
+  budgetAmount: [
+    { required: true, message: "请输入预算金额", trigger: "blur" },
+  ],
+  bidOpeningDate: [
+    { required: true, message: "请选择开标日期", trigger: "change" },
+  ],
+  isTenderSubmitted: [
+    { required: true, message: "请选择是否投标", trigger: "change" },
+  ],
+  nonTenderReason: [
+    { required: true, message: "请输入未投原因", trigger: "blur" },
+  ],
+  isDepositPaid: [
+    { required: true, message: "请选择是否缴纳保证金", trigger: "change" },
+  ],
 };
 
 /** 表单重置 */
@@ -563,7 +579,9 @@ function fillForm(data) {
   form.customerName = data.customerName || "";
   form.projectName = data.projectName || "";
   form.tenderAgency = data.tenderAgency || "";
-  form.projectCycle = data.projectCycle;
+  form.projectCycle = data.projectCycle
+    ? parseInt(data.projectCycle, 10)
+    : undefined;
   form.shortlistedCountries = data.shortlistedCountries;
   form.budgetAmount = data.budgetAmount;
   form.bidOpeningDate = data.bidOpeningDate || "";
@@ -601,7 +619,7 @@ function handleSubmit() {
       };
 
       // 如果未投标，清空投标相关信息
-      if (form.isTenderSubmitted === '否') {
+      if (form.isTenderSubmitted === "否") {
         submitData.tenderDocumentFee = undefined;
         submitData.hasTenderInvoice = "";
         submitData.isDepositPaid = "";
@@ -617,7 +635,7 @@ function handleSubmit() {
       }
 
       // 如果未缴纳保证金，清空保证金相关信息
-      if (form.isDepositPaid === '否') {
+      if (form.isDepositPaid === "否") {
         submitData.tenderDeposit = undefined;
         submitData.depositAccountName = "";
         submitData.depositAccountNo = "";
@@ -658,7 +676,11 @@ function formatDateTime(dateTime) {
 async function handleUserSearch(query) {
   userLoading.value = true;
   try {
-    const res = await getEmployeeList({ pageNum: 1, pageSize: 20, keyword: query || "" });
+    const res = await getEmployeeList({
+      pageNum: 1,
+      pageSize: 20,
+      keyword: query || "",
+    });
     if (res.code === 200) {
       userOptions.value = res.rows || [];
     }
@@ -679,7 +701,9 @@ function handleUserFocus() {
 /** 员工选择变化 */
 function handleUserChange(userId) {
   if (userId) {
-    const selectedUser = userOptions.value.find((item) => item.userId === userId);
+    const selectedUser = userOptions.value.find(
+      (item) => item.userId === userId,
+    );
     form.tenderLeaderId = selectedUser ? selectedUser.userId : undefined;
     form.tenderLeader = selectedUser ? selectedUser.nickName : "";
   } else {
@@ -687,6 +711,18 @@ function handleUserChange(userId) {
     form.tenderLeader = "";
   }
 }
+
+const downFiles = (file) => {
+  if (!file.id) {
+    proxy.$modal.msgWarning("文件ID不存在");
+    return;
+  }
+  const baseUrl = import.meta.env.VITE_APP_BASE_API || "";
+  const url = baseUrl + `/tender/attachment/download/${file.id}`;
+  downloadFile(url, file.fileName || file.name || "下载文件").catch(() => {
+    proxy.$modal.msgError("下载失败");
+  });
+};
 
 defineExpose({
   open,
@@ -702,7 +738,7 @@ defineExpose({
   color: #303133;
   margin: 20px 0 15px 0;
   padding-left: 10px;
-  border-left: 4px solid #409EFF;
+  border-left: 4px solid #409eff;
 }
 
 .section-title:first-child {

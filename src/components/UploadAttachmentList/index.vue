@@ -77,7 +77,7 @@ const props = defineProps({
   // 允许的文件类型
   accept: {
     type: String,
-    default: ".jpg,.jpeg,.png,.pdf,.doc,.docx",
+    default: ".jpg,.jpeg,.png,.gif,.bmp,.webp,.pdf,.doc,.docx,.xls,.xlsx,.txt,.ppt,.pptx,.zip,.rar",
   },
   // 上传接口地址
   action: {
@@ -89,9 +89,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+
 });
 
-const emit = defineEmits(["update:modelValue", "change"]);
+const emit = defineEmits(["update:modelValue", "change", "downloadApi"]);
 
 // 获取全局实例
 const { proxy } = getCurrentInstance();
@@ -117,13 +118,9 @@ watch(
   (val) => {
     if (val && Array.isArray(val)) {
       fileList.value = val.map((item, index) => ({
-        sort: item.sort || index + 1,
+        sort: item.sort || index + 1, 
         name: item.fileName || item.name || "",
-        fileName: item.fileName || item.name || "",
-        filePath: item.filePath || item.url || "",
-        fileSize: item.fileSize || item.size || 0,
-        fileExt: item.fileExt || item.ext || "",
-        fileMime: item.fileMime || item.mime || "",
+        ...item
       }));
     } else {
       fileList.value = [];
@@ -163,13 +160,8 @@ function handleRemove(file, fileListData) {
 }
 
 // 文件下载
-function handleDownload(file) {
-  const url = file.filePath;
-  if (url) {
-    window.open(url, "_blank");
-  } else {
-    proxy.$modal.msgWarning("文件地址不存在");
-  }
+async function handleDownload(file) {
+  emit("downloadApi", file);
 }
 
 // 发送文件列表到父组件

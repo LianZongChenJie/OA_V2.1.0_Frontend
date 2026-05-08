@@ -65,4 +65,10 @@ export function exportData(query) {
     params: query
   })
 }
-//
+//下载投标附件接口
+export function downloadFile(id) {
+  return request({
+    url: `/tender/attachment/download/${id}`,
+    method: 'get'
+  })
+}
