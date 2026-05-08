@@ -66,8 +66,9 @@ export const columns = [
   },
 ];
 
-export const getHeaderButs = (onAdd) => [
+export const getHeaderButs = (onAdd, onImport) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
+  { label: '导入', type: 'success', icon: 'upload', size: 'default', onClick: onImport },
 ];
 
 export const getOperationColumn = (onEdit, onView, onDelete) => {

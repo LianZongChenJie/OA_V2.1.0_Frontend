@@ -43,7 +43,10 @@ export function importWebsiteAccount(data) {
   return request({
     url: `/websiteaccount/import`,
     method: 'post',
-    data
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }
 
