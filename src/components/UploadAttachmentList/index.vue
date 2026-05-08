@@ -229,8 +229,95 @@ defineExpose({
   color: #909399;
   font-size: 12px;
 }
-:deep(.el-upload-list){
-  border: 1px solid #e1e1e1;
-  border-radius: 4px;
+// 上传列表样式
+:deep(.el-upload-list) {
+  margin-top: 12px;
+  border: 1px solid #e4e7ed;
+  border-radius: 6px;
+  padding: 8px;
+  background-color: #fafafa;
+
+  .el-upload-list__item {
+    margin: 0;
+    margin-bottom: 6px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    background-color: #fff;
+    border: 1px solid #e4e7ed;
+    transition: all 0.3s ease;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    &:hover {
+      border-color: #409eff;
+      box-shadow: 0 2px 8px rgba(64, 158, 255, 0.1);
+    }
+
+    // 文件图标
+    .el-upload-list__item-name {
+      display: flex;
+      align-items: center;
+      padding-left: 0;
+      color: #303133;
+      font-size: 14px;
+      font-weight: 500;
+      margin-right: 8px;
+
+      .el-icon {
+        margin-right: 8px;
+        color: #409eff;
+        font-size: 18px;
+      }
+    }
+
+    // 状态图标（成功/失败）
+    .el-icon--close {
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      color: #909399;
+      font-size: 16px;
+      transition: all 0.3s ease;
+
+      &:hover {
+        color: #f56c6c;
+        transform: translateY(-50%) scale(1.2);
+      }
+    }
+
+    // 上传进度条
+    .el-progress {
+      position: absolute;
+      bottom: 6px;
+      left: 12px;
+      right: 12px;
+      width: calc(100% - 24px);
+
+      .el-progress__text {
+        font-size: 12px !important;
+      }
+
+      .el-progress-bar__outer {
+        background-color: #e4e7ed;
+      }
+    }
+
+    // 上传成功状态
+    &.is-success {
+      .el-upload-list__item-status-label {
+        right: 32px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        .el-icon-circle-check {
+          color: #67c23a;
+          font-size: 18px;
+        }
+      }
+    }
+  }
 }
+
 </style>
