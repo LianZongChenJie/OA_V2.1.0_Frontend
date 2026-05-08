@@ -107,7 +107,7 @@
               <el-option
                 v-for="item in userOptions"
                 :key="item.userId"
-                :label="item.userName"
+                :label="item.nickName"
                 :value="item.userId"
               />
             </el-select>
@@ -133,7 +133,7 @@
               <el-option
                 v-for="item in userOptions"
                 :key="item.userId"
-                :label="item.userName"
+                :label="item.nickName"
                 :value="item.userId"
               />
             </el-select>
@@ -155,7 +155,7 @@
               <el-option
                 v-for="item in userOptions"
                 :key="item.userId"
-                :label="item.userName"
+                :label="item.nickName"
                 :value="item.userId"
               />
             </el-select>
@@ -322,7 +322,7 @@ function handleDraftUserChange(userId) {
       (item) => item.userId === userId
     );
     if (selectedUser) {
-      form.draftName = selectedUser.userName;
+      form.draftName = selectedUser.nickName;
     }
   } else {
     form.draftUid = "";

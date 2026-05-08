@@ -59,52 +59,52 @@
 
         <!-- 汇报周期（时间范围） -->
         <el-form-item label="汇报周期" prop="dateRange" required>
-        <!-- 日报：加 key="date" -->
-        <el-date-picker
-          v-if="form.types === 1"
-          key="date"
-          v-model="dateRange"
-          type="date"
-          placeholder="请选择日期"
-          value-format="YYYY-MM-DD"
-          :disabled="isView"
-          style="width:100%"
-          @change="handleDateChange"
-        />
+          <!-- 日报 -->
+          <el-date-picker
+            v-if="form.types === 1"
+            key="date"
+            v-model="dateRange"
+            type="date"
+            placeholder="请选择日期"
+            value-format="YYYY-MM-DD"
+            :disabled="isView"
+            style="width:100%"
+            @change="handleDateChange"
+          />
 
-        <!-- 周报：加 key="week" -->
-        <el-date-picker
-          v-else-if="form.types === 2"
-          key="week"
-          v-model="dateRange"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          value-format="YYYY-MM-DD"
-          :disabled-date="disabledWeekDate"
-          :disabled="isView"
-          style="width:100%"
-          @calendar-change="handleWeekCalendarChange"
-          @change="handleDateChange"
-        />
+          <!-- 周报 -->
+          <el-date-picker
+            v-else-if="form.types === 2"
+            key="week"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            :disabled-date="disabledWeekDate"
+            :disabled="isView"
+            style="width:100%"
+            @calendar-change="handleWeekCalendarChange"
+            @change="handleDateChange"
+          />
 
-        <!-- 月报：加 key="month" -->
-        <el-date-picker
-          v-else-if="form.types === 3"
-          key="month"
-          v-model="dateRange"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          value-format="YYYY-MM-DD"
-          :disabled-date="disabledMonthDate"
-          :disabled="isView"
-          style="width:100%"
-          @calendar-change="handleMonthCalendarChange"
-          @change="handleDateChange"
-        />
+          <!-- 月报 -->
+          <el-date-picker
+            v-else-if="form.types === 3"
+            key="month"
+            v-model="dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            value-format="YYYY-MM-DD"
+            :disabled-date="disabledMonthDate"
+            :disabled="isView"
+            style="width:100%"
+            @calendar-change="handleMonthCalendarChange"
+            @change="handleDateChange"
+          />
         </el-form-item>
 
         <!-- 已完成工作内容 -->
@@ -173,12 +173,27 @@
         <!-- 第一步：取消按钮 -->
         <el-button v-if="step === 1" @click="handleClose">取消</el-button>
 
-        <!-- 第二步：上一步/仅保存/保存并发送 -->
+        <!-- 第二步：根据不同状态显示不同按钮 -->
         <template v-if="step === 2">
-          <el-button @click="step = 1" v-if="!isView">上一步</el-button>
-          <el-button @click="handleOnlySave" v-if="!isView">仅保存</el-button>
-          <el-button type="primary" @click="handleSubmit" v-if="!isView">保存并发送</el-button>
-          <el-button @click="handleClose">关闭</el-button>
+          <!-- 查看模式：只显示关闭 -->
+          <el-button v-if="isView" @click="handleClose">关闭</el-button>
+          
+          <!-- 编辑模式 -->
+          <template v-else>
+            <!-- 已发送状态：只显示仅保存（仅保存）和取消 -->
+            <template v-if="isSent">
+              <el-button type="primary" @click="handleResend">仅保存</el-button>
+              <el-button @click="handleClose">取消</el-button>
+            </template>
+            
+            <!-- 未发送状态：显示完整按钮 -->
+            <template v-else>
+              <el-button @click="step = 1">上一步</el-button>
+              <el-button @click="handleOnlySave">仅保存</el-button>
+              <el-button type="primary" @click="handleSubmit">保存并发送</el-button>
+              <el-button @click="handleClose">取消</el-button>
+            </template>
+          </template>
         </template>
       </div>
     </template>
@@ -186,7 +201,7 @@
 </template>
 
 <script setup name="AddWorkReportDialog">
-import { ref, reactive, computed, onMounted, watch } from "vue";
+import { ref, reactive, computed, onMounted, nextTick } from "vue";
 import { ElMessage } from "element-plus";
 import { listUser } from "@/api/system/user.js";
 import { addenterPrise, updateenterPrise } from "@/api/personalOffice/workReport/index.js";
@@ -227,10 +242,17 @@ const form = reactive({
   id: null // 编辑时的ID
 });
 
+// 判断是否为已发送状态（有发送时间表示已发送）
+const isSent = computed(() => {
+  return !!form.sendTime;
+});
+
 // 弹窗标题动态计算
 const dialogTitle = computed(() => {
   if (isView.value) return "查看工作汇报";
-  if (isEdit.value) return "编辑工作汇报";
+  if (isEdit.value) {
+    return isSent.value ? "编辑工作汇报（已发送）" : "编辑工作汇报";
+  }
   return step.value === 1 ? "新建工作汇报" : typeOptions.find(t => t.value === form.types)?.label + "汇报";
 });
 
@@ -422,7 +444,7 @@ function openEdit(data) {
   form.plans = data.plans || "";
   form.remark = data.remark || "";
   form.fileIds = data.fileIds;
-  form.sendTime = data.sendTime;
+  form.sendTime = data.sendTime;  // 关键：保存发送时间，用于判断状态
   form.adminId = data.adminId;
   
   fileList.value = [];
@@ -458,7 +480,6 @@ function getNowTimeStr() {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 }
 
-
 const buildSubmitData = (isSend = false) => {
   const toUidsStr = form.toUids.length > 0 ? form.toUids.join(',') : null;
   const fileIdsStr = fileList.value.length > 0 ? fileList.value.map(f => f.id).join(',') : null;
@@ -478,7 +499,7 @@ const buildSubmitData = (isSend = false) => {
   };
 };
 
-// 仅保存（isSend = false）
+// 仅保存（isSend = false）- 用于未发送状态
 async function handleOnlySave() {
   const valid = await formRef.value?.validate();
   if (!valid) return;
@@ -503,7 +524,7 @@ async function handleOnlySave() {
   }
 }
 
-// 保存并发送（isSend = true）
+// 保存并发送（isSend = true）- 用于未发送状态
 async function handleSubmit() {
   const valid = await formRef.value?.validate();
   if (!valid) return;
@@ -525,6 +546,25 @@ async function handleSubmit() {
   } catch (err) {
     console.error('提交失败:', err);
     ElMessage.error(err.msg || "提交失败");
+  }
+}
+
+async function handleResend() {
+  const valid = await formRef.value?.validate();
+  if (!valid) return;
+
+  const submitData = buildSubmitData(true);
+  if (isEdit.value && form.id) {
+    submitData.id = form.id;
+  }
+
+  try {
+    await updateenterPrise(submitData);
+    ElMessage.success("保存成功");
+    dialogVisible.value = false;
+    emit("success");
+  } catch (err) {
+    console.error('保存失败:', err);
   }
 }
 

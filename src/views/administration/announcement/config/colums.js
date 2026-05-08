@@ -14,7 +14,7 @@ export const getColumns = () => [
     minWidth: 200,
     searchable: {
       type: 'input',
-      fieldName: 'keywords',
+      fieldName: 'keyword',
       placeholder: '请输入关键字',
       label: '关键字',
       order: 0,
@@ -28,7 +28,7 @@ export const getColumns = () => [
     align: 'center',
     searchable: {
       type: 'selectApi',
-      fieldName: 'cateId',
+      fieldName: 'sealCateId',
       label: '所属分类',
       placeholder: '请选择所属分类',
       api: getNoteCateList,
@@ -68,23 +68,23 @@ export const getColumns = () => [
     width: 180,
     minWidth: 160,
   },
-  {
-    fieldName: 'sourse',
-    label: '公告平台',
-    width: 120,
-    minWidth: 100,
-    align: 'center',
-    isDict: true,
-    dict: 'note_sourse',
-    searchable: {
-      type: 'select',
-      dictKey: 'note_sourse',
-      fieldName: 'sourse',
-      placeholder: '请选择公告平台',
-      label: '公告平台',
-      order: 3,
-    },
-  },
+  // {
+  //   fieldName: 'sourse',
+  //   label: '公告平台',
+  //   width: 120,
+  //   minWidth: 100,
+  //   align: 'center',
+  //   isDict: true,
+  //   dict: 'note_sourse',
+  //   searchable: {
+  //     type: 'select',
+  //     dictKey: 'note_sourse',
+  //     fieldName: 'sourse',
+  //     placeholder: '请选择公告平台',
+  //     label: '公告平台',
+  //     order: 3,
+  //   },
+  // },
 ];
 
 export const getHeaderButs = (onAdd) => [
@@ -94,7 +94,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
-    width: 180,
+    width: 160,
     fixed: 'right',
     show: true,
     actions: [
