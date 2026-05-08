@@ -27,15 +27,22 @@
       @success="handleSuccess"
 
     />
+    <ImportDialog
+      ref="importDialogRef"
+      download-template-url="/tender/import/template"
+      :upload-excel-api="importData"
+      @success="handleSuccess"
+    />
   </div>
 </template>
 <script setup>
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/bidding/bidInfo";
+import { getPageList, getDetail, del, importData } from "@/api/bidding/bidInfo";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
+import ImportDialog from "./components/importDialog.vue";
 
 
 
@@ -48,10 +55,16 @@ const { s_f_c, bid_result } = proxy.useDict(
 const route = useRoute();
 const tableList = ref(null);
 const addDialogRef = ref(null);
+const importDialogRef = ref(null);
 
 /** 新增按钮操作 */
 function handleAdd() {
   addDialogRef.value.open();
+}
+
+/** 导入按钮操作 */
+function handleImport() {
+  importDialogRef.value.open();
 }
 
 /** 编辑按钮操作 */
@@ -95,7 +108,7 @@ async function handleDelete(row) {
   }
 }
 
-const headerButs = getHeaderButs(handleAdd);
+const headerButs = getHeaderButs(handleAdd, handleImport);
 const operationColumn = getOperationColumn(
   handleEdit,
   handleView,

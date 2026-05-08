@@ -1,3 +1,6 @@
+import { listUser } from "@/api/system/user";
+import { formatDate } from "@/utils/index";
+
 export const columns = [
   {
     fieldName: 'id',
@@ -19,9 +22,12 @@ export const columns = [
     width: 120,
     minWidth: 100,
     searchable: {
-      type: 'input',
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userName',
+      optionLabel: 'nickName',
       fieldName: 'tenderLeader',
-      placeholder: '请输入标书负责人',
+      placeholder: '请选择标书负责人',
       label: '标书负责人',
       order: 0,
     },
@@ -37,6 +43,13 @@ export const columns = [
     label: '客户名称',
     width: 150,
     minWidth: 120,
+    searchable: {
+      type: 'input',
+      fieldName: 'customerName',
+      placeholder: '请输入客户名称',
+      label: '客户名称',
+      order: 2,
+    },
   },
   {
     fieldName: 'projectName',
@@ -56,17 +69,11 @@ export const columns = [
     label: '招标机构',
     width: 150,
     minWidth: 120,
-    searchable: {
-      type: 'input',
-      fieldName: 'tenderAgency',
-      placeholder: '请输入招标机构',
-      label: '招标机构',
-      order: 2,
-    },
+
   },
   {
     fieldName: 'projectCycle',
-    label: '项目周期',
+    label: '项目周期(月)',
     width: 120,
     minWidth: 100,
   },
@@ -90,9 +97,11 @@ export const columns = [
     width: 120,
     minWidth: 100,
     searchable: {
-      type: 'date',
+      type: 'dateRange',
       fieldName: 'bidOpeningDate',
-      placeholder: '请选择开标日期',
+      startPlaceholder: '开始日期',
+      endPlaceholder: '结束日期',
+      searchKey: ['beginTime', 'endTime'],
       label: '开标日期',
       order: 3,
     },
@@ -155,6 +164,7 @@ export const columns = [
     label: '保证金缴纳截止日期',
     width: 160,
     minWidth: 140,
+    formatter: (row) => formatDate(row.depositPaidTime),
   },
   {
     fieldName: 'depositAccountName',
@@ -212,17 +222,20 @@ export const columns = [
     label: '创建时间',
     width: 180,
     minWidth: 160,
+    formatter: (row) => formatDate(row.createTime),
   },
   {
     fieldName: 'updateTime',
     label: '更新时间',
     width: 180,
     minWidth: 160,
+    formatter: (row) => formatDate(row.updateTime),
   },
 ];
 
-export const getHeaderButs = (onAdd) => [
+export const getHeaderButs = (onAdd, onImport) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
+  { label: '导入', type: 'success', icon: 'upload', size: 'default', onClick: onImport },
 ];
 
 export const getOperationColumn = (onEdit, onView, onDelete) => {

@@ -51,7 +51,10 @@ export function importData(data) {
   return request({
     url: `/tender/import`,
     method: 'post',
-    data
+    data,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
   })
 }
 // 招投标信息导出
