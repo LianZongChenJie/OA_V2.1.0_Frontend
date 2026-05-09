@@ -115,13 +115,32 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onApproval) => {
   return {
     label: '操作',
-    width: 240,
+    width: 280,
     fixed: 'right',
     show: true,
     actions: [
+      {
+        label: '详情',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onView && onView(row);
+        },
+        icon: 'eye-open',
+      },
+      {
+        label: '审批',
+        type: 'warning',
+        size: 'small',
+        isShow: (row) => Number(row.checkStatus) === 0,
+        onClick: (row) => {
+          onApproval && onApproval(row);
+        },
+        icon: 'check',
+      },
       {
         label: '编辑',
         type: 'success',
@@ -131,15 +150,6 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
-      },
-      {
-        label: '详情',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onView && onView(row);
-        },
-        icon: 'eye-open',
       },
       {
         label: '删除',

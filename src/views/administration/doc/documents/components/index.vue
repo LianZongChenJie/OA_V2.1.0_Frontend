@@ -19,7 +19,7 @@
         <dict-tag :options="urgency_level" :value="row.urgency" />
       </template>
     </TableList>
-    <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 <script setup>
@@ -72,6 +72,15 @@ async function handleView(row) {
   }
 }
 
+/** 审批按钮操作 */
+async function handleApproval(row) {
+  // 获取详情数据
+  const res = await getDetail(row.id);
+  if (res) {
+    addDialogRef.value.openView(res.data || res);
+  }
+}
+
 /** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
@@ -90,7 +99,7 @@ async function handleDelete(row) {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleApproval);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
