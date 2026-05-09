@@ -85,67 +85,11 @@
       <!-- 第三行：项目名称 + 招标机构 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="项目周期(月)" prop="projectCycle">
-            <el-input-number
-              v-model="form.projectCycle"
-              :min="0"
-              :precision="0"
-              placeholder="请输入项目周期"
-              :disabled="isView"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
           <el-form-item label="招标机构" prop="tenderAgency">
             <el-input
               v-model="form.tenderAgency"
               placeholder="请输入招标机构"
               :disabled="isView"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第四行：项目周期 + 入围家数 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="项目周期(月)" prop="projectCycle">
-            <el-input-number
-              v-model="form.projectCycle"
-              :min="0"
-              :precision="0"
-              placeholder="请输入项目周期"
-              :disabled="isView"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="入围家数" prop="shortlistedCountries">
-            <el-input-number
-              v-model="form.shortlistedCountries"
-              :min="0"
-              :precision="0"
-              placeholder="请输入入围家数"
-              :disabled="isView"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-
-      <!-- 第五行：预算金额 + 开标日期 -->
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="预算金额(元)" prop="budgetAmount">
-            <el-input-number
-              v-model="form.budgetAmount"
-              :min="0"
-              :precision="2"
-              placeholder="请输入预算金额"
-              :disabled="isView"
-              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -163,8 +107,48 @@
         </el-col>
       </el-row>
 
+      <!-- 第五行：预算金额 + 开标日期 -->
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="项目周期(月)" prop="projectCycle">
+            <el-input-number
+              v-model="form.projectCycle"
+              :min="0"
+              :precision="0"
+              placeholder="请输入项目周期"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="预算金额(元)" prop="budgetAmount">
+            <el-input-number
+              v-model="form.budgetAmount"
+              :min="0"
+              :precision="2"
+              placeholder="请输入预算金额"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
       <!-- 第六行：是否投标 -->
       <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="入围家数" prop="shortlistedCountries">
+            <el-input-number
+              v-model="form.shortlistedCountries"
+              :min="0"
+              :precision="0"
+              placeholder="请输入入围家数"
+              :disabled="isView"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
         <el-col :span="12">
           <el-form-item label="是否投标" prop="isTenderSubmitted">
             <el-radio-group v-model="form.isTenderSubmitted" :disabled="isView">
