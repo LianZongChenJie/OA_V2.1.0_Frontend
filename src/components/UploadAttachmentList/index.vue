@@ -221,14 +221,16 @@ defineExpose({
   color: #909399;
   font-size: 12px;
 }
-// 上传列表样式
-:deep(.el-upload-list) {
+// 上传列表样式 - 只在有文件时显示边框背景
+:deep(.el-upload-list:not(:empty)) {
   margin-top: 12px;
   border: 1px solid #e4e7ed;
   border-radius: 6px;
   padding: 8px;
   background-color: #fafafa;
+}
 
+:deep(.el-upload-list) {
   .el-upload-list__item {
     margin: 0;
     margin-bottom: 6px;

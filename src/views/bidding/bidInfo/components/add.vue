@@ -397,7 +397,7 @@
                 v-model="form.attachments"
                 :disabled="isView"
                 :limit="10"
-                action="/tender/attachment/upload"
+                action="tender/attachment/upload"
                 @downloadApi="downFiles"
               />
             </el-form-item>
