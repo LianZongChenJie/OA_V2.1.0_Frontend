@@ -11,6 +11,9 @@
       <template #status="{ row }">
         <dict-tag :options="personnel_transfer_status" :value="row.status" />
       </template>
+      <template #checkStatus="{ row }">
+        <dict-tag :options="check_status" :value="row.checkStatus" />
+      </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
@@ -27,8 +30,9 @@ import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { personnel_transfer_status } = proxy.useDict(
+const { personnel_transfer_status, check_status } = proxy.useDict(
   "personnel_transfer_status",
+  "check_status",
 );
 
 const tableList = ref(null);

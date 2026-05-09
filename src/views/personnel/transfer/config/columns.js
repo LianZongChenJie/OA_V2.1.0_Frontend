@@ -1,12 +1,30 @@
 import { formatDate } from '@/utils/index'
+import { listUser } from '@/api/system/user.js'
 
 export const columns = [
+  {
+    fieldName: 'id',
+    label: 'ID号',
+    width: "10%",
+    minWidth: 80,
+    align: 'center',
+  },
   {
     fieldName: 'checkStatus',
     label: '审批状态',
     width: "10%",
     minWidth: 100,
     align: 'center',
+    isDict: true,
+    dict: 'check_status',
+    searchable: {
+      type: 'select',
+      dictKey: 'check_status',
+      fieldName: 'checkStatus',
+      placeholder: '请选择审批状态',
+      label: '审批状态',
+      order: 1,
+    },
   },
   {
     fieldName: 'nickName',
@@ -35,6 +53,16 @@ export const columns = [
     width: "10%",
     minWidth: 100,
     align: 'center',
+    isDict: true,
+    dict: 'personnel_transfer_status',
+    searchable: {
+      type: 'select',
+      dictKey: 'personnel_transfer_status',
+      fieldName: 'status',
+      placeholder: '请选择执行状态',
+      label: '执行状态',
+      order: 2,
+    },
   },
   {
     fieldName: 'moveTime',
@@ -57,6 +85,17 @@ export const columns = [
     width: "10%",
     minWidth: 100,
     align: 'center',
+    show: false,
+    searchable: {
+      type: 'selectApi',
+      api: listUser,
+      optionValue: 'userId',
+      optionLabel: 'nickName',
+      fieldName: 'adminId',
+      placeholder: '请选择申请人',
+      label: '申请人',
+      order: 3,
+    },
   },
   {
     fieldName: 'createTime',
@@ -68,33 +107,6 @@ export const columns = [
   },
 ];
 
-export const operationColumn = {
-  label: '操作',
-  width: 200,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-    {
-      label: '删除',
-      type: 'danger',
-      size: 'small',
-      onClick: (row) => {
-        console.log('===删除', row)
-      },
-      icon: 'delete',
-    },
-  ],
-};
-
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
@@ -102,14 +114,25 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onDelete, onView) => {
   return {
     label: '操作',
-    width: 200,
+    width: 240,
     fixed: 'right',
     show: true,
     actions: [
       {
+        label: '查看',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onView && onView(row);
+        },
+        icon: 'eye-open',
+      },
+      {
         label: '编辑',
         type: 'success',
         size: 'small',
+        // 只有审批状态为待提交(0)、已驳回(3)、已撤回(4)时才可编辑
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)),
         onClick: (row) => {
           onEdit && onEdit(row);
         },
@@ -119,6 +142,8 @@ export const getOperationColumn = (onEdit, onDelete, onView) => {
         label: '删除',
         type: 'danger',
         size: 'small',
+        // 只有审批状态为待提交(0)、已驳回(3)、已撤回(4)时才可删除
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)),
         onClick: (row) => {
           onDelete && onDelete(row);
         },
@@ -130,6 +155,5 @@ export const getOperationColumn = (onEdit, onDelete, onView) => {
 
 export default {
   columns,
-  operationColumn,
   getHeaderButs
 };
