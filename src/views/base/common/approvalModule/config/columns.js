@@ -70,7 +70,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDisable) => {
+export const getOperationColumn = (onEdit, onDisable, onEnable) => {
   return {
     label: '操作',
     width: 200,
@@ -101,11 +101,11 @@ export const getOperationColumn = (onEdit, onDisable) => {
         type: 'primary',
         size: 'small',
         onClick: (row) => {
-          onDisable && onDisable(row);
+          onEnable && onEnable(row);
         },
-        icon: 'unlock',
-        isShow: (row) => row.status === 0,
-      },
+        icon: 'enable',
+        isShow: (row) => row.status != 1,
+      }
     ],
   };
 };
