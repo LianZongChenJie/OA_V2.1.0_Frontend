@@ -82,7 +82,7 @@
         </el-col>
       </el-row>
 
-      <!-- 第三行：项目名称 + 招标机构 -->
+      <!-- 第三行：招标机构 + 开标日期 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="招标机构" prop="tenderAgency">
@@ -107,7 +107,7 @@
         </el-col>
       </el-row>
 
-      <!-- 第五行：预算金额 + 开标日期 -->
+      <!-- 第四行：项目周期 + 预算金额 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="项目周期(月)" prop="projectCycle">
@@ -135,7 +135,7 @@
         </el-col>
       </el-row>
 
-      <!-- 第六行：是否投标 -->
+      <!-- 第五行：入围家数 + 是否投标 + 未投原因 + 排序 -->
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="入围家数" prop="shortlistedCountries">
