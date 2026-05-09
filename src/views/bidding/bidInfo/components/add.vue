@@ -85,11 +85,14 @@
       <!-- 第三行：项目名称 + 招标机构 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="项目名称" prop="projectName">
-            <el-input
-              v-model="form.projectName"
-              placeholder="请输入项目名称"
+          <el-form-item label="项目周期(月)" prop="projectCycle">
+            <el-input-number
+              v-model="form.projectCycle"
+              :min="0"
+              :precision="0"
+              placeholder="请输入项目周期"
               :disabled="isView"
+              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -108,8 +111,10 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="项目周期(月)" prop="projectCycle">
-            <el-input
+            <el-input-number
               v-model="form.projectCycle"
+              :min="0"
+              :precision="0"
               placeholder="请输入项目周期"
               :disabled="isView"
               style="width: 100%"
@@ -118,8 +123,10 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="入围家数" prop="shortlistedCountries">
-            <el-input
+            <el-input-number
               v-model="form.shortlistedCountries"
+              :min="0"
+              :precision="0"
               placeholder="请输入入围家数"
               :disabled="isView"
               style="width: 100%"
