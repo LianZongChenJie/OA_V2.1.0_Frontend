@@ -72,14 +72,7 @@ async function handleView(row) {
   }
 }
 
-/** 审批按钮操作 */
-async function handleApproval(row) {
-  // 获取详情数据
-  const res = await getDetail(row.id);
-  if (res) {
-    addDialogRef.value.openView(res.data || res);
-  }
-}
+
 
 /** 新增成功回调 */
 function handleSuccess() {
@@ -99,7 +92,7 @@ async function handleDelete(row) {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleApproval);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

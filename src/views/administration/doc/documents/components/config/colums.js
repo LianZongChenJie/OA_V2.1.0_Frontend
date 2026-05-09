@@ -115,13 +115,25 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onApproval) => {
+export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
-    width: 280,
+    width: 240,
     fixed: 'right',
     show: true,
     actions: [
+      {
+        label: '编辑',
+        type: 'success',
+        size: 'small',
+        onClick: (row) => {
+          onEdit && onEdit(row);
+        },
+        icon: 'edit',
+        isShow: (row) => {
+          return [0, 3, 4].includes(Number(row.checkStatus));
+        },
+      },
       {
         label: '详情',
         type: 'primary',
@@ -132,30 +144,12 @@ export const getOperationColumn = (onEdit, onView, onDelete, onApproval) => {
         icon: 'eye-open',
       },
       {
-        label: '审批',
-        type: 'warning',
-        size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
-        onClick: (row) => {
-          onApproval && onApproval(row);
-        },
-        icon: 'check',
-      },
-      {
-        label: '编辑',
-        type: 'success',
-        size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2,
-        onClick: (row) => {
-          onEdit && onEdit(row);
-        },
-        icon: 'edit',
-      },
-      {
         label: '删除',
         type: 'danger',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2,
+        isShow: (row) => {
+          return [0, 3, 4].includes(Number(row.checkStatus));
+        },
         onClick: (row) => {
           onDelete && onDelete(row);
         },
