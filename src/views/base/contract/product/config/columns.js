@@ -13,7 +13,7 @@ export const columns = [
     minWidth: 100,
   },
   {
-    fieldName: 'cateId',
+    fieldName: 'cateName',
     label: '产品分类',
     width: "10%",
     minWidth: 100,
@@ -32,8 +32,8 @@ export const columns = [
     },
   },
   {
-    fieldName: 'salePrice',
-    label: '销售价(元)',
+    fieldName: 'basePrice',
+    label: '成本价(元)',
     width: "10%",
     minWidth: 100,
   },
@@ -44,26 +44,14 @@ export const columns = [
     minWidth: 100,
   },
   {
-    fieldName: 'basePrice',
-    label: '成本价(元)',
+    fieldName: 'salePrice',
+    label: '销售价(元)',
     width: "10%",
     minWidth: 100,
   },
   {
     fieldName: 'unit',
     label: '计量单位',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
-    fieldName: 'specs',
-    label: '规格',
-    width: "10%",
-    minWidth: 100,
-  },
-  {
-    fieldName: 'specs',
-    label: '规格',
     width: "10%",
     minWidth: 100,
   },

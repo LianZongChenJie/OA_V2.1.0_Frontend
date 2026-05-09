@@ -102,11 +102,11 @@
                      <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
                   </el-form-item>
                </el-col>
-               <el-col :span="12">
+               <!-- <el-col :span="12">
                   <el-form-item label="负责人" prop="leader">
                      <el-input v-model="form.leader" placeholder="请输入负责人" maxlength="20" />
                   </el-form-item>
-               </el-col>
+               </el-col> -->
                <el-col :span="12">
                   <el-form-item label="联系电话" prop="phone">
                      <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
