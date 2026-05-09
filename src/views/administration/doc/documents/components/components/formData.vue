@@ -203,7 +203,7 @@
 </template>
 
 <script setup name="DocumentsFormData">
-import { ref, reactive, onMounted, getCurrentInstance } from "vue";
+import { ref, reactive, onMounted, watch, getCurrentInstance } from "vue";
 import { listUser } from "@/api/system/user.js";
 import { listDept } from "@/api/system/dept.js";
 
@@ -222,6 +222,9 @@ const formRef = ref(null);
 // 下拉选项数据
 const userOptions = ref([]);
 const deptOptions = ref([]);
+
+// 保存原始数据，用于 userOptions 加载完成后回显
+const savedData = ref(null);
 
 const form = reactive({
   id: undefined,
@@ -268,11 +271,15 @@ function resetForm() {
   form.secrets = "1";
   form.urgency = "1";
   form.content = "";
+  savedData.value = null;
   formRef.value?.clearValidate();
 }
 
 /** 设置表单数据 */
 function setFormData(data) {
+  // 保存原始数据
+  savedData.value = data;
+  
   form.id = data.id;
   form.title = data.title || "";
   form.code = data.code || "";
@@ -326,6 +333,29 @@ function getDeptList() {
     deptOptions.value = response.data || [];
   });
 }
+
+/** 监听 userOptions 加载完成，确保多选用户能回显 */
+watch(userOptions, (newVal) => {
+  if (newVal && newVal.length > 0 && savedData.value) {
+    // userOptions 加载完成后，重新设置用户相关字段以确保回显
+    const data = savedData.value;
+    form.sendUids = data.sendUids
+      ? Array.isArray(data.sendUids)
+        ? data.sendUids.map(id => Number(id))
+        : data.sendUids.split(",").map(id => Number(id))
+      : [];
+    form.copyUids = data.copyUids
+      ? Array.isArray(data.copyUids)
+        ? data.copyUids.map(id => Number(id))
+        : data.copyUids.split(",").map(id => Number(id))
+      : [];
+    form.shareUids = data.shareUids
+      ? Array.isArray(data.shareUids)
+        ? data.shareUids.map(id => Number(id))
+        : data.shareUids.split(",").map(id => Number(id))
+      : [];
+  }
+});
 
 /** 拟稿人选择变更 */
 function handleDraftUserChange(userId) {
