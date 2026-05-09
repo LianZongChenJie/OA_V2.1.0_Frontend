@@ -533,7 +533,7 @@ function reset() {
   form.nonTenderReason = "";
   form.sort = 0;
   form.tenderDocumentFee = undefined;
-  form.hasTenderInvoice = "";
+  form.hasTenderInvoice = "否";
   form.isDepositPaid = "是";
   form.tenderDeposit = undefined;
   form.depositAccountName = "";
@@ -543,6 +543,7 @@ function reset() {
   form.isDepositRefunded = "否";
   form.bidResult = "待开标";
   form.bidServiceFee = 0;
+  form.attachments = [];
 
   isEdit.value = false;
   isView.value = false;
