@@ -7,23 +7,30 @@
       :toolbar-buttons="headerButs"
       row-key="id"
       ref="tableList"
-    />
+    >
+      <template #status="{ row }">
+        <dict-tag :options="personnel_transfer_status" :value="row.status" />
+      </template>
+    </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 <script setup>
-import { reactive, ref, getCurrentInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, deleteDeptChange } from "@/api/personnel/transfer/index.js";
+import {
+  getPageList,
+  getDetail,
+  deleteDeptChange,
+} from "@/api/personnel/transfer/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { employee_status } = proxy.useDict("employee_status");
+const { personnel_transfer_status } = proxy.useDict(
+  "personnel_transfer_status",
+);
 
-const route = useRoute();
-const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
@@ -70,6 +77,10 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleDelete, handleView);
+const operationColumn = getOperationColumn(
+  handleEdit,
+  handleDelete,
+  handleView,
+);
 </script>
 <style lang="scss" scoped></style>

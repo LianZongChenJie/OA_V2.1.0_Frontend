@@ -276,7 +276,8 @@ function openEdit(data) {
   form.id = data.id;
   form.uid = data.uid;
   form.fromDid = data.fromDid;
-  form.fromDidName = data.fromDidName || "";
+  // 如果后端没有返回 fromDidName，则从用户部门映射中获取
+  form.fromDidName = data.fromDidName || userDeptMap.value[data.uid]?.deptName || "";
   form.toDid = data.toDid;
   form.moveTime = data.moveTime;
   form.checkFlowId = data.checkFlowId;
@@ -295,7 +296,8 @@ function openView(data) {
   form.id = data.id;
   form.uid = data.uid;
   form.fromDid = data.fromDid;
-  form.fromDidName = data.fromDidName || "";
+  // 如果后端没有返回 fromDidName，则从用户部门映射中获取
+  form.fromDidName = data.fromDidName || userDeptMap.value[data.uid]?.deptName || "";
   form.toDid = data.toDid;
   form.moveTime = data.moveTime;
   form.checkFlowId = data.checkFlowId;
