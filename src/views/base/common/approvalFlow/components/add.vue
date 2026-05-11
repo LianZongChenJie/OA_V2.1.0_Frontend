@@ -353,7 +353,10 @@ function reset() {
   form.flowList = [];
   isEdit.value = false;
   isView.value = false;
-  proxy.resetForm("formRef");
+  // 清除表单验证状态
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
 }
 
 /** 获取部门列表 */
@@ -399,6 +402,10 @@ function handleCheckTypeChange(value) {
 function addFlowNode() {
   // 可回退审批流时，审批人类型默认为指定成员
   const defaultCheckRole = form.checkType == "3" ? "4" : "";
+  // 确保 form.flowList 是数组
+  if (!Array.isArray(form.flowList)) {
+    form.flowList = [];
+  }
   form.flowList.push({
     check_role: defaultCheckRole, // 审批人类型：1-当前部门负责人，2-上一级部门负责人，3-指定岗位职称人，4-指定成员
     check_uids: [], // 指定成员ID列表
