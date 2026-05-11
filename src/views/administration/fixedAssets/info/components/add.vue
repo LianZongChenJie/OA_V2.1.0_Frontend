@@ -460,6 +460,12 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
+  // 解析 userIds 和 userDids，支持字符串和数组
+  const parseIds = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.map(v => Number(v));
+    return String(val).split(',').map(v => Number(v));
+  };
   // 填充表单数据
   Object.assign(form, {
     id: data.id,
@@ -470,13 +476,13 @@ function openEdit(data) {
     brandId: data.brandId || null,
     qualityTime: data.qualityTime || "",
     unitId: data.unitId || null,
-    userIds: data.userIds ? (Array.isArray(data.userIds) ? data.userIds : data.userIds.split(',')) : [],
-    userDids: data.userDids ? (Array.isArray(data.userDids) ? data.userDids : data.userDids.split(',')) : [],
+    userIds: parseIds(data.userIds),
+    userDids: parseIds(data.userDids),
     price: data.price || null,
     buyTime: data.buyTime || "",
     rate: data.rate || null,
-    status: data.status ?? 1,
-    source: data.source || null,
+    status: data.status != null ? Number(data.status) : 1,
+    source: data.source != null ? Number(data.source) : null,
     content: data.content || "",
     address: data.address || "",
   });
@@ -488,6 +494,12 @@ function openEdit(data) {
 /** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
+  // 解析 userIds 和 userDids，支持字符串和数组
+  const parseIds = (val) => {
+    if (!val) return [];
+    if (Array.isArray(val)) return val.map(v => Number(v));
+    return String(val).split(',').map(v => Number(v));
+  };
   // 填充表单数据
   Object.assign(form, {
     id: data.id,
@@ -498,13 +510,13 @@ function openView(data) {
     brandId: data.brandId || null,
     qualityTime: data.qualityTime || "",
     unitId: data.unitId || null,
-    userIds: data.userIds ? (Array.isArray(data.userIds) ? data.userIds : data.userIds.split(',')) : [],
-    userDids: data.userDids ? (Array.isArray(data.userDids) ? data.userDids : data.userDids.split(',')) : [],
+    userIds: parseIds(data.userIds),
+    userDids: parseIds(data.userDids),
     price: data.price || null,
     buyTime: data.buyTime || "",
     rate: data.rate || null,
-    status: data.status ?? 1,
-    source: data.source || null,
+    status: data.status != null ? Number(data.status) : 1,
+    source: data.source != null ? Number(data.source) : null,
     content: data.content || "",
     address: data.address || "",
   });
