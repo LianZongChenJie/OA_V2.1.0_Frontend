@@ -44,11 +44,17 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="用印部门" prop="did">
+          <el-input
+            v-if="currentDeptName"
+            v-model="currentDeptName"
+            disabled
+            placeholder="默认当前登录人所在部门"
+          />
           <el-select
+            v-else
             v-model="form.did"
-            :disabled="readonly"
-            placeholder="请选择用印部门"
-            clearable
+            :disabled="true"
+            placeholder="加载中..."
             style="width: 100%"
           >
             <el-option
@@ -180,6 +186,9 @@ const currentUserInfo = ref({
   deptId: ""
 });
 
+// 当前部门名称（用于只读显示）
+const currentDeptName = ref("");
+
 // 用户列表加载完成的 Promise
 let userListPromise = null;
 
@@ -225,8 +234,9 @@ const rules = {
 
 /** 获取部门列表 */
 function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
+  return listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
     deptOptions.value = response.data || [];
+    return deptOptions.value;
   });
 }
 
@@ -240,6 +250,9 @@ async function getUserList() {
     userId: userStore.id || "",
     deptId: currentUser?.deptId || ""
   };
+  // 设置当前部门名称
+  const currentDept = deptOptions.value.find(d => d.deptId === currentUser?.deptId);
+  currentDeptName.value = currentDept?.deptName || "";
   return currentUserInfo.value;
 }
 
@@ -278,10 +291,12 @@ const completeData = ref({});
 /** 填充表单数据 */
 function setFormData(data) {
   const info = data?.info || data;
+  // 用印部门始终使用当前登录人所在部门，不可更改
+  const deptId = currentUserInfo.value.deptId || info.did || "";
   Object.assign(form, {
     id: info.id,
     title: info.title || "",
-    did: info.did || "",
+    did: deptId,
     num: info.num || 1,
     useTime: info.useTime || "",
     sealCateId: info.sealCateId != null ? String(info.sealCateId) : "",
@@ -300,9 +315,11 @@ function getFormData() {
 
 /** 初始化数据 - 开始加载用户列表 */
 onMounted(() => {
-  getDeptList();
-  // 预加载用户列表，确保部门信息已加载
-  userListPromise = getUserList();
+  // 先加载部门列表，确保部门名称可用
+  getDeptList().then(() => {
+    // 预加载用户列表，确保部门信息已加载
+    userListPromise = getUserList();
+  });
 });
 
 // 暴露方法给父组件
