@@ -178,6 +178,7 @@ function getPostList() {
 function getApprovalFlowOptions() {
   const params = { pageNum: 1, pageSize: 100 };
   if (props.flowTitle) params.title = props.flowTitle;
+  params.byDept = 1;
   getApprovalFlowList(params).then(res => {
     approvalFlowOptions.value = res.rows || [];
     if (flowId.value) handleFlowChange(flowId.value);

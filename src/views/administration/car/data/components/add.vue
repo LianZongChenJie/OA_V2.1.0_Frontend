@@ -315,7 +315,7 @@ function open() {
     if (formRef.value) {
       formRef.value.clearValidate();
     }
-  }, 0);
+  }, 50);
 }
 
 // 编辑
@@ -348,7 +348,7 @@ function openEdit(data) {
     if (formRef.value) {
       formRef.value.clearValidate();
     }
-  }, 0);
+  }, 50);
 }
 
 // 查看
