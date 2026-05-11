@@ -1,11 +1,11 @@
 export const columns = [
-  { fieldName: "id", label: "区划ID", width: 120, align: "left" },
-  { fieldName: "name", label: "区划名称", minWidth: 150, align: "left" },
-  { fieldName: "shortname", label: "区划简称", width: 120, align: "left" },
-  { fieldName: "level", label: "级别", width: 80, align: "center", slotName: "level" },
-  { fieldName: "longitude", label: "经度", width: 120, align: "center" },
-  { fieldName: "latitude", label: "纬度", width: 120, align: "center" },
-  { fieldName: "sort", label: "排序", width: 80, align: "center" },
+  { fieldName: "id", label: "区划ID", width: "30%", minWidth: 200, align: "left" },
+  { fieldName: "name", label: "区划名称", width: "10%", minWidth: 150, align: "left" },
+  { fieldName: "shortname", label: "区划简称", width: "10%", minWidth: 120, align: "left" },
+  { fieldName: "level", label: "级别", width: "10%", minWidth: 100, align: "center", slotName: "level" },
+  { fieldName: "longitude", label: "经度", width: "10%", minWidth: 120, align: "center" },
+  { fieldName: "latitude", label: "纬度", width: "10%", minWidth: 100, align: "center" },
+  { fieldName: "sort", label: "排序", width: "10%", minWidth: 100, align: "center" },
 ];
 
 export const getHeaderButs = (onAdd) => [

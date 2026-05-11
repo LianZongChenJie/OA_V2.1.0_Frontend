@@ -40,13 +40,13 @@
         v-bind="$attrs"
       >
         <!-- 动态渲染列 -->
-        <template v-for="column in tableColumns" :key="column.fieldName">
+        <template v-for="(column, index) in tableColumns" :key="column.fieldName">
           <el-table-column
             v-if="column.isShow === false ? false : true"
             :prop="column.fieldName"
             :label="column.label"
-            :width="column.width"
-            :min-width="column.minWidth"
+            :width="isPercentageWidth(column.width) ? undefined : column.width"
+            :min-width="isPercentageWidth(column.width) ? column.width : column.minWidth"
             :align="column.align || 'left'"
           >
             <!-- 级别列使用特殊渲染 -->
@@ -280,6 +280,16 @@ const tableColumns = computed(() => {
 });
 
 /**
+ * 判断是否为百分比宽度
+ */
+const isPercentageWidth = (width) => {
+  if (typeof width === 'string' && width.includes('%')) {
+    return true;
+  }
+  return false;
+};
+
+/**
  * 获取级别对应的标签类型
  */
 const getLevelType = (level) => {
@@ -311,6 +321,12 @@ const fetchData = async () => {
       if (props.demandExpand) {
         // 按需展开模式：只显示根节点，children 暂不处理
         tableData.value = processRootData(rawData.value);
+      } else if (props.lazyLoad) {
+        // 懒加载模式：为每个节点添加 hasChildren 以显示展开箭头
+        tableData.value = (res.data || []).map(item => ({
+          ...item,
+          hasChildren: true
+        }));
       } else {
         tableData.value = rawData.value;
       }
@@ -382,12 +398,20 @@ const loadChildrenOnDemand = (row, treeNode, resolve) => {
  * 懒加载子节点数据
  */
 const loadChildren = async (row, treeNode, resolve) => {
+  const processChildren = (data) => {
+    // 为子节点添加 hasChildren，确保它们也能展开
+    return (data || []).map(item => ({
+      ...item,
+      hasChildren: true
+    }));
+  };
+
   if (!props.loadApi) {
     // 如果没有单独定义 loadApi，使用原 api 传递 pid 参数
     props.api({ ...props.params, pid: row.id })
       .then((res) => {
         if (res.code === 200 && res.success) {
-          resolve(res.data || []);
+          resolve(processChildren(res.data));
         } else {
           resolve([]);
         }
@@ -400,7 +424,7 @@ const loadChildren = async (row, treeNode, resolve) => {
     props.loadApi({ ...props.params, pid: row.id })
       .then((res) => {
         if (res.code === 200 && res.success) {
-          resolve(res.data || []);
+          resolve(processChildren(res.data));
         } else {
           resolve([]);
         }
@@ -420,6 +444,30 @@ const refresh = () => {
 };
 
 /**
+ * 刷新指定行数据（编辑后更新当前行）
+ */
+const refreshRow = (rowId, newData) => {
+  const updateRowInTree = (data, id, newRowData) => {
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].id === id) {
+        // 保留 hasChildren 属性，使用 Object.assign 确保响应式更新
+        const updatedRow = { ...newRowData, hasChildren: data[i].hasChildren };
+        Object.assign(data[i], updatedRow);
+        return true;
+      }
+      if (data[i].children && data[i].children.length > 0) {
+        if (updateRowInTree(data[i].children, id, newRowData)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  updateRowInTree(tableData.value, rowId, newData);
+};
+
+/**
  * 展开/折叠所有节点
  */
 const expandAll = () => {
@@ -433,6 +481,7 @@ const collapseAll = () => {
 // 暴露方法给父组件
 defineExpose({
   refresh,
+  refreshRow,
   expandAll,
   collapseAll,
   loading,

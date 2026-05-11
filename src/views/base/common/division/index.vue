@@ -3,9 +3,10 @@
     <ThreeList
       ref="threeListRef"
       :api="getThreeList"
-      :demand-expand="true"
+      :lazy-load="true"
       :toolbar-buttons="toolbarButtons"
       :columns="columns"
+      :params="{pid:0}"
       :operation-column="getOperationColumn(add, edit, del)"
     />
 
@@ -27,8 +28,14 @@ const threeListRef = ref(null);
 const dialogRef = ref(null);
 
 // 弹窗成功回调
-function handleDialogSuccess() {
-  threeListRef.value?.refresh();
+function handleDialogSuccess(result) {
+  if (result && result.type === 'edit' && result.row) {
+    // 编辑成功，只刷新当前行
+    threeListRef.value?.refreshRow(result.row.id, result.row);
+  } else {
+    // 新增或其他操作，刷新整个列表
+    threeListRef.value?.refresh();
+  }
 }
 
 // 新增子节点

@@ -253,14 +253,14 @@ function submitForm() {
         updateArea(submitData).then(() => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
-          emit("success");
+          emit("success", { type: 'edit', row: submitData });
         });
       } else {
         // 新增模式
         addArea(submitData).then(() => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
-          emit("success");
+          emit("success", { type: 'add', row: submitData });
         });
       }
     }
