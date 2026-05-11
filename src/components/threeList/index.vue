@@ -469,6 +469,38 @@ const refreshRow = (rowId, newData) => {
 };
 
 /**
+ * 向指定行添加子节点
+ */
+const addChildToRow = (parentId, childData) => {
+  const addChildInTree = (data, pId, newChild) => {
+    for (let i = 0; i < data.length; i++) {
+      // 使用 == 进行宽松比较，因为 id 可能是字符串或数字
+      if (data[i].id == pId) {
+        // 确保 children 数组存在
+        if (!data[i].children) {
+          data[i].children = [];
+        }
+        // 添加 hasChildren 属性以便新节点可以展开
+        const childWithFlag = { ...newChild, hasChildren: true };
+        data[i].children.push(childWithFlag);
+        // 更新父节点的 hasChildren 属性
+        data[i].hasChildren = true;
+        return true;
+      }
+      // 递归查找子节点
+      if (data[i].children && data[i].children.length > 0) {
+        if (addChildInTree(data[i].children, pId, newChild)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  addChildInTree(tableData.value, parentId, childData);
+};
+
+/**
  * 展开/折叠所有节点
  */
 const expandAll = () => {
@@ -483,6 +515,7 @@ const collapseAll = () => {
 defineExpose({
   refresh,
   refreshRow,
+  addChildToRow,
   expandAll,
   collapseAll,
   loading,

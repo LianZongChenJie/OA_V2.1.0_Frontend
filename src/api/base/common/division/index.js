@@ -45,9 +45,9 @@ export function updateArea(data) {
 }
 
 // 修改区域状态
-export function delArea(data) {
+export function changeStatus(data) {
   return request({
-    url: '/basicdata/public/changeStatus/',
+    url: '/basicdata/public/area/changeStatus',
     method: 'put',
     data
   })

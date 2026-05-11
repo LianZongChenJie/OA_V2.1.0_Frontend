@@ -1,18 +1,19 @@
 export const columns = [
-  { fieldName: "id", label: "区划ID", width: "30%", minWidth: 200, align: "left" },
+  { fieldName: "id", label: "区划ID", width: "25%", minWidth: 200, align: "left" },
   { fieldName: "name", label: "区划名称", width: "10%", minWidth: 150, align: "left" },
   { fieldName: "shortname", label: "区划简称", width: "10%", minWidth: 120, align: "left" },
   { fieldName: "level", label: "级别", width: "10%", minWidth: 100, align: "center", slotName: "level" },
   { fieldName: "longitude", label: "经度", width: "10%", minWidth: 120, align: "center" },
   { fieldName: "latitude", label: "纬度", width: "10%", minWidth: 100, align: "center" },
   { fieldName: "sort", label: "排序", width: "10%", minWidth: 100, align: "center" },
+  { fieldName: "status", label: "状态", width: "10%", minWidth: 100, align: "center", slotName: "status" },
 ];
 
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onAdd, onEdit, onDel) => {
+export const getOperationColumn = (onAdd, onEdit, onChangeStatus) => {
   return {
     label: '操作',
     width: 360,
@@ -43,9 +44,20 @@ export const getOperationColumn = (onAdd, onEdit, onDel) => {
         type: 'danger',
         size: 'small',
         onClick: (row) => {
-          onDel && onDel(row);
+          onChangeStatus && onChangeStatus(row, 0);
         },
+        isShow: (row) => row.status !== 0,
         icon: 'lock',
+      },
+      {
+        label: '启用',
+        type: 'success',
+        size: 'small',
+        onClick: (row) => {
+          onChangeStatus && onChangeStatus(row, 1);
+        },
+        isShow: (row) => row.status === 0,
+        icon: 'enter',
       }
     ],
   };

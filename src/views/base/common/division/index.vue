@@ -7,8 +7,13 @@
       :toolbar-buttons="toolbarButtons"
       :columns="columns"
       :params="{pid:0}"
-      :operation-column="getOperationColumn(add, edit, del)"
-    />
+      :operation-column="getOperationColumn(add, edit, handleChangeStatus)">
+      <template #status="{ row }">
+        <el-tag :type="row.status === 0 ? 'danger' : 'success'" size="small">
+          {{ row.status === 0 ? '已禁用' : '正常' }}
+        </el-tag>
+      </template>
+    </ThreeList>
 
     <!-- 新增/编辑节点弹窗 -->
     <DivisionFormDialog ref="dialogRef" @success="handleDialogSuccess" />
@@ -19,7 +24,7 @@
 import { ref, getCurrentInstance } from "vue";
 import ThreeList from "@/components/threeList/index.vue";
 import DivisionFormDialog from "./components/DivisionFormDialog.vue";
-import { getThreeList, exportAreaData } from "@/api/base/common/division";
+import { getThreeList, exportAreaData, changeStatus } from "@/api/base/common/division";
 import { exportExcel } from "@/utils/export";
 import { columns, getOperationColumn } from "./config/columns";
 
@@ -29,11 +34,22 @@ const dialogRef = ref(null);
 
 // 弹窗成功回调
 function handleDialogSuccess(result) {
-  if (result && result.type === 'edit' && result.row) {
+  if (!result || !result.row) return;
+
+  if (result.type === 'edit') {
     // 编辑成功，只刷新当前行
     threeListRef.value?.refreshRow(result.row.id, result.row);
+  } else if (result.type === 'add') {
+    // 新增成功，将子节点直接添加到父节点的 children 中
+    const parentId = result.row.pid;
+    if (parentId !== undefined && parentId !== null) {
+      threeListRef.value?.addChildToRow(parentId, result.row);
+    } else {
+      // 如果没有父节点ID，刷新整个列表
+      threeListRef.value?.refresh();
+    }
   } else {
-    // 新增或其他操作，刷新整个列表
+    // 其他操作，刷新整个列表
     threeListRef.value?.refresh();
   }
 }
@@ -48,9 +64,26 @@ const edit = (row) => {
   dialogRef.value?.edit(row);
 };
 
-// 删除子节点
-const del = (row) => {
-  console.log("====del===>", row);
+// 修改状态（禁用/启用）
+const handleChangeStatus = (row, status) => {
+  const actionText = status === 0 ? "禁用" : "启用";
+  proxy.$modal
+    .confirm(`确定要${actionText} "${row.name}" 吗？`)
+    .then(() => {
+      return changeStatus({ id: row.id, status });
+    })
+    .then((res) => {
+      if (res.code === 200) {
+        proxy.$modal.msgSuccess(`${actionText}成功`);
+        // 更新当前行状态
+        threeListRef.value?.refreshRow(row.id, { ...row, status });
+      }
+    })
+    .catch((error) => {
+      if (error !== "cancel") {
+        console.error(`${actionText}失败:`, error);
+      }
+    });
 };
 
 // 导出区域数据
