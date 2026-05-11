@@ -27,24 +27,17 @@
     <el-row :gutter="20">
       <el-col :span="24">
         <el-form-item label="抄送人"  label-width="120px">
-          <el-select
-            v-model="copyUids"
-            :disabled="disabled"
-            placeholder="请选择抄送人"
-            multiple
-            filterable
-            clearable
-            collapse-tags
-            collapse-tags-tooltip
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in userOptions"
-              :key="item.userId"
-              :label="item.nickName"
-              :value="item.userId"
-            />
-          </el-select>
+          <div v-if="copyNames.length > 0" class="copy-user-tags">
+            <el-tag
+              v-for="(name, index) in copyNames"
+              :key="index"
+              size="small"
+              type="info"
+            >
+              {{ name }}
+            </el-tag>
+          </div>
+          <span v-else class="no-copy-user">暂无</span>
         </el-form-item>
       </el-col>
     </el-row>
@@ -91,12 +84,11 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick, getCurrentInstance } from "vue";
+import { ref, watch, onMounted, nextTick, getCurrentInstance, computed } from "vue";
 import { listUser } from "@/api/system/user.js";
 import { listPost } from "@/api/system/post.js";
 import { getPageList as getApprovalFlowList } from "@/api/base/common/approvalFlow/index.js";
 import { getFlowNodes } from "@/api/common/approval.js";
-import useUserStore from "@/store/modules/user";
 
 const props = defineProps({
   modelValue: {
@@ -111,7 +103,6 @@ const props = defineProps({
 
 const emit = defineEmits(["update:modelValue", "flowChange"]);
 
-const userStore = useUserStore();
 const { proxy } = getCurrentInstance();
 const { approval_mode, flow_list_item_type } = proxy.useDict("approval_mode", "flow_list_item_type");
 
@@ -124,6 +115,14 @@ const selectedFlow = ref(null);
 // 双向绑定值
 const flowId = ref("");
 const copyUids = ref([]);
+
+// 计算属性：根据 copyUids 获取抄送人名称
+const copyNames = computed(() => {
+  if (!copyUids.value || copyUids.value.length === 0) return [];
+  return copyUids.value
+    .map(uid => userOptions.value.find(user => String(user.userId) === String(uid))?.nickName)
+    .filter(name => name);
+});
 let isUpdatingFromProps = false;
 
 // 监听 props.modelValue
@@ -205,6 +204,12 @@ function handleFlowChange(flowIdVal) {
       catch (e) { console.error("解析 flowList 失败:", e); flowListData = []; }
     }
     selectedFlow.value = { ...flow, flowList: flowListData };
+    
+    // 选择审批流程后，自动设置流程中配置的抄送人
+    if (flow.copyUids) {
+      copyUids.value = normalizeCopyUids(flow.copyUids);
+    }
+    
     emit("flowChange", selectedFlow.value);
   } else {
     selectedFlow.value = null;
@@ -246,16 +251,12 @@ function getUserNames(userIds) {
 }
 
 // 暴露方法
-function setDefaultCopyUser() {
-  if (userStore.id) { copyUids.value = [userStore.id]; emitUpdate(); }
-}
-
 function setFlowId(id) { flowId.value = id; handleFlowChange(id); }
 function setCopyUids(uids) { copyUids.value = normalizeCopyUids(uids); }
 
-defineExpose({ setDefaultCopyUser, getSelectedFlow: () => selectedFlow.value, getFlowId: () => flowId.value, getCopyUids: () => copyUids.value, setFlowId, setCopyUids });
+defineExpose({ getSelectedFlow: () => selectedFlow.value, getFlowId: () => flowId.value, getCopyUids: () => copyUids.value, setFlowId, setCopyUids });
 
-onMounted(() => { getUserList(); getPostList(); getApprovalFlowOptions(); setDefaultCopyUser(); });
+onMounted(() => { getUserList(); getPostList(); getApprovalFlowOptions(); });
 </script>
 
 <style scoped>
@@ -331,5 +332,16 @@ onMounted(() => { getUserList(); getPostList(); getApprovalFlowOptions(); setDef
 .info-value {
   color: #303133;
   font-weight: 400;
+}
+
+.copy-user-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.no-copy-user {
+  color: #909399;
+  font-size: 13px;
 }
 </style>
