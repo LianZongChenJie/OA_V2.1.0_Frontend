@@ -93,8 +93,7 @@ function handleClose() {
   reset();
 }
 
-function open() {
-  console.log("===open====>", props.type);  // 打印传入的 type
+function open() {/ 打印传入的 type
   reset();
   dialogVisible.value = true;
 }

@@ -88,8 +88,6 @@ const handleNodeClick = (data) => {
 
 // 菜单打开事件
 const handleOpen = (index) => {
-  console.log("==handleOpen==>",index);
-  
   openedMenus.value.add(index);
 };
 

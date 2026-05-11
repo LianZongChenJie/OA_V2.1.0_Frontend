@@ -248,19 +248,34 @@ function submitForm() {
       };
       delete submitData.idMode;
       delete submitData.customId;
+      delete submitData.idSuffix;
+      delete submitData.parentName;
+
+      // 构建返回给父组件的行数据（只包含列表显示的字段）
+      const rowData = {
+        id: fullId,
+        pid: form.value.pid,
+        name: form.value.name,
+        shortname: form.value.shortname,
+        level: form.value.level,
+        longitude: form.value.longitude,
+        latitude: form.value.latitude,
+        sort: form.value.sort,
+      };
+
       if (isEdit.value) {
         // 编辑模式
         updateArea(submitData).then(() => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
-          emit("success", { type: 'edit', row: submitData });
+          emit("success", { type: 'edit', row: rowData });
         });
       } else {
         // 新增模式
         addArea(submitData).then(() => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
-          emit("success", { type: 'add', row: submitData });
+          emit("success", { type: 'add', row: rowData });
         });
       }
     }

@@ -406,29 +406,28 @@ const loadChildren = async (row, treeNode, resolve) => {
     }));
   };
 
+  const handleResponse = (res) => {
+    if (res.code === 200 && res.success) {
+      const children = processChildren(res.data);
+      // 将子节点缓存到父节点，以便后续刷新能找到它们
+      row.children = children;
+      resolve(children);
+    } else {
+      resolve([]);
+    }
+  };
+
   if (!props.loadApi) {
     // 如果没有单独定义 loadApi，使用原 api 传递 pid 参数
     props.api({ ...props.params, pid: row.id })
-      .then((res) => {
-        if (res.code === 200 && res.success) {
-          resolve(processChildren(res.data));
-        } else {
-          resolve([]);
-        }
-      })
+      .then(handleResponse)
       .catch(() => {
         resolve([]);
       });
   } else {
     // 使用专门的懒加载接口
     props.loadApi({ ...props.params, pid: row.id })
-      .then((res) => {
-        if (res.code === 200 && res.success) {
-          resolve(processChildren(res.data));
-        } else {
-          resolve([]);
-        }
-      })
+      .then(handleResponse)
       .catch(() => {
         resolve([]);
       });
@@ -449,12 +448,14 @@ const refresh = () => {
 const refreshRow = (rowId, newData) => {
   const updateRowInTree = (data, id, newRowData) => {
     for (let i = 0; i < data.length; i++) {
-      if (data[i].id === id) {
+      // 使用 == 进行宽松比较，因为 id 可能是字符串或数字
+      if (data[i].id == id) {
         // 保留 hasChildren 属性，使用 Object.assign 确保响应式更新
         const updatedRow = { ...newRowData, hasChildren: data[i].hasChildren };
         Object.assign(data[i], updatedRow);
         return true;
       }
+      // 递归查找子节点（懒加载的数据存储在 children 中）
       if (data[i].children && data[i].children.length > 0) {
         if (updateRowInTree(data[i].children, id, newRowData)) {
           return true;
