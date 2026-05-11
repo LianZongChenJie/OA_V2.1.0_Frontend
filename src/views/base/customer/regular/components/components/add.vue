@@ -93,7 +93,7 @@ function handleClose() {
   reset();
 }
 
-function open() {/ 打印传入的 type
+function open() {
   reset();
   dialogVisible.value = true;
 }
