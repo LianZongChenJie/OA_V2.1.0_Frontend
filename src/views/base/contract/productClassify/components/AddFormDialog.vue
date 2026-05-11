@@ -6,7 +6,12 @@
         <el-input v-model="form.parentName" disabled placeholder="请选择上级节点" />
       </el-form-item>
       <el-form-item label="分类名称" prop="title">
-        <el-input v-model="form.title" placeholder="请输入分类名称" />
+        <el-input
+          v-model="form.title"
+          placeholder="请输入分类名称"
+          :maxlength="6"
+          show-word-limit
+        />
       </el-form-item>
       <el-form-item label="描述" prop="desc">
         <el-input
