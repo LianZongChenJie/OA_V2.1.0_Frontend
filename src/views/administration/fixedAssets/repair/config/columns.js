@@ -12,6 +12,7 @@ export const columns = [
     width: "12%",
     minWidth: 120,
     align: 'center',
+    format: (val) => val?.split(' ')[0] || '',
     
     searchable: {
       type: 'dateRange',

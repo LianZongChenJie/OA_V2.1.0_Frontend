@@ -36,7 +36,7 @@ export const columns = [
       fieldName: 'keywords',
       placeholder: '请输入合同编号',
       label: '合同编号',
-      order: 1,
+      order: 2,
     },
   },
   {
@@ -58,7 +58,7 @@ export const columns = [
       fieldName: 'types',
       placeholder: '请选择合同性质',
       label: '合同性质',
-      order: 2,
+      order: 3,
     },
   },
   {
@@ -74,7 +74,7 @@ export const columns = [
       fieldName: 'cateId',
       placeholder: '请选择合同类别',
       label: '合同类别',
-      order: 3,
+      order: 5,
     },
   },
   {

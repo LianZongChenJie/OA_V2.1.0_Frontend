@@ -46,21 +46,30 @@ function handleAdd() {
   addDialogRef.value.open();
 }
 
-// 编辑
+// 编辑 - 必须调用 getDetail 获取完整数据
 async function handleEdit(row) {
   const realRow = Array.isArray(row) ? row[0] : row;
-  addDialogRef.value.openEdit(realRow);
+  // 关键：调用 getDetail 获取完整数据（包含审批字段）
+  const res = await getDetail(realRow.id);
+  if (res) {
+    addDialogRef.value.openEdit(res.data || res);
+  }
 }
 
-// 查看
+// 查看 - 必须调用 getDetail 获取完整数据
 async function handleView(row) {
   const realRow = Array.isArray(row) ? row[0] : row;
-  addDialogRef.value.openView(realRow);
+  // 关键：调用 getDetail 获取完整数据（包含审批字段）
+  const res = await getDetail(realRow.id);
+  if (res) {
+    addDialogRef.value.openView(res.data || res);
+  }
 }
 
 async function handleDelete(row) {
+  const realRow = Array.isArray(row) ? row[0] : row;
   proxy.$modal.confirm("确定删除该会议室预定吗？").then(async () => {
-    await deletereward(row.id);
+    await deletereward(realRow.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
   }).catch(() => {});

@@ -9,13 +9,18 @@
       :toolbar-buttons="headerButs"
       row-key="id"
       :search-enum="searchEnum"
-    />
+    >
+      <!-- 创建时间插槽：时间戳转日期格式 -->
+      <template #createTime="{ row }">
+        <span>{{ formatTimestamp(row.createTime) }}</span>
+      </template>
+    </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, getCurrentInstance } from "vue";
 import { ElMessage } from "element-plus";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, deletereward } from "@/api/project/itemList/index.js";
@@ -37,13 +42,26 @@ const searchEnum = reactive({
   userList: [],
 });
 
-// 状态映射（可移到 config 文件）
+// 状态映射
 const statusMap = {
   0: "未设置",
   1: "未开始",
   2: "进行中",
   3: "已完成",
   4: "已关闭"
+};
+
+// ========== 时间戳格式化函数 ==========
+const formatTimestamp = (timestamp) => {
+  if (!timestamp) return '-';
+  const date = new Date(timestamp * 1000);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
 // ========== 数据加载 ==========
@@ -68,26 +86,13 @@ const loadUsers = async () => {
 };
 
 // ========== 表格数据处理 ==========
-const formatTableData = (rows) => {
-  if (!rows?.length) return [];
-  return rows.map(row => ({
-    ...row,
-    statusText: statusMap[row.status] || "未知",
-    tasksUnfinish: 0,
-    tasksFinish: 0,
-    tasksPensent: "0%",
-  }));
-};
-
 const getPageListFix = async (params) => {
   const res = await getPageList(params);
   if (res?.rows) {
     res.rows = res.rows.map(item => ({
       ...item,
-      // 确保数字字段有值
       tasksOngoing: item.tasksOngoing ?? 0,
       tasksFinish: item.tasksFinish ?? 0,
-      // 处理完成率
       tasksPensent: item.tasksPensent || (item.tasksTotal > 0 ? `${Math.round((item.tasksFinish / item.tasksTotal) * 100)}%` : '0%')
     }));
   }

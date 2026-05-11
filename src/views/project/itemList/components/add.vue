@@ -91,6 +91,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               :disabled="isView"
+              @change="handleProjectDateRangeChange"
             />
           </el-form-item>
         </el-col>
@@ -211,7 +212,12 @@
                   type="daterange"
                   format="YYYY-MM-DD"
                   value-format="YYYY-MM-DD"
+                  range-separator="至"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
                   :disabled="isView || (projectStatus === 2 && $index < currentStageIndex) || projectStatus === 3 || projectStatus === 4"
+                  :picker-options="getStagePickerOptions($index)"
+                  @change="(val) => handleStageDateChange($index, val)"
                 />
               </el-form-item>
             </template>
@@ -290,7 +296,36 @@ const cascaderProps = {
 
 const stageNameRule = [{ required: true, message: "请输入阶段名称", trigger: "blur" }];
 const stageLeaderRule = [{ required: true, message: "请选择负责人", trigger: "change" }];
-const stageDateRule = [{ required: true, message: "请选择阶段周期", trigger: "change" }];
+const stageDateRule = [
+  { required: true, message: "请选择阶段周期", trigger: "change" },
+  {
+    validator: (rule, value, callback) => {
+      if (!value || !value.length) {
+        callback();
+        return;
+      }
+      const [startDate, endDate] = value;
+      const [projectStart, projectEnd] = form.dateRange || [];
+      
+      if (projectStart && projectEnd) {
+        if (startDate < projectStart) {
+          callback(new Error(`阶段开始日期不能早于项目开始日期（${projectStart}）`));
+          return;
+        }
+        if (endDate > projectEnd) {
+          callback(new Error(`阶段结束日期不能晚于项目结束日期（${projectEnd}）`));
+          return;
+        }
+        if (startDate > endDate) {
+          callback(new Error("阶段开始日期不能晚于结束日期"));
+          return;
+        }
+      }
+      callback();
+    },
+    trigger: "change"
+  }
+];
 
 const defaultStageList = [
   { name: "立项阶段", directorUid: null, memberUids: [], timeRange: [], remark: "" },
@@ -312,7 +347,6 @@ const userOptions = ref([]);
 const deptOptions = ref([]);
 const contractOptions = ref([]);
 const cateOptions = ref([]);
-
 
 const projectStatus = ref(PROJECT_STATUS.NOT_STARTED);
 const statusLoading = ref(false);
@@ -385,19 +419,79 @@ const rules = {
   customerId: [{ required: true, message: "请选择项目成员", trigger: "change" }],
 };
 
+// ========== 项目起止日期变更处理 ==========
+const handleProjectDateRangeChange = () => {
+  // 项目起止日期变更后，清空所有阶段的日期
+  if (form.stageList && form.stageList.length) {
+    form.stageList.forEach((stage, index) => {
+      stage.timeRange = [];
+    });
+  }
+};
 
+// ========== 获取阶段日期选择器的限制选项 ==========
+const getStagePickerOptions = (stageIndex) => {
+  return {
+    disabledDate: (time) => {
+      const [projectStart, projectEnd] = form.dateRange || [];
+      if (!projectStart && !projectEnd) return false;
+      
+      // 获取当前时间戳
+      const currentTime = time.getTime();
+      
+      // 项目开始时间限制
+      if (projectStart) {
+        const startTime = new Date(projectStart).getTime();
+        if (currentTime < startTime) return true;
+      }
+      
+      // 项目结束时间限制
+      if (projectEnd) {
+        const endTime = new Date(projectEnd).getTime();
+        if (currentTime > endTime) return true;
+      }
+      
+      return false;
+    }
+  };
+};
+
+// ========== 阶段日期变更处理 ==========
+const handleStageDateChange = (index, value) => {
+  if (!value || !value.length) return;
+  
+  const [startDate, endDate] = value;
+  const [projectStart, projectEnd] = form.dateRange || [];
+  
+  if (projectStart && startDate < projectStart) {
+    ElMessage.warning(`阶段开始日期不能早于项目开始日期（${projectStart}）`);
+    form.stageList[index].timeRange = [];
+    return;
+  }
+  
+  if (projectEnd && endDate > projectEnd) {
+    ElMessage.warning(`阶段结束日期不能晚于项目结束日期（${projectEnd}）`);
+    form.stageList[index].timeRange = [];
+    return;
+  }
+  
+  if (startDate > endDate) {
+    ElMessage.warning("阶段开始日期不能晚于结束日期");
+    form.stageList[index].timeRange = [];
+    return;
+  }
+};
+
+// ========== 工具函数 ==========
 const calculateCurrentStageIndex = (stages) => {
   if (!stages || stages.length === 0) return 0;
   
- 
   const currentStageIndex = stages.findIndex(s => s.isCurrent === 1);
   if (currentStageIndex !== -1) return currentStageIndex;
   
-
   const completedCount = stages.filter(s => s.isCurrent === 2).length;
   return completedCount;
 };
-
 
 const transformStagesToForm = (stages) => {
   if (!stages || stages.length === 0) {
@@ -413,10 +507,8 @@ const transformStagesToForm = (stages) => {
   }));
 };
 
-
 // 完成当前阶段
 const completeCurrentStage = async () => {
-
   if (currentStageIndex.value >= form.stageList.length) {
     ElMessage.warning("所有阶段已完成");
     return;
@@ -424,7 +516,6 @@ const completeCurrentStage = async () => {
   
   const currentStage = form.stageList[currentStageIndex.value];
   
-
   if (!currentStage?.name || currentStage.name.trim() === "") {
     ElMessage.warning("请填写阶段名称");
     return;
@@ -435,6 +526,19 @@ const completeCurrentStage = async () => {
   }
   if (!currentStage?.timeRange || !currentStage.timeRange.length) {
     ElMessage.warning("请选择阶段周期");
+    return;
+  }
+  
+  // 验证阶段日期是否在项目日期范围内
+  const [stageStart, stageEnd] = currentStage.timeRange;
+  const [projectStart, projectEnd] = form.dateRange || [];
+  
+  if (projectStart && stageStart < projectStart) {
+    ElMessage.warning(`阶段开始日期不能早于项目开始日期（${projectStart}）`);
+    return;
+  }
+  if (projectEnd && stageEnd > projectEnd) {
+    ElMessage.warning(`阶段结束日期不能晚于项目结束日期（${projectEnd}）`);
     return;
   }
   
@@ -453,10 +557,9 @@ const completeCurrentStage = async () => {
       ElMessage.success(`已完成${currentStage.name}阶段，进入${form.stageList[currentStageIndex.value].name}阶段`);
     }
   } catch {
-    
+    // 取消操作
   }
 };
-
 
 const rollbackPreviousStage = async () => {
   if (currentStageIndex.value <= 0) return;
@@ -471,7 +574,7 @@ const rollbackPreviousStage = async () => {
     currentStageIndex.value--;
     ElMessage.info(`已退回到${form.stageList[currentStageIndex.value].name}阶段`);
   } catch {
-
+    // 取消操作
   }
 };
 
@@ -482,11 +585,9 @@ const handleChangeStatus = async () => {
   let confirmMessage = "";
 
   if (old === PROJECT_STATUS.NOT_STARTED) {
-   
     next = PROJECT_STATUS.IN_PROGRESS;
     confirmMessage = "确认开始项目吗？开始后将进入阶段管理流程。";
   } else if (old === PROJECT_STATUS.IN_PROGRESS) {
-    
     if (!isAllStagesCompleted.value) {
       ElMessage.warning("请先完成所有项目阶段");
       return;
@@ -494,13 +595,11 @@ const handleChangeStatus = async () => {
     next = PROJECT_STATUS.COMPLETED;
     confirmMessage = "确认完成项目吗？";
   } else if (old === PROJECT_STATUS.COMPLETED) {
-   
     next = PROJECT_STATUS.CLOSED;
     confirmMessage = "确认关闭项目吗？";
   } else {
     return;
   }
-
 
   if (!form.id) {
     ElMessage.error("项目ID不存在，请先保存项目");
@@ -516,7 +615,6 @@ const handleChangeStatus = async () => {
 
     statusLoading.value = true;
     
-    // 调用状态更新接口
     await updateStatus(form.id, { status: next });
 
     projectStatus.value = next;
@@ -529,7 +627,6 @@ const handleChangeStatus = async () => {
       ElMessage.success("项目已关闭");
     }
     
-    // 状态变更成功后，刷新列表
     emit("success");
   } catch (err) {
     if (err !== "cancel") {
@@ -617,7 +714,6 @@ const addStage = () => {
 
 const delStage = (index) => {
   form.stageList.splice(index, 1);
-  // 调整当前阶段索引
   if (currentStageIndex.value > index) {
     currentStageIndex.value--;
   } else if (currentStageIndex.value === index && currentStageIndex.value > 0) {
@@ -628,7 +724,6 @@ const delStage = (index) => {
 const moveUp = (index) => {
   if (index === 0) return;
   [form.stageList[index], form.stageList[index - 1]] = [form.stageList[index - 1], form.stageList[index]];
-  // 调整当前阶段索引
   if (currentStageIndex.value === index) {
     currentStageIndex.value = index - 1;
   } else if (currentStageIndex.value === index - 1) {
@@ -639,7 +734,6 @@ const moveUp = (index) => {
 const moveDown = (index) => {
   if (index === form.stageList.length - 1) return;
   [form.stageList[index], form.stageList[index + 1]] = [form.stageList[index + 1], form.stageList[index]];
-  // 调整当前阶段索引
   if (currentStageIndex.value === index) {
     currentStageIndex.value = index + 1;
   } else if (currentStageIndex.value === index + 1) {
@@ -651,6 +745,23 @@ const moveDown = (index) => {
 const handleSubmit = () => {
   formRef.value.validate((valid) => {
     if (!valid) return;
+
+    // 验证所有阶段的日期是否在项目日期范围内
+    const [projectStart, projectEnd] = form.dateRange || [];
+    for (let i = 0; i < form.stageList.length; i++) {
+      const stage = form.stageList[i];
+      if (stage.timeRange && stage.timeRange.length) {
+        const [stageStart, stageEnd] = stage.timeRange;
+        if (projectStart && stageStart < projectStart) {
+          ElMessage.warning(`阶段"${stage.name || `第${i+1}阶段`}"的开始日期不能早于项目开始日期`);
+          return;
+        }
+        if (projectEnd && stageEnd > projectEnd) {
+          ElMessage.warning(`阶段"${stage.name || `第${i+1}阶段`}"的结束日期不能晚于项目结束日期`);
+          return;
+        }
+      }
+    }
 
     submitLoading.value = true;
 
@@ -680,16 +791,14 @@ const handleSubmit = () => {
       stages: form.stageList.map(({ name, directorUid, memberUids, timeRange, remark }, index) => {
         const [s, e] = timeRange || [];
         
-  
-        let isCurrent = 0; // 默认空
+        let isCurrent = 0;
         if (projectStatus.value === PROJECT_STATUS.IN_PROGRESS) {
           if (index === currentStageIndex.value) {
-            isCurrent = 1; // 进行中
+            isCurrent = 1;
           } else if (index < currentStageIndex.value) {
-            isCurrent = 2; // 已完成
+            isCurrent = 2;
           }
         } else if (projectStatus.value === PROJECT_STATUS.COMPLETED || projectStatus.value === PROJECT_STATUS.CLOSED) {
-
           isCurrent = 2;
         }
         
@@ -763,22 +872,18 @@ const open = () => {
 const openEdit = (row) => {
   resetForm();
   
-  // 回填状态
   projectStatus.value = row.status ?? PROJECT_STATUS.NOT_STARTED;
   
-  // 处理阶段数据
   if (row.stages?.length) {
     form.stageList = transformStagesToForm(row.stages);
     currentStageIndex.value = calculateCurrentStageIndex(row.stages);
   } else {
     currentStageIndex.value = row.currentStage ?? 0;
-    // 确保阶段列表长度足够
     while (form.stageList.length < currentStageIndex.value) {
       form.stageList.push({ name: "", directorUid: null, memberUids: [], timeRange: [], remark: "" });
     }
   }
 
-  // 回填基本信息
   Object.assign(form, {
     id: row.id,
     name: row.name,
@@ -791,7 +896,6 @@ const openEdit = (row) => {
     customerId: safeSplit(row.customerId)
   });
 
-  // 回填日期范围
   if (row.startTime && row.endTime) {
     form.dateRange = [formatTime(row.startTime), formatTime(row.endTime)];
   }
