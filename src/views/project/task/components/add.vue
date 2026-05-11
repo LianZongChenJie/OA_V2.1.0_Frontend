@@ -359,13 +359,13 @@ const logRules = {
   title: [{ required: true, message: "请输入工作内容", trigger: "blur" }]
 };
 
-// 禁用超过任务预计结束时间的日期
-const disabledDate = (time) => {
-  if (!logForm.taskEndTime) return false;
-  const taskEndDate = new Date(logForm.taskEndTime);
-  // 禁用大于任务预计结束日期的日期
-  return time.getTime() > taskEndDate.getTime();
-};
+// // 禁用超过任务预计结束时间的日期
+// const disabledDate = (time) => {
+//   if (!logForm.taskEndTime) return false;
+//   const taskEndDate = new Date(logForm.taskEndTime);
+//   // 禁用大于任务预计结束日期的日期
+//   return time.getTime() > taskEndDate.getTime();
+// };
 
 // 加载工作类型接口
 async function loadWorkCateList() {
@@ -381,7 +381,8 @@ async function loadWorkCateList() {
 async function loadProjectList() {
   try {
     const res = await getPageList({ pageSize: 1000 });
-    projectList.value = res.rows || [];
+    const allProjects = res.rows || [];
+    projectList.value = allProjects.filter(project => project.status !== 4);
   } catch (err) {
     console.error("加载项目列表失败:", err);
   }
@@ -568,21 +569,21 @@ async function submitWorkLog() {
     return;
   }
   
-  // 验证工作日志的时间不能超过任务的预计结束时间
-  if (logForm.taskEndTime) {
-    const taskEndDate = new Date(logForm.taskEndTime.replace(/-/g, '/'));
-    const taskEndTimestamp = Math.floor(taskEndDate.getTime() / 1000);
+  // // 验证工作日志的时间不能超过任务的预计结束时间
+  // if (logForm.taskEndTime) {
+  //   const taskEndDate = new Date(logForm.taskEndTime.replace(/-/g, '/'));
+  //   const taskEndTimestamp = Math.floor(taskEndDate.getTime() / 1000);
     
-    if (startTime > taskEndTimestamp) {
-      ElMessage.error(`工作开始时间不能超过任务预计结束时间（${logForm.taskEndTime}）`);
-      return;
-    }
+  //   if (startTime > taskEndTimestamp) {
+  //     ElMessage.error(`工作开始时间不能超过任务预计结束时间（${logForm.taskEndTime}）`);
+  //     return;
+  //   }
     
-    if (endTime > taskEndTimestamp) {
-      ElMessage.error(`工作结束时间不能超过任务预计结束时间（${logForm.taskEndTime}）`);
-      return;
-    }
-  }
+  //   if (endTime > taskEndTimestamp) {
+  //     ElMessage.error(`工作结束时间不能超过任务预计结束时间（${logForm.taskEndTime}）`);
+  //     return;
+  //   }
+  // }
 
   const params = {
     tid: logForm.tid,

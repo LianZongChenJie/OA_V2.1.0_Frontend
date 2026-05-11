@@ -58,7 +58,7 @@ export const columns = [
       optionLabel: 'nickName',
       fieldName: 'uid',
       placeholder: '请选择创建人',
-      label: '请选择创建人',
+      label: '创建人',
       order: 3,
     },
   },

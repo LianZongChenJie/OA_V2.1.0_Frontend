@@ -9,7 +9,14 @@
       row-key="id"
       ref="tableList"
       :search-enum="searchEnum"
-    />
+    >
+      <!-- 自定义结束时间列，逾期显示红色 -->
+      <template #endTimeStr="{ row }">
+        <span :class="{ 'overdue-text': row.isOverdue }">
+          {{ row.endTimeStr }}
+        </span>
+      </template>
+    </TableList>
 
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
@@ -99,32 +106,31 @@ onMounted(() => {
   tableKey.value++;
 });
 
-
-
-// 只显示逾期提示，不显示剩余天数/今日到期
+// 格式化任务数据，显示逾期提示（红字）
 const formatTaskData = (rows) => {
   if (!rows?.length) return [];
   
   return rows.map(row => {
     let showText = row.endTimeStr || '-';
+    let isOverdue = false;
 
-
+    // 只有未完成的任务才检查逾期
     if (row.status !== 3 && row.endTimeStr) {
       const dateStr = row.endTimeStr.split(' ')[0];
       const end = new Date(dateStr.replace(/-/g, '/')).getTime();
       const now = Date.now();
       const diffDay = Math.ceil((end - now) / 86400000);
 
-
       if (diffDay < 0) {
+        isOverdue = true;
         showText = `${row.endTimeStr}（逾期 ${Math.abs(diffDay)} 天）`;
       }
-
     }
 
     return {
       ...row,
       endTimeStr: showText,
+      isOverdue: isOverdue,
       statusText: statusMap[row.status] || "未知"
     };
   });
@@ -164,3 +170,10 @@ function handleSuccess() {
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(handleView, handleDelete);
 </script>
+
+<style scoped>
+.overdue-text {
+  color: #f56c6c;
+  font-weight: 500;
+}
+</style>
