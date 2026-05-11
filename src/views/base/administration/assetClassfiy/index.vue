@@ -27,11 +27,11 @@ const dialogRef = ref(null);
 
 // 弹窗成功回调
 function handleDialogSuccess(pid) {
-  if (pid !== undefined) {
-    // 如果有 pid，说明是新增/编辑子节点，只刷新对应父节点的子节点
+  if (pid !== undefined && pid !== 0) {
+    // 如果有 pid 且不为 0，说明是新增/编辑子节点，只刷新对应父节点的子节点
     pageTreeListRef.value?.refreshChildren(pid);
   } else {
-    // 否则刷新整个列表
+    // pid 为 0 或 undefined 时刷新整个列表（新增根节点或编辑根节点）
     pageTreeListRef.value?.refresh();
   }
 }

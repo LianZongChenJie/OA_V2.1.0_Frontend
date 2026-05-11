@@ -119,6 +119,8 @@ function submitForm() {
       const submitData = {
         ...form.value,
       };
+      // 保存原始 pid 值，用于判断是否刷新整个列表
+      const originalPid = submitData.pid;
       // pid 为 0 时不传
       if (submitData.pid === 0) {
         delete submitData.pid;
@@ -131,7 +133,7 @@ function submitForm() {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           // 编辑时返回 pid，用于刷新对应父节点的子节点
-          emit("success", submitData.pid || 0);
+          emit("success", originalPid);
         });
       } else {
         // 新增时调用 addAssetClassify
@@ -139,7 +141,7 @@ function submitForm() {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           // 新增时返回 pid，用于刷新对应父节点的子节点
-          emit("success", submitData.pid || 0);
+          emit("success", originalPid);
         });
       }
     }
