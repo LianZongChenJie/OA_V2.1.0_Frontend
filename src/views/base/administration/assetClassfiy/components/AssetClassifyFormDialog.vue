@@ -90,12 +90,12 @@ const add = (row) => {
 };
 
 // 编辑
-const edit = (row) => {
+const edit = (row, parentName) => {
   reset();
   form.value = {
     id: row.id,
     pid: row.pid,
-    parentName: row.pid === 0 ? '根节点' : row.title,
+    parentName: row.pid === 0 ? '根节点' : (parentName || ''),
     title: row.title,
     desc: row.desc,
     status: row.status !== undefined ? row.status : 1,

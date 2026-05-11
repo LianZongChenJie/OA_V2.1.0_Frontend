@@ -43,7 +43,15 @@ const add = (row) => {
 
 // 编辑子节点
 const edit = (row) => {
-  dialogRef.value?.edit(row);
+  // 查找上级节点名称
+  let parentName = '根节点';
+  if (row.pid !== 0 && row.pid !== undefined) {
+    const parentNode = pageTreeListRef.value?.findNodeById(row.pid);
+    if (parentNode) {
+      parentName = parentNode.title;
+    }
+  }
+  dialogRef.value?.edit(row, parentName);
 };
 
 // 删除子节点
