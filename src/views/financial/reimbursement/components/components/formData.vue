@@ -382,7 +382,7 @@ function getEnterpriseList() {
 
 /** 获取借支列表（用于冲抵借支） */
 function getLoanOptions() {
-  getLoanList({ pageNum: 1, pageSize: 200 }).then((response) => {
+  getLoanList({ pageNum: 1, pageSize: 200,checkStatus:2 }).then((response) => {
     loanOptions.value = response.rows || [];
   });
 }
