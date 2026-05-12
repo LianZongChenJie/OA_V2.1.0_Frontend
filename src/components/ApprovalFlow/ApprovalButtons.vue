@@ -41,9 +41,12 @@ const userStore = useUserStore();
 // 审批状态判断
 const canSubmitApproval = computed(() => {
   const info = props.currentData || {};
+  // 只有本人且状态为草稿/驳回/撤回时才能提交审批
+  const isOwner = Number(info?.adminId) === Number(userStore.id);
   return (
-    [0, 3, 4].includes(Number(info?.checkStatus)) ||
-    info?.checkStatus === undefined
+    isOwner &&
+    ([0, 3, 4].includes(Number(info?.checkStatus)) ||
+    info?.checkStatus === undefined)
   );
 });
 

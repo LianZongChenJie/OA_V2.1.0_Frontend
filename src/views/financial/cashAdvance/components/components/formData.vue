@@ -139,8 +139,6 @@
 
 <script setup name="CashAdvanceFormData">
 import { ref, reactive, getCurrentInstance, onMounted } from "vue";
-import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import useUserStore from "@/store/modules/user";
 
@@ -148,7 +146,7 @@ const { proxy } = getCurrentInstance();
 const { cash_advance_types } = proxy.useDict("cash_advance_types");
 const userStore = useUserStore();
 
-const props = defineProps({
+defineProps({
   // 是否只读
   readonly: {
     type: Boolean,
@@ -161,20 +159,10 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["update:modelValue"]);
-
 const formRef = ref(null);
 
 // 下拉选项数据
-const userOptions = ref([]);
-const deptOptions = ref([]);
 const enterpriseOptions = ref([]);
-
-// 当前登录用户信息
-const currentUserInfo = ref({
-  userId: "",
-  deptId: "",
-});
 
 // 表单数据
 const form = reactive({
@@ -209,32 +197,11 @@ const rules = {
   content: [{ required: true, message: "请输入借支理由", trigger: "blur" }],
 };
 
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
 /** 获取企业主体列表 */
 function getEnterpriseList() {
   getEnterprisePageList({ pageNum: 1, pageSize: 20 }).then((response) => {
     enterpriseOptions.value = response.rows || [];
   });
-}
-
-/** 部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId,
-    );
-    if (selectedDept) {
-      form.deptName = selectedDept.deptName;
-    }
-  } else {
-    form.deptName = "";
-  }
 }
 
 /** 重置表单 */
@@ -278,7 +245,6 @@ function getFormData() {
 
 /** 初始化数据 */
 onMounted(() => {
-  getDeptList();
   getEnterpriseList();
 });
 
