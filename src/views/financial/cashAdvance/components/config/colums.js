@@ -1,5 +1,4 @@
 import { listUser } from '@/api/system/user.js';
-
 export const columns = [
   {
     fieldName: 'id',
@@ -173,7 +172,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onBack, onPay, curr
         label: '编辑',
         type: 'success',
         size: 'small',
-        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)),
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onEdit && onEdit(row);
         },

@@ -91,11 +91,12 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="借支员工" prop="adminId">
-          <el-input
-            v-model="form.adminName"
-            disabled
-            placeholder="当前登录人"
-          />
+          <el-input v-model="form.adminName" disabled />
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item label="借支部门" prop="did">
+          <el-input v-model="form.deptName" disabled />
         </el-form-item>
       </el-col>
     </el-row>
@@ -183,7 +184,8 @@ const form = reactive({
   cost: undefined,
   adminId: userStore.id,
   adminName: userStore.nickName,
-  did: "",
+  did: userStore.deptId,
+  deptName: userStore.deptName || "",
   code: "",
   types: "",
   planTime: "",
@@ -206,7 +208,6 @@ const rules = {
   ],
   content: [{ required: true, message: "请输入借支理由", trigger: "blur" }],
 };
-
 
 /** 获取部门列表 */
 function getDeptList() {
@@ -244,7 +245,8 @@ function resetForm() {
   form.cost = undefined;
   form.adminId = userStore.id;
   form.adminName = userStore.nickName;
-  form.did = currentUserInfo.value.deptId;
+  form.did = userStore.deptId;
+  form.deptName = userStore.deptName || "";
   form.code = "";
   form.types = "";
   form.planTime = "";
@@ -260,7 +262,8 @@ function setFormData(data) {
   form.cost = data.cost || undefined;
   form.adminId = data.adminId || userStore.id;
   form.adminName = data.adminName || userStore.nickName;
-  form.did = data.did || "";
+  form.did = data.did || userStore.deptId;
+  form.deptName = data.deptName || userStore.deptName || "";
   form.code = data.code || "";
   form.types =
     data.types !== undefined && data.types !== null ? String(data.types) : "";
