@@ -56,6 +56,13 @@
         v-loading="loading"
         v-bind="$attrs"
       >
+        <!-- 选择列 -->
+        <el-table-column
+          v-if="showSelection"
+          type="selection"
+          width="55"
+          :selectable="selectable"
+        />
         <!-- 数据列 -->
         <el-table-column
           v-for="column in processedColumns"
@@ -286,6 +293,21 @@ const props = defineProps({
   rowFilter: {
     type: Function,
     default: null,
+  },
+  /** 是否显示批量选择列
+   * @type {Boolean}
+   */
+  showSelection: {
+    type: Boolean,
+    default: false,
+  },
+  /** 行是否可选
+   * @type {Function}
+   * @description 接收一个 row 参数，返回 true 该行可选，false 不可选
+   */
+  selectable: {
+    type: Function,
+    default: () => true,
   },
 });
 
@@ -542,10 +564,27 @@ const refresh = () => {
   }
 };
 
+// 获取选中的行
+const getSelectedRows = () => {
+  if (table.value) {
+    return table.value.getSelectionRows();
+  }
+  return [];
+};
+
+// 清除选择
+const clearSelection = () => {
+  if (table.value) {
+    table.value.clearSelection();
+  }
+};
+
 // 暴露方法给父组件
 defineExpose({
   refresh,
   loading,
+  getSelectedRows,
+  clearSelection,
 });
 
 // 计算搜索条件的行数（每行4列）

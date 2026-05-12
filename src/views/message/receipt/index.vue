@@ -1,6 +1,7 @@
 <template>
   <div class="main-content">
     <TableList
+      :show-selection="true"
       :key="tableKey"
       :api="getPageListFix"
       :columns="getFullColumns()"
@@ -10,30 +11,34 @@
       ref="tableList"
       :search-enum="searchEnum"
       :search-fields="searchFields"
-      selection
     >
       <!-- 自定义星标列 -->
       <template #isStar="{ row }">
-        <span 
-          class="star-icon" 
+        <span
+          class="star-icon"
           :class="{ 'star-active': row.isStar === 1 }"
           @click="handleToggleStar(row)"
         >
-          {{ row.isStar === 1 ? '★' : '☆' }}
+          {{ row.isStar === 1 ? "★" : "☆" }}
         </span>
       </template>
-      
+
       <!-- 自定义消息类型列 -->
       <template #typesStr="{ row }">
-        <span :class="{ 'system-msg': row.fromUid === 0, 'user-msg': row.fromUid !== 0 }">
-          {{ row.fromUid === 0 ? '系统消息' : '用户消息' }}
+        <span
+          :class="{
+            'system-msg': row.fromUid === 0,
+            'user-msg': row.fromUid !== 0,
+          }"
+        >
+          {{ row.fromUid === 0 ? "系统消息" : "用户消息" }}
         </span>
       </template>
-      
+
       <!-- 自定义已读状态列 - 已读绿色，未读红色 -->
       <template #isReadStr="{ row }">
-        <span :class="{ 'read': row.readTime !== 0, 'unread': row.readTime === 0 }">
-          {{ row.readTime === 0 ? '未读' : '已读' }}
+        <span :class="{ read: row.readTime !== 0, unread: row.readTime === 0 }">
+          {{ row.readTime === 0 ? "未读" : "已读" }}
         </span>
       </template>
     </TableList>
@@ -44,8 +49,19 @@
 <script setup>
 import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del, setRead, setStar } from "@/api/message/receipt/index.js";
-import { getFullColumns, getOperationColumn, getHeaderButs, searchFields } from "./config/columns";
+import {
+  getPageList,
+  getDetail,
+  del,
+  setRead,
+  setStar,
+} from "@/api/message/receipt/index.js";
+import {
+  getFullColumns,
+  getOperationColumn,
+  getHeaderButs,
+  searchFields,
+} from "./config/columns";
 import AddDialog from "./components/add.vue";
 import { listUser } from "@/api/system/user.js";
 
@@ -53,17 +69,17 @@ const { proxy } = getCurrentInstance();
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
-const tableKey = ref(0); 
+const tableKey = ref(0);
 
 const searchEnum = ref({
-  anchorId: []
+  anchorId: [],
 });
 
 // 获取人列表
 const fetchAnchorList = async () => {
   try {
     const res = await listUser({ pageSize: 1000 });
-    
+
     let users = [];
     if (res.rows && Array.isArray(res.rows)) {
       users = res.rows;
@@ -76,18 +92,17 @@ const fetchAnchorList = async () => {
     } else {
       users = [];
     }
-    
-    const userList = users.filter(u => String(u.status) === '0');
-    
-    searchEnum.value.anchorId = userList.map(u => ({
-      label: u.realName || u.nickName || u.userName || u.name || '未命名',
-      value: u.userId
+
+    const userList = users.filter((u) => String(u.status) === "0");
+
+    searchEnum.value.anchorId = userList.map((u) => ({
+      label: u.realName || u.nickName || u.userName || u.name || "未命名",
+      value: u.userId,
     }));
-    
+
     tableKey.value++;
-    
   } catch (e) {
-    console.error('获取人列表失败:', e);
+    console.error("获取人列表失败:", e);
   }
 };
 
@@ -119,17 +134,21 @@ function handleDelete(row) {
     proxy.$modal.msgError("消息ID不存在");
     return;
   }
-  
-  proxy.$modal.confirm('是否确认删除该消息？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    return del(messageId, 'msg');
-  }).then(() => {
-    proxy.$modal.msgSuccess("删除成功");
-    tableList.value?.refresh();
-  }).catch(() => {});
+
+  proxy.$modal
+    .confirm("是否确认删除该消息？", "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+    .then(() => {
+      return del(messageId, "msg");
+    })
+    .then(() => {
+      proxy.$modal.msgSuccess("删除成功");
+      tableList.value?.refresh();
+    })
+    .catch(() => {});
 }
 
 // 切换星标状态
@@ -149,7 +168,7 @@ function getSelectedIds() {
   let ids = [];
   if (tableList.value?.getSelectedRows) {
     const rows = tableList.value.getSelectedRows();
-    ids = rows.map(row => row.id).filter(id => id);
+    ids = rows.map((row) => row.id).filter((id) => id);
   }
   return ids;
 }
@@ -157,73 +176,85 @@ function getSelectedIds() {
 // 批量删除
 function handleBatchDelete() {
   const ids = getSelectedIds();
-  
+
   if (ids.length === 0) {
     proxy.$modal.msgWarning("请选择要删除的消息");
     return;
   }
-  
-  proxy.$modal.confirm(`是否确认删除选中的 ${ids.length} 条消息？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    return del(ids, 'msg');
-  }).then(() => {
-    proxy.$modal.msgSuccess("删除成功");
-    tableList.value?.refresh();
-    if (tableList.value?.clearSelection) {
-      tableList.value.clearSelection();
-    }
-  }).catch(() => {});
+
+  proxy.$modal
+    .confirm(`是否确认删除选中的 ${ids.length} 条消息？`, "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+    .then(() => {
+      return del(ids, "msg");
+    })
+    .then(() => {
+      proxy.$modal.msgSuccess("删除成功");
+      tableList.value?.refresh();
+      if (tableList.value?.clearSelection) {
+        tableList.value.clearSelection();
+      }
+    })
+    .catch(() => {});
 }
 
 // 批量设为已读
 function handleBatchRead() {
   const ids = getSelectedIds();
-  
+
   if (ids.length === 0) {
     proxy.$modal.msgWarning("请选择要标记的消息");
     return;
   }
-  
-  proxy.$modal.confirm(`是否确认将选中的 ${ids.length} 条消息设为已读？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    return setRead(ids);
-  }).then(() => {
-    proxy.$modal.msgSuccess("设置成功");
-    tableList.value?.refresh();
-    if (tableList.value?.clearSelection) {
-      tableList.value.clearSelection();
-    }
-  }).catch(() => {});
+
+  proxy.$modal
+    .confirm(`是否确认将选中的 ${ids.length} 条消息设为已读？`, "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+    .then(() => {
+      return setRead(ids);
+    })
+    .then(() => {
+      proxy.$modal.msgSuccess("设置成功");
+      tableList.value?.refresh();
+      if (tableList.value?.clearSelection) {
+        tableList.value.clearSelection();
+      }
+    })
+    .catch(() => {});
 }
 
 // 批量设为星标
 function handleBatchStar() {
   const ids = getSelectedIds();
-  
+
   if (ids.length === 0) {
     proxy.$modal.msgWarning("请选择要标记的消息");
     return;
   }
-  
-  proxy.$modal.confirm(`是否确认将选中的 ${ids.length} 条消息设为星标？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    return setStar(ids, 1);
-  }).then(() => {
-    proxy.$modal.msgSuccess("设置成功");
-    tableList.value?.refresh();
-    if (tableList.value?.clearSelection) {
-      tableList.value.clearSelection();
-    }
-  }).catch(() => {});
+
+  proxy.$modal
+    .confirm(`是否确认将选中的 ${ids.length} 条消息设为星标？`, "提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+    })
+    .then(() => {
+      return setStar(ids, 1);
+    })
+    .then(() => {
+      proxy.$modal.msgSuccess("设置成功");
+      tableList.value?.refresh();
+      if (tableList.value?.clearSelection) {
+        tableList.value.clearSelection();
+      }
+    })
+    .catch(() => {});
 }
 
 function handleSuccess() {
@@ -231,7 +262,11 @@ function handleSuccess() {
 }
 
 const operationColumn = getOperationColumn(handleView, handleDelete);
-const headerButs = getHeaderButs(handleBatchDelete, handleBatchRead, handleBatchStar);
+const headerButs = getHeaderButs(
+  handleBatchDelete,
+  handleBatchRead,
+  handleBatchStar,
+);
 </script>
 
 <style scoped>

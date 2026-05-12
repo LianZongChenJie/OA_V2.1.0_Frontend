@@ -1,19 +1,3 @@
-import { listUser } from "@/api/system/user.js";
-
-export const queryForm = {
-  meetingDate: '',
-  anchorId: '',
-  title: '',
-};
-
-// 多选列配置
-export const selectionColumn = {
-  type: 'selection',
-  width: 55,
-  align: 'center',
-  fixed: 'left'
-};
-
 export const columns = [
   {
     fieldName: 'typesStr',
@@ -155,7 +139,6 @@ export const getOperationColumn = (onView, onDelete) => ({
 // 获取完整的列配置（包含多选列）
 export const getFullColumns = () => {
   return [
-    selectionColumn,
     ...columns
   ];
 };
@@ -170,12 +153,10 @@ export const searchFields = columns
   .sort((a, b) => (a.order || 0) - (b.order || 0));
 
 export default {
-  selectionColumn,
   columns,
   operationColumn,
   getOperationColumn,
   getFullColumns,
   searchFields,
-  getHeaderButs,
-  queryForm
+  getHeaderButs
 };
