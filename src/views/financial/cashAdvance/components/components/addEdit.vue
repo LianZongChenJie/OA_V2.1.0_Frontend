@@ -12,6 +12,12 @@
       :readonly="false"
     />
 
+    <!-- records 记录数据（当 records 存在时显示） -->
+    <RecordSteps
+      v-if="currentData && currentData.records && currentData.records.length > 0"
+      :records="currentData.records"
+    />
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSubmit">
@@ -29,12 +35,14 @@
 import { ref, computed, getCurrentInstance, nextTick } from "vue";
 import { add, edit } from "@/api/financial/cashAdvance";
 import FormData from "./formData.vue";
+import RecordSteps from "./RecordSteps.vue";
 
 const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const isEdit = ref(false); // 是否为编辑模式
+const currentData = ref(null);
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
@@ -45,6 +53,7 @@ const dialogTitle = computed(() => {
 function handleClose() {
   formDataRef.value?.resetForm();
   isEdit.value = false;
+  currentData.value = null;
 }
 
 /** 显示弹窗 - 新增模式 */
@@ -61,6 +70,7 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   isEdit.value = true;
+  currentData.value = data;
   dialogVisible.value = true;
 
   // 等待 DOM 更新后设置数据

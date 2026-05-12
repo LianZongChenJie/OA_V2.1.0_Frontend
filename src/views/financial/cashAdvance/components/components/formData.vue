@@ -91,39 +91,11 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="借支员工" prop="adminId">
-          <el-select
-            v-model="form.adminId"
+          <el-input
+            v-model="form.adminName"
             disabled
-            placeholder="请选择借支员工"
-            clearable
-            filterable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in userOptions"
-              :key="item.userId"
-              :label="item.nickName"
-              :value="item.userId"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item label="借支部门" prop="did">
-          <el-select
-            v-model="form.did"
-            disabled
-            placeholder="请选择借支部门"
-            clearable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in deptOptions"
-              :key="item.deptId"
-              :label="item.deptName"
-              :value="item.deptId"
-            />
-          </el-select>
+            placeholder="当前登录人"
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -200,7 +172,7 @@ const enterpriseOptions = ref([]);
 // 当前登录用户信息
 const currentUserInfo = ref({
   userId: "",
-  deptId: ""
+  deptId: "",
 });
 
 // 表单数据
@@ -209,7 +181,8 @@ const form = reactive({
   title: "",
   subjectId: "",
   cost: undefined,
-  adminId: "",
+  adminId: userStore.id,
+  adminName: userStore.nickName,
   did: "",
   code: "",
   types: "",
@@ -220,30 +193,20 @@ const form = reactive({
 // 验证规则
 const rules = {
   title: [{ required: true, message: "请输入借支主题", trigger: "blur" }],
-  subjectId: [{ required: true, message: "请选择借支企业主体", trigger: "change" }],
+  subjectId: [
+    { required: true, message: "请选择借支企业主体", trigger: "change" },
+  ],
   cost: [{ required: true, message: "请输入借支金额", trigger: "blur" }],
   adminId: [{ required: true, message: "请选择借支员工", trigger: "change" }],
   did: [{ required: true, message: "请选择借支部门", trigger: "change" }],
   code: [{ required: true, message: "请输入借支编号", trigger: "blur" }],
   types: [{ required: true, message: "请选择借支类型", trigger: "change" }],
-  planTime: [{ required: true, message: "请选择预计归还日期", trigger: "change" }],
+  planTime: [
+    { required: true, message: "请选择预计归还日期", trigger: "change" },
+  ],
   content: [{ required: true, message: "请输入借支理由", trigger: "blur" }],
 };
 
-/** 获取用户列表 */
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-    // 设置当前登录人信息
-    const currentUser = userOptions.value.find(u => u.userId === userStore.id);
-    currentUserInfo.value = {
-      userId: userStore.id || "",
-      deptId: currentUser?.deptId || ""
-    };
-    form.adminId = currentUserInfo.value.userId;
-    form.did = currentUserInfo.value.deptId;
-  });
-}
 
 /** 获取部门列表 */
 function getDeptList() {
@@ -279,7 +242,8 @@ function resetForm() {
   form.title = "";
   form.subjectId = "";
   form.cost = undefined;
-  form.adminId = currentUserInfo.value.userId;
+  form.adminId = userStore.id;
+  form.adminName = userStore.nickName;
   form.did = currentUserInfo.value.deptId;
   form.code = "";
   form.types = "";
@@ -294,10 +258,12 @@ function setFormData(data) {
   form.title = data.title || "";
   form.subjectId = data.subjectId || "";
   form.cost = data.cost || undefined;
-  form.adminId = data.adminId || "";
+  form.adminId = data.adminId || userStore.id;
+  form.adminName = data.adminName || userStore.nickName;
   form.did = data.did || "";
   form.code = data.code || "";
-  form.types = data.types !== undefined && data.types !== null ? String(data.types) : "";
+  form.types =
+    data.types !== undefined && data.types !== null ? String(data.types) : "";
   form.planTime = data.planTime || "";
   form.content = data.content || "";
 }
@@ -309,7 +275,6 @@ function getFormData() {
 
 /** 初始化数据 */
 onMounted(() => {
-  getUserList();
   getDeptList();
   getEnterpriseList();
 });
