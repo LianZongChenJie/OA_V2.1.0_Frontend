@@ -132,7 +132,7 @@ function handleReject() {
       inputErrorMessage: "拒绝原因不能为空",
     })
     .then(({ value }) => {
-      if (!value || value === undfinded) {
+      if (!value || value === undefined) {
         return proxy.$modal.msgError("拒绝原因不能为空");
       }
       approval({
@@ -160,7 +160,7 @@ function handleRevoke() {
       inputErrorMessage: "撤销原因不能为空",
     })
     .then(({ value }) => {
-      if (!value || value === undfinded) {
+      if (!value || value === undefined) {
         return proxy.$modal.msgError("撤销原因不能为空");
       }
       approval({
