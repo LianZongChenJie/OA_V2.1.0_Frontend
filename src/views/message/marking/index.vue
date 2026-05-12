@@ -1,6 +1,7 @@
 <template>
   <div class="main-content">
     <TableList
+      :show-selection="true"
       :key="tableKey"
       :api="getPageListFix"
       :columns="getFullColumns()"
@@ -10,7 +11,6 @@
       ref="tableList"
       :search-enum="searchEnum"
       :search-fields="searchFields"
-      selection
     >
       <!-- 自定义星标列 -->
       <template #isStar="{ row }">
@@ -23,7 +23,7 @@
         </span>
       </template>
       
-      <!-- 自定义消息类型列（如果需要更复杂的样式） -->
+      <!-- 自定义消息类型列 -->
       <template #typesStr="{ row }">
         <span :class="{ 'system-msg': row.fromUid === 0, 'user-msg': row.fromUid !== 0 }">
           {{ row.fromUid === 0 ? '系统消息' : '用户消息' }}
@@ -103,11 +103,9 @@ const getPageListFix = async (params) => {
 // 查看消息
 async function handleView(row) {
   try {
-    // 调用详情接口，标记为已读
     const res = await getDetail(row.id);
     const detailData = res.data || res;
     addDialogRef.value.openView(detailData);
-    // 刷新列表，更新已读状态
     tableList.value?.refresh();
   } catch (error) {
     proxy.$modal.msgError(error.message || "获取详情失败");
@@ -127,7 +125,6 @@ function handleDelete(row) {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    // 收件箱删除，table 传 'msg'
     return del(messageId, 'msg');
   }).then(() => {
     proxy.$modal.msgSuccess("删除成功");
@@ -135,13 +132,12 @@ function handleDelete(row) {
   }).catch(() => {});
 }
 
-// 切换星标状态（单条）
+// 切换星标状态
 async function handleToggleStar(row) {
   try {
     const newStatus = row.isStar === 1 ? 0 : 1;
     await setStar(row.id, newStatus);
     proxy.$modal.msgSuccess(newStatus === 1 ? "已设为星标" : "已取消星标");
-    // 刷新列表
     tableList.value?.refresh();
   } catch (error) {
     proxy.$modal.msgError(error.message || "操作失败");
@@ -172,7 +168,6 @@ function handleBatchDelete() {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    // 收件箱批量删除，table 传 'msg'
     return del(ids, 'msg');
   }).then(() => {
     proxy.$modal.msgSuccess("删除成功");
@@ -212,11 +207,11 @@ function handleBatchStar() {
   const ids = getSelectedIds();
   
   if (ids.length === 0) {
-    proxy.$modal.msgWarning("请选择要取消标记的消息");
+    proxy.$modal.msgWarning("请选择要标记的消息");
     return;
   }
   
-  proxy.$modal.confirm(`是否确认将选中的 ${ids.length} 条消息取消星标？`, '提示', {
+  proxy.$modal.confirm(`是否确认将选中的 ${ids.length} 条消息设为星标？`, '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -236,7 +231,11 @@ function handleSuccess() {
 }
 
 const operationColumn = getOperationColumn(handleView, handleDelete);
-const headerButs = getHeaderButs(handleBatchDelete, handleBatchRead, handleBatchStar);
+const headerButs = getHeaderButs(
+  handleBatchDelete,
+  handleBatchRead,
+  handleBatchStar,
+);
 </script>
 
 <style scoped>
@@ -262,16 +261,6 @@ const headerButs = getHeaderButs(handleBatchDelete, handleBatchRead, handleBatch
 
 .user-msg {
   color: #ffc063;
-}
-
-/* 已读状态样式（可选） */
-.unread {
-  color: #f56c6c;
-  font-weight: bold;
-}
-
-.read {
-  color: #909399;
 }
 
 /* 已读状态样式  */
