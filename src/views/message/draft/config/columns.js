@@ -8,14 +8,6 @@ export const queryForm = {
 
 export const columns = [
   {
-    fieldName: 'selection',
-    label: '',
-    type: 'selection',
-    width: '55px',
-    fixed: 'left',
-    align: 'center',
-  },
-  {
     fieldName: 'title',
     label: '消息主题',
     minWidth: 260,
@@ -102,7 +94,7 @@ export const operationColumn = {
 };
 
 // 头部按钮
-export const getHeaderButs = (onAdd,onBatchDelete) => [
+export const getHeaderButs = (onAdd, onBatchDelete) => [
   {
     label: '新建消息',
     type: 'success',
@@ -127,14 +119,14 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   show: true,
   actions: [
     {
-        label: '编辑',
-        type: 'success',
-        size: 'small',
-        onClick: (row) => {
-          onEdit && onEdit(row);
-        },
-        icon: 'edit',
+      label: '编辑',
+      type: 'success',
+      size: 'small',
+      onClick: (row) => {
+        onEdit && onEdit(row);
       },
+      icon: 'edit',
+    },
     {
       label: '查看',
       type: 'primary',
@@ -154,6 +146,11 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
   ]
 });
 
+// 获取完整的列配置
+export const getFullColumns = () => {
+  return [...columns];
+};
+
 // 提取搜索配置
 export const searchFields = columns
   .filter(col => col.searchable)
@@ -167,6 +164,7 @@ export default {
   columns,
   operationColumn,
   getOperationColumn,
+  getFullColumns,
   searchFields,
   getHeaderButs,
   queryForm

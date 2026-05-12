@@ -1,26 +1,38 @@
 <template>
   <div class="main-content">
     <TableList
+      :show-selection="true"
       :key="tableKey"
       :api="getPageListFix"
-      :columns="columns"
+      :columns="getFullColumns()"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
       row-key="id"
       ref="tableList"
       :search-enum="searchEnum"
-      selection
+      :search-fields="searchFields"
     >
+      <!-- 自定义消息类型列 -->
+      <template #typesStr="{ row }">
+        <span
+          :class="{
+            'system-msg': row.fromUid === 0,
+            'user-msg': row.fromUid !== 0,
+          }"
+        >
+          {{ row.typesStr || (row.fromUid === 0 ? "系统消息" : "用户消息") }}
+        </span>
+      </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted, nextTick } from "vue";
+import { ref, getCurrentInstance, onMounted } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del} from "@/api/message/sender/index.js";
-import { columns, getOperationColumn, getHeaderButs } from "./config/columns";
+import { getPageList, getDetail, del } from "@/api/message/sender/index.js";
+import { getFullColumns, getOperationColumn, getHeaderButs, searchFields } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import { listUser } from "@/api/system/user.js";
 
@@ -28,7 +40,7 @@ const { proxy } = getCurrentInstance();
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
-const tableKey = ref(0); 
+const tableKey = ref(0);
 
 const searchEnum = ref({
   anchorId: []
@@ -103,9 +115,8 @@ async function handleView(row) {
   if (res) addDialogRef.value.openView(res.data || res);
 }
 
-// 删除单条发件箱消息 - 修复：使用 row.id 而不是 row.messageId
+// 删除单条发件箱消息
 function handleDelete(row) {
-  // 使用 id 字段（因为列表返回的是 id）
   const messageId = row.id;
   if (!messageId) {
     proxy.$modal.msgError("消息ID不存在");
@@ -144,7 +155,6 @@ function handleBatchDelete() {
   }).then(() => {
     proxy.$modal.msgSuccess("删除成功");
     tableList.value?.refresh();
-    // 清空选中状态
     if (tableList.value?.clearSelection) {
       tableList.value.clearSelection();
     }
@@ -158,3 +168,14 @@ function handleSuccess() {
 const headerButs = getHeaderButs(handleAdd, handleBatchDelete);
 const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
+
+<style scoped>
+/* 消息类型样式 */
+.system-msg {
+  color: #409eff;
+}
+
+.user-msg {
+  color: #ffc063;
+}
+</style>

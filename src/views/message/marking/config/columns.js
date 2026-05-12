@@ -6,14 +6,6 @@ export const queryForm = {
   title: '',
 };
 
-// 多选列配置
-export const selectionColumn = {
-  type: 'selection',
-  width: 55,
-  align: 'center',
-  fixed: 'left'
-};
-
 export const columns = [
   {
     fieldName: 'typesStr',
@@ -21,7 +13,6 @@ export const columns = [
     width: 100,
     align: 'center',
     formatter: (row) => {
-      // fromUid = 0 系统消息，否则用户消息
       return row.fromUid === 0 ? '系统消息' : '用户消息';
     }
   },
@@ -63,7 +54,6 @@ export const columns = [
     width: 100,
     align: 'center',
     formatter: (row) => {
-      // readTime = 0 未读，否则已读
       return row.readTime === 0 ? '未读' : '已读';
     }
   },
@@ -154,12 +144,9 @@ export const getOperationColumn = (onView, onDelete) => ({
   ]
 });
 
-// 获取完整的列配置（包含多选列）
+// 获取完整的列配置
 export const getFullColumns = () => {
-  return [
-    selectionColumn,
-    ...columns
-  ];
+  return [...columns];
 };
 
 // 提取搜索配置
@@ -172,7 +159,6 @@ export const searchFields = columns
   .sort((a, b) => (a.order || 0) - (b.order || 0));
 
 export default {
-  selectionColumn,
   columns,
   operationColumn,
   getOperationColumn,
