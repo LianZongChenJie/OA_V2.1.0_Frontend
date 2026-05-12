@@ -30,6 +30,12 @@
         :disabled="!isApprovalFlowEditable"
         flow-title="报销"
       />
+
+      <!-- records 记录数据（当 checkStatus != 0 时显示） -->
+      <RecordSteps
+        v-if="currentData && Number(currentData.checkStatus) !== 0 && currentData.records && currentData.records.length > 0"
+        :records="currentData.records"
+      />
     </div>
 
     <template #footer>
@@ -54,6 +60,7 @@ import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
 import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
 import FormData from "./formData.vue";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import { getFlowNodes } from "@/api/common/approval";
 
 const dialogVisible = ref(false);

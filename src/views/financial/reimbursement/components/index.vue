@@ -27,6 +27,7 @@ import { getPageList, getDetail, del } from "@/api/financial/reimbursement";
 import { pay } from "@/api/finance/reimbursement";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
+import useUserStore from "@/store/modules/user";
 
 const props = defineProps({
   type: {
@@ -41,6 +42,8 @@ const props = defineProps({
 
 const { proxy } = getCurrentInstance();
 const { cash_pay_status, check_status } = proxy.useDict("cash_pay_status", "check_status");
+const userStore = useUserStore();
+const currentUserId = userStore.id;
 
 const route = useRoute();
 const router = useRouter();
@@ -100,7 +103,7 @@ async function handlePay(row) {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handlePay);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handlePay, currentUserId);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

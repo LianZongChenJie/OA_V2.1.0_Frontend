@@ -12,41 +12,12 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="报销员工" prop="info.adminId">
-          <el-select
-            v-model="form.info.adminId"
-            :disabled="readonly"
-            placeholder="请选择报销员工"
-            clearable
-            filterable
-            style="width: 100%"
-            @change="handleAdminIdChange"
-          >
-            <el-option
-              v-for="item in userOptions"
-              :key="item.userId"
-              :label="item.nickName"
-              :value="item.userId"
-            />
-          </el-select>
+          <el-input v-model="form.info.adminName" disabled />
         </el-form-item>
       </el-col>
       <el-col :span="12">
         <el-form-item label="报销部门" prop="info.did">
-          <el-select
-            v-model="form.info.did"
-            :disabled="readonly"
-            placeholder="请选择报销部门"
-            clearable
-            style="width: 100%"
-            @change="handleDeptChange"
-          >
-            <el-option
-              v-for="item in deptOptions"
-              :key="item.deptId"
-              :label="item.deptName"
-              :value="item.deptId"
-            />
-          </el-select>
+          <el-input v-model="form.info.deptName" disabled />
         </el-form-item>
       </el-col>
     </el-row>
@@ -354,11 +325,15 @@ function getUserList() {
     const currentUser = userOptions.value.find(u => u.userId === userStore.id);
     currentUserInfo.value = {
       userId: userStore.id || "",
-      deptId: currentUser?.deptId || ""
+      nickName: userStore.nickName || "",
+      deptId: currentUser?.deptId || userStore.deptId || "",
+      deptName: currentUser?.deptName || userStore.deptName || ""
     };
     // 默认填充当前登录人信息
     form.info.adminId = currentUserInfo.value.userId;
+    form.info.adminName = currentUserInfo.value.nickName;
     form.info.did = currentUserInfo.value.deptId;
+    form.info.deptName = currentUserInfo.value.deptName;
     // 同步到报销明细中
     form.interfix.forEach(item => {
       item.adminId = currentUserInfo.value.userId;
@@ -470,7 +445,9 @@ function resetForm() {
   form.id = undefined;
   form.info = {
     adminId: currentUserInfo.value.userId,
+    adminName: currentUserInfo.value.nickName,
     did: currentUserInfo.value.deptId,
+    deptName: currentUserInfo.value.deptName,
     subjectId: "",
     code: "",
     expenseTime: "",
@@ -495,7 +472,9 @@ function setFormData(data) {
   form.id = data.id;
   form.info = {
     adminId: data.adminId || "",
+    adminName: data.adminName || "",
     did: data.did || "",
+    deptName: data.deptName || "",
     subjectId: data.subjectId || "",
     code: data.code || "",
     expenseTime: data.expenseTime || "",
