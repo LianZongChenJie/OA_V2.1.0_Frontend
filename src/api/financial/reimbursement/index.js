@@ -22,7 +22,7 @@ export function add(data) {
 export function edit(data) {
   return request({
     url: '/finance/expense/update',
-    method: 'post',
+    method: 'put',
     data
   })
 }

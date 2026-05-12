@@ -13,18 +13,6 @@ import { ref } from "vue";
 import AddEdit from "./addEdit.vue";
 import Detail from "./detail.vue";
 
-// 接收父组件传递的属性（即使不使用也要声明以避免警告）
-const props = defineProps({
-  type: {
-    type: [Number, String],
-    default: undefined
-  },
-  label: {
-    type: String,
-    default: ""
-  }
-});
-
 const addEditRef = ref(null);
 const detailRef = ref(null);
 

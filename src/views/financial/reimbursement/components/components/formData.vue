@@ -232,9 +232,8 @@
 </template>
 
 <script setup name="ReimbursementFormData">
-import { ref, reactive, getCurrentInstance, onMounted, computed } from "vue";
-import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
+import { ref, reactive, onMounted, computed } from "vue";
+import { ElMessage } from "element-plus";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import { getList as getLoanList } from "@/api/financial/cashAdvance";
 import { getPageList as getProjectList } from "@/api/project/itemList";
@@ -242,7 +241,6 @@ import { getPageList as getReimbursementCateList } from "@/api/finance/reimburse
 import useUserStore from "@/store/modules/user";
 import { Plus } from "@element-plus/icons-vue";
 
-const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
 
 const props = defineProps({
@@ -251,14 +249,7 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  // 表单数据
-  modelValue: {
-    type: Object,
-    default: () => ({}),
-  },
 });
-
-const emit = defineEmits(["update:modelValue"]);
 
 const formRef = ref(null);
 
@@ -270,20 +261,11 @@ const totalCost = computed(() => {
 });
 
 // 下拉选项数据
-const userOptions = ref([]);
-const deptOptions = ref([]);
 const enterpriseOptions = ref([]);
 const loanOptions = ref([]);
 const reimbursementCateOptions = ref([]);
 const projectOptions = ref([]);
 
-// 当前登录用户信息
-const currentUserInfo = ref({
-  userId: "",
-  deptId: ""
-});
-
-// 表单数据
 const form = reactive({
   id: undefined,
   info: {
@@ -309,44 +291,11 @@ const form = reactive({
 
 // 验证规则
 const rules = {
-  'info.adminId': [{ required: true, message: "请选择报销员工", trigger: "change" }],
-  'info.did': [{ required: true, message: "请选择报销部门", trigger: "change" }],
   'info.subjectId': [{ required: true, message: "请选择报销主体", trigger: "change" }],
   'info.code': [{ required: true, message: "请输入凭证编号", trigger: "blur" }],
   'info.expenseTime': [{ required: true, message: "请选择单据日期", trigger: "change" }],
   'info.incomeMonth': [{ required: true, message: "请选择入账月份", trigger: "change" }],
 };
-
-/** 获取用户列表 */
-function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    userOptions.value = response.rows || [];
-    // 设置当前登录人信息
-    const currentUser = userOptions.value.find(u => u.userId === userStore.id);
-    currentUserInfo.value = {
-      userId: userStore.id || "",
-      nickName: userStore.nickName || "",
-      deptId: currentUser?.deptId || userStore.deptId || "",
-      deptName: currentUser?.deptName || userStore.deptName || ""
-    };
-    // 默认填充当前登录人信息
-    form.info.adminId = currentUserInfo.value.userId;
-    form.info.adminName = currentUserInfo.value.nickName;
-    form.info.did = currentUserInfo.value.deptId;
-    form.info.deptName = currentUserInfo.value.deptName;
-    // 同步到报销明细中
-    form.interfix.forEach(item => {
-      item.adminId = currentUserInfo.value.userId;
-    });
-  });
-}
-
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
 
 /** 获取企业主体列表 */
 function getEnterpriseList() {
@@ -376,35 +325,6 @@ function fetchReimbursementCateList() {
   });
 }
 
-/** 报销员工选择变更 */
-function handleAdminIdChange(userId) {
-  if (userId) {
-    form.info.adminId = userId;
-    // 同步到所有报销明细中
-    form.interfix.forEach(item => {
-      item.adminId = userId;
-    });
-  } else {
-    form.info.adminId = "";
-  }
-}
-
-/** 部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    form.info.did = deptId;
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId,
-    );
-    if (selectedDept) {
-      form.info.deptName = selectedDept.deptName;
-    }
-  } else {
-    form.info.did = "";
-    form.info.deptName = "";
-  }
-}
-
 /** 项目选择变更 */
 function handleProjectChange(projectId) {
   if (projectId) {
@@ -427,14 +347,14 @@ function addInterfix() {
     amount: undefined,
     cateId: "",
     remarks: "",
-    adminId: form.adminId
+    adminId: userStore.id
   });
 }
 
 /** 删除报销明细 */
 function removeInterfix(index) {
   if (form.interfix.length === 1) {
-    proxy.$modal.msgWarning("至少保留一条报销明细");
+    ElMessage.warning("至少保留一条报销明细");
     return;
   }
   form.interfix.splice(index, 1);
@@ -444,10 +364,10 @@ function removeInterfix(index) {
 function resetForm() {
   form.id = undefined;
   form.info = {
-    adminId: currentUserInfo.value.userId,
-    adminName: currentUserInfo.value.nickName,
-    did: currentUserInfo.value.deptId,
-    deptName: currentUserInfo.value.deptName,
+    adminId: userStore.id,
+    adminName: userStore.nickName,
+    did: userStore.deptId,
+    deptName: userStore.deptName,
     subjectId: "",
     code: "",
     expenseTime: "",
@@ -461,7 +381,7 @@ function resetForm() {
       amount: undefined,
       cateId: "",
       remarks: "",
-      adminId: currentUserInfo.value.userId
+      adminId: userStore.id
     }
   ];
   formRef.value?.clearValidate();
@@ -512,8 +432,15 @@ function getFormData() {
 
 /** 初始化数据 */
 onMounted(() => {
-  getUserList();
-  getDeptList();
+  // 初始化当前用户信息
+  form.info.adminId = userStore.id;
+  form.info.adminName = userStore.nickName;
+  form.info.did = userStore.deptId;
+  form.info.deptName = userStore.deptName;
+  form.interfix.forEach(item => {
+    item.adminId = userStore.id;
+  });
+
   getEnterpriseList();
   getLoanOptions();
   fetchReimbursementCateList();
@@ -559,5 +486,5 @@ defineExpose({
   font-weight: bold;
   color: #303133;
 }
-:deep(.el-input__inner) {}
+
 </style>
