@@ -12,14 +12,12 @@ export const columns = [
     minWidth: 80,
     align: 'center',
   },
-  { fieldName: 'checkStatus', 
+  { fieldName: 'checkStatus',
     label: '审批状态',
-     width: "8%", 
+     width: "8%",
      align: 'center',
-    formatter: (row) => {
-      const map = {0:'待提交',1:'审批中',2:'已通过',3:'已驳回'};
-      return map[row.checkStatus] || '待提交';
-  }
+     isDict: true,
+     dict: 'check_status'
   },
   { fieldName: 'title', 
     label: '会议主题', 
@@ -132,9 +130,14 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
       onClick: (row) => {
         onEdit && onEdit(row);
       },
-      icon: 'edit'
+      icon: 'edit',
+      isShow: (row) => {
+        // 只有待提交(0)、已驳回(3)可以编辑
+        const status = row.checkStatus !== undefined ? Number(row.checkStatus) : -1;
+        return [0, 3].includes(status);
+      }
     },
-    
+
     {
       label: '查看',
       type: 'primary',
@@ -151,7 +154,12 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
       onClick: (row) => {
         onDelete && onDelete(row);
       },
-      icon: 'delete'
+      icon: 'delete',
+      isShow: (row) => {
+        // 只有待提交(0)、已驳回(3)可以删除
+        const status = row.checkStatus !== undefined ? Number(row.checkStatus) : -1;
+        return [0, 3].includes(status);
+      }
     }
   ]
 });

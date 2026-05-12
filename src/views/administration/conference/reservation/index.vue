@@ -8,6 +8,9 @@
       row-key="id"
       ref="tableList"
     >
+      <template #checkStatus="{ row }">
+        <dict-tag :options="check_status" :value="row.checkStatus" />
+      </template>
       <template #createTime="{ row }">
         <span>{{ row.createTime }}</span>
       </template>
@@ -24,6 +27,7 @@ import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
+const { check_status } = proxy.useDict("check_status");
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
