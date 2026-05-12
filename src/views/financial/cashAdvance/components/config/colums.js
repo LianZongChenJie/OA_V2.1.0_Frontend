@@ -165,7 +165,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onDelete, onBack, onPay, currentUserId) => {
   return {
     label: '操作',
-    width: 280,
+    width: 180,
     fixed: 'right',
     show: true,
     actions: [

@@ -759,7 +759,6 @@ onBeforeUnmount(() => {
 .operation-buttons {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
