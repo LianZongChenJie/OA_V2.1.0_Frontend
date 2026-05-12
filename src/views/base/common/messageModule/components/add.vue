@@ -236,6 +236,9 @@ const rules = {
 
 /** 表单重置 */
 function reset() {
+  // 先清除验证
+  formRef.value?.clearValidate();
+
   form.id = undefined;
   form.title = "";
   form.name = "";
@@ -252,12 +255,12 @@ function reset() {
   form.msgContent3 = "";
   isEdit.value = false;
   isView.value = false;
-  proxy.resetForm("formRef");
 }
 
 /** 关闭弹窗 */
 function handleClose() {
   reset();
+  dialogVisible.value = false;
 }
 
 /** 显示弹窗 - 新增模式 */

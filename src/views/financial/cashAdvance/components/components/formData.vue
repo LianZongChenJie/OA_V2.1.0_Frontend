@@ -93,12 +93,11 @@
         <el-form-item label="借支员工" prop="adminId">
           <el-select
             v-model="form.adminId"
-            :disabled="readonly"
+            disabled
             placeholder="请选择借支员工"
             clearable
             filterable
             style="width: 100%"
-            @change="handleAdminIdChange"
           >
             <el-option
               v-for="item in userOptions"
@@ -113,11 +112,10 @@
         <el-form-item label="借支部门" prop="did">
           <el-select
             v-model="form.did"
-            :disabled="readonly"
+            disabled
             placeholder="请选择借支部门"
             clearable
             style="width: 100%"
-            @change="handleDeptChange"
           >
             <el-option
               v-for="item in deptOptions"
@@ -261,19 +259,9 @@ function getEnterpriseList() {
   });
 }
 
-/** 借支员工选择变更 */
-function handleAdminIdChange(userId) {
-  if (userId) {
-    form.adminId = userId;
-  } else {
-    form.adminId = "";
-  }
-}
-
 /** 部门选择变更 */
 function handleDeptChange(deptId) {
   if (deptId) {
-    form.did = deptId;
     const selectedDept = deptOptions.value.find(
       (item) => item.deptId === deptId,
     );
@@ -281,7 +269,6 @@ function handleDeptChange(deptId) {
       form.deptName = selectedDept.deptName;
     }
   } else {
-    form.did = "";
     form.deptName = "";
   }
 }
