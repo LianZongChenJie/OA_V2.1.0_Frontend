@@ -115,7 +115,7 @@ export const columns = [
   },
   {
     fieldName: 'payStatus',
-    label: '回款状态',
+    label: '付款状态',
     width: 150,
     minWidth: 120,
     align: 'center',
@@ -166,7 +166,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         icon: 'delete',
       },
       {
-        label: '回款',
+        label: '付款',
         type: 'warning',
         size: 'small',
         isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 ,

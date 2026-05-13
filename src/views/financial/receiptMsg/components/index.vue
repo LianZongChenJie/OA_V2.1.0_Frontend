@@ -31,10 +31,10 @@
       :type="type"
       :label="label"
     />
-    <!-- 回款详情对话框 -->
+    <!-- 付款详情对话框 -->
     <el-dialog
       v-model="paymentDetailVisible"
-      title="回款详情"
+      title="付款详情"
       width="60%"
       :close-on-click-modal="false"
       @close="paymentDetailVisible = false"
@@ -44,8 +44,9 @@
         v-if="paymentDetailVisible"
         :invoiceId="currentInvoiceId"
         :payStatus="currentPayStatus"
+        :invoiceAmount="currentInvoiceAmount"
         :type="2"
-        :label="'回款'"
+        :label="'付款'"
       />
       <template #footer></template>
     </el-dialog>
@@ -94,6 +95,7 @@ const addDialogRef = ref(null);
 const paymentDetailVisible = ref(false);
 const currentInvoiceId = ref(null);
 const currentPayStatus = ref(null);
+const currentInvoiceAmount = ref(null); // 当前发票金额
 
 /** 新增按钮操作 */
 function handleAdd() {
@@ -147,10 +149,11 @@ async function handleOpen(row) {
   }
 }
 
-/** 回款详情按钮操作 */
-function handlePaymentDetail(row) {
+/** 付款详情按钮操作 */
+async function handlePaymentDetail(row) {
   currentInvoiceId.value = row.id;
   currentPayStatus.value = row.payStatus;
+  currentInvoiceAmount.value = row.amount; // 保存发票金额
   paymentDetailVisible.value = true;
 }
 
@@ -170,7 +173,7 @@ const operationColumn = getOperationColumn(
 }
 </style>
 <style lang="scss">
-// 回款详情弹窗滚动样式
+// 付款详情弹窗滚动样式
 .payment-detail-dialog {
   .el-dialog__body {
     max-height: 70vh;

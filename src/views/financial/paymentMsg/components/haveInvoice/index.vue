@@ -19,7 +19,7 @@
   </div>
 </template>
 <script setup>
-import { ref, getCurrentInstance, computed } from "vue";
+import { ref, getCurrentInstance, computed, onMounted, watch } from "vue";
 import TableList from "@/components/tableList/index.vue";
 //src/api/financial/paymentMsg/index.js
 import { getPageList, del } from "@/api/financial/paymentMsg";
@@ -43,6 +43,10 @@ const props = defineProps({
     type: [String, Number],
     default: null,
   },
+  invoiceAmount: {
+    type: [String, Number],
+    default: null,
+  },
 });
 
 const currColumns = computed(() => {
@@ -58,6 +62,8 @@ const currColumns = computed(() => {
 const { proxy } = getCurrentInstance();
 const tableList = ref(null);
 const addDialogRef = ref(null);
+const paymentTotalAmount = ref(0); // 已付款总金额
+const paymentListData = ref([]); // 付款列表数据
 
 // 表格参数，包含 invoiceId（如果存在）
 const tableParams = computed(() => {
@@ -74,8 +80,10 @@ function handleAdd() {
 }
 
 /** 新增成功回调 */
-function handleSuccess() {
+async function handleSuccess() {
   tableList.value.refresh();
+  // 重新获取付款列表数据，计算总额
+  await fetchPaymentList();
 }
 
 /** 删除按钮操作 */
@@ -90,9 +98,55 @@ async function handleDelete(row) {
   }
 }
 
+/** 计算已付款总金额 */
+function calculatePaymentTotal() {
+  if (paymentListData.value && paymentListData.value.length > 0) {
+    paymentTotalAmount.value = paymentListData.value.reduce((sum, item) => {
+      return sum + (Number(item.amount) || 0);
+    }, 0);
+  } else {
+    paymentTotalAmount.value = 0;
+  }
+}
+
+/** 获取付款列表数据 */
+async function fetchPaymentList() {
+  if (!props.invoiceId) return;
+
+  try {
+    const res = await getPageList({
+      tab: props.type,
+      ticketId: props.invoiceId,
+      pageNum: 1,
+      pageSize: 1000, // 获取所有数据
+    });
+    if (res && res.rows) {
+      paymentListData.value = res.rows;
+      calculatePaymentTotal();
+    }
+  } catch (e) {
+    console.error("获取付款列表失败", e);
+  }
+}
+
+// 监听 invoiceId 变化，重新获取数据
+watch(() => props.invoiceId, (newVal) => {
+  if (newVal) {
+    fetchPaymentList();
+  }
+}, { immediate: true });
+
 // 如果发票存在且付款状态不是"全款完成"(假设值为2)，则显示新增按钮
 const headerButs = computed(() => {
-  // payStatus: 2 表示全款完成，此时不显示新增按钮
+  // 如果存在发票金额和已付款总金额，进行比较
+  if (props.invoiceAmount && props.invoiceAmount !== null) {
+    // 如果已付款总金额 >= 发票金额，则隐藏新增按钮
+    if (paymentTotalAmount.value >= Number(props.invoiceAmount)) {
+      return [];
+    }
+    return getHeaderButs(handleAdd);
+  }
+  // 原有逻辑：payStatus: 2 表示全款完成，此时不显示新增按钮
   if (props.invoiceId && props.payStatus !== 2) {
     return getHeaderButs(handleAdd);
   }
