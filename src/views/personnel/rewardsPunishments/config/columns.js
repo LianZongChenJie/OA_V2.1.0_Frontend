@@ -141,7 +141,7 @@ export const columns = [
     fieldName: 'createTime',
     label: '创建时间',
     width: "15%",
-    minWidth: 180,
+    minwidth: 180,
     align: 'center',
   },
 ];

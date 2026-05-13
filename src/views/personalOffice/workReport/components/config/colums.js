@@ -86,7 +86,7 @@ export const columns = [
     fieldName: 'createTime',
     label: '汇报时间',
     width: "auto",
-    minWidth: 180,
+    minwidth: 180,
     align: 'center',
       searchable: {
       type: 'dateRange',

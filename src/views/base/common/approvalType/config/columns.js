@@ -112,7 +112,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onChangeStatus) => {
   return {
     label: '操作',
-    width: 180,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [

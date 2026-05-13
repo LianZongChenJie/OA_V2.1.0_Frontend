@@ -119,7 +119,7 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete, currentUserId) => ({
   label: '操作',
-  width: 180,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [

@@ -53,7 +53,7 @@ export const columns = [
 export const getOperationColumn = (onEdit, onView, onChangeStatus, onCopy) => {
   return {
     label: '操作',
-    width: 180,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [

@@ -50,7 +50,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 180,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [
@@ -65,7 +65,7 @@ export const getHeaderButs = (onAdd) => [
 
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 180,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [

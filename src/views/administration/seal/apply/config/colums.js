@@ -71,7 +71,7 @@ export const columns = [
   {
     fieldName: 'createTime',
     label: '申请时间',
-    width: 180,
+    width: 170,
     minWidth: 160,
   },
 ];

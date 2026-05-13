@@ -32,7 +32,7 @@ export const columns = [
     fieldName: 'projectName',
     label: '所属项目',
     width: "25%",
-    minWidth: 180,
+    minwidth: 180,
     align: 'center',
     searchable: {
       type: 'selectApi',

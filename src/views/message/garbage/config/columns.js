@@ -44,7 +44,7 @@ export const columns = [
 
 export const operationColumn = {
   label: '操作',
-  width: 180,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [
@@ -72,7 +72,7 @@ export const operationColumn = {
 // 操作列生成函数 
 export const getOperationColumn = (onRestore, onView, onDelete) => ({
   label: '操作',
-  width: 180,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [

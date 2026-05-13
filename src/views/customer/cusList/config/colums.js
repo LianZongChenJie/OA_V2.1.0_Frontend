@@ -88,7 +88,7 @@ export const columns = [
   {
     fieldName: 'followTimeStr',
     label: '最近跟进时间',
-    width: 180,
+    width: 170,
     minWidth: 160,
     searchable: {
       type: 'dateRange',
@@ -102,7 +102,7 @@ export const columns = [
   {
     fieldName: 'nextTimeStr',
     label: '下次跟进时间',
-    width: 180,
+    width: 170,
     minWidth: 160,
     searchable: {
       type: 'dateRange',
@@ -160,7 +160,7 @@ export const columns = [
   {
     fieldName: 'createTimeStr',
     label: '创建时间',
-    width: 180,
+    width: 170,
     minWidth: 160,
   },
 ];

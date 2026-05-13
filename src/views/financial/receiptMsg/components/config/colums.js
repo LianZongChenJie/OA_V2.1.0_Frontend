@@ -115,7 +115,7 @@ export const columns = [
   },
   {
     fieldName: 'payStatus',
-    label: '付款状态',
+    label: '回款状态',
     width: 150,
     minWidth: 120,
     align: 'center',
@@ -132,7 +132,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDetail, currentUserId) => {
   return {
     label: '操作',
-    width: 240,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [
@@ -166,7 +166,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         icon: 'delete',
       },
       {
-        label: '付款详情',
+        label: '回款',
         type: 'warning',
         size: 'small',
         isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 1 ,

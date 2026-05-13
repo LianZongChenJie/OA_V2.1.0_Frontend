@@ -268,8 +268,8 @@ function resetForm() {
   form.sendUids = [];
   form.copyUids = [];
   form.shareUids = [];
-  form.secrets = "1";
-  form.urgency = "1";
+  form.secrets = 1;
+  form.urgency = 1;
   form.content = "";
   savedData.value = null;
   formRef.value?.clearValidate();

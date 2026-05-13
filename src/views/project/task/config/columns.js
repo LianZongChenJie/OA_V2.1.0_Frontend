@@ -154,7 +154,7 @@ export const columns = [
   fieldName: 'endTimeStr',  
   label: '预计结束日期',
   width: "20%", 
-  minWidth: 180,
+  minwidth: 180,
   align: 'center',
 },
 ];

@@ -92,7 +92,7 @@ export const columns = [
     fieldName: 'createTimeStr',
     label: '记录时间',
     width: "auto",
-    minWidth: 180,
+    minwidth: 180,
     align: 'center',
   }
 ];
