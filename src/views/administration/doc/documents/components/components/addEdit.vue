@@ -12,6 +12,9 @@
       :readonly="isView"
     />
 
+    <!-- 审批记录 -->
+    <RecordSteps v-if="isEdit && currentData?.records?.length" :records="currentData.records" />
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSubmit">
@@ -28,12 +31,14 @@
 <script setup name="AddEditDocuments">
 import { ref, computed, nextTick } from "vue";
 import { add, edit } from "@/api/administration/doc/documents/index.js";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import FormData from "./formData.vue";
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const isEdit = ref(false);
 const isView = ref(false);
+const currentData = ref(null);
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
@@ -45,6 +50,7 @@ function handleClose() {
   formDataRef.value?.resetForm();
   isEdit.value = false;
   isView.value = false;
+  currentData.value = null;
 }
 
 /** 显示弹窗 - 新增模式 */
@@ -61,6 +67,7 @@ function open() {
 function openEdit(data) {
   isEdit.value = true;
   isView.value = false;
+  currentData.value = data;
   dialogVisible.value = true;
   nextTick(() => {
     formDataRef.value?.resetForm();
