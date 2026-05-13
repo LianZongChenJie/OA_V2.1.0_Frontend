@@ -579,12 +579,23 @@ const clearSelection = () => {
   }
 };
 
+// 获取查询参数
+const getQueryParams = () => {
+  return {
+    pageNum: currentPage.value,
+    pageSize: currentPageSize.value,
+    ...props.params,
+    ...searchParams.value,
+  };
+};
+
 // 暴露方法给父组件
 defineExpose({
   refresh,
   loading,
   getSelectedRows,
   clearSelection,
+  getQueryParams,
 });
 
 // 计算搜索条件的行数（每行4列）
