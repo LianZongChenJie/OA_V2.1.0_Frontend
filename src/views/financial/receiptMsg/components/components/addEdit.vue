@@ -13,7 +13,6 @@
     />
 
     <!-- 审批记录 -->
-    <div class="form-section-title">审批记录</div>
     <RecordSteps
       v-if="currentData && Number(currentData.checkStatus) !== 0 && currentData.records && currentData.records.length > 0"
       :records="currentData.records"
