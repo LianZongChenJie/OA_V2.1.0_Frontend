@@ -671,7 +671,7 @@ async function handleUserSearch(query) {
     const res = await getEmployeeList({
       pageNum: 1,
       pageSize: 20,
-      keyword: query || "",
+      nickName: query || "",
     });
     if (res.code === 200) {
       userOptions.value = res.rows || [];
