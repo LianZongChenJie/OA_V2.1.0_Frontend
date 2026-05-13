@@ -7,25 +7,26 @@
     class="documents-dialog"
     @close="handleClose"
   >
-    <FormData
-      ref="formDataRef"
-      :readonly="false"
-    />
+    <div>
+      <FormData ref="formDataRef" :readonly="false" />
 
-    <!-- records 记录数据（当 records 存在时显示） -->
-    <RecordSteps
-      v-if="currentData && currentData.records && currentData.records.length > 0"
-      :records="currentData.records"
-    />
+      <!-- 审批记录（当 checkStatus != 0 且存在 records 时显示） -->
+      <template
+        v-if="
+          currentData &&
+          Number(currentData.checkStatus) !== 0 &&
+          currentData.records &&
+          currentData.records.length > 0
+        "
+      >
+        <RecordSteps :records="currentData.records" />
+      </template>
+    </div>
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">
-          确 定
-        </el-button>
-        <el-button @click="dialogVisible = false">
-          取 消
-        </el-button>
+        <el-button type="primary" @click="handleSubmit"> 确 定 </el-button>
+        <el-button @click="dialogVisible = false"> 取 消 </el-button>
       </div>
     </template>
   </el-dialog>
@@ -35,7 +36,7 @@
 import { ref, computed, getCurrentInstance, nextTick } from "vue";
 import { add, edit } from "@/api/financial/cashAdvance";
 import FormData from "./formData.vue";
-import RecordSteps from "./RecordSteps.vue";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -110,6 +111,17 @@ defineExpose({
   openEdit,
 });
 </script>
+
+<style scoped>
+.form-section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #303133;
+  margin: 20px 0 15px 0;
+  padding-left: 10px;
+  border-left: 3px solid #409eff;
+}
+</style>
 
 <style>
 /* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
