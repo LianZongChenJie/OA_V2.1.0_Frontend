@@ -1,4 +1,5 @@
 import { listUser } from '@/api/system/user.js';
+import auth from '@/plugins/auth.js';
 
 export const columns = [
   {
@@ -150,7 +151,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onPay, currentUserI
         label: '打款',
         type: 'warning',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.payStatus) === 0,
+        isShow: (row) => auth.hasPermi('finance:expense:pay') && Number(row.checkStatus) === 2 && Number(row.payStatus) === 0,
         onClick: (row) => {
           onPay && onPay(row);
         },
