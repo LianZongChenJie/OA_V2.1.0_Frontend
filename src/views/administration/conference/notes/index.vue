@@ -2,7 +2,7 @@
   <div class="main-content">
     <TableList
       :key="tableKey"
-      :api="getPageListFix"
+      :api="getPageList"
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
@@ -72,24 +72,6 @@ onMounted(() => {
   fetchAnchorList();
 });
 
-const getPageListFix = async (params) => {
-  const res = await getPageList(params);
-
-  if (res.rows && Array.isArray(res.rows)) {
-    res.rows = res.rows.map(item => {
-      if (!Array.isArray(item)) return item;
-
-      const data = item[0] || {};
-      data.roomName = item[1] || '';
-      data.anchorName = item[2] || '';
-      data.recorderName = item[3] || '';
-      data.deptName = item[4] || '';
-      return data;
-    }).filter(Boolean);
-  }
-
-  return res;
-};
 
 function handleAdd() {
   addDialogRef.value.open();

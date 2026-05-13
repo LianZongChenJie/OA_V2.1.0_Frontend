@@ -17,8 +17,8 @@ export const columns = [
   {
     fieldName: 'meetingDate',
     label: '会议时间',
-    width: "20%",
-    minWidth: 100,
+    width: "30%",
+    minWidth: 320,
     align: 'center',
     searchable: {
       type: 'date',

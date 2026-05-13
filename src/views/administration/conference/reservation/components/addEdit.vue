@@ -13,15 +13,8 @@
       :readonly="false"
     />
 
-    <!-- 审批流程信息 -->
-    <div class="form-section-title">审批流程信息</div>
-    <ApprovalFlow
-      ref="approvalFlowRef"
-      :flowId="currentData?.checkFlowId"
-      :actionId="currentData?.id"
-      :disabled="false"
-      flow-title="会议预订"
-    />
+    <!-- 审批记录 -->
+    <RecordSteps v-if="isEdit && currentData?.records?.length" :records="currentData.records" />
 
     <template #footer>
       <div class="dialog-footer">
@@ -39,8 +32,7 @@
 <script setup name="ConferenceAddEdit">
 import { ref, computed, nextTick } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/administration/conference/reservation/index.js";
-import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
-import { submitToFlow } from "@/api/common/approval";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import { getCurrentInstance } from "vue";
 import FormData from "./formData.vue";
 
@@ -48,7 +40,6 @@ const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
-const approvalFlowRef = ref(null);
 const isEdit = ref(false);
 const currentData = ref(null);
 
@@ -92,13 +83,6 @@ function handleSubmit() {
   formDataRef.value?.validate().then(async (valid) => {
     if (!valid) return;
 
-    // 获取选中的审批流程
-    const selectedFlow = approvalFlowRef.value?.getSelectedFlow?.();
-    if (!selectedFlow?.id) {
-      proxy.$modal.msgWarning("请先选择审批流程");
-      return;
-    }
-
     const submitData = formDataRef.value?.getSubmitData();
 
     // 如果是编辑模式，保留原有ID
@@ -107,23 +91,7 @@ function handleSubmit() {
     }
 
     const apiMethod = isEdit.value ? updateenterPrise : addenterPrise;
-    const res = await apiMethod(submitData);
-
-    // 获取新创建的记录ID（新增模式）或使用现有ID（编辑模式）
-    const recordId = res?.id || currentData.value?.id;
-
-    // 获取抄送人
-    const checkCopyUids = approvalFlowRef.value?.getCopyUids?.() || [];
-
-    // 提交审批
-    await submitToFlow({
-      content: "提交审批",
-      actionId: recordId,
-      flowId: selectedFlow.id,
-      checkName: selectedFlow.checkTable,
-      checkFiles: "",
-      checkCopyUids: checkCopyUids.join(","),
-    });
+    await apiMethod(submitData);
 
     proxy.$modal.msgSuccess(isEdit.value ? "编辑成功" : "新增成功");
     dialogVisible.value = false;
@@ -138,14 +106,6 @@ defineExpose({
 </script>
 
 <style scoped>
-.form-section-title {
-  font-size: 14px;
-  font-weight: bold;
-  color: #303133;
-  margin: 20px 0 15px 0;
-  padding-left: 10px;
-  border-left: 3px solid #409eff;
-}
 </style>
 
 <style>

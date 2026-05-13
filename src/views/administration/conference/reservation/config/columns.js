@@ -32,8 +32,8 @@ export const columns = [
   },
   { fieldName: 'meetingTimeStr', 
     label: '会议时间', 
-    width: "18%", 
-    minWidth: 120,
+    width: "30%", 
+    minWidth: 320,
     align: 'center',
   },
   { 
@@ -119,7 +119,7 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 240,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [
