@@ -131,7 +131,7 @@ function handleFundDetail(row) {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen, handleInvalidate, handleFundDetail);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, handleOpen, handleInvalidate, handleFundDetail, userStore.id);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

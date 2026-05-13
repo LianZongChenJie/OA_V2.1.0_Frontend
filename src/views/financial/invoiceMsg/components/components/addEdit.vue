@@ -12,6 +12,12 @@
       :readonly="false"
     />
 
+    <!-- 审批记录（当 checkStatus != 0 时显示） -->
+    <RecordSteps
+      v-if="currentData && Number(currentData.checkStatus) !== 0 && currentData.records && currentData.records.length > 0"
+      :records="currentData.records"
+    />
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSubmit">
@@ -26,14 +32,16 @@
 </template>
 
 <script setup name="AddEditInvoice">
-import { ref, computed, getCurrentInstance, nextTick } from "vue";
+import { ref, nextTick } from "vue";
 import { add, update } from "@/api/financial/invoiceMsg";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import FormData from "./formData.vue";
 
 const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
+const currentData = ref(null);
 const isEdit = ref(false); // 是否为编辑模式
 
 // 根据模式动态显示标题
@@ -45,6 +53,7 @@ const dialogTitle = computed(() => {
 function handleClose() {
   formDataRef.value?.resetForm();
   isEdit.value = false;
+  currentData.value = null;
 }
 
 /** 显示弹窗 - 新增模式 */
@@ -62,6 +71,9 @@ function open() {
 function openEdit(data) {
   isEdit.value = true;
   dialogVisible.value = true;
+
+  // 保存原始数据用于权限判断
+  currentData.value = data;
 
   // 等待 DOM 更新后设置数据
   nextTick(() => {
@@ -112,5 +124,14 @@ defineExpose({
 .documents-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
   overflow-y: auto;
+}
+
+.form-section-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #303133;
+  margin: 20px 0 15px 0;
+  padding-left: 10px;
+  border-left: 3px solid #409eff;
 }
 </style>

@@ -28,7 +28,13 @@
         :flowId="currentData?.checkFlowId"
         :actionId="currentData?.id"
         :disabled="!isApprovalFlowEditable"
-        flow-title="发票"
+        flow-title="开票"
+      />
+
+      <!-- 审批记录（当 checkStatus != 0 时显示） -->
+      <RecordSteps
+        v-if="currentData && Number(currentData.checkStatus) !== 0 && currentData.records && currentData.records.length > 0"
+        :records="currentData.records"
       />
     </div>
 
@@ -53,6 +59,7 @@ import { ref, computed, nextTick } from "vue";
 import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
 import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import FormData from "./formData.vue";
 import { getFlowNodes } from "@/api/common/approval";
 

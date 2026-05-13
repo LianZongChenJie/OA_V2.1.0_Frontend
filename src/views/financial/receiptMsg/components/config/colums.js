@@ -129,7 +129,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDetail) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDetail, currentUserId) => {
   return {
     label: '操作',
     width: 240,
@@ -140,7 +140,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         label: '编辑',
         type: 'success',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
+        isShow: (row) => Number(row.checkStatus) === 0 && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onEdit && onEdit(row);
         },
@@ -159,7 +159,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         label: '删除',
         type: 'danger',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
+        isShow: (row) => Number(row.checkStatus) === 0 && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onDelete && onDelete(row);
         },

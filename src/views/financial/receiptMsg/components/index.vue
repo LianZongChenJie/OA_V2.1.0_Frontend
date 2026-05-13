@@ -161,6 +161,7 @@ const operationColumn = getOperationColumn(
   handleDelete,
   handleOpen,
   handlePaymentDetail,
+  userStore.id
 );
 </script>
 <style lang="scss" scoped>
