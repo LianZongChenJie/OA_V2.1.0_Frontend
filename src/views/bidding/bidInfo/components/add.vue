@@ -107,8 +107,17 @@
         </el-col>
       </el-row>
 
-      <!-- 第四行：项目周期 + 预算金额 -->
+      <!-- 第四行：项目名称 + 项目周期 -->
       <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="项目名称" prop="projectName">
+            <el-input
+              v-model="form.projectName"
+              placeholder="请输入项目名称"
+              :disabled="isView"
+            />
+          </el-form-item>
+        </el-col>
         <el-col :span="12">
           <el-form-item label="项目周期(月)" prop="projectCycle">
             <el-input-number
@@ -121,6 +130,10 @@
             />
           </el-form-item>
         </el-col>
+      </el-row>
+
+      <!-- 第五行：预算金额 + 入围家数 -->
+      <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="预算金额(元)" prop="budgetAmount">
             <el-input-number
@@ -133,10 +146,6 @@
             />
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <!-- 第五行：入围家数 + 是否投标 + 未投原因 + 排序 -->
-      <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="入围家数" prop="shortlistedCountries">
             <el-input-number
@@ -149,6 +158,10 @@
             />
           </el-form-item>
         </el-col>
+      </el-row>
+
+      <!-- 第六行：是否投标 + 排序 -->
+      <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="是否投标" prop="isTenderSubmitted">
             <el-radio-group v-model="form.isTenderSubmitted" :disabled="isView">
@@ -162,15 +175,6 @@
             </el-radio-group>
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-if="form.isTenderSubmitted === '否'">
-          <el-form-item label="未投原因" prop="nonTenderReason">
-            <el-input
-              v-model="form.nonTenderReason"
-              placeholder="请输入未投原因"
-              :disabled="isView"
-            />
-          </el-form-item>
-        </el-col>
         <el-col :span="12">
           <el-form-item label="排序" prop="sort">
             <el-input-number
@@ -180,6 +184,19 @@
               placeholder="请输入排序"
               :disabled="isView"
               style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 未投原因（单独一行，当是否投标为否时显示） -->
+      <el-row :gutter="20" v-if="form.isTenderSubmitted === '否'">
+        <el-col :span="12">
+          <el-form-item label="未投原因" prop="nonTenderReason">
+            <el-input
+              v-model="form.nonTenderReason"
+              placeholder="请输入未投原因"
+              :disabled="isView"
             />
           </el-form-item>
         </el-col>
