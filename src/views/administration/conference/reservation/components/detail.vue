@@ -8,20 +8,17 @@
     @close="handleClose"
   >
     <div>
-      <FormData
-        ref="formDataRef"
-        :readonly="true"
-      />
-
-      <!-- 审批记录 -->
-      <RecordSteps v-if="currentData?.records?.length" :records="currentData.records" />
+      <FormData ref="formDataRef" :readonly="true" />
 
       <!-- 审批流程信息 -->
       <div class="form-section-title">审批流程信息</div>
 
       <!-- 审批中/审批完结状态：显示审批节点时间轴 -->
       <div v-if="!isApprovalFlowEditable">
-        <ApprovalNodes :nodes="flowNodes" :currentStepSort="currentCheckStepSort" />
+        <ApprovalNodes
+          :nodes="flowNodes"
+          :currentStepSort="currentCheckStepSort"
+        />
       </div>
 
       <!-- 其他状态：显示审批流程选择组件 -->
@@ -32,6 +29,12 @@
         :actionId="currentData?.id"
         :disabled="!isApprovalFlowEditable"
         flow-title="会议室预定"
+      />
+
+      <!-- 审批记录 -->
+      <RecordSteps
+        v-if="currentData?.records?.length"
+        :records="currentData.records"
       />
     </div>
 
@@ -109,24 +112,32 @@ async function openView(data) {
     if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
       getFlowNodes({
         flowId: data.checkFlowId,
-        actionId: data.id
-      }).then((result) => {
-        const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
-        const nodesData = result.data?.nodes.map(item => ({
-          ...item,
-          isFinished: 0,
-          stepName: '步骤 ' + (Number(item.sort) + 1)
-        })) || [];
+        actionId: data.id,
+      })
+        .then((result) => {
+          const stepSort =
+            result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
+          const nodesData =
+            result.data?.nodes.map((item) => ({
+              ...item,
+              isFinished: 0,
+              stepName: "步骤 " + (Number(item.sort) + 1),
+            })) || [];
 
-        if (nodesData.length > 0) {
-          flowNodes.value = data.checkStatus === 1
-            ? nodesData
-            : [...nodesData, { stepName: '完结', sort: nodesData.length, isFinished: 1 }];
-          currentCheckStepSort.value = stepSort;
-        }
-      }).catch((error) => {
-        console.error("获取审批节点失败:", error);
-      });
+          if (nodesData.length > 0) {
+            flowNodes.value =
+              data.checkStatus === 1
+                ? nodesData
+                : [
+                    ...nodesData,
+                    { stepName: "完结", sort: nodesData.length, isFinished: 1 },
+                  ];
+            currentCheckStepSort.value = stepSort;
+          }
+        })
+        .catch((error) => {
+          console.error("获取审批节点失败:", error);
+        });
     }
   });
 }

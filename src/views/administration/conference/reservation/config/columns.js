@@ -117,7 +117,7 @@ export const getHeaderButs = (onAdd) => [
 ];
 
 // 操作列生成函数
-export const getOperationColumn = (onEdit, onView, onDelete) => ({
+export const getOperationColumn = (onEdit, onView, onDelete, currentUserId) => ({
   label: '操作',
   width: 180,
   fixed: 'right',
@@ -132,9 +132,8 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
       },
       icon: 'edit',
       isShow: (row) => {
-        // 只有待提交(0)、已驳回(3)可以编辑
-        const status = row.checkStatus !== undefined ? Number(row.checkStatus) : -1;
-        return [0, 3].includes(status);
+        // 只有待提交(0)、已驳回(3)可以编辑，且是申请人
+        return [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId);
       }
     },
 
@@ -156,9 +155,8 @@ export const getOperationColumn = (onEdit, onView, onDelete) => ({
       },
       icon: 'delete',
       isShow: (row) => {
-        // 只有待提交(0)、已驳回(3)可以删除
-        const status = row.checkStatus !== undefined ? Number(row.checkStatus) : -1;
-        return [0, 3].includes(status);
+        // 只有待提交(0)、已驳回(3)、已撤回(4)可以删除
+        return [0, 3, 4].includes(Number(row.checkStatus));
       }
     }
   ]

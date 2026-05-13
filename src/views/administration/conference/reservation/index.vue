@@ -1,7 +1,7 @@
 <template>
   <div class="main-content">
     <TableList
-      :api="getPageListFix"
+      :api="getPageList"
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
@@ -25,26 +25,13 @@ import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, deletereward } from "@/api/administration/conference/reservation/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
+import useUserStore from "@/store/modules/user";
 
 const { proxy } = getCurrentInstance();
+const userStore = useUserStore();
 const { check_status } = proxy.useDict("check_status");
 const tableList = ref(null);
 const addDialogRef = ref(null);
-
-const getPageListFix = async (params) => {
-  const res = await getPageList(params);
-  if (res.rows && Array.isArray(res.rows)) {
-    res.rows = res.rows.map(item => {
-      if (Array.isArray(item)) {
-        const data = item[0] || {};
-        data.roomName = item[1] || ""; 
-        return data;
-      }
-      return item;
-    });
-  }
-  return res;
-};
 
 function handleAdd() {
   addDialogRef.value.open();
@@ -84,5 +71,5 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, userStore.id);
 </script>

@@ -86,42 +86,6 @@ export const columns = [
   }
 ];
 
-export const operationColumn = {
-  label: '操作',
-  width: 280,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '编辑',
-      type: 'success',
-      size: 'small',
-      onClick: (row, onEdit) => {
-        onEdit && onEdit(row);
-      },
-      icon: 'edit',
-    },
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: (row, onView) => {
-        onView && onView(row);
-      },
-      icon: 'eye-open',
-    },
-    {
-      label: '删除',
-      type: 'danger',
-      size: 'small',
-      onClick: (row, onDelete) => {
-        onDelete && onDelete(row);
-      },
-      icon: 'delete',
-    },
-  ],
-};
-
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
@@ -136,7 +100,7 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 280,
+  width: 240,
   fixed: 'right',
   show: true,
   actions: [
@@ -181,7 +145,6 @@ export const searchFields = columns
 
 export default {
   columns,
-  operationColumn,
   getHeaderButs,
   getOperationColumn,
   searchFields,
