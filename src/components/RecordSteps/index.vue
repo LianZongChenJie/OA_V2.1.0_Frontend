@@ -11,13 +11,13 @@
       </template>
       <template #description>
         <div class="step-content">
-          <div class="step-amount" v-if="record.cost">
-            <span class="label">金额:</span>
-            <span class="value">¥ {{ record.cost }}</span>
+          <div class="step-remark" v-if="record.checkUser">
+            <div class="label">审核人:</div>
+            <div class="value">{{ record.checkUser?record.checkUser:"-" }}</div>
           </div>
           <div class="step-remark" v-if="record.content">
-            <span class="label">备注:</span>
-            <span class="value">{{ record.content }}</span>
+            <div class="label">备注:</div>
+            <div class="value">{{ record.content }}</div>
           </div>
         </div>
       </template>
@@ -61,12 +61,15 @@ defineProps({
   border-radius: 6px;
   margin-top: 8px;
 }
-.record-steps .step-amount {
-  margin-bottom: 8px;
+.step-remark {
+  display: flex;
+  align-items: center;
 }
-.record-steps .step-amount .label,
 .record-steps .step-remark .label {
-  color: #909399;
+  color: #333333;
+  font-weight: 600;
+  width: 40px;
+  text-align: right;
   margin-right: 8px;
 }
 .record-steps .step-amount .value {
