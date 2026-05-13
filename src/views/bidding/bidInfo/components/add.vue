@@ -613,8 +613,14 @@ function fillForm(data) {
   form.updateTime = data.updateTime || "";
 
   // 编辑时回显负责人选项
-  if (data.tenderLeaderId && !userOptions.value.length) {
-    handleUserSearch(data.tenderLeader || "");
+  if (data.tenderLeaderId) {
+    // 直接添加当前负责人到选项列表，确保能正确回显
+    if (!userOptions.value.find((item) => item.userId === data.tenderLeaderId)) {
+      userOptions.value.push({
+        userId: data.tenderLeaderId,
+        nickName: data.tenderLeader || "",
+      });
+    }
   }
 }
 

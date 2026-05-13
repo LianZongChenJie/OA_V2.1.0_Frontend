@@ -151,7 +151,7 @@ export const getOperationColumn = (onView) => {
         onClick: (row) => {
           onView && onView(row);
         },
-        icon: 'View',
+        icon: 'eye-open',
         link: true,
         permission: 'monitor:operlog:query',
       },
