@@ -9,7 +9,7 @@ export const columns = [
     minWidth: 80,
     align: 'center',
   },
-  {
+   {
     fieldName: 'code',
     label: '合同编号',
     width: 150,
@@ -17,8 +17,8 @@ export const columns = [
     searchable: {
       type: 'input',
       fieldName: 'keywords',
-      placeholder: '请输入合同编号',
-      label: '合同编号',
+      placeholder: '请输入合同编号、合同名称、关键字进行搜索',
+      label: '关键字',
       order: 1,
     },
   },
@@ -26,13 +26,6 @@ export const columns = [
     fieldName: 'name',
     label: '合同名称',
     minWidth: 200,
-    searchable: {
-      type: 'input',
-      fieldName: 'name',
-      placeholder: '请输入合同名称',
-      label: '合同名称',
-      order: 2,
-    },
   },
   {
     fieldName: 'cateName',
@@ -120,11 +113,29 @@ export const columns = [
 
 export const getHeaderButs = () => [];
 
-export const getOperationColumn = () => {
-  return null;
+export const getOperationColumn = (onView) => {
+  return {
+    label: '操作',
+    width: 80,
+    fixed: 'right',
+    show: true,
+    actions: [
+      {
+        label: '详情',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onView && onView(row);
+        },
+        icon: 'eye-open',
+        link: true,
+      },
+    ],
+  };
 };
 
 export default {
   columns,
-  getHeaderButs
+  getHeaderButs,
+  getOperationColumn
 };
