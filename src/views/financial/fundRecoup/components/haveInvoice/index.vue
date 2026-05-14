@@ -90,6 +90,6 @@ const operationColumn = getOperationColumn(handleDelete);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
-  height: calc(100% - 50px);
+  height: calc(100% - 80px);
 }
 </style>

@@ -258,7 +258,7 @@ onMounted(() => {
 }
 .calendar-box {
   width: 100%;
-  height: calc(100% - 50px);
+  height: calc(100% - 80px);
   background-color: #fff;
   border-radius: 4px;
 }

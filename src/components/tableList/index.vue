@@ -46,16 +46,17 @@
           </el-tooltip>
         </div>
       </div>
-      <el-table
-        ref="table"
-        class="table-box"
-        :data="tableData"
-        :row-key="rowKey"
-        border
-        stripe
-        v-loading="loading"
-        v-bind="$attrs"
-      >
+      <div class="table-wrapper">
+        <el-table
+          ref="table"
+          class="table-box"
+          :data="tableData"
+          :row-key="rowKey"
+          border
+          stripe
+          v-loading="loading"
+          v-bind="$attrs"
+        >
         <!-- 选择列 -->
         <el-table-column
           v-if="showSelection"
@@ -122,6 +123,7 @@
           </template>
         </el-table-column>
       </el-table>
+      </div>
       <!-- 分页组件 -->
       <div
         v-if="isApiMode && pagination && total > 0"
@@ -791,6 +793,7 @@ onBeforeUnmount(() => {
   border-radius: 4px;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .table-header {
   display: flex;
@@ -812,6 +815,12 @@ onBeforeUnmount(() => {
   justify-content: flex-end;
   background-color: #fff;
 }
+.table-wrapper {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
 :deep(.table-box) {
   height: 100%;
 }
