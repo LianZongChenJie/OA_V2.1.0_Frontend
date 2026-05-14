@@ -10,32 +10,59 @@
     <div class="detail-content">
       <div class="form-section-title">合同基本信息</div>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="合同编号">{{ formData.code || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="合同名称">{{ formData.name || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="合同类型">{{ formData.cateName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="合同编号">{{
+          formData.code || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="合同名称">{{
+          formData.name || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="合同类型">{{
+          formData.cateName || "-"
+        }}</el-descriptions-item>
         <el-descriptions-item label="合同性质">
-          <dict-tag :options="procurement_contract_types" :value="Number(formData.types)" />
+          <dict-tag
+            :options="procurement_contract_types"
+            :value="Number(formData.types)"
+          />
         </el-descriptions-item>
-        <el-descriptions-item label="合同开始时间">{{ formData.startTimeStr || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="合同结束时间">{{ formData.endTimeStr || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="合同金额">{{ formData.cost || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="合同开始时间">{{
+          formData.startTimeStr || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="合同结束时间">{{
+          formData.endTimeStr || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="合同金额">{{
+          formData.cost || "-"
+        }}</el-descriptions-item>
       </el-descriptions>
 
       <div class="form-section-title">合同签订信息</div>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="签订人">{{ formData.signName || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="签订日期">{{ formData.signTimeStr || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="签订人">{{
+          formData.signName || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="签订日期">{{
+          formData.signTimeStr || "-"
+        }}</el-descriptions-item>
       </el-descriptions>
 
       <div class="form-section-title">作废信息</div>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="作废时间">{{ formData.stopTimeStr || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="作废人">{{ formData.stopName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="作废时间">{{
+          formData.stopTimeStr || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="作废人">{{
+          formData.stopName || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="作废原因">{{
+          formData.voidRemark || "-"
+        }}</el-descriptions-item>
       </el-descriptions>
-
       <div class="form-section-title">其他信息</div>
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="备注">{{ formData.remark || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="备注">{{
+          formData.remark || "-"
+        }}</el-descriptions-item>
       </el-descriptions>
     </div>
 
@@ -50,14 +77,16 @@ import { ref, reactive, getCurrentInstance } from "vue";
 import DictTag from "@/components/DictTag";
 
 const { proxy } = getCurrentInstance();
-const { procurement_contract_types } = proxy.useDict("procurement_contract_types");
+const { procurement_contract_types } = proxy.useDict(
+  "procurement_contract_types",
+);
 
 const dialogVisible = ref(false);
 const formData = reactive({});
 
 /** 关闭弹窗 */
 function handleClose() {
-  Object.keys(formData).forEach(key => delete formData[key]);
+  Object.keys(formData).forEach((key) => delete formData[key]);
 }
 
 /** 显示弹窗 */
