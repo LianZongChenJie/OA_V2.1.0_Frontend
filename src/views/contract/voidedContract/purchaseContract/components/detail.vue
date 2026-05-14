@@ -49,10 +49,10 @@
       <div class="form-section-title">作废信息</div>
       <el-descriptions :column="2" border>
         <el-descriptions-item label="作废时间">{{
-          formData.stopTimeStr || "-"
+          formData.voidTimeStr || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="作废人">{{
-          formData.stopName || "-"
+          formData.voidUidName || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="作废原因">{{
           formData.voidRemark || "-"

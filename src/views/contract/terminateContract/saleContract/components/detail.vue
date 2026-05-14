@@ -69,11 +69,11 @@
 
       <div class="form-section-title">终止信息</div>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="终止时间">{{
-          formData.archiveTimeStr || "-"
+         <el-descriptions-item label="终止时间">{{
+          formData.stopTimeStr || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="终止人">{{
-          formData.archiveName || "-"
+          formData.stopUidName || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="终止原因">{{
           formData.stopRemark || "-"
