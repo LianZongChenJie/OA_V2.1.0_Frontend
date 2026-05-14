@@ -13,21 +13,33 @@
         <dict-tag :options="check_status" :value="Number(row.checkStatus)" />
       </template>
       <template #types="{ row }">
-        <dict-tag :options="procurement_contract_types" :value="Number(row.types)" />
+        <dict-tag
+          :options="procurement_contract_types"
+          :value="Number(row.types)"
+        />
       </template>
       <template #effTime="{ row }">
         {{ row.startTime }} ~ {{ row.endTime }}
       </template>
     </TableList>
-    <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <AddDialog
+      ref="addDialogRef"
+      @success="handleSuccess"
+      :type="type"
+      :label="label"
+    />
   </div>
 </template>
 <script setup>
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-//src/api/contract/procurementContract/index.js
-import { getPageList, getDetail, del } from "@/api/contract/procurementContract";
+import {
+  getPageList,
+  getDetail,
+  del,
+} from "@/api/contract/procurementContract";
+import { archive } from "@/api/contract/salesContract";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
@@ -43,7 +55,10 @@ const props = defineProps({
 });
 
 const { proxy } = getCurrentInstance();
-const { check_status, procurement_contract_types } = proxy.useDict("check_status", "procurement_contract_types");
+const { check_status, procurement_contract_types } = proxy.useDict(
+  "check_status",
+  "procurement_contract_types",
+);
 
 const route = useRoute();
 const router = useRouter();
@@ -81,17 +96,37 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm('确认删除该合同吗？');
+    await proxy.$modal.confirm("确认删除该合同吗？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();
   } catch (e) {
-    console.error('删除失败', e);
+    console.error("删除失败", e);
+  }
+}
+
+/** 归档按钮操作 */
+async function handleArchive(row) {
+  try {
+    await proxy.$modal.confirm("确认归档该合同吗？");
+    await archive({
+      contractType: "purchase",
+      contractId: row.id,
+    });
+    proxy.$modal.msgSuccess("归档成功");
+    handleSuccess();
+  } catch (e) {
+    console.error("归档失败", e);
   }
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(
+  handleEdit,
+  handleView,
+  handleDelete,
+  handleArchive,
+);
 </script>
 <style lang="scss" scoped>
 .tabs-container {

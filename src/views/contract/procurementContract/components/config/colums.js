@@ -1,5 +1,6 @@
 import { getPageList as getClassifyPageList } from '@/api/base/contract/classify/index.js';
 import { listUser } from '@/api/system/user.js';
+import auth from '@/plugins/auth.js';
 
 export const columns = [
   {
@@ -139,10 +140,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onArchive) => {
   return {
     label: '操作',
-    width: 240,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [
@@ -174,6 +175,16 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
           onDelete && onDelete(row);
         },
         icon: 'delete',
+      },
+      {
+        label: '归档',
+        type: 'warning',
+        size: 'small',
+        isShow: (row) => auth.hasPermi('system:purchased:archive') && row.checkStatus === 2,
+        onClick: (row) => {
+          onArchive && onArchive(row);
+        },
+        icon: 'documentation',
       },
     ],
   };
