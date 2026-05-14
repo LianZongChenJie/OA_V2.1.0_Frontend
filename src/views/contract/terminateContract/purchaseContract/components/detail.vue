@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="采购合同归档详情"
+    title="采购合同终止详情"
     v-model="dialogVisible"
     width="60%"
     append-to-body
@@ -27,10 +27,10 @@
         <el-descriptions-item label="签订日期">{{ formData.signTimeStr || '-' }}</el-descriptions-item>
       </el-descriptions>
 
-      <div class="form-section-title">归档信息</div>
+      <div class="form-section-title">终止信息</div>
       <el-descriptions :column="2" border>
-        <el-descriptions-item label="归档时间">{{ formData.archiveTimeStr || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="归档人">{{ formData.archiveName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="终止时间">{{ formData.archiveTimeStr || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="终止人">{{ formData.archiveName || '-' }}</el-descriptions-item>
       </el-descriptions>
 
       <div class="form-section-title">其他信息</div>
