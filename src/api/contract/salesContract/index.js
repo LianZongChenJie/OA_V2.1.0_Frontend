@@ -42,3 +42,12 @@ export function getDetail(id) {
     method: 'get'
   })
 }
+
+// 合同归档操作
+export function archive(data) {
+  return request({
+    url: '/system/purchase/archive',
+    method: 'put',
+    params: data
+  })
+}
