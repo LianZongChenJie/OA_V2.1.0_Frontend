@@ -178,7 +178,8 @@ function loadUserList() {
 // 加载奖惩项目列表
 function loadRewardsCateList() {
   getPageList({ pageNum: 1, pageSize: 1000 }).then(res => {
-    rewardsCateList.value = res.rows || [];
+    const allList = res.rows || [];
+    rewardsCateList.value = allList.filter(item => item.status === 1);
   });
 }
 
