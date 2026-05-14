@@ -51,3 +51,20 @@ export function archive(data) {
     params: data
   })
 }
+// 合同终止操作
+export function stop(data) {
+  return request({
+    url: '/contract/api/setStop',
+    method: 'post',
+    data
+  })
+}
+
+// 合同作废操作
+export function invalid(data) {
+  return request({
+    url: '/contract/api/setVoid',
+    method: 'post',
+    data
+  })
+}

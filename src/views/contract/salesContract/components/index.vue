@@ -36,6 +36,8 @@ import {
   getDetail,
   del,
   archive,
+  stop,
+  invalid,
 } from "@/api/contract/salesContract";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
@@ -117,12 +119,60 @@ async function handleArchive(row) {
   }
 }
 
+/** 终止按钮操作 */
+async function handleStop(row) {
+  proxy.$prompt("请输入终止原因", "终止合同", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    inputPattern: /\S+/,
+    inputErrorMessage: "终止原因不能为空",
+  }).then(async ({ value }) => {
+    try {
+      await stop({
+        type: "sale",
+        id: row.id,
+        stopStatus: 1,
+        stopRemark: value,
+      });
+      proxy.$modal.msgSuccess("终止成功");
+      handleSuccess();
+    } catch (e) {
+      console.error("终止失败", e);
+    }
+  }).catch(() => {});
+}
+
+/** 作废按钮操作 */
+async function handleVoid(row) {
+  proxy.$prompt("请输入作废原因", "作废合同", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    inputPattern: /\S+/,
+    inputErrorMessage: "作废原因不能为空",
+  }).then(async ({ value }) => {
+    try {
+      await invalid({
+        type: "sale",
+        id: row.id,
+        voidStatus: 1,
+        voidRemark: value,
+      });
+      proxy.$modal.msgSuccess("作废成功");
+      handleSuccess();
+    } catch (e) {
+      console.error("作废失败", e);
+    }
+  }).catch(() => {});
+}
+
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(
   handleEdit,
   handleView,
   handleDelete,
   handleArchive,
+  handleStop,
+  handleVoid,
 );
 </script>
 <style lang="scss" scoped>

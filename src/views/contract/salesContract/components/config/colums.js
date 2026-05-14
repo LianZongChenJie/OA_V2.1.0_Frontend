@@ -176,7 +176,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onArchive) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, onVoid) => {
   return {
     label: '操作',
     width: 170,
@@ -221,6 +221,26 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive) => {
           onArchive && onArchive(row);
         },
         icon: 'documentation',
+      },
+      {
+        label: '终止',
+        type: 'danger',
+        size: 'small',
+        isShow: (row) => auth.hasPermi('system:contract:stop') && row.checkStatus === 1,
+        onClick: (row) => {
+          onStop && onStop(row);
+        },
+        icon: 'stop',
+      },
+      {
+        label: '作废',
+        type: 'info',
+        size: 'small',
+        isShow: (row) => auth.hasPermi('system:contract:void') && row.checkStatus === 1,
+        onClick: (row) => {
+          onVoid && onVoid(row);
+        },
+        icon: 'invalid',
       },
     ],
   };
