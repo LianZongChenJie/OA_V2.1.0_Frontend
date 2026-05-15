@@ -373,14 +373,14 @@ function getCategoryTree() {
 
 /** 获取资产品牌列表 */
 function getBrandListData() {
-  getBrandList({ pageNum: 1, pageSize: 1000 }).then((res) => {
+  getBrandList({ pageNum: 1, pageSize: 1000,status:1 }).then((res) => {
     brandOptions.value = res.rows || [];
   });
 }
 
 /** 获取计量单位列表 */
 function getUnitListData() {
-  getUnitList({ pageNum: 1, pageSize: 1000 }).then((res) => {
+  getUnitList({ pageNum: 1, pageSize: 1000,status:1 }).then((res) => {
     unitOptions.value = res.rows || [];
   });
 }
