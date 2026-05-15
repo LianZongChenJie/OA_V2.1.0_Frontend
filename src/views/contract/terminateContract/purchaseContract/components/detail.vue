@@ -34,6 +34,18 @@
         <el-descriptions-item label="合同金额">{{
           formData.cost || "-"
         }}</el-descriptions-item>
+        <el-descriptions-item label="客户名称">{{
+          formData.customerName || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="客户代表">{{
+          formData.contactName || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="客户联系方式">{{
+          formData.contactMobile || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="客户地址" :span="2">{{
+          formData.contactAddress || "-"
+        }}</el-descriptions-item>
       </el-descriptions>
 
       <div class="form-section-title">合同签订信息</div>
@@ -43,6 +55,15 @@
         }}</el-descriptions-item>
         <el-descriptions-item label="签订日期">{{
           formData.signTimeStr || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="制定人">{{
+          formData.preparedName || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="保管人">{{
+          formData.keeperName || "-"
+        }}</el-descriptions-item>
+        <el-descriptions-item label="所属部门">{{
+          formData.deptName || "-"
         }}</el-descriptions-item>
       </el-descriptions>
 
@@ -59,8 +80,8 @@
         }}</el-descriptions-item>
       </el-descriptions>
 
-      <div class="form-section-title">其他信息</div>
-      <el-descriptions :column="1" border>
+      <div v-if="formData.remark" class="form-section-title">其他信息</div>
+      <el-descriptions v-if="formData.remark" :column="1" border>
         <el-descriptions-item label="备注">{{
           formData.remark || "-"
         }}</el-descriptions-item>
