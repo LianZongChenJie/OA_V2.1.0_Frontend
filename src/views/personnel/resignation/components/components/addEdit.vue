@@ -32,13 +32,12 @@
   </el-dialog>
 </template>
 
-<script setup name="AddEditSalesContract">
-import { ref, computed, getCurrentInstance, nextTick } from "vue";
+<script setup name="AddEditResignation">
+import { ref, computed, nextTick } from "vue";
 import { add, edit } from "@/api/personnel/resignation";
 import FormData from "./formData.vue";
 import RecordSteps from "@/components/RecordSteps/index.vue";
-
-const { proxy } = getCurrentInstance();
+import { ElMessage } from "element-plus";
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
@@ -57,27 +56,17 @@ function handleClose() {
   currentData.value = null;
 }
 
-/** 显示弹窗 - 新增模式 */
-function open() {
-  isEdit.value = false;
-  dialogVisible.value = true;
-
-  // 等待 DOM 更新后重置表单
-  nextTick(() => {
-    formDataRef.value?.resetForm();
-  });
-}
-
-/** 显示弹窗 - 编辑模式 */
-function openEdit(data) {
-  isEdit.value = true;
+/** 打开弹窗 */
+function open(data = null) {
+  isEdit.value = !!data;
   currentData.value = data;
   dialogVisible.value = true;
 
-  // 等待 DOM 更新后设置数据
   nextTick(() => {
     formDataRef.value?.resetForm();
-    formDataRef.value?.setFormData(data);
+    if (data) {
+      formDataRef.value?.setFormData(data);
+    }
   });
 }
 
@@ -86,17 +75,11 @@ function handleSubmit() {
   formDataRef.value?.formRef.validate((valid) => {
     if (valid) {
       const formData = formDataRef.value?.getFormData();
-
-      // 将数组转换为后端需要的格式
-      const submitData = {
-        ...formData,
-      };
-
       const apiMethod = isEdit.value ? edit : add;
       const successMsg = isEdit.value ? "编辑成功" : "新增成功";
 
-      apiMethod(submitData).then(() => {
-        proxy.$modal.msgSuccess(successMsg);
+      apiMethod(formData).then(() => {
+        ElMessage.success(successMsg);
         dialogVisible.value = false;
         emit("success");
       });
@@ -108,7 +91,6 @@ const emit = defineEmits(["success"]);
 
 defineExpose({
   open,
-  openEdit,
 });
 </script>
 

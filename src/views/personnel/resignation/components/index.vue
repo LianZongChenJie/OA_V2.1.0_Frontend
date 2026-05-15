@@ -18,14 +18,13 @@
 </template>
 <script setup>
 import { reactive, ref, getCurrentInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/personnel/resignation";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import useUserStore from "@/store/modules/user";
 
-const props = defineProps({
+defineProps({
   type: {
     type: [String, Number],
     required: true,
@@ -39,9 +38,6 @@ const props = defineProps({
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
 const { check_status } = proxy.useDict("check_status");
-
-const route = useRoute();
-const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
 

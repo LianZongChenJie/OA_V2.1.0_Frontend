@@ -114,8 +114,8 @@
       <el-col :span="24">
         <el-form-item label="参与交接人" prop="connectUids">
           <el-select
+            v-if="!readonly"
             v-model="form.connectUids"
-            :disabled="readonly"
             placeholder="请选择参与交接人"
             clearable
             multiple
@@ -129,6 +129,12 @@
               :value="item.userId"
             />
           </el-select>
+          <el-input
+            v-else
+            v-model="form.connectUidsName"
+            disabled
+            style="width: 100%"
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -154,24 +160,17 @@
 </template>
 
 <script setup name="ResignationFormData">
-import { ref, reactive, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, onMounted, watch } from "vue";
 import { listUser } from "@/api/system/user.js";
 import { listDept } from "@/api/system/dept.js";
 import useUserStore from "@/store/modules/user";
 
-const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
 
 defineProps({
-  // 是否只读
   readonly: {
     type: Boolean,
     default: false,
-  },
-  // 表单数据
-  modelValue: {
-    type: Object,
-    default: () => ({}),
   },
 });
 
@@ -181,8 +180,14 @@ const formRef = ref(null);
 const userOptions = ref([]);
 const deptOptions = ref([]);
 
-// 表单数据
-const form = reactive({
+// 存储待处理的 connectUids，用于 userOptions 加载完成后计算中文名称
+const pendingConnectUids = ref([]);
+
+// 保存原始数据，用于 userOptions 加载完成后回显
+const savedData = ref(null);
+
+// 获取初始表单数据
+const getInitialForm = () => ({
   id: undefined,
   uid: userStore.id,
   uidName: userStore.nickName,
@@ -194,8 +199,12 @@ const form = reactive({
   connectId: null,
   connectIdName: "",
   connectUids: [],
+  connectUidsName: "",
   remark: "",
 });
+
+// 表单数据
+const form = reactive(getInitialForm());
 
 // 验证规则
 const rules = {
@@ -207,10 +216,30 @@ const rules = {
   remark: [{ required: true, message: "请输入离职原因", trigger: "blur" }],
 };
 
+// 工具函数：解析 connectUids
+const parseConnectUids = (data) => {
+  if (!data.connectUids) return [];
+  return typeof data.connectUids === "string"
+    ? data.connectUids.split(",").map(id => Number(id))
+    : data.connectUids.map(id => Number(id));
+};
+
+// 工具函数：计算用户名称
+const getUserNames = (userIds) => {
+  if (!userIds?.length || !userOptions.value.length) return "";
+  const selectedUsers = userOptions.value.filter(item => userIds.includes(item.userId));
+  return selectedUsers.map(item => item.nickName).join(",");
+};
+
 /** 获取用户列表 */
 function getUserList() {
   listUser({ pageNum: 1, pageSize: 100 }).then((response) => {
     userOptions.value = response.rows || [];
+    // 如果有待处理的 connectUids，计算中文名称
+    if (pendingConnectUids.value.length > 0) {
+      form.connectUidsName = getUserNames(pendingConnectUids.value);
+      pendingConnectUids.value = [];
+    }
   });
 }
 
@@ -220,6 +249,14 @@ function getDeptList() {
     deptOptions.value = response.data || [];
   });
 }
+
+/** 监听 userOptions 加载完成，确保多选用户能回显 */
+watch(userOptions, (newVal) => {
+  if (newVal?.length && savedData.value) {
+    form.connectUids = parseConnectUids(savedData.value);
+    form.connectUidsName = getUserNames(form.connectUids);
+  }
+});
 
 /** 用户选择变化处理 */
 function handleUserChange(userId) {
@@ -235,23 +272,16 @@ function handleUserChange(userId) {
 
 /** 重置表单 */
 function resetForm() {
-  form.id = undefined;
-  form.uid = userStore.id;
-  form.uidName = userStore.nickName;
-  form.did = userStore.deptId;
-  form.deptName = userStore.deptName || "";
-  form.quitTime = "";
-  form.leadAdminId = null;
-  form.leadAdminIdName = "";
-  form.connectId = null;
-  form.connectIdName = "";
-  form.connectUids = [];
-  form.remark = "";
+  Object.assign(form, getInitialForm());
+  savedData.value = null;
+  pendingConnectUids.value = [];
   formRef.value?.clearValidate();
 }
 
 /** 填充表单数据 */
 function setFormData(data) {
+  savedData.value = data;
+
   form.id = data.id;
   form.uid = data.uid || userStore.id;
   form.uidName = data.uidName || "";
@@ -262,7 +292,15 @@ function setFormData(data) {
   form.leadAdminIdName = data.leadAdminIdName || "";
   form.connectId = data.connectId || null;
   form.connectIdName = data.connectIdName || "";
-  form.connectUids = data.connectUids ? (typeof data.connectUids === "string" ? data.connectUids.split(",") : data.connectUids) : [];
+  form.connectUids = parseConnectUids(data);
+  form.connectUidsName = data.connectUidsName || getUserNames(form.connectUids);
+
+  // userOptions 还未加载，保存待处理的 connectUids
+  if (form.connectUids.length > 0 && !userOptions.value.length) {
+    pendingConnectUids.value = form.connectUids;
+    form.connectUidsName = "";
+  }
+
   form.remark = data.remark || "";
 }
 
@@ -270,7 +308,8 @@ function setFormData(data) {
 function getFormData() {
   return {
     ...form,
-    connectUids: form.connectUids ? form.connectUids.join(",") : "",
+    connectUids: form.connectUids?.join(",") || "",
+    connectUidsName: getUserNames(form.connectUids),
   };
 }
 

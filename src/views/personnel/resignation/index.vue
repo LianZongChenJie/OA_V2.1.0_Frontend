@@ -14,10 +14,8 @@
 </template>
 <script setup>
 import { reactive, ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import DocumentList from "./components/index.vue";
-const route = useRoute();
-const router = useRouter();
+
 const activeName = ref("All");
 
 // 计算当前选中的 type
@@ -40,9 +38,7 @@ const tabs = reactive([
   { label: "抄送我的", name: "CopyMe", type: 4 },
 ]);
 
-function handleClick(tab) {
-  console.log(tab.props.name);
-}
+function handleClick() {}
 </script>
 <style lang="less" scoped>
 .main {

@@ -1,29 +1,14 @@
 <template>
-  <div class="sales-contract-dialogs">
-    <!-- 新增/编辑弹窗 -->
+  <div class="resignation-dialogs">
     <AddEdit ref="addEditRef" @success="handleSuccess" />
-
-    <!-- 详情弹窗 -->
     <Detail ref="detailRef" @success="handleSuccess" />
   </div>
 </template>
 
-<script setup name="AddSalesContract">
+<script setup name="AddResignation">
 import { ref } from "vue";
 import AddEdit from "./addEdit.vue";
 import Detail from "./detail.vue";
-
-// 接收父组件传递的属性（即使不使用也要声明以避免警告）
-const props = defineProps({
-  type: {
-    type: [Number, String],
-    default: undefined
-  },
-  label: {
-    type: String,
-    default: ""
-  }
-});
 
 const addEditRef = ref(null);
 const detailRef = ref(null);
@@ -35,7 +20,7 @@ function open() {
 
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
-  addEditRef.value?.openEdit(data);
+  addEditRef.value?.open(data);
 }
 
 /** 显示弹窗 - 查看模式 */
