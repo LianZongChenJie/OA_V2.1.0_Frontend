@@ -70,6 +70,12 @@
         :disabled="!isApprovalFlowEditable"
         flow-title="调动"
       />
+
+      <!-- 审批记录 -->
+      <RecordSteps
+        v-if="currentData?.records?.length"
+        :records="currentData.records"
+      />
     </div>
 
     <template #footer>
@@ -93,6 +99,7 @@ import { ref, computed, nextTick } from "vue";
 import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
 import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
 import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import { getFlowNodes } from "@/api/common/approval";
 
 const dialogVisible = ref(false);

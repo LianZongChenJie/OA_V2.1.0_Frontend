@@ -65,6 +65,9 @@
       </el-form-item>
     </el-form>
 
+    <!-- 审批记录 -->
+    <RecordSteps v-if="isEdit && currentData?.records?.length" :records="currentData.records" />
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSubmit">确 定</el-button>
@@ -81,12 +84,14 @@ import {
   updateDeptChange,
 } from "@/api/personnel/transfer/index.js";
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 
 const { proxy } = getCurrentInstance();
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
 const isEdit = ref(false);
+const currentData = ref(null);
 
 // 员工下拉选项
 const userOptions = ref([]);
@@ -177,6 +182,7 @@ function reset() {
 /** 关闭弹窗 */
 function handleClose() {
   reset();
+  currentData.value = null;
 }
 
 /** 显示弹窗 - 新增模式 */
@@ -191,6 +197,7 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   isEdit.value = true;
+  currentData.value = data;
   dialogVisible.value = true;
   nextTick(() => {
     form.id = data.id;
