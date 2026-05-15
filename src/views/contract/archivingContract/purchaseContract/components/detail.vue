@@ -12,7 +12,7 @@
       <el-descriptions :column="2" border>
         <el-descriptions-item label="合同编号">{{ formData.code || '-' }}</el-descriptions-item>
         <el-descriptions-item label="合同名称">{{ formData.name || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="合同类型">{{ formData.cateName || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="合同类别">{{ formData.cateName || '-' }}</el-descriptions-item>
         <el-descriptions-item label="合同性质">
           <dict-tag :options="procurement_contract_types" :value="Number(formData.types)" />
         </el-descriptions-item>

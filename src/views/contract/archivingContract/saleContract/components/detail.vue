@@ -16,7 +16,7 @@
         <el-descriptions-item label="合同名称">{{
           formData.name || "-"
         }}</el-descriptions-item>
-        <el-descriptions-item label="合同类型">{{
+        <el-descriptions-item label="合同类别">{{
           formData.cateName || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="合同性质">
@@ -35,7 +35,7 @@
           formData.cost || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="客户名称">{{
-          formData.customerName || "-"
+          formData.customer || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="客户代表">{{
           formData.contactName || "-"

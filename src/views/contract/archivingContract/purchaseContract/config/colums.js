@@ -29,7 +29,7 @@ export const columns = [
   },
   {
     fieldName: 'cateName',
-    label: '合同类型',
+    label: '合同类别',
     width: 120,
     minWidth: 100,
     searchable: {
@@ -38,8 +38,8 @@ export const columns = [
       optionValue: 'id',
       optionLabel: 'title',
       fieldName: 'cateId',
-      placeholder: '请选择合同类型',
-      label: '合同类型',
+      placeholder: '请选择合同类别',
+      label: '合同类别',
       order: 3,
     },
   },
