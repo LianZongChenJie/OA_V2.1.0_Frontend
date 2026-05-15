@@ -30,41 +30,23 @@
     <!-- 第二行：拟稿人 + 拟稿部门 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="拟稿人" prop="draftName">
-          <el-select
+        <el-form-item label="拟稿人">
+          <el-input
             v-model="form.draftName"
-            :disabled="readonly"
-            placeholder="请选择拟稿人"
-            clearable
+            placeholder="拟稿人"
+            disabled
             style="width: 100%"
-            @change="handleDraftUserChange"
-          >
-            <el-option
-              v-for="item in userOptions"
-              :key="item.userId"
-              :label="item.nickName"
-              :value="item.userId"
-            />
-          </el-select>
+          />
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="拟稿部门" prop="draftDname">
-          <el-select
+        <el-form-item label="拟稿部门">
+          <el-input
             v-model="form.draftDname"
-            :disabled="readonly"
-            placeholder="请选择拟稿部门"
-            clearable
+            placeholder="拟稿部门"
+            disabled
             style="width: 100%"
-            @change="handleDeptChange"
-          >
-            <el-option
-              v-for="item in deptOptions"
-              :key="item.deptId"
-              :label="item.deptName"
-              :value="item.deptId"
-            />
-          </el-select>
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -203,9 +185,11 @@
 </template>
 
 <script setup name="DocumentsFormData">
-import { ref, reactive, onMounted, watch, getCurrentInstance } from "vue";
+import { ref, reactive, onMounted, getCurrentInstance } from "vue";
 import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
+import useUserStore from "@/store/modules/user";
+
+const userStore = useUserStore();
 
 const props = defineProps({
   readonly: {
@@ -221,10 +205,6 @@ const formRef = ref(null);
 
 // 下拉选项数据
 const userOptions = ref([]);
-const deptOptions = ref([]);
-
-// 保存原始数据，用于 userOptions 加载完成后回显
-const savedData = ref(null);
 
 const form = reactive({
   id: undefined,
@@ -246,8 +226,6 @@ const form = reactive({
 const rules = {
   title: [{ required: true, message: "请输入公文名称", trigger: "blur" }],
   code: [{ required: true, message: "请输入公文编号", trigger: "blur" }],
-  draftName: [{ required: true, message: "请选择拟稿人", trigger: "change" }],
-  draftDname: [{ required: true, message: "请选择拟稿部门", trigger: "change" }],
   draftTime: [{ required: true, message: "请选择拟稿日期", trigger: "change" }],
   sendUids: [{ required: true, message: "请选择主送人员", trigger: "change" }],
   secrets: [{ required: true, message: "请选择密级程度", trigger: "change" }],
@@ -260,10 +238,10 @@ function resetForm() {
   form.id = undefined;
   form.title = "";
   form.code = "";
-  form.draftName = "";
-  form.draftUid = "";
-  form.draftDname = "";
-  form.did = "";
+  form.draftUid = userStore.id;
+  form.draftName = userStore.nickName;
+  form.did = userStore.deptId;
+  form.draftDname = userStore.deptName;
   form.draftTime = "";
   form.sendUids = [];
   form.copyUids = [];
@@ -271,15 +249,11 @@ function resetForm() {
   form.secrets = 1;
   form.urgency = 1;
   form.content = "";
-  savedData.value = null;
   formRef.value?.clearValidate();
 }
 
 /** 设置表单数据 */
 function setFormData(data) {
-  // 保存原始数据
-  savedData.value = data;
-  
   form.id = data.id;
   form.title = data.title || "";
   form.code = data.code || "";
@@ -327,73 +301,6 @@ function getUserList() {
   });
 }
 
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
-/** 监听 userOptions 加载完成，确保多选用户能回显 */
-watch(userOptions, (newVal) => {
-  if (newVal && newVal.length > 0 && savedData.value) {
-    // userOptions 加载完成后，重新设置用户相关字段以确保回显
-    const data = savedData.value;
-    form.sendUids = data.sendUids
-      ? Array.isArray(data.sendUids)
-        ? data.sendUids.map(id => Number(id))
-        : data.sendUids.split(",").map(id => Number(id))
-      : [];
-    form.copyUids = data.copyUids
-      ? Array.isArray(data.copyUids)
-        ? data.copyUids.map(id => Number(id))
-        : data.copyUids.split(",").map(id => Number(id))
-      : [];
-    form.shareUids = data.shareUids
-      ? Array.isArray(data.shareUids)
-        ? data.shareUids.map(id => Number(id))
-        : data.shareUids.split(",").map(id => Number(id))
-      : [];
-  }
-});
-
-/** 拟稿人选择变更 */
-function handleDraftUserChange(userId) {
-  if (userId) {
-    form.draftUid = userId;
-    const selectedUser = userOptions.value.find(
-      (item) => item.userId === userId
-    );
-    if (selectedUser) {
-      form.draftName = selectedUser.nickName;
-    }
-  } else {
-    form.draftUid = "";
-    form.draftName = "";
-  }
-}
-
-/** 拟稿部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    form.did = deptId;
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId
-    );
-    if (selectedDept) {
-      form.draftDname = selectedDept.deptName;
-    }
-  } else {
-    form.did = "";
-    form.draftDname = "";
-  }
-}
-
-/** 验证表单 */
-function validate() {
-  return formRef.value?.validate();
-}
-
 defineExpose({
   formRef,
   resetForm,
@@ -405,7 +312,13 @@ defineExpose({
 /** 初始化数据 */
 onMounted(() => {
   getUserList();
-  getDeptList();
+  // 新增模式下默认设置当前用户信息
+  if (!props.readonly) {
+    form.draftUid = userStore.id;
+    form.draftName = userStore.nickName;
+    form.did = userStore.deptId;
+    form.draftDname = userStore.deptName;
+  }
 });
 </script>
 

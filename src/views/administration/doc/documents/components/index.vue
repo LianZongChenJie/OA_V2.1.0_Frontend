@@ -23,8 +23,7 @@
   </div>
 </template>
 <script setup>
-import { reactive, ref, getCurrentInstance } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/administration/doc/documents";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
@@ -44,8 +43,6 @@ const props = defineProps({
 const { proxy } = getCurrentInstance();
 const { check_status, secrets_level, urgency_level } = proxy.useDict("check_status", "secrets_level", "urgency_level");
 
-const route = useRoute();
-const router = useRouter();
 const tableList = ref(null);
 const addDialogRef = ref(null);
 
@@ -71,8 +68,6 @@ async function handleView(row) {
     addDialogRef.value.openView(res.data || res);
   }
 }
-
-
 
 /** 新增成功回调 */
 function handleSuccess() {

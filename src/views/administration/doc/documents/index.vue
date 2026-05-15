@@ -1,7 +1,7 @@
 <template>
   <div class="main-content">
     <div class="main">
-      <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+      <el-tabs v-model="activeName" class="demo-tabs" >
         <el-tab-pane
           v-for="(tab, index) in tabs"
           :label="tab.label"
@@ -14,10 +14,8 @@
 </template>
 <script setup>
 import { reactive, ref, computed } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import DocumentList from "./components/index.vue";
-const route = useRoute();
-const router = useRouter();
+
 const activeName = ref("AllDocuments");
 
 // 计算当前选中的 type
@@ -40,9 +38,7 @@ const tabs = reactive([
   { label: "抄送给我的", name: "CopiedDocuments", type: 4 },
 ]);
 
-function handleClick(tab) {
-  console.log(tab.props.name);
-}
+
 </script>
 <style lang="less" scoped>
 .main {
