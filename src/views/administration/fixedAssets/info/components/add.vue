@@ -2,7 +2,7 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="80%"
+    width="60%"
     append-to-body
     class="fixed-asset-dialog"
     @close="handleClose"
@@ -69,9 +69,9 @@
         <el-col :span="12">
           <el-form-item label="资产品牌" prop="brandId">
             <el-select
+              v-if="!isView"
               v-model="form.brandId"
               filterable
-              :disabled="isView"
               placeholder="请选择资产品牌"
               clearable
               style="width: 100%"
@@ -83,6 +83,12 @@
                 :value="item.id"
               />
             </el-select>
+            <el-input
+              v-else
+              :model-value="brandOptions.find(item => item.id === form.brandId)?.title || form.brandId"
+              disabled
+              style="width: 100%"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">

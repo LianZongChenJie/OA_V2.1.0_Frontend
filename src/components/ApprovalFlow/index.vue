@@ -3,7 +3,7 @@
     <!-- 审批流程 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="审批流程"  label-width="120px">
+        <el-form-item label="审批流程" label-width="120px">
           <el-select
             v-model="flowId"
             :disabled="disabled"
@@ -26,7 +26,7 @@
     <!-- 抄送人 -->
     <el-row :gutter="20">
       <el-col :span="24">
-        <el-form-item label="抄送人"  label-width="120px">
+        <el-form-item label="抄送人" label-width="120px">
           <div v-if="copyNames.length > 0" class="copy-user-tags">
             <el-tag
               v-for="(name, index) in copyNames"
@@ -45,10 +45,14 @@
     <!-- 审批流程详情 -->
     <el-row
       :gutter="20"
-      v-if="selectedFlow && selectedFlow.flowList && selectedFlow.flowList.length > 0"
+      v-if="
+        selectedFlow &&
+        selectedFlow.flowList &&
+        selectedFlow.flowList.length > 0
+      "
     >
       <el-col :span="24">
-        <el-form-item label="审批流程详情"  label-width="120px">
+        <el-form-item label="审批流程详情" label-width="120px">
           <div class="flow-detail-container">
             <div
               v-for="(flow, index) in selectedFlow.flowList"
@@ -57,22 +61,34 @@
             >
               <div class="flow-header">
                 <span class="flow-index">第 {{ index + 1 }} 步</span>
-                <el-tag v-if="flow.check_types" size="small" class="flow-mode">{{
-                  getApprovalModeLabel(flow.check_types)
-                }}</el-tag>
+                <el-tag
+                  v-if="flow.check_types"
+                  size="small"
+                  class="flow-mode"
+                  >{{ getApprovalModeLabel(flow.check_types) }}</el-tag
+                >
               </div>
               <div class="flow-content">
                 <div class="flow-info-row">
                   <span class="info-label">审批类型：</span>
-                  <span class="info-value">{{ getFlowRoleLabel(flow.check_role) }}</span>
+                  <span class="info-value">{{
+                    getFlowRoleLabel(flow.check_role)
+                  }}</span>
                 </div>
                 <div v-if="flow.check_position_id" class="flow-info-row">
                   <span class="info-label">岗位名称：</span>
-                  <span class="info-value">{{ getPostName(flow.check_position_id) }}</span>
+                  <span class="info-value">{{
+                    getPostName(flow.check_position_id)
+                  }}</span>
                 </div>
-                <div v-if="flow.check_uids && flow.check_uids.length > 0" class="flow-info-row">
+                <div
+                  v-if="flow.check_uids && flow.check_uids.length > 0"
+                  class="flow-info-row"
+                >
                   <span class="info-label">审批人：</span>
-                  <span class="info-value">{{ getUserNames(flow.check_uids) }}</span>
+                  <span class="info-value">{{
+                    getUserNames(flow.check_uids)
+                  }}</span>
                 </div>
               </div>
             </div>
@@ -84,7 +100,14 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted, nextTick, getCurrentInstance, computed } from "vue";
+import {
+  ref,
+  watch,
+  onMounted,
+  nextTick,
+  getCurrentInstance,
+  computed,
+} from "vue";
 import { listUser } from "@/api/system/user.js";
 import { listPost } from "@/api/system/post.js";
 import { getPageList as getApprovalFlowList } from "@/api/base/common/approvalFlow/index.js";
@@ -104,7 +127,10 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue", "flowChange"]);
 
 const { proxy } = getCurrentInstance();
-const { approval_mode, flow_list_item_type } = proxy.useDict("approval_mode", "flow_list_item_type");
+const { approval_mode, flow_list_item_type } = proxy.useDict(
+  "approval_mode",
+  "flow_list_item_type",
+);
 
 // 下拉选项
 const userOptions = ref([]);
@@ -120,8 +146,12 @@ const copyUids = ref([]);
 const copyNames = computed(() => {
   if (!copyUids.value || copyUids.value.length === 0) return [];
   return copyUids.value
-    .map(uid => userOptions.value.find(user => String(user.userId) === String(uid))?.nickName)
-    .filter(name => name);
+    .map(
+      (uid) =>
+        userOptions.value.find((user) => String(user.userId) === String(uid))
+          ?.nickName,
+    )
+    .filter((name) => name);
 });
 let isUpdatingFromProps = false;
 
@@ -136,9 +166,11 @@ watch(
     if (val.flowNodes) {
       handleFlowNodesChange(val.flowNodes);
     }
-    nextTick(() => { isUpdatingFromProps = false; });
+    nextTick(() => {
+      isUpdatingFromProps = false;
+    });
   },
-  { immediate: true, deep: true }
+  { immediate: true, deep: true },
 );
 
 // 监听 flowId 和 actionId 变化
@@ -149,7 +181,7 @@ watch(
       fetchFlowNodes(newFlowId, newActionId);
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // 监听内部值变化
@@ -157,37 +189,49 @@ watch(flowId, () => !isUpdatingFromProps && emitUpdate());
 watch(copyUids, () => !isUpdatingFromProps && emitUpdate());
 
 function emitUpdate() {
-  emit("update:modelValue", { checkFlowId: flowId.value, checkCopyUids: copyUids.value });
+  emit("update:modelValue", {
+    checkFlowId: flowId.value,
+    checkCopyUids: copyUids.value,
+  });
 }
 
 function normalizeCopyUids(value) {
   if (!value) return [];
-  if (Array.isArray(value)) return value.map(id => Number(String(id).trim()));
-  return String(value).split(",").map(id => Number(id.trim()));
+  if (Array.isArray(value)) return value.map((id) => Number(String(id).trim()));
+  return String(value)
+    .split(",")
+    .map((id) => Number(id.trim()));
 }
 
 function getUserList() {
-  listUser({ pageNum: 1, pageSize: 1000 }).then(res => { userOptions.value = res.rows || []; });
+  listUser({ pageNum: 1, pageSize: 1000 }).then((res) => {
+    userOptions.value = res.rows || [];
+  });
 }
 
 function getPostList() {
-  listPost({ pageNum: 1, pageSize: 1000 }).then(res => { postOptions.value = res.rows || []; });
+  listPost({ pageNum: 1, pageSize: 1000 }).then((res) => {
+    postOptions.value = res.rows || [];
+  });
 }
 
 function getApprovalFlowOptions() {
   const params = { pageNum: 1, pageSize: 100 };
   if (props.flowTitle) params.title = props.flowTitle;
   params.byDept = 1;
-  getApprovalFlowList(params).then(res => {
+  params.isAble = 1;
+  getApprovalFlowList(params).then((res) => {
     approvalFlowOptions.value = res.rows || [];
     if (flowId.value) handleFlowChange(flowId.value);
   });
 }
 
 function fetchFlowNodes(flowIdVal, actionIdVal) {
-  getFlowNodes({ flowId: flowIdVal, actionId: actionIdVal }).then(res => {
-    if (res.data?.length > 0) handleFlowNodesChange(res.data);
-  }).catch(console.error);
+  getFlowNodes({ flowId: flowIdVal, actionId: actionIdVal })
+    .then((res) => {
+      if (res.data?.length > 0) handleFlowNodesChange(res.data);
+    })
+    .catch(console.error);
 }
 
 function handleFlowChange(flowIdVal) {
@@ -196,20 +240,24 @@ function handleFlowChange(flowIdVal) {
     emit("flowChange", null);
     return;
   }
-  const flow = approvalFlowOptions.value.find(item => item.id === flowIdVal);
+  const flow = approvalFlowOptions.value.find((item) => item.id === flowIdVal);
   if (flow) {
     let flowListData = flow.flowList;
     if (typeof flowListData === "string") {
-      try { flowListData = JSON.parse(flowListData); } 
-      catch (e) { console.error("解析 flowList 失败:", e); flowListData = []; }
+      try {
+        flowListData = JSON.parse(flowListData);
+      } catch (e) {
+        console.error("解析 flowList 失败:", e);
+        flowListData = [];
+      }
     }
     selectedFlow.value = { ...flow, flowList: flowListData };
-    
+
     // 选择审批流程后，自动设置流程中配置的抄送人
     if (flow.copyUids) {
       copyUids.value = normalizeCopyUids(flow.copyUids);
     }
-    
+
     emit("flowChange", selectedFlow.value);
   } else {
     selectedFlow.value = null;
@@ -219,7 +267,7 @@ function handleFlowChange(flowIdVal) {
 
 function handleFlowNodesChange(flowNodes) {
   if (!flowNodes?.length) return;
-  const formattedFlowList = flowNodes.map(node => ({
+  const formattedFlowList = flowNodes.map((node) => ({
     check_types: node.checkType || node.check_types || 1,
     check_role: node.checkRole || node.check_role || 1,
     check_position_id: node.checkPositionId || node.check_position_id || "",
@@ -232,31 +280,61 @@ function handleFlowNodesChange(flowNodes) {
 }
 
 function getApprovalModeLabel(checkTypes) {
-  return approval_mode.value.find(item => item.value === String(checkTypes))?.label || checkTypes;
+  return (
+    approval_mode.value.find((item) => item.value === String(checkTypes))
+      ?.label || checkTypes
+  );
 }
 
 function getFlowRoleLabel(checkRole) {
-  return flow_list_item_type.value.find(item => item.value === String(checkRole))?.label || checkRole;
+  return (
+    flow_list_item_type.value.find((item) => item.value === String(checkRole))
+      ?.label || checkRole
+  );
 }
 
 function getPostName(postId) {
-  return postOptions.value.find(item => String(item.postId) === String(postId))?.postName || postId;
+  return (
+    postOptions.value.find((item) => String(item.postId) === String(postId))
+      ?.postName || postId
+  );
 }
 
 function getUserNames(userIds) {
   if (!userIds) return "";
-  const ids = Array.isArray(userIds) ? userIds : String(userIds).split(",").map(id => id.trim());
-  const users = userOptions.value.filter(user => ids.includes(String(user.userId)));
-  return users.map(user => user.nickName || user.userName).join("、");
+  const ids = Array.isArray(userIds)
+    ? userIds
+    : String(userIds)
+        .split(",")
+        .map((id) => id.trim());
+  const users = userOptions.value.filter((user) =>
+    ids.includes(String(user.userId)),
+  );
+  return users.map((user) => user.nickName || user.userName).join("、");
 }
 
 // 暴露方法
-function setFlowId(id) { flowId.value = id; handleFlowChange(id); }
-function setCopyUids(uids) { copyUids.value = normalizeCopyUids(uids); }
+function setFlowId(id) {
+  flowId.value = id;
+  handleFlowChange(id);
+}
+function setCopyUids(uids) {
+  copyUids.value = normalizeCopyUids(uids);
+}
 
-defineExpose({ getSelectedFlow: () => selectedFlow.value, getFlowId: () => flowId.value, getCopyUids: () => copyUids.value, setFlowId, setCopyUids });
+defineExpose({
+  getSelectedFlow: () => selectedFlow.value,
+  getFlowId: () => flowId.value,
+  getCopyUids: () => copyUids.value,
+  setFlowId,
+  setCopyUids,
+});
 
-onMounted(() => { getUserList(); getPostList(); getApprovalFlowOptions(); });
+onMounted(() => {
+  getUserList();
+  getPostList();
+  getApprovalFlowOptions();
+});
 </script>
 
 <style scoped>

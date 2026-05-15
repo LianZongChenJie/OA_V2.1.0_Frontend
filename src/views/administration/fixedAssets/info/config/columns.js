@@ -75,6 +75,8 @@ export const columns = [
       fieldName: 'status',
       label: '状态',
       dictKey: 'assets_status',
+      excludeValues: ['-1'],
+      placeholder: '请选择',
     },
   },
   {
@@ -110,7 +112,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) => {
   return {
     label: '操作',
-    width: 340,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [
@@ -125,6 +127,15 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
         isShow: (row) => ![-1, 4].includes(row.status),
       },
       {
+        label: '设置',
+        type: 'warning',
+        size: 'small',
+        onClick: (row) => {
+          onToggleStatus && onToggleStatus(row);
+        },
+        icon: 'lock'
+      },
+      {
         label: '查看',
         type: 'primary',
         size: 'small',
@@ -132,15 +143,6 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
           onDetail && onDetail(row);
         },
         icon: 'eye-open',
-      },
-      {
-        label: '设置状态',
-        type: 'danger',
-        size: 'small',
-        onClick: (row) => {
-          onToggleStatus && onToggleStatus(row);
-        },
-        icon: 'lock'
       },
       {
         label: '删除',
