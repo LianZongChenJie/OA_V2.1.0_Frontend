@@ -36,6 +36,7 @@
           filterable
           clearable
           style="width:100%"
+          @change="handleAnchorChange"
         >
           <el-option
             v-for="item in userOptions"
@@ -55,6 +56,7 @@
           filterable
           clearable
           style="width:100%"
+          @change="handleRecorderChange"
         >
           <el-option
             v-for="item in userOptions"
@@ -217,7 +219,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance } from "vue";
+import { ref, reactive, computed, onMounted, getCurrentInstance, watch } from "vue";
 import { addenterPrise, updateenterPrise } from "@/api/administration/conference/notes/index.js";
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import { getPageList } from "@/api/administration/conference/room/index.js";
@@ -264,6 +266,46 @@ const rules = {
   content: [{ required: true, message: "请输入会议内容", trigger: "blur" }],
   joinUids: [{ required: true, message: "请选择参会人员", trigger: "change" }],
 };
+
+// 将用户ID添加到参会人员列表（去重）
+const addToJoinUids = (userId) => {
+  if (!userId) return;
+  
+  // 确保 joinUids 是数组
+  let currentJoinUids = form.joinUids;
+  if (!Array.isArray(currentJoinUids)) {
+    currentJoinUids = [];
+  }
+  
+  // 去重添加
+  if (!currentJoinUids.includes(userId)) {
+    form.joinUids = [...currentJoinUids, userId];
+  }
+};
+
+// 主持人变更处理
+const handleAnchorChange = (val) => {
+  addToJoinUids(val);
+};
+
+// 记录人变更处理
+const handleRecorderChange = (val) => {
+  addToJoinUids(val);
+};
+
+// 监听主持人变化（当编辑/查看时，如果主持人或记录人已在参会人员中，确保不重复）
+watch(() => form.anchorId, (newVal, oldVal) => {
+  // 只在非清空操作时添加，且避免循环触发
+  if (newVal && newVal !== oldVal) {
+    addToJoinUids(newVal);
+  }
+});
+
+watch(() => form.recorderId, (newVal, oldVal) => {
+  if (newVal && newVal !== oldVal) {
+    addToJoinUids(newVal);
+  }
+});
 
 onMounted(() => {
   listUser({ pageSize: 1000 }).then(res => {
@@ -357,7 +399,7 @@ const emit = defineEmits(["success"]);
 defineExpose({ open, openEdit, openView });
 </script>
 
-<style>
+<style scoped>
 .car-dialog.el-dialog {
   max-height: 90vh;
   display: flex;

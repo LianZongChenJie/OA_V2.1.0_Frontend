@@ -12,7 +12,7 @@ export function getPageList(query) {
 // 获取工作汇报详情
 export function getDetail(id) {
   return request({
-    url: `/oa/work/view//${id}`,
+    url: `/oa/work/view/${id}`,
     method: 'get'
   })
 }

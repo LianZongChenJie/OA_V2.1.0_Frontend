@@ -10,7 +10,7 @@ export const getColumns = () => [
   },
   {
     fieldName: 'title',
-    label: '公告主题',
+    label: '新闻标题',
     minWidth: 200,
     searchable: {
       type: 'input',
