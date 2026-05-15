@@ -111,22 +111,13 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onDelete, onView) => {
+export const getOperationColumn = (onEdit, onDelete, onView, onTransfer) => {
   return {
     label: '操作',
-    width: 240,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [
-      {
-        label: '查看',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onView && onView(row);
-        },
-        icon: 'eye-open',
-      },
       {
         label: '编辑',
         type: 'success',
@@ -139,6 +130,16 @@ export const getOperationColumn = (onEdit, onDelete, onView) => {
         icon: 'edit',
       },
       {
+        label: '查看',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onView && onView(row);
+        },
+        icon: 'eye-open',
+      },
+
+      {
         label: '删除',
         type: 'danger',
         size: 'small',
@@ -148,6 +149,17 @@ export const getOperationColumn = (onEdit, onDelete, onView) => {
           onDelete && onDelete(row);
         },
         icon: 'delete',
+      },
+      {
+        label: '调动',
+        type: 'warning',
+        size: 'small',
+        // 审批状态为已通过(1) 且 执行状态为暂未调动(0) 时才显示
+        isShow: (row) => Number(row.checkStatus) === 2 && Number(row.status) === 1,
+        onClick: (row) => {
+          onTransfer && onTransfer(row);
+        },
+        icon: 'enter',
       },
     ],
   };

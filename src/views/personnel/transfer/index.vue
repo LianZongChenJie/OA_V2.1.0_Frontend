@@ -25,6 +25,7 @@ import {
   getPageList,
   getDetail,
   deleteDeptChange,
+  executeDeptChange,
 } from "@/api/personnel/transfer/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
@@ -75,6 +76,20 @@ async function handleDelete(row) {
     .catch(() => {});
 }
 
+/** 调动按钮操作 */
+async function handleTransfer(row) {
+  proxy.$modal
+    .confirm("确定要执行该人事调动吗？")
+    .then(async () => {
+      const res = await executeDeptChange({ id: row.id });
+      if (res) {
+        proxy.$modal.msgSuccess("调动成功");
+        tableList.value.refresh();
+      }
+    })
+    .catch(() => {});
+}
+
 /** 新增成功回调 */
 function handleSuccess() {
   tableList.value.refresh();
@@ -85,6 +100,7 @@ const operationColumn = getOperationColumn(
   handleEdit,
   handleDelete,
   handleView,
+  handleTransfer,
 );
 </script>
 <style lang="scss" scoped></style>

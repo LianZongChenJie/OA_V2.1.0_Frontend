@@ -93,6 +93,7 @@
           :label="operationColumnConfig.label"
           :width="operationColumnConfig.width"
           :min-width="operationColumnConfig.minWidth"
+          :max-width="operationColumnConfig.maxWidth"
           :fixed="operationColumnConfig.fixed"
           :align="operationColumnConfig.align || 'center'"
         >
@@ -196,6 +197,7 @@ import SearchBar from "./SearchBar.vue";
  * @property {string} [label] - 操作列标题
  * @property {number} [width] - 操作列宽度
  * @property {number} [minWidth] - 操作列最小宽度
+ * @property {number} [maxWidth] - 操作列最大宽度
  * @property {'left'|'right'} [fixed] - 操作列固定位置
  * @property {'left'|'center'|'right'} [align] - 操作列对齐方式
  * @property {boolean} [show] - 是否显示操作列
@@ -772,9 +774,15 @@ onBeforeUnmount(() => {
 .operation-buttons {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  padding-left: 3px;
+  gap: 10px;
   flex-wrap: wrap;
+  max-width: 100%;
+}
+.operation-buttons > .el-button {
+  flex: 0 0 auto;
+  max-width: calc(50% - 2px);
 }
 
 .btn-icon {

@@ -42,4 +42,12 @@ export function deleteDeptChange(id) {
     method: 'delete'
   })
 }
+// 执行人事调动
+export function executeDeptChange(data) {
+  return request({
+    url: '/personnel/deptChange/change',
+    method: 'put',
+    data: data
+  })
+}
 
