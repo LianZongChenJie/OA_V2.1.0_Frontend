@@ -151,7 +151,7 @@
         </el-form-item>
 
         <!-- 附件上传 -->
-        <el-form-item label="附件">
+        <!-- <el-form-item label="附件">
           <el-upload
             v-model:file-list="fileList"
             action="#"
@@ -163,7 +163,7 @@
           >
             <el-button type="primary" :disabled="isView">+ 添加附件</el-button>
           </el-upload>
-        </el-form-item>
+        </el-form-item> -->
       </el-form>
     </template>
 
