@@ -154,10 +154,7 @@ const add = (row) => {
   title.value = "添加子节点";
 };
 
-// 根据父节点ID查找父节点名称
-function findParentName(pid) {
-  return pid ? '' : '根节点';
-}
+
 
 // 判断ID模式
 function getIdMode(row) {
@@ -173,9 +170,9 @@ function getIdMode(row) {
 }
 
 // 编辑
-const edit = async (row) => {
+const edit = (row, parentRow) => {
   reset();
-  const parentName = await findParentName(row.pid);
+  const parentName = parentRow?.name || (row.pid ? '' : '根节点');
   const idModeInfo = getIdMode(row);
 
   form.value = {

@@ -52,8 +52,8 @@ const add = (row) => {
 };
 
 // 编辑子节点
-const edit = (row) => {
-  dialogRef.value?.edit(row);
+const edit = (row, parentRow) => {
+  dialogRef.value?.edit(row, parentRow);
 };
 
 // 修改状态（禁用/启用）

@@ -84,7 +84,7 @@
                   :type="action.type || 'primary'"
                   :size="action.size || 'small'"
                   :disabled="action.disabled?.(row)"
-                  @click="action.onClick(row)"
+                  @click="handleActionClick(action, row)"
                 >
                   <svg-icon
                     v-if="action.icon"
@@ -498,6 +498,33 @@ const addChildToRow = (parentId, childData) => {
   };
 
   addChildInTree(tableData.value, parentId, childData);
+};
+
+/**
+ * 查找父节点
+ */
+const findParent = (row) => {
+  const findParentInTree = (data, childId, parent = null) => {
+    for (const item of data) {
+      if (item.id == childId) {
+        return parent;
+      }
+      if (item.children?.length > 0) {
+        const found = findParentInTree(item.children, childId, item);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  return findParentInTree(tableData.value, row.id);
+};
+
+/**
+ * 处理操作按钮点击
+ */
+const handleActionClick = (action, row) => {
+  const parent = findParent(row);
+  action.onClick(row, parent);
 };
 
 /**
