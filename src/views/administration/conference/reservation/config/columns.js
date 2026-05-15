@@ -1,6 +1,6 @@
 
 export const queryForm = {
-  keywords: '', 
+  keywords: '',
 };
 
 
@@ -12,15 +12,17 @@ export const columns = [
     minWidth: 80,
     align: 'center',
   },
-  { fieldName: 'checkStatus',
+  {
+    fieldName: 'checkStatus',
     label: '审批状态',
-     width: "8%",
-     align: 'center',
-     isDict: true,
-     dict: 'check_status'
+    width: "8%",
+    align: 'center',
+    isDict: true,
+    dict: 'check_status'
   },
-  { fieldName: 'title', 
-    label: '会议主题', 
+  {
+    fieldName: 'title',
+    label: '会议主题',
     width: "15%",
     searchable: {
       type: 'input',
@@ -30,41 +32,42 @@ export const columns = [
       order: 1,
     },
   },
-  { fieldName: 'meetingTimeStr', 
-    label: '会议时间', 
-    width: "30%", 
+  {
+    fieldName: 'meetingTimeStr',
+    label: '会议时间',
+    width: "30%",
     minWidth: 320,
     align: 'center',
   },
-  { 
-    fieldName: 'roomName', 
-    label: '会议室', 
-    width: "15%", 
-    align: 'center' 
-  },
-  { 
-    fieldName: 'num', 
-    label: '人数',
-     width: "6%", 
-     align: 'center'
+  {
+    fieldName: 'roomName',
+    label: '会议室',
+    width: "15%",
+    align: 'center'
   },
   {
-     fieldName: 'adminName', 
-    label: '审批人',
-     width: "10%",
-      align: 'center' 
+    fieldName: 'num',
+    label: '人数',
+    width: "6%",
+    align: 'center'
   },
-  { 
-    fieldName: 'adminName', 
+  {
+    fieldName: 'checkName',
+    label: '当前审核人',
+    width: 120,
+    minWidth: 100,
+  },
+  {
+    fieldName: 'adminName',
     label: '申请人',
-     width: "10%", 
-     align: 'center' 
+    width: "10%",
+    align: 'center'
   },
-  { 
+  {
     fieldName: 'createTime',
-     label: '创建时间',
-      width: "18%",
-       align: 'center' 
+    label: '创建时间',
+    width: "18%",
+    align: 'center'
   }
 ];
 
@@ -75,7 +78,7 @@ export const operationColumn = {
   fixed: 'right',
   show: true,
   actions: [
-        {
+    {
       label: '编辑',
       type: 'success',
       size: 'small',
