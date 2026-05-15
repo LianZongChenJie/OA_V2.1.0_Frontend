@@ -139,20 +139,7 @@ const levelTagType = computed(() => {
 
 // 表单重置
 function reset() {
-  form.value = {
-    id: undefined,
-    idSuffix: undefined,
-    customId: undefined,
-    idMode: 'prefix',
-    pid: undefined,
-    parentName: undefined,
-    name: undefined,
-    shortname: undefined,
-    level: undefined,
-    longitude: undefined,
-    latitude: undefined,
-    sort: 0,
-  };
+  form.value = { idMode: 'prefix', sort: 0 };
   isEdit.value = false;
   formRef.value?.resetFields();
 }
@@ -162,47 +149,49 @@ const add = (row) => {
   reset();
   form.value.pid = row.id;
   form.value.parentName = row.name;
-  // 根据父节点级别自动设置子节点级别
-  if (row.level && row.level < 3) {
-    form.value.level = row.level + 1;
-  }
-  isEdit.value = false;
+  form.value.level = row.level < 3 ? row.level + 1 : row.level;
   open.value = true;
   title.value = "添加子节点";
 };
 
+// 根据父节点ID查找父节点名称
+function findParentName(pid) {
+  return pid ? '' : '根节点';
+}
+
+// 判断ID模式
+function getIdMode(row) {
+  const pid = String(row.pid || '');
+  const id = String(row.id || '');
+  if (row.level === 2 && id.startsWith(pid.substring(0, 2)) && id.endsWith('00')) {
+    return { mode: 'prefix', suffix: id.substring(pid.length, pid.length + 2) };
+  }
+  if (row.level === 3 && id.startsWith(pid.substring(0, 4))) {
+    return { mode: 'prefix', suffix: id.substring(4) };
+  }
+  return { mode: 'custom', customId: id };
+}
+
 // 编辑
-const edit = (row) => {
+const edit = async (row) => {
   reset();
-  // 填充表单数据
+  const parentName = await findParentName(row.pid);
+  const idModeInfo = getIdMode(row);
+
   form.value = {
     id: row.id,
     pid: row.pid,
-    parentName: row.parentName || row.parent?.name || '根节点',
+    parentName,
     name: row.name,
     shortname: row.shortname,
     level: row.level,
     longitude: row.longitude,
     latitude: row.latitude,
     sort: row.sort || 0,
-    idMode: 'prefix',
-    idSuffix: undefined,
-    customId: undefined,
+    idMode: idModeInfo.mode,
+    idSuffix: idModeInfo.suffix,
+    customId: idModeInfo.customId,
   };
-
-  // 判断ID模式：如果ID符合前缀规则则用前缀模式，否则用自定义模式
-  const pid = String(row.pid || '');
-  const id = String(row.id || '');
-  if (row.level === 2 && id.startsWith(pid.substring(0, 2)) && id.endsWith('00')) {
-    form.value.idMode = 'prefix';
-    form.value.idSuffix = id.substring(pid.length, pid.length + 2);
-  } else if (row.level === 3 && id.startsWith(pid.substring(0, 4))) {
-    form.value.idMode = 'prefix';
-    form.value.idSuffix = id.substring(4);
-  } else {
-    form.value.idMode = 'custom';
-    form.value.customId = id;
-  }
 
   isEdit.value = true;
   open.value = true;
@@ -221,64 +210,45 @@ function handleIdModeChange() {
   form.value.customId = undefined;
 }
 
+// 构建完整ID
+function buildFullId(form) {
+  if (form.idMode === 'custom') return form.customId;
+
+  const suffix = String(form.idSuffix).padStart(2, '0');
+  if (form.level === 2) return `${idPrefix.value}${suffix}00`;
+  if (form.level === 3) return `${idPrefix.value}${suffix}`;
+  return form.idSuffix;
+}
+
 // 提交按钮
 function submitForm() {
   formRef.value.validate((valid) => {
-    if (valid) {
-      let fullId = '';
+    if (!valid) return;
 
-      if (form.value.idMode === 'prefix') {
-        // 前缀模式：自动拼接
-        const suffix = String(form.value.idSuffix).padStart(2, '0');
-        if (form.value.level === 2) {
-          fullId = `${idPrefix.value}${suffix}00`;
-        } else if (form.value.level === 3) {
-          fullId = `${idPrefix.value}${suffix}`;
-        } else {
-          fullId = form.value.idSuffix;
-        }
-      } else {
-        // 自定义模式：直接使用用户输入的ID
-        fullId = form.value.customId;
-      }
+    const fullId = buildFullId(form.value);
+    const { idMode, customId, idSuffix, parentName, ...rest } = form.value;
+    const submitData = { ...rest, id: fullId };
 
-      const submitData = {
-        ...form.value,
-        id: fullId,
-      };
-      delete submitData.idMode;
-      delete submitData.customId;
-      delete submitData.idSuffix;
-      delete submitData.parentName;
+    const rowData = {
+      id: fullId,
+      pid: form.value.pid,
+      name: form.value.name,
+      shortname: form.value.shortname,
+      level: form.value.level,
+      longitude: form.value.longitude,
+      latitude: form.value.latitude,
+      sort: form.value.sort,
+    };
 
-      // 构建返回给父组件的行数据（只包含列表显示的字段）
-      const rowData = {
-        id: fullId,
-        pid: form.value.pid,
-        name: form.value.name,
-        shortname: form.value.shortname,
-        level: form.value.level,
-        longitude: form.value.longitude,
-        latitude: form.value.latitude,
-        sort: form.value.sort,
-      };
+    const apiCall = isEdit.value ? updateArea : addArea;
+    const successMsg = isEdit.value ? "修改成功" : "新增成功";
+    const type = isEdit.value ? 'edit' : 'add';
 
-      if (isEdit.value) {
-        // 编辑模式
-        updateArea(submitData).then(() => {
-          proxy.$modal.msgSuccess("修改成功");
-          open.value = false;
-          emit("success", { type: 'edit', row: rowData });
-        });
-      } else {
-        // 新增模式
-        addArea(submitData).then(() => {
-          proxy.$modal.msgSuccess("新增成功");
-          open.value = false;
-          emit("success", { type: 'add', row: rowData });
-        });
-      }
-    }
+    apiCall(submitData).then(() => {
+      proxy.$modal.msgSuccess(successMsg);
+      open.value = false;
+      emit("success", { type, row: rowData });
+    });
   });
 }
 

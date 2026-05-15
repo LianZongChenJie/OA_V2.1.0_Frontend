@@ -9,62 +9,47 @@ export const columns = [
   { fieldName: "status", label: "状态", width: "10%", minWidth: 100, align: "center", slotName: "status" },
 ];
 
-export const getHeaderButs = (onAdd) => [
-  { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
-];
-
-export const getOperationColumn = (onAdd, onEdit, onChangeStatus) => {
-  return {
-    label: '操作',
-    width: 360,
-    fixed: 'right',
-    show: true,
-    actions: [
-      {
-        label: '添加子节点',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onAdd && onAdd(row);
-        },
-        isShow: (row) => row.level < 3,
-        icon: 'add',
-      },
-      {
-        label: '编辑',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onEdit && onEdit(row);
-        },
-        icon: 'edit',
-      },
-      {
-        label: '禁用',
-        type: 'danger',
-        size: 'small',
-        onClick: (row) => {
-          onChangeStatus && onChangeStatus(row, 0);
-        },
-        isShow: (row) => row.status !== 0,
-        icon: 'lock',
-      },
-      {
-        label: '启用',
-        type: 'success',
-        size: 'small',
-        onClick: (row) => {
-          onChangeStatus && onChangeStatus(row, 1);
-        },
-        isShow: (row) => row.status === 0,
-        icon: 'enter',
-      }
-    ],
-  };
-};
+export const getOperationColumn = (onAdd, onEdit, onChangeStatus) => ({
+  label: '操作',
+  width: 360,
+  fixed: 'right',
+  show: true,
+  actions: [
+    {
+      label: '添加子节点',
+      type: 'primary',
+      size: 'small',
+      onClick: onAdd,
+      isShow: (row) => row.level < 3,
+      icon: 'add',
+    },
+    {
+      label: '编辑',
+      type: 'primary',
+      size: 'small',
+      onClick: onEdit,
+      icon: 'edit',
+    },
+    {
+      label: '禁用',
+      type: 'danger',
+      size: 'small',
+      onClick: (row) => onChangeStatus(row, 0),
+      isShow: (row) => row.status !== 0,
+      icon: 'lock',
+    },
+    {
+      label: '启用',
+      type: 'success',
+      size: 'small',
+      onClick: (row) => onChangeStatus(row, 1),
+      isShow: (row) => row.status === 0,
+      icon: 'enter',
+    }
+  ],
+});
 
 export default {
   columns,
   getOperationColumn,
-  getHeaderButs
 };

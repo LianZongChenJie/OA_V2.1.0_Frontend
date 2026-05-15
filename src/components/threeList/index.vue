@@ -519,6 +519,7 @@ defineExpose({
   expandAll,
   collapseAll,
   loading,
+  getTableData: () => tableData.value,
 });
 
 // 组件挂载时加载数据

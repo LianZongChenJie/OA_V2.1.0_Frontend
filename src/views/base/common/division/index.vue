@@ -34,22 +34,14 @@ const dialogRef = ref(null);
 
 // 弹窗成功回调
 function handleDialogSuccess(result) {
-  if (!result || !result.row) return;
+  if (!result?.row) return;
+  const { type, row } = result;
 
-  if (result.type === 'edit') {
-    // 编辑成功，只刷新当前行
-    threeListRef.value?.refreshRow(result.row.id, result.row);
-  } else if (result.type === 'add') {
-    // 新增成功，将子节点直接添加到父节点的 children 中
-    const parentId = result.row.pid;
-    if (parentId !== undefined && parentId !== null) {
-      threeListRef.value?.addChildToRow(parentId, result.row);
-    } else {
-      // 如果没有父节点ID，刷新整个列表
-      threeListRef.value?.refresh();
-    }
+  if (type === 'edit') {
+    threeListRef.value?.refreshRow(row.id, row);
+  } else if (type === 'add' && row.pid != null) {
+    threeListRef.value?.addChildToRow(row.pid, row);
   } else {
-    // 其他操作，刷新整个列表
     threeListRef.value?.refresh();
   }
 }
@@ -89,26 +81,21 @@ const handleChangeStatus = (row, status) => {
 // 导出区域数据
 async function handleExport(level) {
   const levelMap = { 1: "省", 2: "市", 3: "区" };
+  const exportColumns = [
+    { key: "id", title: "ID" },
+    { key: "name", title: "名称" },
+    { key: "shortname", title: "简称" },
+    { key: "level", title: "级别" },
+    { key: "pid", title: "父ID" },
+    { key: "longitude", title: "经度" },
+    { key: "latitude", title: "纬度" },
+    { key: "sort", title: "排序" },
+  ];
+
   try {
     const res = await exportAreaData(level);
     if (res.code === 200 && res.data) {
-      // 定义列配置
-      const columns = [
-        { key: "id", title: "ID" },
-        { key: "name", title: "名称" },
-        { key: "shortname", title: "简称" },
-        { key: "level", title: "级别" },
-        { key: "pid", title: "父ID" },
-        { key: "longitude", title: "经度" },
-        { key: "latitude", title: "纬度" },
-        { key: "sort", title: "排序" },
-      ];
-      exportExcel(
-        res.data,
-        `导出${levelMap[level]}级数据`,
-        levelMap[level],
-        columns,
-      );
+      exportExcel(res.data, `导出${levelMap[level]}级数据`, levelMap[level], exportColumns);
     }
   } catch (error) {
     console.error("导出失败:", error);
@@ -117,27 +104,9 @@ async function handleExport(level) {
 
 // 工具栏按钮配置
 const toolbarButtons = ref([
-  {
-    label: "导出省",
-    icon: "Download",
-    onClick: () => {
-      handleExport(1);
-    },
-  },
-  {
-    label: "导出市",
-    icon: "Download",
-    onClick: () => {
-      handleExport(2);
-    },
-  },
-  {
-    label: "导出区",
-    icon: "Download",
-    onClick: () => {
-      handleExport(3);
-    },
-  },
+  { label: "导出省", icon: "Download", onClick: () => handleExport(1) },
+  { label: "导出市", icon: "Download", onClick: () => handleExport(2) },
+  { label: "导出区", icon: "Download", onClick: () => handleExport(3) },
 ]);
 </script>
 
