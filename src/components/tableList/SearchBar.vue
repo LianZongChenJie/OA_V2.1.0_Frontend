@@ -31,8 +31,8 @@
               >
                 <el-option
                   v-for="option in (column.dictKey
-                    ? dictData[column.dictKey]
-                    : column.options) || []"
+                    ? getFilteredOptions(dictData[column.dictKey], column.excludeValues)
+                    : getFilteredOptions(column.options, column.excludeValues)) || []"
                   :key="option.value"
                   :label="option.label"
                   :value="option.value"
@@ -271,6 +271,15 @@ const searchableColumns = computed(() => {
     (a, b) => Number(a.order || 9999) - Number(b.order || 9999),
   );
 });
+
+// 过滤选项，排除指定值
+const getFilteredOptions = (options, excludeValues) => {
+  if (!options || !Array.isArray(options)) return [];
+  if (!excludeValues || !Array.isArray(excludeValues) || excludeValues.length === 0) {
+    return options;
+  }
+  return options.filter(option => !excludeValues.includes(option.value));
+};
 
 // 处理搜索
 const handleSearch = () => {

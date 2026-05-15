@@ -54,6 +54,7 @@ export const columns = [
       fieldName: 'status',
       label: '状态',
       dictKey: 'message_module_status',
+      excludeValues: ['-1'], // 排除删除状态，可按需调整排除的状态值
     },
   },
 ];
@@ -65,7 +66,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) => {
   return {
     label: '操作',
-    width: 340,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [
@@ -79,15 +80,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
         icon: 'edit',
         isShow: (row) => [0, 1].includes(row.status),
       },
-      {
-        label: '查看',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onDetail && onDetail(row);
-        },
-        icon: 'eye-open',
-      },
+
       {
         label: '禁用',
         type: 'danger',
@@ -100,13 +93,22 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
       },
       {
         label: '启用',
-        type: 'primary',
+        type: 'warning',
         size: 'small',
         onClick: (row) => {
           onToggleStatus && onToggleStatus(row);
         },
         icon: 'enable',
         isShow: (row) => row.status === 0,
+      },
+      {
+        label: '查看',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onDetail && onDetail(row);
+        },
+        icon: 'eye-open',
       },
       {
         label: '删除',
