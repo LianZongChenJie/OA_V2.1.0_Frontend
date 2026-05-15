@@ -163,12 +163,11 @@ import { listDept } from "@/api/system/dept.js";
 import { listUser } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
 
-const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
+const { proxy } = getCurrentInstance();
 const { seal_type } = proxy.useDict("seal_type");
 
-const props = defineProps({
-  // 是否只读
+defineProps({
   readonly: {
     type: Boolean,
     default: false,
@@ -233,39 +232,35 @@ const rules = {
 };
 
 /** 获取部门列表 */
-function getDeptList() {
-  return listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
+const getDeptList = () =>
+  listDept({ pageNum: 1, pageSize: 1000 }).then((res) => {
+    deptOptions.value = res.data || [];
     return deptOptions.value;
   });
-}
 
 /** 获取用户列表 */
-async function getUserList() {
-  const response = await listUser({ pageNum: 1, pageSize: 1000 });
-  const userOptions = response.rows || [];
-  // 设置当前登录人信息
-  const currentUser = userOptions.find(u => u.userId === userStore.id);
+const getUserList = async () => {
+  const res = await listUser({ pageNum: 1, pageSize: 1000 });
+  const users = res.rows || [];
+  const currentUser = users.find(u => u.userId === userStore.id);
   currentUserInfo.value = {
     userId: userStore.id || "",
     deptId: currentUser?.deptId || ""
   };
-  // 设置当前部门名称
   const currentDept = deptOptions.value.find(d => d.deptId === currentUser?.deptId);
   currentDeptName.value = currentDept?.deptName || "";
   return currentUserInfo.value;
-}
+};
 
-/** 印章外借变更 */
-function handleIsBorrowChange(value) {
-  if (value === 0) {
+const handleIsBorrowChange = (val) => {
+  if (val === 0) {
     form.startTime = "";
     form.endTime = "";
   }
-}
+};
 
 /** 重置表单 */
-async function resetForm() {
+const resetForm = async () => {
   formRef.value?.clearValidate();
 
   if (!userListPromise) {
@@ -285,18 +280,14 @@ async function resetForm() {
     endTime: "",
     content: "",
   });
-}
+};
 
-const completeData = ref({});
-/** 填充表单数据 */
-function setFormData(data) {
+const setFormData = (data) => {
   const info = data?.info || data;
-  // 用印部门始终使用当前登录人所在部门，不可更改
-  const deptId = currentUserInfo.value.deptId || info.did || "";
   Object.assign(form, {
     id: info.id,
     title: info.title || "",
-    did: deptId,
+    did: currentUserInfo.value.deptId || info.did || "",
     num: info.num || 1,
     useTime: info.useTime || "",
     sealCateId: info.sealCateId != null ? String(info.sealCateId) : "",
@@ -305,13 +296,9 @@ function setFormData(data) {
     endTime: info.endTime || "",
     content: info.content || "",
   });
-  completeData.value = data;
-}
+};
 
-/** 获取表单数据 */
-function getFormData() {
-  return { ...form };
-}
+const getFormData = () => ({ ...form });
 
 /** 初始化数据 - 开始加载用户列表 */
 onMounted(() => {

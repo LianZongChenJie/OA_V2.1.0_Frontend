@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { ref, computed, getCurrentInstance, nextTick } from "vue";
+import { ref, getCurrentInstance, nextTick } from "vue";
 import { add, edit } from "@/api/administration/seal/apply";
 import FormData from "./formData.vue";
 
@@ -36,51 +36,40 @@ const emit = defineEmits(["success"]);
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const isEdit = ref(false);
-const currentApplyData = ref(null);
 
 const dialogTitle = computed(() => isEdit.value ? "编辑用章申请" : "新增用章申请");
 
-async function handleClose() {
+const handleClose = async () => {
   await formDataRef.value?.resetForm();
   isEdit.value = false;
-  currentApplyData.value = null;
-}
+};
 
-async function open() {
+const open = async () => {
   isEdit.value = false;
-  currentApplyData.value = null;
   dialogVisible.value = true;
   await nextTick();
-  await formDataRef.value?.resetForm();
-}
+  formDataRef.value?.resetForm();
+};
 
-async function openEdit(data) {
+const openEdit = async (data) => {
   isEdit.value = true;
-  currentApplyData.value = data;
   dialogVisible.value = true;
-
   await nextTick();
-  await formDataRef.value?.resetForm();
+  formDataRef.value?.resetForm();
   formDataRef.value?.setFormData(data);
-}
+};
 
-function handleSubmit() {
+const handleSubmit = () => {
   formDataRef.value?.formRef.validate((valid) => {
     if (!valid) return;
-
-    const formData = formDataRef.value?.getFormData();
-    const submitData = {
-      ...formData,
-    };
-
-    const apiMethod = isEdit.value ? edit : add;
-    apiMethod(submitData).then(() => {
+    const data = formDataRef.value?.getFormData();
+    (isEdit.value ? edit : add)(data).then(() => {
       proxy.$modal.msgSuccess(isEdit.value ? "编辑成功" : "新增成功");
       dialogVisible.value = false;
       emit("success");
     });
   });
-}
+};
 
 defineExpose({ open, openEdit });
 </script>

@@ -60,78 +60,54 @@ const flowNodes = ref([]);
 const currentCheckStepSort = ref(null);
 const currentApplyData = ref(null);
 
-const isApprovalFlowEditable = computed(() => {
-  return [0, 3, 4].includes(Number(currentApplyData.value?.checkStatus));
-});
+const isApprovalFlowEditable = computed(() => [0, 3, 4].includes(Number(currentApplyData.value?.checkStatus)));
 
-
-
-/** 关闭弹窗 */
-function handleClose() {
+const handleClose = () => {
   formDataRef.value?.resetForm();
-  // 清空申请数据
   currentApplyData.value = null;
-  // 清空审批节点数据
   flowNodes.value = [];
   currentCheckStepSort.value = null;
-}
+};
 
-/** 显示弹窗 - 查看模式 */
-async function openView(data) {
+const openView = async (data) => {
   currentApplyData.value = data;
   dialogVisible.value = true;
-
   await nextTick();
-  await formDataRef.value?.resetForm();
+  formDataRef.value?.resetForm();
   formDataRef.value?.setFormData(data);
 
   if (data.checkFlowId) {
     approvalFlowRef.value?.setFlowId(data.checkFlowId);
   }
-
   if (data.checkCopyUids) {
-    const copyUids = Array.isArray(data.checkCopyUids)
-      ? data.checkCopyUids
-      : data.checkCopyUids.split(",");
+    const copyUids = Array.isArray(data.checkCopyUids) ? data.checkCopyUids : data.checkCopyUids.split(",");
     approvalFlowRef.value?.setCopyUids(copyUids);
   }
 
   if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
     try {
-      const result = await getFlowNodes({
-        flowId: data.checkFlowId,
-        actionId: data.id
-      });
-
-      const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
-      const nodesData = result.data?.nodes.map(item => ({
+      const res = await getFlowNodes({ flowId: data.checkFlowId, actionId: data.id });
+      const stepSort = res.data?.checkStepSort ?? res.data?.step?.sort ?? 0;
+      const nodesData = res.data?.nodes?.map(item => ({
         ...item,
         isFinished: 0,
         stepName: '步骤 ' + (Number(item.sort) + 1)
       })) || [];
 
       if (nodesData.length > 0) {
-        flowNodes.value = data.checkStatus === 1
-          ? nodesData
-          : [...nodesData, { stepName: '完结', sort: nodesData.length, isFinished: 1 }];
+        flowNodes.value = data.checkStatus === 1 ? nodesData : [...nodesData, { stepName: '完结', sort: nodesData.length, isFinished: 1 }];
         currentCheckStepSort.value = stepSort;
       }
     } catch (error) {
       console.error("获取审批步骤信息失败:", error);
     }
   }
-}
+};
 
 const emit = defineEmits(["success"]);
+const handleSuccess = () => emit("success");
 
-/** 审批操作成功回调 - 刷新列表 */
-function handleSuccess() {
-  emit("success");
-}
-
-defineExpose({
-  openView,
-});
+defineExpose({ openView });
 </script>
 
 <style scoped>
