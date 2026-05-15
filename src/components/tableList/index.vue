@@ -782,7 +782,6 @@ onBeforeUnmount(() => {
 }
 .operation-buttons > .el-button {
   flex: 0 0 auto;
-  max-width: calc(50% - 2px);
 }
 
 .btn-icon {

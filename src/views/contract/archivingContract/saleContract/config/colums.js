@@ -116,7 +116,7 @@ export const getHeaderButs = () => [];
 export const getOperationColumn = (onView) => {
   return {
     label: '操作',
-    width: 80,
+    width: 96,
     fixed: 'right',
     show: true,
     actions: [

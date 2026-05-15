@@ -9,7 +9,7 @@ export const columns = [
     minWidth: 80,
     align: 'center',
   },
-   {
+  {
     fieldName: 'code',
     label: '合同编号',
     width: 150,
@@ -116,8 +116,8 @@ export const getHeaderButs = () => [];
 export const getOperationColumn = (onView) => {
   return {
     label: '操作',
-    width: 80,
     fixed: 'right',
+    width: 96,
     show: true,
     actions: [
       {
