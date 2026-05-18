@@ -51,7 +51,7 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm("确认删除该客户吗？");
+    await proxy.$modal.confirm("确认删除该联系人吗？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();

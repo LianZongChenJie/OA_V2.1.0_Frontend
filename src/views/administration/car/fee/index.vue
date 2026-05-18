@@ -101,7 +101,7 @@ async function handleView(row) {
   if (res) addDialogRef.value.openView(res.data || res);
 }
 async function handleDelete(row) {
-  proxy.$modal.confirm("确定删除该费用记录？").then(async () => {
+  proxy.$modal.confirm("确定删除该费用记录吗？").then(async () => {
     await deletereward(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();

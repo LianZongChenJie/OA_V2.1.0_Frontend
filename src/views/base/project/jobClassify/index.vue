@@ -58,7 +58,7 @@ async function handleView(row) {
 async function handleDisable(row) {
   const newStatus = row.status === 1 ? 0 : 1;
   proxy.$modal
-    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该客户等级吗?`)
+    .confirm(`确定要${row.status === 1 ? '禁用' : '启用'}该工作类别吗?`)
     .then(async () => {
       const res = await updateStatus(row.id, { status: newStatus });
       

@@ -78,7 +78,7 @@ function handleDisable(row) {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   proxy.$modal
-    .confirm("确定要删除该采购品吗？")
+    .confirm("确定要删除该资产吗？")
     .then(async () => {
       const res = await del(row.id);
 
