@@ -35,7 +35,7 @@
           formData.cost || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="客户名称">{{
-          formData.customerName || "-"
+           formData.customer || "-"
         }}</el-descriptions-item>
         <el-descriptions-item label="客户代表">{{
           formData.contactName || "-"
