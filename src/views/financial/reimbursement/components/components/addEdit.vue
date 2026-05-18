@@ -13,24 +13,6 @@
         :readonly="false"
       />
 
-      <!-- 审批流程信息 -->
-      <div class="form-section-title">审批流程信息</div>
-
-      <!-- 审批中/审批完结状态：显示审批节点时间轴 -->
-      <div v-if="!isApprovalFlowEditable">
-        <ApprovalNodes :nodes="flowNodes" :currentStepSort="currentCheckStepSort" />
-      </div>
-
-      <!-- 其他状态：显示审批流程选择组件 -->
-      <ApprovalFlow
-        v-else
-        ref="approvalFlowRef"
-        :flowId="currentData?.checkFlowId"
-        :actionId="currentData?.id"
-        :disabled="!isApprovalFlowEditable"
-        flow-title="报销"
-      />
-
       <!-- 审批记录（当 checkStatus != 0 时显示） -->
       <RecordSteps
         v-if="currentData && Number(currentData.checkStatus) !== 0 && currentData.records && currentData.records.length > 0"
@@ -172,6 +154,8 @@ function handleSubmit() {
         incomeMonth: formData.info.incomeMonth,
         projectId: formData.info.projectId,
         loanId: formData.info.loanId,
+        loanTitle: formData.info.loanTitle,
+        loanCode: formData.info.loanCode,
         cost: totalCost,
         interfix: formData.interfix.map(item => ({
           amount: item.amount,

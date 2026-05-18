@@ -120,6 +120,12 @@
               :label="`${item.title}(${item.code})`"
               :value="item.id"
             />
+            <el-option
+              v-if="form.info.loanId && !loanOptions.find(o => o.id === form.info.loanId)"
+              :key="form.info.loanId"
+              :label="`${form.info.loanTitle || ''}(${form.info.loanCode || form.info.loanId})`"
+              :value="form.info.loanId"
+            />
           </el-select>
         </el-form-item>
       </el-col>
@@ -235,7 +241,7 @@
 import { ref, reactive, onMounted, computed } from "vue";
 import { ElMessage } from "element-plus";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
-import { getList as getLoanList } from "@/api/financial/cashAdvance";
+import { getList as getLoanList, getDetail as getLoanDetail } from "@/api/financial/cashAdvance";
 import { getPageList as getProjectList } from "@/api/project/itemList";
 import { getPageList as getReimbursementCateList } from "@/api/finance/reimbursement";
 import useUserStore from "@/store/modules/user";
@@ -278,6 +284,8 @@ const form = reactive({
     projectId: "",
     projectName: "",
     loanId: "",
+    loanTitle: "",
+    loanCode: "",
   },
   interfix: [
     {
@@ -309,6 +317,24 @@ function getLoanOptions() {
   getLoanList({ pageNum: 1, pageSize: 200,checkStatus:2 }).then((response) => {
     loanOptions.value = response.rows || [];
   });
+}
+
+/** 根据 loanId 回显冲抵借支的 label */
+function loadLoanLabel(loanId) {
+  if (!loanId) return;
+  // 优先从已加载的选项中匹配
+  const found = loanOptions.value.find(item => item.id === loanId);
+  if (found) {
+    form.info.loanTitle = found.title;
+    form.info.loanCode = found.code;
+  } else {
+    // 如果下拉列表中没有，从详情接口获取
+    getLoanDetail(loanId).then((res) => {
+      const data = res.data || res;
+      form.info.loanTitle = data.title || data.loanTitle || "";
+      form.info.loanCode = data.code || data.loanCode || "";
+    });
+  }
 }
 
 /** 获取项目列表 */
@@ -402,7 +428,14 @@ function setFormData(data) {
     projectId: data.projectId || "",
     projectName: data.projectName || "",
     loanId: data.loanId || "",
+    loanTitle: data.loanTitle || "",
+    loanCode: data.loanCode || "",
   };
+
+  // 回显冲抵借支的 label（如果 loanId 有值但下拉选项未加载完成）
+  if (form.info.loanId) {
+    loadLoanLabel(form.info.loanId);
+  }
 
   // 处理报销明细数据 - 兼容多种可能的字段名
   const detailList = data.interfix || data.items || data.details || data.list || [];
