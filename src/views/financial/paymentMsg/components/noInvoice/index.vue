@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{isTicket: 0 }"
+      :params="{ isTicket: 0, tab: 0 }"
       row-key="id"
       ref="tableList"
     >
@@ -13,7 +13,12 @@
         <dict-tag :options="check_status" :value="Number(row.checkStatus)" />
       </template>
     </TableList>
-    <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <AddDialog
+      ref="addDialogRef"
+      @success="handleSuccess"
+      :type="type"
+      :label="label"
+    />
   </div>
 </template>
 <script setup>
@@ -72,18 +77,23 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm('确认删除该发票吗？');
+    await proxy.$modal.confirm("确认删除该发票吗？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();
   } catch (e) {
-    console.error('删除失败', e);
+    console.error("删除失败", e);
   }
 }
 
 const userStore = useUserStore();
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, userStore.id);
+const operationColumn = getOperationColumn(
+  handleEdit,
+  handleView,
+  handleDelete,
+  userStore.id,
+);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
