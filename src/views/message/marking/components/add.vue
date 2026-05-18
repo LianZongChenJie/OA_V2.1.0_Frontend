@@ -43,6 +43,17 @@
         />
       </el-form-item>
 
+      <!-- 消息内容 -->
+      <el-form-item label="消息内容" prop="content">
+        <el-input 
+          v-model="form.content" 
+          type="textarea"
+          rows="3"
+          disabled
+          style="width:100%"
+        />
+      </el-form-item>
+
       <!-- 发件时间 -->
       <el-form-item label="发件时间" prop="createTime">
         <el-input 
@@ -101,6 +112,7 @@ function openView(data) {
   form.typesStr = data.fromUid === 0 ? '系统消息' : '用户消息';
   form.fromName = data.fromName || (data.fromUid === 0 ? '系统' : '');
   form.title = data.title || '';
+  form.content = data.content || '';
   form.createTime = data.createTime || '';
   
   dialogVisible.value = true;
