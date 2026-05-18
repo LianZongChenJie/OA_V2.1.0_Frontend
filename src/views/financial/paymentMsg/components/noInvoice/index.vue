@@ -81,8 +81,9 @@ async function handleDelete(row) {
   }
 }
 
+const userStore = useUserStore();
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, userStore.id);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
