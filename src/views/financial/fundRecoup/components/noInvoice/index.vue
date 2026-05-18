@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{invoiceType: 0 }"
+      :params="{ invoiceType: 0, tab: 0 }"
       row-key="id"
       ref="tableList"
     >
@@ -22,7 +22,12 @@
         <dict-tag :options="enter_status" :value="Number(row.enterStatus)" />
       </template>
     </TableList>
-    <AddDialog ref="addDialogRef" @success="handleSuccess" :type="type" :label="label" />
+    <AddDialog
+      ref="addDialogRef"
+      @success="handleSuccess"
+      :type="type"
+      :label="label"
+    />
   </div>
 </template>
 <script setup>
@@ -46,7 +51,12 @@ const props = defineProps({
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
-const { invoice_type, check_status, open_status,enter_status } = proxy.useDict("invoice_type", "check_status", "open_status","enter_status");
+const { invoice_type, check_status, open_status, enter_status } = proxy.useDict(
+  "invoice_type",
+  "check_status",
+  "open_status",
+  "enter_status",
+);
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
@@ -82,17 +92,22 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm('确认删除该发票吗？');
+    await proxy.$modal.confirm("确认删除该发票吗？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();
   } catch (e) {
-    console.error('删除失败', e);
+    console.error("删除失败", e);
   }
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete, userStore.id);
+const operationColumn = getOperationColumn(
+  handleEdit,
+  handleView,
+  handleDelete,
+  userStore.id,
+);
 </script>
 <style lang="scss" scoped>
 .tabs-container {
