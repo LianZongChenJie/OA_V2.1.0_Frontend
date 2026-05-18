@@ -151,7 +151,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, 
         label: '编辑',
         type: 'success',
         size: 'small',
-        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId),
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)),
         onClick: (row) => {
           onEdit && onEdit(row);
         },

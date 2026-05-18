@@ -172,7 +172,7 @@ export const getHeaderButs = () => [
 export const getOperationColumn = (onReceive, onRestore) => {
   return {
     label: '操作',
-    width: 120,
+    width: 170,
     fixed: 'right',
     show: true,
     actions: [
