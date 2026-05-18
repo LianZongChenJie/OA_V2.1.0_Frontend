@@ -86,7 +86,14 @@ async function handleDelete(row) {
 }
 
 const headerButs = props.invoiceId ? getHeaderButs(handleAdd) : [];
-const operationColumn = getOperationColumn(handleDelete);
+// const operationColumn = getOperationColumn(handleDelete);
+const operationColumn = computed(() => {
+  // 与新增按钮使用相同的条件 props.invoiceId && props.payStatus !== 2
+  if (props.invoiceId ) {
+    return getOperationColumn(handleDelete);
+  }
+  return null;
+});
 </script>
 <style lang="scss" scoped>
 .tabs-container {
