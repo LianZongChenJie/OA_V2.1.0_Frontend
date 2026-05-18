@@ -140,7 +140,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         label: '编辑',
         type: 'success',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0 && Number(row.adminId) === Number(currentUserId),
+        isShow: (row) =>  [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onEdit && onEdit(row);
         },
@@ -159,7 +159,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onPaymentDe
         label: '删除',
         type: 'danger',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0 && Number(row.adminId) === Number(currentUserId),
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onDelete && onDelete(row);
         },

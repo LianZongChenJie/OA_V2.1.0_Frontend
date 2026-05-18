@@ -67,7 +67,7 @@ export const columns = [
     label: '合同类别',
     width: 120,
     minWidth: 100,
-    searchable: { 
+    searchable: {
       type: 'selectApi',
       api: getClassifyPageList,
       optionValue: 'id',
@@ -83,7 +83,7 @@ export const columns = [
     label: '开始时间',
     width: 120,
     minWidth: 100,
-  }, 
+  },
   {
     fieldName: 'endTimeStr',
     label: '结束时间',
@@ -151,7 +151,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, 
         label: '编辑',
         type: 'success',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onEdit && onEdit(row);
         },
@@ -170,7 +170,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, 
         label: '删除',
         type: 'danger',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)),
         onClick: (row) => {
           onDelete && onDelete(row);
         },

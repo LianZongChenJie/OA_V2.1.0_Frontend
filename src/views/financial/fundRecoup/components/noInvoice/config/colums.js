@@ -1,5 +1,3 @@
-import { listUser } from '@/api/system/user.js';
-
 export const columns = [
   {
     fieldName: 'id',
@@ -83,7 +81,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidate, onFundDetail) => {
+export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
     width: 240,
@@ -94,7 +92,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
         label: '编辑',
         type: 'success',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)) && Number(row.adminId) === Number(currentUserId),
         onClick: (row) => {
           onEdit && onEdit(row);
         },
@@ -113,7 +111,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
         label: '删除',
         type: 'danger',
         size: 'small',
-        isShow: (row) => Number(row.checkStatus) === 0,
+        isShow: (row) => [0, 3, 4].includes(Number(row.checkStatus)),
         onClick: (row) => {
           onDelete && onDelete(row);
         },
@@ -125,5 +123,4 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
 
 export default {
   columns,
-  getHeaderButs
 };
