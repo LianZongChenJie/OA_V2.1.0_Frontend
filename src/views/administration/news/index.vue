@@ -57,7 +57,7 @@ function handleSuccess() {
 
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm('确认删除该公告吗？');
+    await proxy.$modal.confirm('确认删除该新闻吗？');
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();

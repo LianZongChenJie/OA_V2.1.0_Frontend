@@ -65,7 +65,7 @@ function handleSuccess() {
 /** 删除按钮操作 */
 async function handleDelete(row) {
   try {
-    await proxy.$modal.confirm("确认删除该公文吗？");
+    await proxy.$modal.confirm("确认删除该用章申请吗？");
     await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     handleSuccess();
