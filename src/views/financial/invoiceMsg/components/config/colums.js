@@ -206,7 +206,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onOpen, onInvalidat
         icon: 'delete',
       },
       {
-        label: '回款详情',
+        label: '回款',
         type: 'success',
         size: 'small',
         isShow: (row) => Number(row.checkStatus) === 2 && Number(row.openStatus) === 0 && [0,1].includes(Number(row.enterStatus)),
