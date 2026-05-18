@@ -56,23 +56,23 @@ export const columns = [
       order: 3,
     },
   },
-  {
-    fieldName: 'intentStatus',
-    label: '客户意向',
-    width: 120,
-    minWidth: 100,
-    align: 'center',
-    isDict: true,
-    dict: 'customer_intent_status',
-    searchable: {
-      type: 'select',
-      fieldName: 'intentStatus',
-      dictKey: 'customer_intent_status',
-      placeholder: '请选择客户意向',
-      label: '客户意向',
-      order: 4,
-    },
-  },
+  // {
+  //   fieldName: 'intentStatus',
+  //   label: '客户意向',
+  //   width: 120,
+  //   minWidth: 100,
+  //   align: 'center',
+  //   isDict: true,
+  //   dict: 'customer_intent_status',
+  //   searchable: {
+  //     type: 'select',
+  //     fieldName: 'intentStatus',
+  //     dictKey: 'customer_intent_status',
+  //     placeholder: '请选择客户意向',
+  //     label: '客户意向',
+  //     order: 4,
+  //   },
+  // },
   {
     fieldName: 'contactName',
     label: '联系人',
@@ -85,34 +85,34 @@ export const columns = [
     width: 130,
     minWidth: 120,
   },
-  {
-    fieldName: 'followTimeStr',
-    label: '最近跟进时间',
-    width: 170,
-    minWidth: 160,
-    searchable: {
-      type: 'dateRange',
-      fieldName: 'followTime',
-      placeholder: '选择跟进时间',
-      label: '最近跟进时间',
-      order: 5,
-      searchKey: ['followTimeStart', 'followTimeEnd'],
-    },
-  },
-  {
-    fieldName: 'nextTimeStr',
-    label: '下次跟进时间',
-    width: 170,
-    minWidth: 160,
-    searchable: {
-      type: 'dateRange',
-      fieldName: 'nextTime',
-      placeholder: '选择下次跟进时间',
-      label: '下次跟进时间',
-      order: 6,
-      searchKey: ['nextTimeStart', 'nextTimeEnd'],
-    },
-  },
+  // {
+  //   fieldName: 'followTimeStr',
+  //   label: '最近跟进时间',
+  //   width: 170,
+  //   minWidth: 160,
+  //   searchable: {
+  //     type: 'dateRange',
+  //     fieldName: 'followTime',
+  //     placeholder: '选择跟进时间',
+  //     label: '最近跟进时间',
+  //     order: 5,
+  //     searchKey: ['followTimeStart', 'followTimeEnd'],
+  //   },
+  // },
+  // {
+  //   fieldName: 'nextTimeStr',
+  //   label: '下次跟进时间',
+  //   width: 170,
+  //   minWidth: 160,
+  //   searchable: {
+  //     type: 'dateRange',
+  //     fieldName: 'nextTime',
+  //     placeholder: '选择下次跟进时间',
+  //     label: '下次跟进时间',
+  //     order: 6,
+  //     searchKey: ['nextTimeStart', 'nextTimeEnd'],
+  //   },
+  // },
   {
     fieldName: 'source',
     label: '来源渠道',
@@ -172,7 +172,7 @@ export const getHeaderButs = (onAdd) => [
 export const getOperationColumn = (onEdit, onView, onDelete, onToOpenSea) => {
   return {
     label: '操作',
-    width: 300,
+    width: 240,
     fixed: 'right',
     show: true,
     actions: [
@@ -195,15 +195,6 @@ export const getOperationColumn = (onEdit, onView, onDelete, onToOpenSea) => {
         icon: 'eye-open',
       },
       {
-        label: '移入公海',
-        type: 'warning',
-        size: 'small',
-        onClick: (row) => {
-          onToOpenSea && onToOpenSea(row);
-        },
-        icon: 'enter',
-      },
-      {
         label: '删除',
         type: 'danger',
         size: 'small',
@@ -212,6 +203,16 @@ export const getOperationColumn = (onEdit, onView, onDelete, onToOpenSea) => {
         },
         icon: 'delete',
       },
+      {
+        label: '移入公海',
+        type: 'warning',
+        size: 'small',
+        onClick: (row) => {
+          onToOpenSea && onToOpenSea(row);
+        },
+        icon: 'enter',
+      },
+      
     ],
   };
 };
