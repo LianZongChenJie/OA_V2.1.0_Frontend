@@ -127,14 +127,13 @@
 </template>
 
 <script setup name="InvoiceFormData">
-import { ref, reactive, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { getPageList as getContractPageList } from "@/api/contract/salesContract";
 import { getPageList as getProjectPageList } from "@/api/project/itemList";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import { getPageList as getCustomerPageList } from "@/api/customer/list";
 import useUserStore from "@/store/modules/user";
 
-const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
 
 const props = defineProps({

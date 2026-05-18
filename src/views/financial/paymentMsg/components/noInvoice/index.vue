@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      :params="{ tab: type, isTicket: 0 }"
+      :params="{isTicket: 0 }"
       row-key="id"
       ref="tableList"
     >
