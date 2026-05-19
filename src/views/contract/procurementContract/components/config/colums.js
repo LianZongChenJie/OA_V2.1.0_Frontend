@@ -180,7 +180,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, 
         label: '归档',
         type: 'warning',
         size: 'small',
-        isShow: (row) => auth.hasPermi('system:purchased:archive') && row.checkStatus === 2,
+        isShow: (row) => auth.hasPermi('system:purchase:archive') && Number(row.checkStatus) === 2,
         onClick: (row) => {
           onArchive && onArchive(row);
         },
@@ -190,7 +190,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, 
         label: '终止',
         type: 'danger',
         size: 'small',
-        isShow: (row) => auth.hasPermi('system:purchased:stop') && row.checkStatus === 1,
+        isShow: (row) => auth.hasPermi('system:purchase:stop') && Number(row.checkStatus) === 1,
         onClick: (row) => {
           onStop && onStop(row);
         },
@@ -200,7 +200,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onArchive, onStop, 
         label: '作废',
         type: 'info',
         size: 'small',
-        isShow: (row) => auth.hasPermi('system:purchased:valid') && row.checkStatus === 1,
+        isShow: (row) => auth.hasPermi('system:purchase:valid') && Number(row.checkStatus) === 1,
         onClick: (row) => {
           onVoid && onVoid(row);
         },
