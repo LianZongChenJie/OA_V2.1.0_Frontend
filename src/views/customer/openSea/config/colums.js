@@ -58,23 +58,6 @@ export const columns = [
     },
   },
   {
-    fieldName: 'intentStatus',
-    label: '客户意向',
-    width: "15%",
-    minWidth: 100,
-    align: 'center',
-    isDict: true,
-    dict: 'customer_intent_status',
-    searchable: {
-      type: 'select',
-      fieldName: 'intentStatus',
-      dictKey: 'customer_intent_status',
-      placeholder: '请选择客户意向',
-      label: '客户意向',
-      order: 4,
-    },
-  },
-  {
     fieldName: 'contactName',
     label: '联系人',
     width: "10%",
@@ -85,34 +68,6 @@ export const columns = [
     label: '联系电话',
     width: "10%",
     minWidth: 120,
-  },
-  {
-    fieldName: 'followTimeStr',
-    label: '最近跟进时间',
-    width: "20%",
-    minWidth: 160,
-    searchable: {
-      type: 'dateRange',
-      fieldName: 'followTime',
-      placeholder: '选择跟进时间',
-      label: '最近跟进时间',
-      order: 5,
-      searchKey: ['followTimeStart', 'followTimeEnd'],
-    },
-  },
-  {
-    fieldName: 'nextTimeStr',
-    label: '下次跟进时间',
-    width: "20%",
-    minWidth: 160,
-    searchable: {
-      type: 'dateRange',
-      fieldName: 'nextTime',
-      placeholder: '选择下次跟进时间',
-      label: '下次跟进时间',
-      order: 6,
-      searchKey: ['nextTimeStart', 'nextTimeEnd'],
-    },
   },
   {
     fieldName: 'source',
@@ -172,7 +127,7 @@ export const getHeaderButs = () => [
 export const getOperationColumn = (onReceive, onRestore) => {
   return {
     label: '操作',
-    width: 170,
+    width: 96,
     fixed: 'right',
     show: true,
     actions: [
@@ -182,15 +137,6 @@ export const getOperationColumn = (onReceive, onRestore) => {
         size: 'small',
         onClick: (row) => {
           onReceive && onReceive(row);
-        },
-        icon: 'edit',
-      },
-      {
-        label: '还原',
-        type: 'warning',
-        size: 'small',
-        onClick: (row) => {
-          onRestore && onRestore(row);
         },
         icon: 'edit',
       },
