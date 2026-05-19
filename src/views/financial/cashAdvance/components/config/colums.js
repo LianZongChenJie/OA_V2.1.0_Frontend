@@ -212,7 +212,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onBack, onPay, curr
         label: '还款',
         type: 'success',
         size: 'small',
-        isShow: (row) => auth.hasPermi('finance:loan:back') && Number(row.checkStatus) === 2 && Number(row.payStatus) === 1 && Number(row.adminId) === Number(currentUserId) && Number(row.backStatus) === 0,
+        isShow: (row) => auth.hasPermi('finance:loan:back') && Number(row.checkStatus) === 2 && Number(row.payStatus) === 1 && Number(row.backStatus) === 0,
         onClick: (row) => {
           onBack && onBack(row);
         },
