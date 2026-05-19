@@ -32,21 +32,12 @@
       </el-col>
       <el-col :span="12">
         <el-form-item label="所在部门" prop="did">
-          <el-select
+          <DeptCascader
             v-model="form.did"
-            :disabled="readonly"
+            :readonly="readonly"
             placeholder="请选择所在部门"
-            clearable
-            filterable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in deptOptions"
-              :key="item.deptId"
-              :label="item.deptName"
-              :value="item.deptId"
-            />
-          </el-select>
+            @change="handleDeptChange"
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -162,7 +153,7 @@
 <script setup name="ResignationFormData">
 import { ref, reactive, onMounted, watch } from "vue";
 import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 import useUserStore from "@/store/modules/user";
 
 const userStore = useUserStore();
@@ -178,7 +169,6 @@ const formRef = ref(null);
 
 // 下拉选项数据
 const userOptions = ref([]);
-const deptOptions = ref([]);
 
 // 存储待处理的 connectUids，用于 userOptions 加载完成后计算中文名称
 const pendingConnectUids = ref([]);
@@ -243,13 +233,6 @@ function getUserList() {
   });
 }
 
-/** 获取部门列表 */
-function getDeptList() {
-  listDept().then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
 /** 监听 userOptions 加载完成，确保多选用户能回显 */
 watch(userOptions, (newVal) => {
   if (newVal?.length && savedData.value) {
@@ -267,6 +250,15 @@ function handleUserChange(userId) {
       form.did = selectedUser.deptId;
       form.deptName = selectedUser.deptName || "";
     }
+  }
+}
+
+/** 部门选择变化处理 */
+function handleDeptChange(value) {
+  if (value) {
+    form.did = value[value.length - 1];
+  } else {
+    form.did = "";
   }
 }
 
@@ -316,7 +308,6 @@ function getFormData() {
 /** 初始化数据 */
 onMounted(() => {
   getUserList();
-  getDeptList();
 });
 
 // 暴露方法给父组件
