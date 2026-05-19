@@ -168,7 +168,7 @@
     <!-- 其他信息 -->
     <div class="form-section-title">其他信息</div>
 
-    <!-- 第八行：关联合同 + 关系项目 -->
+    <!-- 第八行：关联合同 + 关联项目 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="关联合同" prop="contractId">
@@ -190,11 +190,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="关系项目" prop="projectId">
+        <el-form-item label="关联项目" prop="projectId">
           <el-select
             v-model="form.projectId"
             :disabled="readonly"
-            placeholder="请选择关系项目"
+            placeholder="请选择关联项目"
             clearable
             filterable
             style="width: 100%"
