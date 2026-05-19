@@ -9,7 +9,11 @@
     filterable
     style="width: 100%"
     @change="handleChange"
-  />
+  >
+    <template #default="{ node, data }">
+      <span @click="handleNodeClick(node, data)">{{ data.deptName }}</span>
+    </template>
+  </el-cascader>
   <el-input
     v-else
     v-model="displayText"
@@ -147,6 +151,17 @@ function getDeptList() {
 function handleChange(val) {
   // 根据选择值更新显示文本
   emit("change", val);
+}
+
+/** 节点点击处理 - 如果没有下级则直接选中 */
+function handleNodeClick(node, data) {
+  if (!data.children || data.children.length === 0) {
+    // 叶子节点，直接选中
+    selectedValue.value = data.deptId;
+    emit("change", data.deptId);
+    // 关闭级联面板
+    node.parent && node.parent.cascaderPanel && node.parent.cascaderPanel.hide();
+  }
 }
 
 // 初始化

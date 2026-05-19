@@ -34,9 +34,9 @@
         <el-form-item label="所在部门" prop="did">
           <DeptCascader
             v-model="form.did"
+            :emit-path="false"
             :readonly="readonly"
             placeholder="请选择所在部门"
-            @change="handleDeptChange"
           />
         </el-form-item>
       </el-col>
@@ -201,7 +201,9 @@ const rules = {
   uid: [{ required: true, message: "请选择离职员工", trigger: "change" }],
   did: [{ required: true, message: "请选择所在部门", trigger: "change" }],
   quitTime: [{ required: true, message: "请选择离职日期", trigger: "change" }],
-  leadAdminId: [{ required: true, message: "请选择上级领导", trigger: "change" }],
+  leadAdminId: [
+    { required: true, message: "请选择上级领导", trigger: "change" },
+  ],
   connectId: [{ required: true, message: "请选择交接人", trigger: "change" }],
   remark: [{ required: true, message: "请输入离职原因", trigger: "blur" }],
 };
@@ -210,15 +212,17 @@ const rules = {
 const parseConnectUids = (data) => {
   if (!data.connectUids) return [];
   return typeof data.connectUids === "string"
-    ? data.connectUids.split(",").map(id => Number(id))
-    : data.connectUids.map(id => Number(id));
+    ? data.connectUids.split(",").map((id) => Number(id))
+    : data.connectUids.map((id) => Number(id));
 };
 
 // 工具函数：计算用户名称
 const getUserNames = (userIds) => {
   if (!userIds?.length || !userOptions.value.length) return "";
-  const selectedUsers = userOptions.value.filter(item => userIds.includes(item.userId));
-  return selectedUsers.map(item => item.nickName).join(",");
+  const selectedUsers = userOptions.value.filter((item) =>
+    userIds.includes(item.userId),
+  );
+  return selectedUsers.map((item) => item.nickName).join(",");
 };
 
 /** 获取用户列表 */
@@ -243,22 +247,13 @@ watch(userOptions, (newVal) => {
 
 /** 用户选择变化处理 */
 function handleUserChange(userId) {
-  const selectedUser = userOptions.value.find(item => item.userId === userId);
+  const selectedUser = userOptions.value.find((item) => item.userId === userId);
   if (selectedUser) {
     form.uidName = selectedUser.nickName;
     if (selectedUser.deptId) {
       form.did = selectedUser.deptId;
       form.deptName = selectedUser.deptName || "";
     }
-  }
-}
-
-/** 部门选择变化处理 */
-function handleDeptChange(value) {
-  if (value) {
-    form.did = value[value.length - 1];
-  } else {
-    form.did = "";
   }
 }
 
