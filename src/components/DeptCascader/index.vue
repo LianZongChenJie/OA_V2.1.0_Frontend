@@ -49,6 +49,11 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
+  /** 是否返回完整路径 */
+  emitPath: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "change"]);
@@ -60,7 +65,7 @@ const deptMap = ref({});
 const cascaderProps = computed(() => ({
   checkStrictly: !props.multiple, // 单选时允许选择任意节点，多选时只允许选择叶子节点
   multiple: props.multiple,
-  emitPath: true,
+  emitPath: props.emitPath,
   expandTrigger: "hover",
   value: "deptId",
   label: "deptName",
@@ -76,6 +81,13 @@ const selectedValue = computed({
       if (Array.isArray(props.modelValue)) return props.modelValue;
       return props.modelValue.split(",").filter(Boolean);
     }
+    // 单选：根据 emitPath 决定返回数组还是单个值
+    if (!props.modelValue) return undefined;
+    if (props.emitPath) {
+      // 如果 emitPath 为 true，modelValue 应该是数组
+      return Array.isArray(props.modelValue) ? props.modelValue : [];
+    }
+    // 如果 emitPath 为 false，modelValue 是单个值
     return props.modelValue;
   },
   set(val) {
@@ -102,6 +114,13 @@ const displayText = computed(() => {
     return labels.join(",");
   }
 
+  // 单选模式
+  if (props.emitPath && Array.isArray(props.modelValue)) {
+    // emitPath 为 true 时，modelValue 是数组（完整路径），取最后一个值
+    const lastId = props.modelValue[props.modelValue.length - 1];
+    return getLabel(lastId);
+  }
+  // emitPath 为 false 时，modelValue 是单个值
   return getLabel(props.modelValue);
 });
 

@@ -34,15 +34,10 @@
         <el-input v-model="form.fromDidName" placeholder="" disabled />
       </el-form-item>
       <el-form-item label="调入部门" prop="toDid">
-        <el-tree-select
+        <DeptCascader
           v-model="form.toDid"
-          :data="deptOptions"
-          :props="{ value: 'id', label: 'label', children: 'children' }"
-          :render-after-expand="false"
+          :emit-path="false"
           placeholder="请选择调入部门"
-          clearable
-          check-strictly
-          style="width: 100%"
         />
       </el-form-item>
       <el-form-item label="调动时间" prop="moveTime">
@@ -85,6 +80,7 @@ import {
 } from "@/api/personnel/transfer/index.js";
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import RecordSteps from "@/components/RecordSteps/index.vue";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -95,8 +91,6 @@ const currentData = ref(null);
 
 // 员工下拉选项
 const userOptions = ref([]);
-// 部门树选项
-const deptOptions = ref([]);
 
 // 用户选择时的部门映射
 const userDeptMap = ref({});
@@ -139,13 +133,6 @@ function getUserList() {
   });
 }
 
-// 获取部门树
-function getDeptTree() {
-  deptTreeSelect().then((res) => {
-    deptOptions.value = res.data || [];
-  });
-}
-
 // 员工选择变化
 function handleUserChange(userId) {
   if (userId) {
@@ -162,7 +149,6 @@ function handleUserChange(userId) {
 
 onMounted(() => {
   getUserList();
-  getDeptTree();
 });
 
 /** 表单重置 */
