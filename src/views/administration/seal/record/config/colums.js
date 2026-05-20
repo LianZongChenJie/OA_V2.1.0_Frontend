@@ -17,7 +17,7 @@ export const columns = [
   },
   {
     fieldName: 'title',
-    label: '公文主题',
+    label: '用章主题',
     minWidth: 200,
     searchable: {
       type: 'input',
@@ -29,7 +29,7 @@ export const columns = [
   },
   {
     fieldName: 'code',
-    label: '公文编号',
+    label: '用章编号',
     width: 150,
     minWidth: 120,
   },

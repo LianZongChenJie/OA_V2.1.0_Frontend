@@ -13,22 +13,22 @@
       :rules="isView ? {} : rules"
       label-width="100px"
     >
-      <!-- 第一行：公文名称 + 公文编号 -->
+      <!-- 第一行：用章名称 + 用章编号 -->
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="公文名称" prop="title">
+          <el-form-item label="用章名称" prop="title">
             <el-input
               v-model="form.title"
-              placeholder="请输入公文名称"
+              placeholder="请输入用章名称"
               :disabled="isView"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="公文编号" prop="code">
+          <el-form-item label="用章编号" prop="code">
             <el-input
               v-model="form.code"
-              placeholder="请输入公文编号"
+              placeholder="请输入用章编号"
               :disabled="isView"
             />
           </el-form-item>
@@ -57,22 +57,13 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="拟稿部门" prop="draftDname">
-            <el-select
-              v-model="form.draftDname"
+          <el-form-item label="拟稿部门" prop="did">
+            <DeptCascader
+              v-model="form.did"
+              :emit-path="false"
               :disabled="isView"
               placeholder="请选择拟稿部门"
-              clearable
-              style="width: 100%"
-              @change="handleDeptChange"
-            >
-              <el-option
-                v-for="item in deptOptions"
-                :key="item.deptId"
-                :label="item.deptName"
-                :value="item.deptId"
-              />
-            </el-select>
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -193,15 +184,15 @@
         </el-col>
       </el-row>
 
-      <!-- 第六行：公文内容（独占一行） -->
+      <!-- 第六行：用章内容（独占一行） -->
       <el-row :gutter="20">
         <el-col :span="24">
-          <el-form-item label="公文内容" prop="content">
+          <el-form-item label="用章内容" prop="content">
             <el-input
               v-model="form.content"
               type="textarea"
               :rows="6"
-              placeholder="请输入公文内容"
+              placeholder="请输入用章内容"
               :disabled="isView"
             />
           </el-form-item>
@@ -223,10 +214,10 @@
 </template>
 
 <script setup name="AddDocuments">
-import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, computed, getCurrentInstance } from "vue";
 import { add, edit } from "@/api/administration/doc/documents/index.js";
 import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 const { secrets_level, urgency_level } = proxy.useDict(
@@ -241,7 +232,6 @@ const isView = ref(false); // 是否为查看模式
 
 // 下拉选项数据
 const userOptions = ref([]);
-const deptOptions = ref([]);
 
 const form = reactive({
   id: undefined,
@@ -249,7 +239,6 @@ const form = reactive({
   code: "",
   draftName: "",
   draftUid: "",
-  draftDname: "",
   did: "",
   draftTime: "",
   sendUids: [],
@@ -262,20 +251,20 @@ const form = reactive({
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看公文";
-  return isEdit.value ? "编辑公文" : "新增公文";
+  if (isView.value) return "查看用章申请";
+  return isEdit.value ? "编辑用章申请" : "新增用章申请";
 });
 
 const rules = {
-  title: [{ required: true, message: "请输入公文名称", trigger: "blur" }],
-  code: [{ required: true, message: "请输入公文编号", trigger: "blur" }],
+  title: [{ required: true, message: "请输入用章名称", trigger: "blur" }],
+  code: [{ required: true, message: "请输入用章编号", trigger: "blur" }],
   draftName: [{ required: true, message: "请选择拟稿人", trigger: "change" }],
-  draftDname: [{ required: true, message: "请选择拟稿部门", trigger: "change" }],
+  did: [{ required: true, message: "请选择拟稿部门", trigger: "change" }],
   draftTime: [{ required: true, message: "请选择拟稿日期", trigger: "change" }],
   sendUids: [{ required: true, message: "请选择主送人员", trigger: "change" }],
   secrets: [{ required: true, message: "请选择密级程度", trigger: "change" }],
   urgency: [{ required: true, message: "请选择紧急程度", trigger: "change" }],
-  content: [{ required: true, message: "请输入公文内容", trigger: "blur" }],
+  content: [{ required: true, message: "请输入用章内容", trigger: "blur" }],
 };
 
 /** 表单重置 */
@@ -285,7 +274,6 @@ function reset() {
   form.code = "";
   form.draftName = "";
   form.draftUid = "";
-  form.draftDname = "";
   form.did = "";
   form.draftTime = "";
   form.sendUids = [];
@@ -307,13 +295,6 @@ function getUserList() {
   });
 }
 
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
 /** 拟稿人选择变更 */
 function handleDraftUserChange(userId) {
   if (userId) {
@@ -330,22 +311,6 @@ function handleDraftUserChange(userId) {
   }
 }
 
-/** 拟稿部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    form.did = deptId;
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId
-    );
-    if (selectedDept) {
-      form.draftDname = selectedDept.deptName;
-    }
-  } else {
-    form.did = "";
-    form.draftDname = "";
-  }
-}
-
 /** 关闭弹窗 */
 function handleClose() {
   reset();
@@ -353,6 +318,7 @@ function handleClose() {
 
 /** 显示弹窗 - 新增模式 */
 function open() {
+  getUserList();
   reset();
   dialogVisible.value = true;
 }
@@ -366,7 +332,6 @@ function openEdit(data) {
   form.code = data.code || "";
   form.draftName = data.draftName || "";
   form.draftUid = data.draftUid || "";
-  form.draftDname = data.draftDname || "";
   form.did = data.did || "";
   form.draftTime = data.draftTime || "";
   form.sendUids = data.sendUids
@@ -401,7 +366,6 @@ function openView(data) {
   form.code = data.code || "";
   form.draftName = data.draftName || "";
   form.draftUid = data.draftUid || "";
-  form.draftDname = data.draftDname || "";
   form.did = data.did || "";
   form.draftTime = data.draftTime || "";
   form.sendUids = data.sendUids
@@ -467,11 +431,6 @@ defineExpose({
   openView,
 });
 
-/** 初始化数据 */
-onMounted(() => {
-  getUserList();
-  getDeptList();
-});
 </script>
 
 <style scoped>
