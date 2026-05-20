@@ -7,7 +7,7 @@
     >
       <template #title>
         <span class="step-title">{{ record.typeName }}</span>
-        <span class="step-time">{{ record.checkTime }}</span>
+        <span class="step-time">{{ record.checkTimeStr?record.checkTimeStr:record.checkTime || "" }}</span>
       </template>
       <template #description>
         <div class="step-content">
