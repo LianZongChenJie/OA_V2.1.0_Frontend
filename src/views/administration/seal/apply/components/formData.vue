@@ -155,8 +155,6 @@
       </el-col>
     </el-row>
 
-    <!-- 审批记录 -->
-    <RecordSteps v-if="form.id && records?.length" :records="records" />
   </el-form>
 </template>
 
@@ -165,7 +163,6 @@ import { ref, reactive, getCurrentInstance, onMounted } from "vue";
 import { listDept } from "@/api/system/dept.js";
 import { listUser } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
-import RecordSteps from "@/components/RecordSteps/index.vue";
 
 const userStore = useUserStore();
 const { proxy } = getCurrentInstance();
@@ -197,9 +194,6 @@ let userListPromise = null;
 
 // 用户数据加载完成标志
 const isUserDataReady = ref(false);
-
-// 审批记录数据
-const records = ref([]);
 
 // 表单数据
 const form = reactive({
@@ -292,8 +286,6 @@ const resetForm = async () => {
     endTime: "",
     content: "",
   });
-  // 清空审批记录
-  records.value = [];
 };
 
 const setFormData = async (data) => {
@@ -317,8 +309,6 @@ const setFormData = async (data) => {
     endTime: info.endTime || "",
     content: info.content || "",
   });
-  // 设置审批记录
-  records.value = data?.records || [];
 };
 
 const getFormData = () => ({ ...form });

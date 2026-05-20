@@ -9,6 +9,9 @@
   >
     <FormData ref="formDataRef" :readonly="false" />
 
+    <!-- 审批记录 -->
+    <RecordSteps v-if="isEdit && currentData?.records?.length" :records="currentData.records" />
+
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="handleSubmit"> 确 定 </el-button>
@@ -21,6 +24,7 @@
 <script setup>
 import { ref, getCurrentInstance, nextTick } from "vue";
 import { add, edit } from "@/api/administration/seal/apply";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import FormData from "./formData.vue";
 
 const { proxy } = getCurrentInstance();
@@ -29,6 +33,7 @@ const emit = defineEmits(["success"]);
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const isEdit = ref(false);
+const currentData = ref(null);
 
 const dialogTitle = computed(() =>
   isEdit.value ? "编辑用章申请" : "新增用章申请",
@@ -37,6 +42,7 @@ const dialogTitle = computed(() =>
 const handleClose = async () => {
   await formDataRef.value?.resetForm();
   isEdit.value = false;
+  currentData.value = null;
 };
 
 const open = async () => {
@@ -48,6 +54,7 @@ const open = async () => {
 
 const openEdit = async (data) => {
   isEdit.value = true;
+  currentData.value = data;
   dialogVisible.value = true;
   await nextTick();
   await formDataRef.value?.resetForm();
