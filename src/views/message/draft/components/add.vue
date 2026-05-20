@@ -11,6 +11,7 @@
       ref="formRef" 
       :model="form" 
       :rules="isView ? {} : getRules" 
+      :key="form.types"
       label-width="100px"
       style="margin-top:15px"
     >
@@ -232,15 +233,15 @@ const getRules = computed(() => {
   if (form.types !== 4) {
     if (form.types === 1) {
       rules.uids = [
-        { required: true, message: "请选择收件人", trigger: "blur" }
+        { required: true, message: "请选择收件人", trigger: "change" }
       ];
     } else if (form.types === 2) {
       rules.dids = [
-        { required: true, message: "请选择收件部门", trigger: "blur" }
+        { required: true, message: "请选择收件部门", trigger: "change" }
       ];
     } else if (form.types === 3) {
       rules.pids = [
-        { required: true, message: "请选择收件岗位", trigger: "blur" }
+        { required: true, message: "请选择收件岗位", trigger: "change" }
       ];
     }
   }
@@ -262,15 +263,28 @@ onMounted(() => {
   });
 });
 
+// 切换类型时，清空所有选择并重置验证
 function handleTypesChange() {
+  // 清空所有接收人相关字段
   form.uids = [];
   form.dids = [];
   form.pids = [];
   form.copyUids = [];
   
+  // 使用 nextTick 确保表单数据更新后再清除验证
   nextTick(() => {
     if (formRef.value) {
-      formRef.value.clearValidate(['uids', 'dids', 'pids', 'copyUids']);
+      // 清除所有接收人相关字段的验证
+      const fieldsToClear = ['uids', 'dids', 'pids', 'copyUids'];
+      fieldsToClear.forEach(field => {
+        formRef.value.clearValidate([field]);
+      });
+      
+      // 如果当前有必填字段，确保其验证也被重置
+      if (form.types !== 4) {
+        const currentField = receiverProp.value;
+        formRef.value.clearValidate([currentField]);
+      }
     }
   });
 }
@@ -295,12 +309,12 @@ function buildSubmitData() {
   };
   
   if (form.types === 1) {
-    submitData.uids = Array.isArray(form.uids) ? form.uids.join(",") : form.uids;
-    submitData.copyUids = Array.isArray(form.copyUids) ? form.copyUids.join(",") : form.copyUids;
+    submitData.uids = Array.isArray(form.uids) && form.uids.length > 0 ? form.uids.join(",") : "";
+    submitData.copyUids = Array.isArray(form.copyUids) && form.copyUids.length > 0 ? form.copyUids.join(",") : "";
   } else if (form.types === 2) {
-    submitData.dids = Array.isArray(form.dids) ? form.dids.join(",") : form.dids;
+    submitData.dids = Array.isArray(form.dids) && form.dids.length > 0 ? form.dids.join(",") : "";
   } else if (form.types === 3) {
-    submitData.pids = Array.isArray(form.pids) ? form.pids.join(",") : form.pids;
+    submitData.pids = Array.isArray(form.pids) && form.pids.length > 0 ? form.pids.join(",") : "";
   }
   
   if (form.id) {
@@ -312,8 +326,27 @@ function buildSubmitData() {
 
 // 立即发送
 function handleSend() {
+  // 先清除验证
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
+  
   formRef.value.validate(valid => {
     if (!valid) return;
+    
+    // 额外验证接收人
+    if (form.types !== 4) {
+      if (form.types === 1 && (!form.uids || form.uids.length === 0)) {
+        proxy.$modal.msgError("请选择收件人");
+        return;
+      } else if (form.types === 2 && (!form.dids || form.dids.length === 0)) {
+        proxy.$modal.msgError("请选择收件部门");
+        return;
+      } else if (form.types === 3 && (!form.pids || form.pids.length === 0)) {
+        proxy.$modal.msgError("请选择收件岗位");
+        return;
+      }
+    }
     
     let apiCall;
     if (form.id) {
@@ -337,6 +370,11 @@ function handleSend() {
 
 // 存草稿
 function handleSaveDraft() {
+  // 先清除验证
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
+  
   formRef.value.validate(valid => {
     if (!valid) return;
     
@@ -377,9 +415,13 @@ function reset() {
   uploadFiles.value = [];
   isEdit.value = false;
   isView.value = false;
-  if (formRef.value) {
-    formRef.value.clearValidate();
-  }
+  
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+      formRef.value.resetFields();
+    }
+  });
 }
 
 function handleClose() {
@@ -408,6 +450,12 @@ function openEdit(data) {
     fileNames: data.fileNames ? (Array.isArray(data.fileNames) ? data.fileNames : data.fileNames.split(',')) : []
   });
   dialogVisible.value = true;
+  
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  });
 }
 
 function openView(data) {
@@ -425,6 +473,12 @@ function openView(data) {
     fileNames: data.fileNames ? (Array.isArray(data.fileNames) ? data.fileNames : data.fileNames.split(',')) : []
   });
   dialogVisible.value = true;
+  
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+    }
+  });
 }
 
 const emit = defineEmits(["success"]);
