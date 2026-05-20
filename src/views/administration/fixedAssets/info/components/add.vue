@@ -191,7 +191,7 @@
             <DeptCascader
               v-model="form.userDids"
               :emit-path="false"
-              :disabled="isView"
+              :readonly="isView"
               placeholder="请选择使用部门"
             />
           </el-form-item>

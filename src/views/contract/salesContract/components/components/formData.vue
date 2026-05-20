@@ -209,7 +209,7 @@
           <DeptCascader
             v-model="form.did"
             :emit-path="false"
-            :disabled="readonly"
+            :readonly="readonly"
             placeholder="请选择所属部门"
           />
         </el-form-item>

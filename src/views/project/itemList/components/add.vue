@@ -52,35 +52,30 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="归属部门" prop="did" required>
-            <el-cascader
-              v-model="form.did"
-              :options="deptOptions"
-              :props="cascaderProps"
-              :disabled="isView"
-              placeholder="请选择归属部门"
-              clearable
-              style="width: 100%;"
-            />
+            <DeptCascader v-model="form.did" :readonly="isView" :emit-path="false" />
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-row :gutter="20">
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item label="项目类型" prop="cateId" required>
             <el-select v-model="form.cateId" :disabled="isView" placeholder="请选择" filterable clearable>
               <el-option v-for="item in cateOptions" :key="item.id" :label="item.title" :value="item.id" />
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item label="项目经理" prop="directorUid" required>
             <el-select v-model="form.directorUid" :disabled="isView" placeholder="请选择" filterable clearable>
               <el-option v-for="item in userOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
             </el-select>
           </el-form-item>
         </el-col>
-        <el-col :span="8">
+      </el-row>
+
+      <el-row :gutter="20">
+        <el-col :span="24">
           <el-form-item label="起止日期" prop="dateRange" required>
             <el-date-picker
               v-model="form.dateRange"
@@ -275,6 +270,7 @@ import { addenterPrise, updateenterPrise, updateStatus } from "@/api/project/ite
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import { getPageList } from "@/api/base/project/projectClassify/index.js";
 import { getPageList as getContractList } from "@/api/contract/salesContract/index.js";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const emit = defineEmits(["success"]);
 

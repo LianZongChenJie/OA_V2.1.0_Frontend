@@ -61,7 +61,7 @@
             <DeptCascader
               v-model="form.did"
               :emit-path="false"
-              :disabled="isView"
+              :readonly="isView"
               placeholder="请选择拟稿部门"
             />
           </el-form-item>
