@@ -193,7 +193,7 @@
             clearable
             filterable
             style="width: 100%"
-            @change="handleSignUserChange"
+
           >
             <el-option
               v-for="item in userOptions"
@@ -206,21 +206,12 @@
       </el-col>
       <el-col :span="12">
         <el-form-item label="所属部门" prop="did">
-          <el-select
+          <DeptCascader
             v-model="form.did"
+            :emit-path="false"
             :disabled="readonly"
             placeholder="请选择所属部门"
-            clearable
-            style="width: 100%"
-            @change="handleDeptChange"
-          >
-            <el-option
-              v-for="item in deptOptions"
-              :key="item.deptId"
-              :label="item.deptName"
-              :value="item.deptId"
-            />
-          </el-select>
+          />
         </el-form-item>
       </el-col>
     </el-row>
@@ -248,7 +239,7 @@
             clearable
             filterable
             style="width: 100%"
-            @change="handlePreparedUserChange"
+
           >
             <el-option
               v-for="item in userOptions"
@@ -272,7 +263,7 @@
             clearable
             filterable
             style="width: 100%"
-            @change="handleKeeperUserChange"
+
           >
             <el-option
               v-for="item in userOptions"
@@ -331,10 +322,9 @@
 import { ref, reactive, getCurrentInstance, onMounted } from "vue";
 import { getPageList as getCustomerPageList } from "@/api/customer/list/index.js";
 import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import { getPageList as getClassifyPageList } from "@/api/base/contract/classify/index.js";
-import request from "@/utils/request";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 const { seal_contract_types } = proxy.useDict("seal_contract_types");
@@ -358,7 +348,6 @@ const formRef = ref(null);
 
 // 下拉选项数据
 const userOptions = ref([]);
-const deptOptions = ref([]);
 const enterpriseOptions = ref([]);
 const customerOptions = ref([]);
 const classifyOptions = ref([]);
@@ -429,13 +418,6 @@ function getUserList() {
   });
 }
 
-/** 获取部门列表 */
-function getDeptList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    deptOptions.value = response.data || [];
-  });
-}
-
 /** 获取企业主体列表 */
 function getEnterpriseList() {
   getEnterprisePageList({ pageNum: 1, pageSize: 20 }).then((response) => {
@@ -469,51 +451,7 @@ function handleCustomerChange(customerId) {
       form.customer = selectedCustomer.name;
     }
   } else {
-    form.customerId = "";
     form.customer = "";
-  }
-}
-
-/** 签订人选择变更 */
-function handleSignUserChange(userId) {
-  if (userId) {
-    form.signUid = userId;
-  } else {
-    form.signUid = "";
-  }
-}
-
-/** 制定人选择变更 */
-function handlePreparedUserChange(userId) {
-  if (userId) {
-    form.preparedUid = userId;
-  } else {
-    form.preparedUid = "";
-  }
-}
-
-/** 保管人选择变更 */
-function handleKeeperUserChange(userId) {
-  if (userId) {
-    form.keeperUid = userId;
-  } else {
-    form.keeperUid = "";
-  }
-}
-
-/** 部门选择变更 */
-function handleDeptChange(deptId) {
-  if (deptId) {
-    form.did = deptId;
-    const selectedDept = deptOptions.value.find(
-      (item) => item.deptId === deptId,
-    );
-    if (selectedDept) {
-      form.deptName = selectedDept.deptName;
-    }
-  } else {
-    form.did = "";
-    form.deptName = "";
   }
 }
 
@@ -605,7 +543,6 @@ function getFormData() {
 /** 初始化数据 */
 onMounted(() => {
   getUserList();
-  getDeptList();
   getEnterpriseList();
   getCustomerList();
   getClassifyList();
