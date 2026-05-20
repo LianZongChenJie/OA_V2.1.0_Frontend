@@ -188,21 +188,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="使用部门" prop="userDids">
-            <el-select
+            <DeptCascader
               v-model="form.userDids"
-              multiple
+              :emit-path="false"
               :disabled="isView"
               placeholder="请选择使用部门"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in deptOptions"
-                :key="item.deptId"
-                :label="item.deptName"
-                :value="item.deptId"
-              />
-            </el-select>
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -292,8 +283,8 @@ import { getTree } from "@/api/base/administration/assetClassfiy/index.js";
 import { getPageList as getBrandList } from "@/api/base/administration/assetBrand/index.js";
 import { getPageList as getUnitList } from "@/api/base/administration/assetUnit/index.js";
 import { listUser } from "@/api/system/user";
-import { listDept } from "@/api/system/dept";
 import { getDicts } from "@/api/system/dict/data.js";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -312,7 +303,7 @@ const form = reactive({
   qualityTime: "",
   unitId: null,
   userIds: [],
-  userDids: [],
+  userDids: null,
   price: null,
   buyTime: "",
   rate: null,
@@ -333,9 +324,6 @@ const unitOptions = ref([]);
 
 // 使用人员选项
 const userOptions = ref([]);
-
-// 使用部门选项
-const deptOptions = ref([]);
 
 // 资产状态选项
 const statusOptions = ref([]);
@@ -392,27 +380,6 @@ function getUserListData() {
   });
 }
 
-/** 获取使用部门列表 */
-function getDeptListData() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((res) => {
-    // 部门数据可能是树形结构，需要转换为扁平数组
-    const deptData = res.data || [];
-    deptOptions.value = flattenTree(deptData);
-  });
-}
-
-/** 将树形数据转换为扁平数组 */
-function flattenTree(tree, result = []) {
-  if (!Array.isArray(tree)) return result;
-  tree.forEach(node => {
-    result.push(node);
-    if (node.children && node.children.length > 0) {
-      flattenTree(node.children, result);
-    }
-  });
-  return result;
-}
-
 /** 获取数据字典 - 资产状态 */
 function getDictStatus() {
   getDicts("assets_status").then((response) => {
@@ -438,7 +405,7 @@ function reset() {
   form.qualityTime = "";
   form.unitId = null;
   form.userIds = [];
-  form.userDids = [];
+  form.userDids = null;
   form.price = null;
   form.buyTime = "";
   form.rate = null;
@@ -466,7 +433,7 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 解析 userIds 和 userDids，支持字符串和数组
+  // 解析 userIds，支持字符串和数组
   const parseIds = (val) => {
     if (!val) return [];
     if (Array.isArray(val)) return val.map(v => Number(v));
@@ -483,7 +450,7 @@ function openEdit(data) {
     qualityTime: data.qualityTime || "",
     unitId: data.unitId || null,
     userIds: parseIds(data.userIds),
-    userDids: parseIds(data.userDids),
+    userDids: data.userDids ? Number(data.userDids) : null,
     price: data.price || null,
     buyTime: data.buyTime || "",
     rate: data.rate || null,
@@ -500,7 +467,7 @@ function openEdit(data) {
 /** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 解析 userIds 和 userDids，支持字符串和数组
+  // 解析 userIds，支持字符串和数组
   const parseIds = (val) => {
     if (!val) return [];
     if (Array.isArray(val)) return val.map(v => Number(v));
@@ -517,7 +484,7 @@ function openView(data) {
     qualityTime: data.qualityTime || "",
     unitId: data.unitId || null,
     userIds: parseIds(data.userIds),
-    userDids: parseIds(data.userDids),
+    userDids: data.userDids ? Number(data.userDids) : null,
     price: data.price || null,
     buyTime: data.buyTime || "",
     rate: data.rate || null,
@@ -552,7 +519,7 @@ function handleSubmit() {
       const submitData = {
         ...form,
         userIds: Array.isArray(form.userIds) ? form.userIds.join(',') : form.userIds,
-        userDids: Array.isArray(form.userDids) ? form.userDids.join(',') : form.userDids,
+        userDids: form.userDids != null ? String(form.userDids) : null,
         buyTime: formatDate(form.buyTime),
         qualityTime: formatDate(form.qualityTime)
       };
@@ -572,7 +539,6 @@ onMounted(() => {
   getBrandListData();
   getUnitListData();
   getUserListData();
-  getDeptListData();
   getDictStatus();
   getDictSource();
 });
