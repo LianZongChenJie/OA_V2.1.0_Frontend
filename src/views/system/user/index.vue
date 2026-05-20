@@ -326,14 +326,10 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="归属部门" prop="deptId">
-              <el-tree-select
+              <DeptCascader
                 v-model="form.deptId"
-                :data="enabledDeptOptions"
-                :props="{ value: 'id', label: 'label', children: 'children' }"
-                value-key="id"
+                :emit-path="false"
                 placeholder="请选择归属部门"
-                clearable
-                check-strictly
               />
             </el-form-item>
           </el-col>
@@ -538,6 +534,7 @@ import {
 } from "@/api/system/user";
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const router = useRouter();
 const appStore = useAppStore();

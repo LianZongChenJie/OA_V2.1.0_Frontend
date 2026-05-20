@@ -1,9 +1,3 @@
-export const queryForm = {
-  meetingDate: '',
-  anchorId: '',
-  title: '',
-};
-
 export const columns = [
   {
     fieldName: 'id',
@@ -65,7 +59,7 @@ export const columns = [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 120,
+  width: 96,
   fixed: 'right',
   show: true,
   actions: [
@@ -94,5 +88,4 @@ export default {
   columns,
   getOperationColumn,
   searchFields,
-  queryForm
 };
