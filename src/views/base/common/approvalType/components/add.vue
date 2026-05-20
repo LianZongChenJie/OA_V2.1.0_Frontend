@@ -81,21 +81,12 @@
         </el-popover>
       </el-form-item>
       <el-form-item label="应用部门" prop="departmentIds">
-        <el-tree-select
+        <DeptCascader
           v-model="form.departmentIds"
-          :data="deptOptions"
-          :props="deptTreeProps"
-          :render-after-expand="false"
-          show-checkbox
-          multiple
-          collapse-tags
-          collapse-tags-tooltip
+          :emit-path="false"
+          :multiple="true"
+          :readonly="isView"
           placeholder="请选择应用部门"
-          clearable
-          :disabled="isView"
-          style="width: 100%"
-          check-strictly
-          value-key="id"
         />
       </el-form-item>
       <el-divider class="divider" content-position="left">消息配置</el-divider>
@@ -192,9 +183,9 @@ import {
 } from "@/api/base/common/approvalType/index.js";
 import { getPageList as getModuleList } from "@/api/base/common/approvalModule/index.js";
 import { getPageList as getTemplateList } from "@/api/base/common/messageModule/index.js";
-import { deptTreeSelect } from "@/api/system/user.js";
 import IconSelect from "@/components/IconSelect";
 import SvgIcon from "@/components/SvgIcon";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -210,14 +201,6 @@ const moduleList = ref([]);
 const templateOptions = ref([]);
 // 消息模板加载状态
 const templateLoading = ref(false);
-// 部门树
-const deptOptions = ref([]);
-// 部门树属性配置
-const deptTreeProps = {
-  value: 'id',
-  label: 'label',
-  children: 'children',
-};
 // 审批模块加载状态
 const moduleLoading = ref(false);
 
@@ -288,30 +271,6 @@ function getTemplates() {
     });
 }
 
-/** 转换部门树数据格式：将 deptId/deptName 转换为 id/label */
-function transformDeptTree(data) {
-  if (!data || !Array.isArray(data)) return [];
-  return data.map(item => ({
-    id: item.id ?? item.deptId,
-    label: item.label ?? item.deptName,
-    children: item.children ? transformDeptTree(item.children) : [],
-    disabled: item.disabled,
-  }));
-}
-
-/** 获取部门树 */
-function getDeptTree() {
-  deptTreeSelect().then((response) => {
-    // 兼容多种返回格式
-    const data = response?.data ?? response ?? [];
-    const rawData = Array.isArray(data) ? data : [];
-    deptOptions.value = transformDeptTree(rawData);
-  }).catch((error) => {
-    console.error("部门树加载失败:", error);
-    deptOptions.value = [];
-  });
-}
-
 /** 处理 departmentIds：将逗号分隔的字符串转换为数字数组 */
 function handleDepartmentIds(departmentIds) {
   if (!departmentIds) return [];
@@ -372,10 +331,6 @@ function open() {
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
-  // 确保部门树已加载
-  if (deptOptions.value.length === 0) {
-    getDeptTree();
-  }
   // 填充表单数据
   form.id = data.id;
   form.title = data.title || "";
@@ -402,10 +357,6 @@ function openEdit(data) {
 /** 显示弹窗 - 查看模式 */
 function openView(data) {
   reset();
-  // 确保部门树已加载
-  if (deptOptions.value.length === 0) {
-    getDeptTree();
-  }
   // 填充表单数据
   form.id = data.id;
   form.title = data.title || "";
@@ -464,7 +415,6 @@ defineExpose({
 onMounted(() => {
   getModules();
   getTemplates();
-  getDeptTree();
 });
 </script>
 
