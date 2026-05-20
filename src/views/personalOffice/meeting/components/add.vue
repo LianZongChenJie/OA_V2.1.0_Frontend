@@ -217,16 +217,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted, getCurrentInstance } from "vue";
-import { addenterPrise, updateenterPrise } from "@/api/administration/conference/notes/index.js";
+import { ref, reactive, computed, onMounted } from "vue";
+import { ElMessage } from "element-plus";
+import { addenterPrise } from "@/api/administration/conference/notes/index.js";
 import { listUser, deptTreeSelect } from "@/api/system/user.js";
 import { getPageList } from "@/api/administration/conference/room/index.js";
 
-const { proxy } = getCurrentInstance();
-
 const dialogVisible = ref(false);
 const formRef = ref(null);
-const isEdit = ref(false);
 const isView = ref(false);
 
 const userOptions = ref([]);
@@ -250,8 +248,7 @@ const form = reactive({
 });
 
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看会议纪要";
-  return isEdit.value ? "编辑会议纪要" : "新增会议纪要";
+  return isView.value ? "查看会议纪要" : "新增会议纪要";
 });
 
 const rules = {
@@ -273,7 +270,6 @@ onMounted(() => {
     deptOptions.value = res.data || [];
   });
   getPageList({ pageSize: 1000 }).then(res => {
-    console.log("会议室原始数据：", res);
     let list = [];
     if (res.rows && Array.isArray(res.rows)) {
       list = res.rows.map(row => {
@@ -295,9 +291,8 @@ function handleSubmit() {
       signUids: (form.signUids || []).join(","),
       shareUids: (form.shareUids || []).join(",")
     };
-    const api = isEdit.value ? updateenterPrise : addenterPrise;
-    api(data).then(() => {
-      proxy.$modal.msgSuccess("操作成功");
+    addenterPrise(data).then(() => {
+      ElMessage.success("操作成功");
       dialogVisible.value = false;
       emit("success");
     });
@@ -310,7 +305,6 @@ function reset() {
     roomId: null, did: null, title: "", content: "", plans: "",
     joinUids: [], signUids: [], shareUids: [], remarks: ""
   });
-  isEdit.value = false;
   isView.value = false;
   formRef.value?.clearValidate();
 }
@@ -320,26 +314,6 @@ function handleClose() {
   dialogVisible.value = false;
 }
 
-function open() {
-  reset();
-  dialogVisible.value = true;
-}
-
-// 编辑
-function openEdit(data) {
-  reset();
-  Object.assign(form, {
-    ...data,
-    meetingDate: data.meetingDateStr || data.meetingDate || "",
-    joinUids: data.joinUids ? data.joinUids.split(',').map(Number) : [],
-    shareUids: data.shareUids ? data.shareUids.split(',').map(Number) : [],
-    signUids: data.signUids ? data.signUids.split(',').map(Number) : []
-  });
-  isEdit.value = true;
-  dialogVisible.value = true;
-}
-
-// 查看
 function openView(data) {
   reset();
   Object.assign(form, {
@@ -354,7 +328,7 @@ function openView(data) {
 }
 
 const emit = defineEmits(["success"]);
-defineExpose({ open, openEdit, openView });
+defineExpose({ openView });
 </script>
 
 <style>

@@ -1,5 +1,3 @@
-import { listUser } from "@/api/system/user.js";
-
 export const queryForm = {
   meetingDate: '',
   anchorId: '',
@@ -64,25 +62,6 @@ export const columns = [
   }
 ];
 
-export const operationColumn = {
-  label: '操作',
-  width: 120,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: (row, onView) => {
-        onView && onView(row);
-      },
-      icon: 'eye-open',
-    },
-  ],
-};
-
-
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
@@ -113,7 +92,6 @@ export const searchFields = columns
 
 export default {
   columns,
-  operationColumn,
   getOperationColumn,
   searchFields,
   queryForm
