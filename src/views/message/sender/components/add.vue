@@ -11,6 +11,7 @@
       ref="formRef" 
       :model="form" 
       :rules="isView ? {} : getRules" 
+      :key="form.types"
       label-width="100px"
       style="margin-top:15px"
     >
@@ -143,6 +144,40 @@
         />
       </el-form-item>
 
+      <!-- 附件上传 -->
+      <el-form-item label="附件" v-if="!isView">
+        <el-upload
+          :auto-upload="false"
+          :on-change="handleFileChange"
+          :on-remove="handleFileRemove"
+          :file-list="uploadFiles"
+          multiple
+          :limit="5"
+        >
+          <el-button type="primary">上传附件</el-button>
+          <template #tip>
+            <div class="el-upload__tip">
+              支持任意格式文件，单个文件不超过10MB，最多上传5个
+            </div>
+          </template>
+        </el-upload>
+        <!-- 查看模式下显示附件列表 -->
+        <div v-if="isView && form.fileNames && form.fileNames.length" class="file-list">
+          <div v-for="(fileName, index) in form.fileNames" :key="index" class="file-item">
+            <el-icon><Document /></el-icon>
+            <span>{{ fileName }}</span>
+          </div>
+        </div>
+      </el-form-item>
+
+      <el-form-item v-else-if="isView && form.fileNames && form.fileNames.length" label="附件">
+        <div class="file-list">
+          <div v-for="(fileName, index) in form.fileNames" :key="index" class="file-item">
+            <el-icon><Document /></el-icon>
+            <span>{{ fileName }}</span>
+          </div>
+        </div>
+      </el-form-item>
 
     </el-form>
 
@@ -233,15 +268,15 @@ const getRules = computed(() => {
   if (form.types !== 4) {
     if (form.types === 1) {
       rules.uids = [
-        { required: true, message: "请选择收件人", trigger: "blur" }
+        { required: true, message: "请选择收件人", trigger: "change" }
       ];
     } else if (form.types === 2) {
       rules.dids = [
-        { required: true, message: "请选择收件部门", trigger: "blur" }
+        { required: true, message: "请选择收件部门", trigger: "change" }
       ];
     } else if (form.types === 3) {
       rules.pids = [
-        { required: true, message: "请选择收件岗位", trigger: "blur" }
+        { required: true, message: "请选择收件岗位", trigger: "change" }
       ];
     }
   }
@@ -250,34 +285,70 @@ const getRules = computed(() => {
 });
 
 onMounted(() => {
-  listUser({ pageSize: 1000 }).then(res => {
-    userOptions.value = (res.rows || []).filter(u => u.status === "0");
-  });
-  
-  deptTreeSelect().then(res => {
-    deptOptions.value = res.data || [];
-  });
-  
-  listPost({ pageSize: 1000 }).then(res => {
-    postOptions.value = res.rows || [];
-  });
+  loadUserOptions();
+  loadDeptOptions();
+  loadPostOptions();
 });
 
-// 切换类型时，清空所有选择
+// 加载用户列表
+function loadUserOptions() {
+  listUser({ pageSize: 1000 }).then(res => {
+    userOptions.value = (res.rows || []).filter(u => u.status === "0");
+  }).catch(error => {
+    console.error("加载用户列表失败:", error);
+  });
+}
+
+// 加载部门树
+function loadDeptOptions() {
+  deptTreeSelect().then(res => {
+    deptOptions.value = res.data || [];
+  }).catch(error => {
+    console.error("加载部门列表失败:", error);
+  });
+}
+
+// 加载岗位列表
+function loadPostOptions() {
+  listPost({ pageSize: 1000 }).then(res => {
+    postOptions.value = res.rows || [];
+  }).catch(error => {
+    console.error("加载岗位列表失败:", error);
+  });
+}
+
+// 切换类型时，清空所有选择并重置验证
 function handleTypesChange() {
+  // 清空所有接收人相关字段
   form.uids = [];
   form.dids = [];
   form.pids = [];
   form.copyUids = [];
   
+  // 使用 nextTick 确保表单数据更新后再清除验证
   nextTick(() => {
     if (formRef.value) {
-      formRef.value.clearValidate(['uids', 'dids', 'pids', 'copyUids']);
+      // 清除所有接收人相关字段的验证
+      const fieldsToClear = ['uids', 'dids', 'pids', 'copyUids'];
+      fieldsToClear.forEach(field => {
+        formRef.value.clearValidate([field]);
+      });
+      
+      // 如果当前有必填字段，确保其验证也被重置
+      if (form.types !== 4) {
+        const currentField = receiverProp.value;
+        formRef.value.clearValidate([currentField]);
+      }
     }
   });
 }
 
 function handleFileChange(file, fileList) {
+  // 检查文件大小（10MB）
+  if (file.size > 10 * 1024 * 1024) {
+    proxy.$modal.msgError("文件大小不能超过10MB");
+    return false;
+  }
   uploadFiles.value = fileList;
   form.attachments = fileList.map(f => f.raw);
   form.fileNames = fileList.map(f => f.name);
@@ -291,6 +362,11 @@ function handleFileRemove(file, fileList) {
 
 // 提交表单 - 支持 uids、dids、pids
 function handleSubmit(isSend = true) {
+  // 在执行验证前，先清除旧的验证状态
+  if (formRef.value) {
+    formRef.value.clearValidate();
+  }
+  
   formRef.value.validate(valid => {
     if (!valid) return;
     
@@ -304,14 +380,44 @@ function handleSubmit(isSend = true) {
     // 根据接收人类型处理不同的字段
     if (form.types === 1) {
       // 同事：传递 uids 和 copyUids
-      submitData.uids = Array.isArray(form.uids) ? form.uids.join(",") : form.uids;
-      submitData.copyUids = Array.isArray(form.copyUids) ? form.copyUids.join(",") : form.copyUids;
+      submitData.uids = Array.isArray(form.uids) && form.uids.length > 0 
+        ? form.uids.join(",") 
+        : "";
+      submitData.copyUids = Array.isArray(form.copyUids) && form.copyUids.length > 0 
+        ? form.copyUids.join(",") 
+        : "";
+      
+      // 验证收件人不能为空
+      if (!submitData.uids) {
+        proxy.$modal.msgError("请选择收件人");
+        return;
+      }
     } else if (form.types === 2) {
       // 部门：传递 dids
-      submitData.dids = Array.isArray(form.dids) ? form.dids.join(",") : form.dids;
+      submitData.dids = Array.isArray(form.dids) && form.dids.length > 0 
+        ? form.dids.join(",") 
+        : "";
+      
+      if (!submitData.dids) {
+        proxy.$modal.msgError("请选择收件部门");
+        return;
+      }
     } else if (form.types === 3) {
       // 岗位：传递 pids
-      submitData.pids = Array.isArray(form.pids) ? form.pids.join(",") : form.pids;
+      submitData.pids = Array.isArray(form.pids) && form.pids.length > 0 
+        ? form.pids.join(",") 
+        : "";
+      
+      if (!submitData.pids) {
+        proxy.$modal.msgError("请选择收件岗位");
+        return;
+      }
+    }
+    
+    // 处理附件
+    if (form.attachments && form.attachments.length > 0) {
+      submitData.attachments = form.attachments;
+      submitData.fileNames = form.fileNames;
     }
     
     // 编辑时带上 id
@@ -319,18 +425,28 @@ function handleSubmit(isSend = true) {
       submitData.id = form.id;
     }
     
+    // 显示加载状态
+    const loading = proxy.$loading({
+      lock: true,
+      text: isSend ? '正在发送...' : '正在保存...',
+      background: 'rgba(0, 0, 0, 0.7)'
+    });
+    
     // 调用接口
     add(submitData).then(() => {
+      loading.close();
       const successMsg = isSend ? "发送成功" : "已保存至草稿箱";
       proxy.$modal.msgSuccess(successMsg);
       dialogVisible.value = false;
       emit("success");
     }).catch(error => {
+      loading.close();
       proxy.$modal.msgError(error.message || "操作失败");
     });
   });
 }
 
+// 重置表单
 function reset() {
   Object.assign(form, {
     id: undefined,
@@ -348,9 +464,15 @@ function reset() {
   uploadFiles.value = [];
   isEdit.value = false;
   isView.value = false;
-  if (formRef.value) {
-    formRef.value.clearValidate();
-  }
+  
+  // 重置表单验证
+  nextTick(() => {
+    if (formRef.value) {
+      formRef.value.clearValidate();
+      // 重置整个表单的状态
+      formRef.value.resetFields();
+    }
+  });
 }
 
 function handleClose() {
@@ -384,8 +506,25 @@ async function openEdit(data) {
       isDraft: detailData.isDraft || 1,
       fileNames: detailData.fileNames ? (Array.isArray(detailData.fileNames) ? detailData.fileNames : detailData.fileNames.split(',')) : []
     });
+    
+    // 如果有文件名，构造附件显示列表
+    if (form.fileNames && form.fileNames.length) {
+      uploadFiles.value = form.fileNames.map((name, index) => ({
+        name: name,
+        uid: index,
+        status: 'success'
+      }));
+    }
+    
     isEdit.value = true;
     dialogVisible.value = true;
+    
+    // 编辑后重置验证
+    nextTick(() => {
+      if (formRef.value) {
+        formRef.value.clearValidate();
+      }
+    });
   } catch (error) {
     proxy.$modal.msgError(error.message || "获取详情失败");
   }
@@ -411,8 +550,16 @@ async function openView(data) {
       content: detailData.content || "",
       fileNames: detailData.fileNames ? (Array.isArray(detailData.fileNames) ? detailData.fileNames : detailData.fileNames.split(',')) : []
     });
+    
     isView.value = true;
     dialogVisible.value = true;
+    
+    // 查看模式下清除所有验证
+    nextTick(() => {
+      if (formRef.value) {
+        formRef.value.clearValidate();
+      }
+    });
   } catch (error) {
     proxy.$modal.msgError(error.message || "获取详情失败");
   }
