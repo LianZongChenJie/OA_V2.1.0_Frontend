@@ -400,7 +400,7 @@ async function loadUserList() {
 
 const dialogTitle = computed(() => {
   if (isView.value) return "查看任务";
-  return isEdit.value ? "编辑任务" : "新建任务";
+  return isEdit.value ? "编辑任务" : "新增任务";
 });
 
 // 新增：状态按钮文字
