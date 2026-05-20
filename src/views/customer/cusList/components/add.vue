@@ -123,20 +123,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="归属部门" prop="belongDid">
-            <el-select
+            <DeptCascader
               v-model="form.belongDid"
-              :disabled="isView"
+              :emit-path="false"
+              :readonly="isView"
               placeholder="请选择归属部门"
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in deptOptions"
-                :key="item.deptId"
-                :label="item.deptName"
-                :value="item.deptId"
-              />
-            </el-select>
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -345,6 +337,7 @@ import { listUser } from "@/api/system/user.js";
 import { getPageList as getCustomerLevelList } from "@/api/base/customer/level";
 import { getPageList as getChannelPageList } from "@/api/base/customer/channel";
 import { getPageList as getIndustryTypePageList } from "@/api/base/customer/industryType";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 
