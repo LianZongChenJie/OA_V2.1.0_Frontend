@@ -30,6 +30,16 @@
         :disabled="!isApprovalFlowEditable"
         flow-title="采购合同"
       />
+      <!-- 审批记录（当 checkStatus != 0 时显示） -->
+      <RecordSteps
+        v-if="
+          currentContractData &&
+          Number(currentContractData.checkStatus) !== 0 &&
+          currentContractData.records &&
+          currentContractData.records.length > 0
+        "
+        :records="currentContractData.records"
+      />
     </div>
 
     <template #footer>
@@ -55,6 +65,7 @@ import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
 import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
 import FormData from "./formData.vue";
 import { getFlowNodes } from "@/api/common/approval";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);

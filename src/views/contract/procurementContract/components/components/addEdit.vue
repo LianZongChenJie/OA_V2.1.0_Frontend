@@ -7,19 +7,18 @@
     class="documents-dialog"
     @close="handleClose"
   >
-    <FormData
-      ref="formDataRef"
-      :readonly="false"
+    <FormData ref="formDataRef" :readonly="false" />
+
+    <!-- 审批记录 -->
+    <RecordSteps
+      v-if="isEdit && currentData?.records?.length"
+      :records="currentData.records"
     />
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">
-          确 定
-        </el-button>
-        <el-button @click="dialogVisible = false">
-          取 消
-        </el-button>
+        <el-button type="primary" @click="handleSubmit"> 确 定 </el-button>
+        <el-button @click="dialogVisible = false"> 取 消 </el-button>
       </div>
     </template>
   </el-dialog>
@@ -28,6 +27,7 @@
 <script setup name="AddEditSalesContract">
 import { ref, computed, getCurrentInstance, nextTick } from "vue";
 import { add, edit } from "@/api/contract/procurementContract";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 import FormData from "./formData.vue";
 
 const { proxy } = getCurrentInstance();
@@ -35,6 +35,7 @@ const { proxy } = getCurrentInstance();
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const isEdit = ref(false); // 是否为编辑模式
+const currentData = ref(null);
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
@@ -45,6 +46,7 @@ const dialogTitle = computed(() => {
 function handleClose() {
   formDataRef.value?.resetForm();
   isEdit.value = false;
+  currentData.value = null;
 }
 
 /** 显示弹窗 - 新增模式 */
@@ -62,7 +64,8 @@ function open() {
 function openEdit(data) {
   isEdit.value = true;
   dialogVisible.value = true;
-
+  currentData.value = data;
+  
   // 等待 DOM 更新后设置数据
   nextTick(() => {
     formDataRef.value?.resetForm();

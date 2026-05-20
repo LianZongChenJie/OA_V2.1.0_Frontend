@@ -8,17 +8,17 @@
     @close="handleClose"
   >
     <div>
-      <FormData
-        ref="formDataRef"
-        :readonly="true"
-      />
+      <FormData ref="formDataRef" :readonly="true" />
 
       <!-- 审批流程信息 -->
       <div class="form-section-title">审批流程信息</div>
 
       <!-- 审批中/审批完结状态：显示审批节点时间轴 -->
       <div v-if="!isApprovalFlowEditable">
-        <ApprovalNodes :nodes="flowNodes" :currentStepSort="currentCheckStepSort" />
+        <ApprovalNodes
+          :nodes="flowNodes"
+          :currentStepSort="currentCheckStepSort"
+        />
       </div>
 
       <!-- 其他状态：显示审批流程选择组件 -->
@@ -29,6 +29,16 @@
         :actionId="currentContractData?.id"
         :disabled="!isApprovalFlowEditable"
         flow-title="销售合同"
+      />
+      <!-- 审批记录（当 checkStatus != 0 时显示） -->
+      <RecordSteps
+        v-if="
+          currentContractData &&
+          Number(currentContractData.checkStatus) !== 0 &&
+          currentContractData.records &&
+          currentContractData.records.length > 0
+        "
+        :records="currentContractData.records"
       />
     </div>
 
@@ -55,6 +65,7 @@ import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
 import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
 import FormData from "./formData.vue";
 import { getFlowNodes } from "@/api/common/approval";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 
 const dialogVisible = ref(false);
 const formDataRef = ref(null);
@@ -105,24 +116,32 @@ function openView(data) {
     if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
       getFlowNodes({
         flowId: data.checkFlowId,
-        actionId: data.id
-      }).then((result) => {
-        const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
-        const nodesData = result.data?.nodes.map(item => ({
-          ...item,
-          isFinished: 0,
-          stepName: '步骤 ' + (Number(item.sort) + 1)
-        })) || [];
+        actionId: data.id,
+      })
+        .then((result) => {
+          const stepSort =
+            result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
+          const nodesData =
+            result.data?.nodes.map((item) => ({
+              ...item,
+              isFinished: 0,
+              stepName: "步骤 " + (Number(item.sort) + 1),
+            })) || [];
 
-        if (nodesData.length > 0) {
-          flowNodes.value = data.checkStatus === 1
-            ? nodesData
-            : [...nodesData, { stepName: '完结', sort: nodesData.length, isFinished: 1 }];
-          currentCheckStepSort.value = stepSort;
-        }
-      }).catch((error) => {
-        console.error("获取审批节点失败:", error);
-      });
+          if (nodesData.length > 0) {
+            flowNodes.value =
+              data.checkStatus === 1
+                ? nodesData
+                : [
+                    ...nodesData,
+                    { stepName: "完结", sort: nodesData.length, isFinished: 1 },
+                  ];
+            currentCheckStepSort.value = stepSort;
+          }
+        })
+        .catch((error) => {
+          console.error("获取审批节点失败:", error);
+        });
     }
   });
 }
