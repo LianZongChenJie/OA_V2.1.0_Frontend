@@ -403,7 +403,7 @@ const statusBtnType = computed(() => {
 // ========== 计算属性 ==========
 const dialogTitle = computed(() => {
   if (isView.value) return "查看项目";
-  return isEdit.value ? "编辑项目" : "新建项目";
+  return isEdit.value ? "编辑项目" : "新增项目";
 });
 
 const rules = {

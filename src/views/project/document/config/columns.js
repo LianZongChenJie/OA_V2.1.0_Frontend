@@ -87,7 +87,7 @@ export const operationColumn = {
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
-    label: '新建文档',
+    label: '新增文档',
     type: 'success',
     icon: 'plus',
     size: 'default',

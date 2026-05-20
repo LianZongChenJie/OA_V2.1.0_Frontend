@@ -149,7 +149,7 @@ function handleAttachUploadSuccess(res) {
 // 标题
 const dialogTitle = computed(() => {
   if (isView.value) return "查看文档";
-  return isEdit.value ? "编辑文档" : "新建文档";
+  return isEdit.value ? "编辑文档" : "新增文档";
 });
 
 // 精简校验规则

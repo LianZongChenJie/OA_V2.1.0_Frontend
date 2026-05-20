@@ -143,7 +143,7 @@ export const columns = [
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
-    label: '添加项目',
+    label: '新增项目',
     type: 'success',
     icon: 'plus',
     size: 'default',

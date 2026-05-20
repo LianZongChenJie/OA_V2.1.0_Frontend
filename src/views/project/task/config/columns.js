@@ -174,7 +174,7 @@ export const operationColumn = {
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
-    label: '新建任务',
+    label: '新增任务',
     type: 'success',
     icon: 'plus',
     size: 'default',
@@ -185,7 +185,7 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onView, onDelete) => ({
   label: '操作',
-  width: 160,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [
