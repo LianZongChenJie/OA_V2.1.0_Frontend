@@ -55,19 +55,13 @@
         </el-select>
 
         <!-- 部门选择器 -->
-        <el-tree-select
+        <DeptCascader
           v-if="form.types === 2"
           v-model="form.dids"
-          :data="deptOptions"
-          :props="{ value: 'id', label: 'label', children: 'children' }"
-          :disabled="isView"
-          multiple
-          check-strictly
+          :emit-path="false"
+          :multiple="true"
+          :readonly="isView"
           placeholder="请选择收件部门"
-          clearable
-          collapse-tags
-          collapse-tags-tooltip
-          style="width:100%"
         />
 
         <!-- 岗位选择器 -->
@@ -159,10 +153,11 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from "vue";
-import { listUser, deptTreeSelect } from "@/api/system/user.js";
+import { listUser } from "@/api/system/user.js";
 import { listPost } from "@/api/system/post.js";
 import { Document } from '@element-plus/icons-vue'
 import { add, update, put } from "@/api/message/draft/index.js";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -172,7 +167,6 @@ const isEdit = ref(false);
 const isView = ref(false);
 
 const userOptions = ref([]);
-const deptOptions = ref([]);
 const postOptions = ref([]);
 const uploadFiles = ref([]);
 
@@ -252,10 +246,6 @@ const getRules = computed(() => {
 onMounted(() => {
   listUser({ pageSize: 1000 }).then(res => {
     userOptions.value = (res.rows || []).filter(u => u.status === "0");
-  });
-  
-  deptTreeSelect().then(res => {
-    deptOptions.value = res.data || [];
   });
   
   listPost({ pageSize: 1000 }).then(res => {

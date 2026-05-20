@@ -39,7 +39,7 @@ export function del(messageIds, table) {
   })
 }
 
-// 批量取消星标
+// 批量设置星标状态
 export function setStar(messageIds, isStar) {
   const ids = Array.isArray(messageIds) ? messageIds : [messageIds];
   return request({
@@ -47,7 +47,7 @@ export function setStar(messageIds, isStar) {
     method: 'put',
     data: {
       messageIds: ids,
-      isStar: 0  
+      isStar: isStar
     }
   })
 }

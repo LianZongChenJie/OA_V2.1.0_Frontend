@@ -1,5 +1,3 @@
-import { listUser } from "@/api/system/user.js";
-
 export const queryForm = {
   meetingDate: '',
   anchorId: '',
@@ -65,36 +63,8 @@ export const columns = [
   //   slot: true,  
   // }
 ];
-
-export const operationColumn = {
-  label: '操作',
-  width: 120,
-  fixed: 'right',
-  show: true,
-  actions: [
-    {
-      label: '查看',
-      type: 'primary',
-      size: 'small',
-      onClick: (row, onView) => {
-        onView && onView(row);
-      },
-      icon: 'eye-open',
-    },
-    {
-      label: '删除',
-      type: 'danger',
-      size: 'small',
-      onClick: (row, onDelete) => {
-        onDelete && onDelete(row);
-      },
-      icon: 'delete',
-    },
-  ],
-};
-
 // 头部按钮
-export const getHeaderButs = (onBatchDelete, onBatchRead, onBatchStar) => [
+export const getHeaderButs = (onBatchDelete, onBatchStar) => [
   {
     label: '批量删除',
     type: 'danger',
@@ -121,7 +91,7 @@ export const getHeaderButs = (onBatchDelete, onBatchRead, onBatchStar) => [
 // 操作列生成函数
 export const getOperationColumn = (onView, onDelete) => ({
   label: '操作',
-  width: 160,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [
@@ -160,7 +130,6 @@ export const searchFields = columns
 
 export default {
   columns,
-  operationColumn,
   getOperationColumn,
   getFullColumns,
   searchFields,

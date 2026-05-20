@@ -9,7 +9,6 @@
       :toolbar-buttons="headerButs"
       row-key="id"
       ref="tableList"
-      :search-enum="searchEnum"
       :search-fields="searchFields"
     >
       <!-- 自定义星标列 -->
@@ -42,58 +41,17 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted } from "vue";
+import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del, setStar } from "@/api/message/marking/index.js";
 import { getFullColumns, getOperationColumn, getHeaderButs, searchFields } from "./config/columns";
 import AddDialog from "./components/add.vue";
-import { listUser } from "@/api/system/user.js";
 
 const { proxy } = getCurrentInstance();
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
-const tableKey = ref(0); 
-
-const searchEnum = ref({
-  anchorId: []
-});
-
-// 获取人列表
-const fetchAnchorList = async () => {
-  try {
-    const res = await listUser({ pageSize: 1000 });
-    
-    let users = [];
-    if (res.rows && Array.isArray(res.rows)) {
-      users = res.rows;
-    } else if (res.data && res.data.rows) {
-      users = res.data.rows;
-    } else if (Array.isArray(res)) {
-      users = res;
-    } else if (res.data && Array.isArray(res.data)) {
-      users = res.data;
-    } else {
-      users = [];
-    }
-    
-    const userList = users.filter(u => String(u.status) === '0');
-    
-    searchEnum.value.anchorId = userList.map(u => ({
-      label: u.realName || u.nickName || u.userName || u.name || '未命名',
-      value: u.userId
-    }));
-    
-    tableKey.value++;
-    
-  } catch (e) {
-    console.error('获取人列表失败:', e);
-  }
-};
-
-onMounted(() => {
-  fetchAnchorList();
-});
+const tableKey = ref(0);
 
 const getPageListFix = async (params) => {
   const res = await getPageList(params);
@@ -178,30 +136,6 @@ function handleBatchDelete() {
   }).catch(() => {});
 }
 
-// 批量设为已读
-function handleBatchRead() {
-  const ids = getSelectedIds();
-  
-  if (ids.length === 0) {
-    proxy.$modal.msgWarning("请选择要标记的消息");
-    return;
-  }
-  
-  proxy.$modal.confirm(`是否确认将选中的 ${ids.length} 条消息设为已读？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
-  }).then(() => {
-    return setRead(ids);
-  }).then(() => {
-    proxy.$modal.msgSuccess("设置成功");
-    tableList.value?.refresh();
-    if (tableList.value?.clearSelection) {
-      tableList.value.clearSelection();
-    }
-  }).catch(() => {});
-}
-
 // 批量设为星标
 function handleBatchStar() {
   const ids = getSelectedIds();
@@ -216,7 +150,7 @@ function handleBatchStar() {
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
-    return setStar(ids, 1);
+    return setStar(ids, 0);
   }).then(() => {
     proxy.$modal.msgSuccess("设置成功");
     tableList.value?.refresh();
@@ -233,7 +167,6 @@ function handleSuccess() {
 const operationColumn = getOperationColumn(handleView, handleDelete);
 const headerButs = getHeaderButs(
   handleBatchDelete,
-  handleBatchRead,
   handleBatchStar,
 );
 </script>

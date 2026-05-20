@@ -1,5 +1,3 @@
-import { listUser } from "@/api/system/user.js";
-
 export const queryForm = {
   meetingDate: '',
   anchorId: '',
@@ -105,7 +103,7 @@ export const getHeaderButs = (onAdd, onBatchDelete) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete) => ({
   label: '操作',
-  width: 160,
+  width: 170,
   fixed: 'right',
   show: true,
   actions: [

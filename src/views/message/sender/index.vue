@@ -9,7 +9,6 @@
       :toolbar-buttons="headerButs"
       row-key="id"
       ref="tableList"
-      :search-enum="searchEnum"
       :search-fields="searchFields"
     >
       <!-- 自定义消息类型列 -->
@@ -29,58 +28,17 @@
 </template>
 
 <script setup>
-import { ref, getCurrentInstance, onMounted } from "vue";
+import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/message/sender/index.js";
 import { getFullColumns, getOperationColumn, getHeaderButs, searchFields } from "./config/columns";
 import AddDialog from "./components/add.vue";
-import { listUser } from "@/api/system/user.js";
 
 const { proxy } = getCurrentInstance();
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
 const tableKey = ref(0);
-
-const searchEnum = ref({
-  anchorId: []
-});
-
-// 获取人列表
-const fetchAnchorList = async () => {
-  try {
-    const res = await listUser({ pageSize: 1000 });
-    
-    let users = [];
-    if (res.rows && Array.isArray(res.rows)) {
-      users = res.rows;
-    } else if (res.data && res.data.rows) {
-      users = res.data.rows;
-    } else if (Array.isArray(res)) {
-      users = res;
-    } else if (res.data && Array.isArray(res.data)) {
-      users = res.data;
-    } else {
-      users = [];
-    }
-    
-    const userList = users.filter(u => String(u.status) === '0');
-    
-    searchEnum.value.anchorId = userList.map(u => ({
-      label: u.realName || u.nickName || u.userName || u.name || '未命名',
-      value: u.userId
-    }));
-    
-    tableKey.value++;
-    
-  } catch (e) {
-    console.error('获取人列表失败:', e);
-  }
-};
-
-onMounted(() => {
-  fetchAnchorList();
-});
 
 const getPageListFix = async (params) => {
   const res = await getPageList(params);
