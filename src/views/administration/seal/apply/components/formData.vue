@@ -154,6 +154,9 @@
         </el-form-item>
       </el-col>
     </el-row>
+
+    <!-- 审批记录 -->
+    <RecordSteps v-if="form.id && records?.length" :records="records" />
   </el-form>
 </template>
 
@@ -162,6 +165,7 @@ import { ref, reactive, getCurrentInstance, onMounted } from "vue";
 import { listDept } from "@/api/system/dept.js";
 import { listUser } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
+import RecordSteps from "@/components/RecordSteps/index.vue";
 
 const userStore = useUserStore();
 const { proxy } = getCurrentInstance();
@@ -190,6 +194,12 @@ const currentDeptName = ref("");
 
 // 用户列表加载完成的 Promise
 let userListPromise = null;
+
+// 用户数据加载完成标志
+const isUserDataReady = ref(false);
+
+// 审批记录数据
+const records = ref([]);
 
 // 表单数据
 const form = reactive({
@@ -249,6 +259,7 @@ const getUserList = async () => {
   };
   const currentDept = deptOptions.value.find(d => d.deptId === currentUser?.deptId);
   currentDeptName.value = currentDept?.deptName || "";
+  isUserDataReady.value = true;
   return currentUserInfo.value;
 };
 
@@ -262,6 +273,7 @@ const handleIsBorrowChange = (val) => {
 /** 重置表单 */
 const resetForm = async () => {
   formRef.value?.clearValidate();
+  isUserDataReady.value = false;
 
   if (!userListPromise) {
     userListPromise = getUserList();
@@ -280,9 +292,18 @@ const resetForm = async () => {
     endTime: "",
     content: "",
   });
+  // 清空审批记录
+  records.value = [];
 };
 
-const setFormData = (data) => {
+const setFormData = async (data) => {
+  // 确保用户数据加载完成
+  if (!isUserDataReady.value) {
+    if (!userListPromise) {
+      userListPromise = getUserList();
+    }
+    await userListPromise;
+  }
   const info = data?.info || data;
   Object.assign(form, {
     id: info.id,
@@ -296,6 +317,8 @@ const setFormData = (data) => {
     endTime: info.endTime || "",
     content: info.content || "",
   });
+  // 设置审批记录
+  records.value = data?.records || [];
 };
 
 const getFormData = () => ({ ...form });

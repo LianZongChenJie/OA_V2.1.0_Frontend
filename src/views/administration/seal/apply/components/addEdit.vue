@@ -7,19 +7,12 @@
     class="documents-dialog"
     @close="handleClose"
   >
-    <FormData
-      ref="formDataRef"
-      :readonly="false"
-    />
+    <FormData ref="formDataRef" :readonly="false" />
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button type="primary" @click="handleSubmit">
-          确 定
-        </el-button>
-        <el-button @click="dialogVisible = false">
-          取 消
-        </el-button>
+        <el-button type="primary" @click="handleSubmit"> 确 定 </el-button>
+        <el-button @click="dialogVisible = false"> 取 消 </el-button>
       </div>
     </template>
   </el-dialog>
@@ -37,7 +30,9 @@ const dialogVisible = ref(false);
 const formDataRef = ref(null);
 const isEdit = ref(false);
 
-const dialogTitle = computed(() => isEdit.value ? "编辑用章申请" : "新增用章申请");
+const dialogTitle = computed(() =>
+  isEdit.value ? "编辑用章申请" : "新增用章申请",
+);
 
 const handleClose = async () => {
   await formDataRef.value?.resetForm();
@@ -55,7 +50,7 @@ const openEdit = async (data) => {
   isEdit.value = true;
   dialogVisible.value = true;
   await nextTick();
-  formDataRef.value?.resetForm();
+  await formDataRef.value?.resetForm();
   formDataRef.value?.setFormData(data);
 };
 
