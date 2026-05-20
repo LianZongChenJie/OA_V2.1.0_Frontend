@@ -5,7 +5,7 @@
       :api="getPageListFix"
       :columns="columns"
       :operation-column="operationColumn"
-      :toolbar-buttons="headerButs"
+
       row-key="id"
       ref="tableList"
       :search-enum="searchEnum"
@@ -91,7 +91,7 @@ const getPageListFix = async (params) => {
 
 // 还原功能 
 async function handleRestore(row) {
-  proxy.$modal.confirm('是否确认还原该消息？', '提示', {
+  proxy.$modal.confirm('确认还原该消息吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
@@ -130,7 +130,7 @@ function handleDelete(row) {
     table = 'message';
   }
   
-  proxy.$modal.confirm('是否确认删除该消息？', '提示', {
+  proxy.$modal.confirm('确认清除该消息吗？', '提示', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'

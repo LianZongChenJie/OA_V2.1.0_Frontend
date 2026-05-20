@@ -81,7 +81,7 @@ function handleDelete(row) {
     return;
   }
   
-  proxy.$modal.confirm('是否确认删除该消息？').then(() => {
+  proxy.$modal.confirm('确认删除该消息吗？').then(() => {
     return del(messageId, 'message');
   }).then(() => {
     proxy.$modal.msgSuccess("删除成功");
@@ -108,7 +108,7 @@ function handleBatchDelete() {
     return;
   }
   
-  proxy.$modal.confirm(`是否确认删除选中的${ids.length}条消息？`).then(() => {
+  proxy.$modal.confirm(`确认删除选中的${ids.length}条消息吗？`).then(() => {
     return del(ids, 'message');
   }).then(() => {
     proxy.$modal.msgSuccess("删除成功");

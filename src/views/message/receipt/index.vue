@@ -136,7 +136,7 @@ function handleDelete(row) {
   }
 
   proxy.$modal
-    .confirm("是否确认删除该消息？", "提示", {
+    .confirm("确认删除该消息吗？", "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning",
@@ -183,7 +183,7 @@ function handleBatchDelete() {
   }
 
   proxy.$modal
-    .confirm(`是否确认删除选中的 ${ids.length} 条消息？`, "提示", {
+    .confirm(`确认删除选中的 ${ids.length} 条消息吗？`, "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning",
@@ -211,7 +211,7 @@ function handleBatchRead() {
   }
 
   proxy.$modal
-    .confirm(`是否确认将选中的 ${ids.length} 条消息设为已读？`, "提示", {
+    .confirm(`确认将选中的 ${ids.length} 条消息设为已读吗？`, "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning",
@@ -239,7 +239,7 @@ function handleBatchStar() {
   }
 
   proxy.$modal
-    .confirm(`是否确认将选中的 ${ids.length} 条消息设为星标？`, "提示", {
+    .confirm(`确认将选中的 ${ids.length} 条消息设为星标吗？`, "提示", {
       confirmButtonText: "确定",
       cancelButtonText: "取消",
       type: "warning",

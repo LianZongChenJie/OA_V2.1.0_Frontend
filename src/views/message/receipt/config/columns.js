@@ -113,7 +113,7 @@ export const getHeaderButs = (onBatchDelete, onBatchRead, onBatchStar) => [
 // 操作列生成函数
 export const getOperationColumn = (onView, onDelete) => ({
   label: '操作',
-  width: 160,
+  width: 180,
   fixed: 'right',
   show: true,
   actions: [

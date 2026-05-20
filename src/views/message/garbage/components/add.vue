@@ -180,7 +180,7 @@ import { ref, reactive, computed, onMounted, getCurrentInstance, nextTick } from
 import { listUser } from "@/api/system/user.js";
 import { listPost } from "@/api/system/post.js";
 import { Document } from '@element-plus/icons-vue'
-import { add, update, getDetail } from "@/api/message/garbage/index.js";
+import { getDetail } from "@/api/message/garbage/index.js";
 import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
