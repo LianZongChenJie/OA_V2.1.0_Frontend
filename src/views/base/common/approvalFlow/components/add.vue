@@ -37,23 +37,11 @@
         </el-select>
       </el-form-item>
       <el-form-item label="应用部门" prop="departmentIds">
-        <el-select
+        <DeptCascader
           v-model="form.departmentIds"
-          :disabled="isView"
-          placeholder="请选择应用部门"
-          multiple
-          clearable
-          collapse-tags
-          collapse-tags-tooltip
-          style="width: 100%"
-        >
-          <el-option
-            v-for="item in flatDepartmentOptions"
-            :key="item.deptId"
-            :label="item.deptName"
-            :value="item.deptId"
-          />
-        </el-select>
+          :multiple="true"
+          placeholder="请选择部门"
+        />
       </el-form-item>
       <el-form-item label="审批流程类型" prop="checkType">
         <el-radio-group
@@ -259,9 +247,9 @@ import { ref, reactive, computed, getCurrentInstance, onMounted } from "vue";
 import { addFlow, updateFlow } from "@/api/base/common/approvalFlow/index.js";
 import { getPageList as getApprovalTypeList } from "@/api/base/common/approvalType/index.js";
 import { listUser } from "@/api/system/user.js";
-import { listDept } from "@/api/system/dept.js";
 import { listPost } from "@/api/system/post.js";
 import useUserStore from "@/store/modules/user";
+import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 const { approval_flow_type, flow_list_item_type, approval_mode } = proxy.useDict("approval_flow_type", "flow_list_item_type", "approval_mode");
@@ -283,30 +271,9 @@ const form = reactive({
 });
 
 // 下拉选项数据
-const departmentOptions = ref([]);
 const approvalTypeOptions = ref([]);
 const userOptions = ref([]);
 const postOptions = ref([]); // 岗位选项
-
-// 扁平化部门选项（用于下拉选择）
-const flatDepartmentOptions = computed(() => {
-  const result = [];
-  const flatten = (list) => {
-    if (!Array.isArray(list)) return;
-    list.forEach((item) => {
-      // 映射字段名：确保有 deptId 和 deptName
-      result.push({
-        deptId: item.deptId || item.id,
-        deptName: item.deptName || item.label || item.deptName,
-      });
-      if (item.children && item.children.length > 0) {
-        flatten(item.children);
-      }
-    });
-  };
-  flatten(departmentOptions.value);
-  return result;
-});
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
@@ -357,13 +324,6 @@ function reset() {
   if (formRef.value) {
     formRef.value.clearValidate();
   }
-}
-
-/** 获取部门列表 */
-function getDepartmentList() {
-  listDept({ pageNum: 1, pageSize: 1000 }).then((response) => {
-    departmentOptions.value = response.data || [];
-  });
 }
 
 /** 获取审批类型列表 */
@@ -432,7 +392,6 @@ function handleApproverTypeChange(index) {
 
 /** 初始化数据 */
 onMounted(() => {
-  getDepartmentList();
   getApprovalTypes();
   getUserList();
   getPostList();
