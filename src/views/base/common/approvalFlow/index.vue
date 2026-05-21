@@ -56,7 +56,7 @@ async function handleEdit(row) {
 async function handleDisable(row) {
   const newStatus = row.status === 1 ? 0 : 1;
   proxy.$modal
-    .confirm(`确定要${row.status === 1 ? "禁用" : "启用"}该审批模块吗?`)
+    .confirm(`确定要${row.status === 1 ? "禁用" : "启用"}该流程吗?`)
     .then(async () => {
       const res = await updateStatus({ id: row.id, status: newStatus });
       if (res) {
