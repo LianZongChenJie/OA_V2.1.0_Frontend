@@ -87,13 +87,13 @@ export const getOperationColumn = (onEdit, onView, onChangeStatus, onCopy) => {
       },
       {
         label: '启用',
-        type: 'warning',
+        type: 'primary',
         size: 'small',
         onClick: (row) => {
           onChangeStatus && onChangeStatus(row);
         },
         isShow: (row) => row.status === 0,
-        icon: 'enter',
+        icon: 'enable',
       },
       {
         label: '复制',

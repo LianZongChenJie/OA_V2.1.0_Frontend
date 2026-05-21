@@ -1,3 +1,4 @@
+
 <template>
   <div class="main-content">
     <TableList
@@ -15,11 +16,12 @@
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
   </div>
 </template>
+
 <script setup>
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getMessageModuleDetail,changeStatus } from "@/api/base/common/messageModule/index.js";
+import { getPageList, getMessageModuleDetail, changeStatus } from "@/api/base/common/messageModule/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns.js";
 import AddDialog from "./components/add.vue";
 
@@ -59,11 +61,28 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
-/** 更改消息模版状态 */
 async function handleChangeStatus(row) {
-  const status = row.status === 1 ? 0 : 1;
-  await changeStatus({ id: row.id, status });
-  tableList.value.refresh();
+  const action = row.status === 1 ? '禁用' : '启用';
+  const newStatus = row.status === 1 ? 0 : 1;
+  
+  proxy.$modal
+    .confirm(`确定要${action}该消息模版吗？`, '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    .then(async () => {
+      try {
+        await changeStatus({ id: row.id, status: newStatus });
+        proxy.$modal.msgSuccess(`${action}成功`);
+        tableList.value.refresh();
+      } catch (error) {
+        proxy.$modal.msgError(`${action}失败`);
+      }
+    })
+    .catch(() => {
+      proxy.$modal.msgInfo('已取消操作');
+    });
 }
 
 /** 复制按钮操作 */
@@ -77,4 +96,5 @@ async function handleCopy(row) {
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(handleEdit, handleView, handleChangeStatus, handleCopy);
 </script>
+
 <style lang="scss" scoped></style>

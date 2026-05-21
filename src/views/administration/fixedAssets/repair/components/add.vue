@@ -173,8 +173,8 @@ const form = reactive({
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看维修记录";
-  return isEdit.value ? "编辑维修记录" : "新增维修记录";
+  if (isView.value) return "查看报修记录";
+  return isEdit.value ? "编辑报修记录" : "新增报修记录";
 });
 
 const rules = {

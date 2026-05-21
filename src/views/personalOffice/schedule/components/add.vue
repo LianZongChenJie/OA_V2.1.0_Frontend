@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="日程安排"
+    :title="dialogTitle"
     v-model="dialogVisible"
     width="60%"
     append-to-body
@@ -114,7 +114,7 @@
 </template>
 
 <script setup name="AddSchedule">
-import { ref, reactive, getCurrentInstance, watch, nextTick } from "vue";
+import { ref, reactive, getCurrentInstance, watch, nextTick, computed } from "vue";
 import { add as addSchedule, edit as editSchedule } from "@/api/personalOffice/schedule/index.js"; 
 
 const { proxy } = getCurrentInstance();
@@ -174,6 +174,12 @@ const form = reactive({
   dateRange: [],
   startTime: "",
   endTime: "",
+});
+
+const dialogTitle = computed(() => {
+  if (isView.value) return "查看日程安排";
+  if (isEdit.value) return "编辑日程安排";
+  return "新增日程安排";
 });
 
 const rules = {

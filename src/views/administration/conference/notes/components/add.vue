@@ -252,8 +252,8 @@ const form = reactive({
 });
 
 const dialogTitle = computed(() => {
-  if (isView.value) return "查看会议纪要";
-  return isEdit.value ? "编辑会议纪要" : "新增会议纪要";
+  if (isView.value) return "查看会议记录";
+  return isEdit.value ? "编辑会议记录" : "新增会议记录";
 });
 
 const rules = {

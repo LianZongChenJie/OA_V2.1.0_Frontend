@@ -137,13 +137,13 @@ export const getOperationColumn = (onEdit, onView, onChangeStatus) => {
       },
       {
         label: '启用',
-        type: 'warning',
+        type: 'primary',
         size: 'small',
         isShow: (row) => row.status === 0,
         onClick: (row) => {
           onChangeStatus && onChangeStatus(row);
         },
-        icon: 'enter',
+        icon: 'enable',
       }
     ],
   };

@@ -93,7 +93,7 @@ export const getOperationColumn = (onEdit, onDetail, onToggleStatus, onDelete) =
       },
       {
         label: '启用',
-        type: 'warning',
+        type: 'primary',
         size: 'small',
         onClick: (row) => {
           onToggleStatus && onToggleStatus(row);

@@ -111,7 +111,7 @@ export const operationColumn = {
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
   {
-    label: '添加会议室',
+    label: '新增会议预定',
     type: 'success',
     icon: 'plus',
     size: 'default',

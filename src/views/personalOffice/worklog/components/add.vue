@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="添加工作记录"
+    :title="dialogTitle"
     v-model="dialogVisible"
     width="60%"
     append-to-body
@@ -102,7 +102,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, getCurrentInstance, watch, nextTick, onMounted } from "vue";
+import { ref, reactive, getCurrentInstance, watch, nextTick, onMounted, computed } from "vue";
 import { add as addSchedule, edit as editSchedule , getWorkCateList} from "@/api/personalOffice/worklog/index.js"; 
 
 const { proxy } = getCurrentInstance();
@@ -170,6 +170,12 @@ const form = reactive({
   did: null,
   adminId: 0,
   taskEndTime: null
+});
+
+const dialogTitle = computed(() => {
+  if (isView.value) return "查看工作记录";
+  if (isEdit.value) return "编辑工作记录";
+  return "新增工作记录";
 });
 
 // 校验规则
@@ -254,6 +260,23 @@ function open(tid, taskEndTime) {
 // 打开编辑
 function openEdit(row, taskEndTime) {
   resetForm();
+  isEdit.value = true;
+  isView.value = false;
+  fillFormData(row, taskEndTime);
+  dialogVisible.value = true;
+}
+
+// 打开查看
+function openView(row, taskEndTime) {
+  resetForm();
+  isEdit.value = false;
+  isView.value = true;
+  fillFormData(row, taskEndTime);
+  dialogVisible.value = true;
+}
+
+// 填充表单数据的公共方法
+function fillFormData(row, taskEndTime) {
   form.id = row.id;
   form.tid = row.tid;
   form.title = row.title || "";
@@ -264,7 +287,7 @@ function openEdit(row, taskEndTime) {
   form.ptid = row.ptid || 0;
   form.did = row.did || null;
   form.adminId = row.adminId || 0;
-  form.taskEndTime = taskEndTime;
+  form.taskEndTime = taskEndTime || row.taskEndTime || null;
 
   // 时间回显
   if (row.startTime && row.endTime) {
@@ -272,9 +295,6 @@ function openEdit(row, taskEndTime) {
     form.startTime = row.startTime;
     form.endTime = row.endTime;
   }
-
-  isEdit.value = true;
-  dialogVisible.value = true;
 }
 
 // 提交
@@ -341,7 +361,8 @@ onMounted(() => {
 });
 
 const emit = defineEmits(["success"]);
-defineExpose({ open, openEdit });
+// 关键修改：添加 openView 方法到暴露的接口中
+defineExpose({ open, openEdit, openView });
 </script>
 
 <style scoped>
