@@ -252,7 +252,8 @@ import useUserStore from "@/store/modules/user";
 import DeptCascader from "@/components/DeptCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
-const { approval_flow_type, flow_list_item_type, approval_mode } = proxy.useDict("approval_flow_type", "flow_list_item_type", "approval_mode");
+const { approval_flow_type, flow_list_item_type, approval_mode } =
+  proxy.useDict("approval_flow_type", "flow_list_item_type", "approval_mode");
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
@@ -295,7 +296,7 @@ const isRollbackFlow = computed(() => {
 // 审批人类型选项（可回退审批流时只能选择指定成员）
 const filteredFlowListItemType = computed(() => {
   if (isRollbackFlow.value) {
-    return flow_list_item_type.value.filter(item => item.value === "4");
+    return flow_list_item_type.value.filter((item) => item.value === "4");
   }
   return flow_list_item_type.value;
 });
@@ -382,10 +383,8 @@ function removeFlow(index) {
 /** 审批人类型变更处理 */
 function handleApproverTypeChange(index) {
   const flow = form.flowList[index];
-  if (flow.check_role !== "4") {
+  if (["3", "4"].includes(flow.check_role)) {
     flow.check_uids = [];
-  }
-  if (flow.check_role !== "3") {
     flow.check_position_id = "";
   }
 }
@@ -412,7 +411,6 @@ function open() {
   dialogVisible.value = true;
 }
 
-
 /** 显示弹窗 - 编辑模式 */
 function openEdit(data) {
   reset();
@@ -422,8 +420,8 @@ function openEdit(data) {
   // 将 departmentIds 字符串转换为数组（转换为数字）
   form.departmentIds = data.departmentIds
     ? Array.isArray(data.departmentIds)
-      ? data.departmentIds.map(id => Number(id))
-      : data.departmentIds.split(",").map(id => Number(id.trim()))
+      ? data.departmentIds.map((id) => Number(id))
+      : data.departmentIds.split(",").map((id) => Number(id.trim()))
     : [];
   form.cateId = data.cateId || "";
   form.remark = data.remark || "";
@@ -432,8 +430,8 @@ function openEdit(data) {
   // 将 copyUids 字符串转换为数组（转换为数字）
   form.copyUids = data.copyUids
     ? Array.isArray(data.copyUids)
-      ? data.copyUids.map(id => Number(id))
-      : data.copyUids.split(",").map(id => Number(id.trim()))
+      ? data.copyUids.map((id) => Number(id))
+      : data.copyUids.split(",").map((id) => Number(id.trim()))
     : [];
   // 解析 flowList
   const flowList = data.flowList
@@ -449,7 +447,7 @@ function openEdit(data) {
       if (Array.isArray(flow.check_uids)) {
         check_uids = flow.check_uids;
       } else if (typeof flow.check_uids === "string") {
-        check_uids = flow.check_uids.split(",").map(id => Number(id.trim()));
+        check_uids = flow.check_uids.split(",").map((id) => Number(id.trim()));
       }
     }
     return {
@@ -473,8 +471,8 @@ function openView(data) {
   // 将 departmentIds 字符串转换为数组（转换为数字）
   form.departmentIds = data.departmentIds
     ? Array.isArray(data.departmentIds)
-      ? data.departmentIds.map(id => Number(id))
-      : data.departmentIds.split(",").map(id => Number(id.trim()))
+      ? data.departmentIds.map((id) => Number(id))
+      : data.departmentIds.split(",").map((id) => Number(id.trim()))
     : [];
   form.cateId = data.cateId || "";
   form.remark = data.remark || "";
@@ -483,8 +481,11 @@ function openView(data) {
   // 将 copyUids 字符串转换为数字数组
   form.copyUids = data.copyUids
     ? Array.isArray(data.copyUids)
-      ? data.copyUids.map(id => Number(id))
-      : data.copyUids.split(",").map(id => Number(id.trim())).filter(id => !isNaN(id))
+      ? data.copyUids.map((id) => Number(id))
+      : data.copyUids
+          .split(",")
+          .map((id) => Number(id.trim()))
+          .filter((id) => !isNaN(id))
     : [];
   // 解析 flowList
   const flowList = data.flowList
@@ -500,7 +501,7 @@ function openView(data) {
       if (Array.isArray(flow.check_uids)) {
         check_uids = flow.check_uids;
       } else if (typeof flow.check_uids === "string") {
-        check_uids = flow.check_uids.split(",").map(id => Number(id.trim()));
+        check_uids = flow.check_uids.split(",").map((id) => Number(id.trim()));
       }
     }
     return {
@@ -523,7 +524,9 @@ function handleSubmit() {
       // 转换 flowList 中的 check_uids 为逗号分隔字符串
       const submitFlowList = form.flowList.map((flow) => ({
         check_role: flow.check_role,
-        check_uids: Array.isArray(flow.check_uids) ? flow.check_uids.join(",") : flow.check_uids,
+        check_uids: Array.isArray(flow.check_uids)
+          ? flow.check_uids.join(",")
+          : flow.check_uids,
         check_position_id: flow.check_position_id,
         check_types: flow.check_types,
       }));
