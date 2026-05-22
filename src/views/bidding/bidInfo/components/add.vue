@@ -119,14 +119,20 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="项目周期(月)" prop="projectCycle">
+          <el-form-item label="项目周期" prop="projectCycle">
             <el-input-number
-              v-model="form.projectCycle"
+              v-model="form.projectCycleNum"
               :min="0"
               :precision="0"
-              placeholder="请输入项目周期"
+              placeholder="请输入项目周期(月)"
               :disabled="isView"
-              style="width: 100%"
+              style="width: 70%"
+            />
+            <el-input
+              v-model="form.projectCycle"
+              style="width: 30%"
+              disabled
+              placeholder="项目周期"
             />
           </el-form-item>
         </el-col>
@@ -421,7 +427,7 @@
 </template>
 
 <script setup name="AddBidInfo">
-import { ref, reactive, computed, getCurrentInstance } from "vue";
+import { ref, reactive, computed, getCurrentInstance, watch } from "vue";
 import { add, edit } from "@/api/bidding/bidInfo";
 import { getPageList as getEmployeeList } from "@/api/personnel/employee/index.js";
 import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
@@ -451,6 +457,7 @@ const form = reactive({
   projectName: "",
   tenderAgency: "",
   projectCycle: undefined,
+  projectCycleNum: undefined,
   shortlistedCountries: undefined,
   budgetAmount: undefined,
   bidOpeningDate: "",
@@ -516,6 +523,36 @@ const rules = {
   ],
 };
 
+/** 格式化项目周期 */
+function formatProjectCycle(months) {
+  if (months === undefined || months === null || months === "") {
+    return "";
+  }
+  const monthNum = Number(months);
+  if (isNaN(monthNum) || monthNum < 0) {
+    return "";
+  }
+
+  const years = Math.floor(monthNum / 12);
+  const remainingMonths = monthNum % 12;
+
+  if (years === 0) {
+    return `${remainingMonths}个月`;
+  } else if (remainingMonths === 0) {
+    return `${years}年`;
+  } else {
+    return `${years}年零${remainingMonths}个月`;
+  }
+}
+
+/** 监听项目周期月数变化 */
+watch(
+  () => form.projectCycleNum,
+  (newVal) => {
+    form.projectCycle = formatProjectCycle(newVal);
+  }
+);
+
 /** 表单重置 */
 function reset() {
   form.id = undefined;
@@ -527,6 +564,7 @@ function reset() {
   form.projectName = "";
   form.tenderAgency = "";
   form.projectCycle = undefined;
+  form.projectCycleNum = undefined;
   form.shortlistedCountries = undefined;
   form.budgetAmount = undefined;
   form.bidOpeningDate = "";
@@ -615,7 +653,9 @@ function fillForm(data) {
   // 编辑时回显负责人选项
   if (data.tenderLeaderId) {
     // 直接添加当前负责人到选项列表，确保能正确回显
-    if (!userOptions.value.find((item) => item.userId === data.tenderLeaderId)) {
+    if (
+      !userOptions.value.find((item) => item.userId === data.tenderLeaderId)
+    ) {
       userOptions.value.push({
         userId: data.tenderLeaderId,
         nickName: data.tenderLeader || "",

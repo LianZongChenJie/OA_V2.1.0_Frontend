@@ -73,7 +73,7 @@ export const columns = [
   },
   {
     fieldName: 'projectCycle',
-    label: '项目周期(月)',
+    label: '项目周期',
     width: 120,
     minWidth: 100,
   },
