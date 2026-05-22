@@ -52,6 +52,7 @@
           class="table-box"
           :data="tableData"
           :row-key="rowKey"
+          :row-class-name="rowClassName"
           border
           stripe
           v-loading="loading"
@@ -312,6 +313,14 @@ const props = defineProps({
   selectable: {
     type: Function,
     default: () => true,
+  },
+  /** 行的 className 的回调方法
+   * @type {Function}
+   * @description 接收一个 row 参数，返回 className 字符串
+   */
+  rowClassName: {
+    type: Function,
+    default: null,
   },
 });
 

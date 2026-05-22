@@ -5,9 +5,9 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-
       row-key="name"
       ref="tableList"
+      :row-class-name="getRowClassName"
     >
       <template #isTenderSubmitted="{ row }">
         <dict-tag :options="s_f_c" :value="row.isTenderSubmitted" />
@@ -22,11 +22,7 @@
         <dict-tag :options="bid_result" :value="row.bidResult" />
       </template>
     </TableList>
-    <AddDialog
-      ref="addDialogRef"
-      @success="handleSuccess"
-
-    />
+    <AddDialog ref="addDialogRef" @success="handleSuccess" />
     <ImportDialog
       ref="importDialogRef"
       download-template-url="/tender/import/template"
@@ -44,13 +40,8 @@ import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import ImportDialog from "./components/importDialog.vue";
 
-
-
 const { proxy } = getCurrentInstance();
-const { s_f_c, bid_result } = proxy.useDict(
-  "s_f_c",
-  "bid_result",
-);
+const { s_f_c, bid_result } = proxy.useDict("s_f_c", "bid_result");
 
 const route = useRoute();
 const tableList = ref(null);
@@ -114,6 +105,38 @@ const operationColumn = getOperationColumn(
   handleView,
   handleDelete,
 );
+
+/** 根据是否投标和中标结果设置行样式 */
+function getRowClassName({ row }) {
+  // isTenderSubmitted='是'表示已投标
+  if (row.isTenderSubmitted === "是") {
+    // 查找中标选项的值
+    const winnerOption = bid_result.value.find((item) => item.label === "中标");
+    if (winnerOption && row.bidResult === winnerOption.value) {
+      return "row-winner";
+    }
+    return "row-submitted";
+  }
+  return "row-not-submitted";
+}
 </script>
 <style lang="scss" scoped>
+:deep(.row-submitted) {
+  background-color: #fff !important;
+  .el-table__cell {
+    background-color: #fff !important;
+  }
+}
+:deep(.row-winner) {
+  background-color: var(--el-color-danger-light-7) !important;
+  .el-table__cell {
+    background-color: var(--el-color-danger-light-7) !important;
+  }
+}
+:deep(.row-not-submitted) {
+  background-color: var(--el-color-success-light-5) !important;
+  .el-table__cell {
+    background-color: var(--el-color-success-light-5) !important;
+  }
+}
 </style>

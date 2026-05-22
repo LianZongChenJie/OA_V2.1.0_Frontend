@@ -503,7 +503,7 @@ const rules = {
   tenderAgency: [
     { required: true, message: "请输入招标机构", trigger: "blur" },
   ],
-  projectCycle: [
+  projectCycleNum: [
     { required: true, message: "请输入项目周期", trigger: "blur" },
   ],
   budgetAmount: [
@@ -626,9 +626,8 @@ function fillForm(data) {
   form.customerName = data.customerName || "";
   form.projectName = data.projectName || "";
   form.tenderAgency = data.tenderAgency || "";
-  form.projectCycle = data.projectCycle
-    ? parseInt(data.projectCycle, 10)
-    : undefined;
+  form.projectCycleNum = data.projectCycleNum;
+  form.projectCycle = data.projectCycle;
   form.shortlistedCountries = data.shortlistedCountries;
   form.budgetAmount = data.budgetAmount;
   form.bidOpeningDate = data.bidOpeningDate || "";
