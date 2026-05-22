@@ -33,8 +33,8 @@ export const columns = [
   {
     fieldName: 'workTimeRange',
     label: '工作时间范围',
-    width: "18%",
-    minWidth: 160,
+    width: "25%",
+    minWidth: 300,
     align: 'center',
     slot: true,  
     slotName: 'workTimeRange'  
@@ -67,6 +67,7 @@ export const columns = [
     fieldName: 'title',
     label: '工作内容',
     minWidth: 150,
+    width: "10%",
     align: 'center',
     searchable: {
       type: 'input',
@@ -79,19 +80,21 @@ export const columns = [
   {
     fieldName: 'taskTitle',
     label: '关联任务',
+    width: "10%",
     minWidth: 150,
     align: 'center',
   },
   {
     fieldName: 'projectName',
     label: '关联项目',
+    width: "10%",
     minWidth: 150,
     align: 'center',
   },
   {
     fieldName: 'createTimeStr',
     label: '记录时间',
-    width: "auto",
+    width: "15%",
     minwidth: 180,
     align: 'center',
   }
