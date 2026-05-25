@@ -44,6 +44,7 @@
           v-model="form.uid"
           :disabled="isView"
           placeholder="请选择员工"
+          filterable
           clearable
           style="width: 100%"
         >

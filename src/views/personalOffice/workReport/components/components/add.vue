@@ -43,6 +43,7 @@
           <el-select
             v-model="form.toUids"
             :disabled="isView"
+            filterable
             multiple
             clearable
             style="width:100%"

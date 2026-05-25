@@ -179,6 +179,7 @@
                   :disabled="isView || (projectStatus === 2 && $index < currentStageIndex) || projectStatus === 3 || projectStatus === 4" 
                   placeholder="负责人" 
                   clearable
+                  filterable
                 >
                   <el-option v-for="item in userOptions" :key="item.userId" :label="item.nickName" :value="item.userId" />
                 </el-select>
@@ -190,6 +191,7 @@
             <template #default="{ $index }">
               <el-select 
                 v-model="form.stageList[$index].memberUids" 
+                filterable
                 multiple 
                 :disabled="isView || (projectStatus === 2 && $index < currentStageIndex) || projectStatus === 3 || projectStatus === 4" 
                 placeholder="成员"
