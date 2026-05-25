@@ -18,8 +18,8 @@ export const getColumns = () => [
   {
     fieldName: 'workTimeRange',
     label: '日程时间范围',
-    width: "20%",
-    minWidth: 160,
+    width: "30%",
+    minWidth: 260,
     align: 'center',
     slot: true,
     slotName: 'workTimeRange',

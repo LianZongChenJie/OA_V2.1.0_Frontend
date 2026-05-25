@@ -18,6 +18,7 @@ export const columns = [
     label: '回款时间',
     width: "10%",
     minWidth: 120,
+    format: (val) => val?.split(' ')[0] || '',
   },
   {
     fieldName: 'invoiceId',
