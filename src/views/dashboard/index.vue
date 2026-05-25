@@ -30,7 +30,7 @@
           <UrgentList />
         </div>
         <div class="rightPanel">
-          <!-- 新闻公告 -->
+          <NoticeList />
         </div>
       </div>
     </AConfigProvider>
@@ -43,6 +43,7 @@ import "ant-design-vue/dist/reset.css";
 import UrgentList from "./components/UrgentList.vue";
 import TodoList from "./components/TodoList.vue";
 import StatCount from "./components/StatCount.vue";
+import NoticeList from "./components/NoticeList.vue";
 import useSettingsStore from "@/store/modules/settings";
 import useUserStore from "@/store/modules/user";
 
@@ -116,7 +117,6 @@ const currentUser = computed(() => ({
   .rightPanel {
     flex: 0 0 40%;
     background: var(--el-bg-color);
-    padding: 16px;
   }
 }
 
