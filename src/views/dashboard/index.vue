@@ -17,7 +17,7 @@
             {{ currentUser.name }}
             ，祝你开心每一天！
           </div>
-          <div>{{ currentUser.title }} |{{ currentUser.group }}</div>
+          <div>{{ currentUser.group }}</div>
         </div>
         <div class="extraContent">
           <div class="statItem">
@@ -35,6 +35,7 @@
       <div style="padding: 10px">
         <a-row :gutter="24">
           <a-col :xl="16" :lg="24" :md="24" :sm="24" :xs="24">
+            <UrgentList />
             <a-card
               class="projectList"
               :style="{ marginBottom: '24px' }"
@@ -196,6 +197,8 @@ export default {
     AListItemMeta: ListItemMeta,
     AAvatar: Avatar,
     AConfigProvider: ConfigProvider,
+    EditableLinkGroup,
+    UrgentList,
   },
 };
 </script>
@@ -203,23 +206,26 @@ export default {
 <script setup>
 import { Radar } from "@antv/g2plot";
 import EditableLinkGroup from "./editable-link-group.vue";
+import UrgentList from "./components/UrgentList.vue";
 import useSettingsStore from "@/store/modules/settings";
+import useUserStore from "@/store/modules/user";
 
 const settingsStore = useSettingsStore();
+const userStore = useUserStore();
 
 defineOptions({
   name: "DashBoard",
 });
 
-const currentUser = {
-  avatar: "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
-  name: "吴彦祖",
-  userid: "00000001",
-  email: "antdesign@alipay.com",
-  signature: "海纳百川，有容乃大",
-  title: "交互专家",
-  group: "蚂蚁金服－某某某事业群－某某平台部－某某技术部－UED",
-};
+const currentUser = computed(() => ({
+  avatar: userStore.avatar || 'https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png',
+  name: userStore.nickName || userStore.name || '用户',
+  userid: userStore.id || '',
+  email: '',
+  signature: '',
+  title: '',
+  group: userStore.deptName || '',
+}));
 
 const projectNotice = [
   {
