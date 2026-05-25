@@ -31,9 +31,7 @@
         </div>
         <div class="rightPanel">
           <NoticeList />
-          <div style="height:20px">
-            
-          </div>
+          <div style="height: 20px"></div>
           <NewsList />
         </div>
       </div>
