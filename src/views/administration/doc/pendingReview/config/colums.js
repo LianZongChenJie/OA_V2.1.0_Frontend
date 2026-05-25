@@ -43,7 +43,7 @@ export const columns = [
     dict: 'urgency_level',
   },
   {
-    fieldName: 'draftUid',
+    fieldName: 'draftName',
     label: '拟稿人',
     width: 100,
     minWidth: 80,
@@ -55,7 +55,7 @@ export const columns = [
     minWidth: 140,
   },
   {
-    fieldName: 'did',
+    fieldName: 'draftDname',
     label: '拟稿部门',
     width: 120,
     minWidth: 100,

@@ -78,6 +78,7 @@ export const columns = [
     label: '计划归还日期',
     width: 130,
     minWidth: 110,
+    format: (val) => val?.split(' ')[0] || '',
   },
   {
     fieldName: 'adminName',

@@ -50,8 +50,8 @@ export const columns = [
   {
     fieldName: 'works',
     label: '工作内容',
-    minWidth: 240,
-    align: 'center',
+    width: "24%",
+    minWidth: 220,
     searchable: {
       type: 'input',
       fieldName: 'keywords',
@@ -63,8 +63,8 @@ export const columns = [
   {
     fieldName: 'toNames',
     label: '接收人',
-    width: "12%",
-    minWidth: 160,
+    width: "10%",
+    minWidth: 120,
     align: 'center',
     format: (val) => {
       if (!val) return '-';
@@ -78,15 +78,15 @@ export const columns = [
     fieldName: 'period',
     label: '汇报周期',
     width: "18%",
-    minWidth: 200,
+    minWidth: 140,
     align: 'center',
     format: (val) => val?.split(' ')[0] || '', 
   },
   {
     fieldName: 'createTime',
     label: '汇报时间',
-    width: "auto",
-    minwidth: 180,
+    width: "10%",
+    minwidth: 100,
     align: 'center',
       searchable: {
       type: 'dateRange',

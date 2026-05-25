@@ -66,6 +66,7 @@ export const columns = [
     label: '原始单据日期',
     width: "10%",
     minWidth: 110,
+    format: (val) => val?.split(' ')[0] || '',
   },
   {
     fieldName: 'incomeMonth',
