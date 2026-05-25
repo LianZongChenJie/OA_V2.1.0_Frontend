@@ -13,7 +13,7 @@
         </div>
         <div class="content">
           <div class="contentTitle">
-            早安，
+            {{ greeting }}，
             {{ currentUser.name }}
             ，祝你开心每一天！
           </div>
@@ -67,6 +67,14 @@ const currentUser = computed(() => ({
   title: "",
   group: userStore.deptName || "",
 }));
+
+const greeting = computed(() => {
+  const hour = new Date().getHours();
+  if (hour >= 6 && hour < 12) return "早安";
+  if (hour >= 12 && hour < 14) return "午安";
+  if (hour >= 14 && hour < 18) return "下午好";
+  return "晚上好";
+});
 </script>
 
 <style scoped lang="less">
