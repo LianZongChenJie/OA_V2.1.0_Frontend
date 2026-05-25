@@ -174,6 +174,7 @@
               multiple
               :disabled="isView"
               placeholder="请选择使用人员"
+              filterable
               clearable
               style="width: 100%"
             >

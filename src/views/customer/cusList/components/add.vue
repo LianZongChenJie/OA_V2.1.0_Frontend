@@ -109,6 +109,7 @@
               v-model="form.belongUid"
               :disabled="isView"
               placeholder="请选择归属员工"
+              filterable
               clearable
               style="width: 100%"
             >
@@ -141,6 +142,7 @@
               v-model="form.shareIds"
               :disabled="isView"
               placeholder="请选择共享员工"
+              filterable
               clearable
               multiple
               style="width: 100%"
