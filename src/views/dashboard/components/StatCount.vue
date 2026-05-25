@@ -1,10 +1,6 @@
 <template>
   <div class="statContent">
-    <div
-      v-for="(item, index) in statList"
-      :key="index"
-      class="statItem"
-    >
+    <div v-for="(item, index) in statList" :key="index" class="statItem">
       <a-statistic :title="item.name" :value="item.value" />
     </div>
   </div>
@@ -35,7 +31,8 @@ export default {
         if (res.success && res.data) {
           const data = res.data;
           this.statList = [
-            { name: "合同总数", value: (data.contract || 0) + (data.purchase || 0) },
+            { name: "销售合同总数", value: data.contract || 0 },
+            { name: "采购合同总数", value: data.purchase || 0 },
             { name: "报销总数", value: data.expense || 0 },
             { name: "开票总数", value: data.invoice || 0 },
             { name: "收票总数", value: data.ticket || 0 },
