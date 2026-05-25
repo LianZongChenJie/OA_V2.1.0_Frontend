@@ -1,0 +1,55 @@
+<template>
+  <div class="main-content">
+    <div class="main">
+      <el-tabs v-model="activeName" class="demo-tabs" @tab-click="handleClick">
+        <el-tab-pane
+          v-for="(tab, index) in tabs"
+          :label="tab.label"
+          :name="tab.name"
+        ></el-tab-pane>
+      </el-tabs>
+      <DocumentList :type="activeType" :label="activeLabel" />
+    </div>
+  </div>
+</template>
+<script setup>
+import { reactive, ref, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import DocumentList from "./components/index.vue";
+const route = useRoute();
+const router = useRouter();
+const activeName = ref("MyDocuments");
+
+// 计算当前选中的 type
+const activeType = computed(() => {
+  const currentTab = tabs.find((tab) => tab.name === activeName.value);
+  return currentTab ? currentTab.type : 1;
+});
+
+// 计算当前选中的 label
+const activeLabel = computed(() => {
+  const currentTab = tabs.find((tab) => tab.name === activeName.value);
+  return currentTab ? currentTab.label : "我申请的";
+});
+
+const tabs = reactive([
+  { label: "我申请的", name: "MyDocuments", type: 1 },
+  { label: "待我审批", name: "WaitMe", type: 2 },
+  { label: "我已审批", name: "MeApproved", type: 3 },
+]);
+
+function handleClick(tab) {
+  console.log(tab.props.name);
+}
+</script>
+<style lang="less" scoped>
+.main {
+  width: 100%;
+  height: 100%;
+}
+.demo-tabs {
+  padding: 10px 20px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+</style>
