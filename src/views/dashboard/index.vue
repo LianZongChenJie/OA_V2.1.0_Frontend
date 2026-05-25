@@ -31,6 +31,7 @@
         </div>
         <div class="rightPanel">
           <NoticeList />
+          <NewsList />
         </div>
       </div>
     </AConfigProvider>
@@ -44,6 +45,7 @@ import UrgentList from "./components/UrgentList.vue";
 import TodoList from "./components/TodoList.vue";
 import StatCount from "./components/StatCount.vue";
 import NoticeList from "./components/NoticeList.vue";
+import NewsList from "./components/NewsList.vue";
 import useSettingsStore from "@/store/modules/settings";
 import useUserStore from "@/store/modules/user";
 
