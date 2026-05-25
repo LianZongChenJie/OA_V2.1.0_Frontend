@@ -18,7 +18,7 @@ import { useRoute, useRouter } from "vue-router";
 import DocumentList from "./components/index.vue";
 const route = useRoute();
 const router = useRouter();
-const activeName = ref("All");
+const activeName = ref("MyDocuments");
 
 // 计算当前选中的 type
 const activeType = computed(() => {
@@ -29,7 +29,7 @@ const activeType = computed(() => {
 // 计算当前选中的 label
 const activeLabel = computed(() => {
   const currentTab = tabs.find((tab) => tab.name === activeName.value);
-  return currentTab ? currentTab.label : "客户状态";
+  return currentTab ? currentTab.label : "我申请的";
 });
 
 const tabs = reactive([
