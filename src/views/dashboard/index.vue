@@ -30,8 +30,7 @@
           <UrgentList />
         </div>
         <div class="rightPanel">
-          <!-- 快捷方式区域 -->
-          千问
+          <!-- 新闻公告 -->
         </div>
       </div>
     </AConfigProvider>

@@ -33,6 +33,12 @@ export const getColumns = () => [
     width: 180,
     minWidth: 160,
   },
+  {
+    fieldName: 'sort',
+    label: '排序',
+    width: 180,
+    minWidth: 160,
+  },
 ];
 
 export const getHeaderButs = (onAdd) => [

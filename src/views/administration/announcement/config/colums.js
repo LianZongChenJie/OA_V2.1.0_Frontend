@@ -68,23 +68,13 @@ export const getColumns = () => [
     width: 180,
     minWidth: 160,
   },
-  // {
-  //   fieldName: 'sourse',
-  //   label: '公告平台',
-  //   width: 120,
-  //   minWidth: 100,
-  //   align: 'center',
-  //   isDict: true,
-  //   dict: 'note_sourse',
-  //   searchable: {
-  //     type: 'select',
-  //     dictKey: 'note_sourse',
-  //     fieldName: 'sourse',
-  //     placeholder: '请选择公告平台',
-  //     label: '公告平台',
-  //     order: 3,
-  //   },
-  // },
+  {
+    fieldName: 'sort',
+    label: '排序',
+    align: 'center',
+    width: 80,
+    minWidth: 80,
+  },
 ];
 
 export const getHeaderButs = (onAdd) => [
