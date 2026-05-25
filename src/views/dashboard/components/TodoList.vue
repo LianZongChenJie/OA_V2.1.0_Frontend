@@ -48,14 +48,14 @@ export default {
         if (res.success && res.data) {
           const data = res.data;
           this.todoData = [
-            { name: "待审公文", num: data.officialDoc || 0, path: "/document" },
-            { name: "待审公章", num: data.seal || 0, path: "/seal" },
-            { name: "待审采购合同", num: data.purchase || 0, path: "/contract/purchase" },
-            { name: "待审销售合同", num: data.contract || 0, path: "/contract/sale" },
-            { name: "待审报销", num: data.expense || 0, path: "/expense" },
-            { name: "待审开票", num: data.invoice || 0, path: "/invoice" },
-            { name: "待审收票", num: data.ticket || 0, path: "/ticket" },
-            { name: "待完成任务", num: data.projectTask || 0, path: "/task" },
+            { name: "待审公文", num: data.officialDoc || 0, path: "/administration/doc/documents" },
+            { name: "待审公章", num: data.seal || 0, path: "/administration/seal/apply" },
+            { name: "待审采购合同", num: data.purchase || 0, path: "/contract/procurementContract" },
+            { name: "待审销售合同", num: data.contract || 0, path: "/contract/salesContract" },
+            { name: "待审报销", num: data.expense || 0, path: "/financial/reimbursement" },
+            { name: "待审开票", num: data.invoice || 0, path: "/financial/invoiceMsg" },
+            { name: "待审收票", num: data.ticket || 0, path: "/financial/receiptMsg" },
+            { name: "待完成任务", num: data.projectTask || 0, path: "/project/task" },
           ];
         }
       } catch (error) {
