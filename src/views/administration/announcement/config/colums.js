@@ -28,6 +28,7 @@ export const getColumns = () => [
     align: 'center',
     searchable: {
       type: 'selectApi',
+      searchParam: 'title',
       fieldName: 'sealCateId',
       label: '所属分类',
       placeholder: '请选择所属分类',

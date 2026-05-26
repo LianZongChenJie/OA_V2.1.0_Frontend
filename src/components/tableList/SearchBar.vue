@@ -59,7 +59,7 @@
                   :label="option.label"
                   :value="option.value"
                 />
-                <template #footer v-if="hasMoreData(column.fieldName)">
+                <template #footer v-if="hasMoreDataByColumn(column)">
                   <div
                     class="load-more-option"
                     @click.stop="handleLoadMore(column)"
@@ -301,6 +301,10 @@ const toggleExpand = () => {
 // 加载 API 选项数据
 const loadApiOptions = async (column, query = "", isLoadMore = false) => {
   const fieldName = column.fieldName;
+  // column 是从 columns 展开后的对象，优先从 column 读取，其次从 searchable 读取
+  const searchable = column.searchable || {};
+
+  // 读取 API 函数
   const api = column.api;
 
   if (!api || typeof api !== 'function') return;
@@ -312,18 +316,22 @@ const loadApiOptions = async (column, query = "", isLoadMore = false) => {
   }
 
   const currentPage = apiPage.value[fieldName] || 1;
-  const pageSize = column.pageSize || 10;
+  // 优先从 column 读取 pageSize，其次从 searchable
+  const pageSize = column.pageSize || searchable.pageSize || 10;
 
   // 构建请求参数
+  // 优先从 column 读取 apiParams，其次从 searchable
   const params = {
-    ...(column.apiParams || {}),
+    ...(column.apiParams || searchable.apiParams || {}),
     pageNum: currentPage,
     pageSize: pageSize,
   };
 
   // 如果有搜索关键词，添加到参数中
   if (query) {
-    params.keyword = query;
+    // 优先从 column 读取 searchParam，其次从 searchable，默认 keyword
+    const searchParam = column.searchParam || searchable.searchParam || 'keyword';
+    params[searchParam] = query;
   }
 
   apiLoading.value[fieldName] = true;
@@ -334,10 +342,10 @@ const loadApiOptions = async (column, query = "", isLoadMore = false) => {
       const list = res.rows || [];
       const total = res.total || 0;
 
-      // 格式化选项数据
+      // 格式化选项数据，优先从 column 读取，其次从 searchable
       const formattedList = list.map((item) => ({
-        label: item[column.optionLabel || "label"],
-        value: item[column.optionValue || "value"],
+        label: item[column.optionLabel || searchable.optionLabel || "label"],
+        value: item[column.optionValue || searchable.optionValue || "value"],
         ...item,
       }));
 
@@ -361,9 +369,10 @@ const loadApiOptions = async (column, query = "", isLoadMore = false) => {
 
 // 处理下拉框显示/隐藏
 const handleApiVisible = (visible, column) => {
+  const fieldName = column.fieldName;
   if (visible) {
     // 首次展开且没有数据时加载
-    if (!apiOptions.value[column.fieldName]?.length) {
+    if (!apiOptions.value[fieldName]?.length) {
       loadApiOptions(column);
     }
   }
@@ -380,7 +389,7 @@ const handleLoadMore = (column) => {
   if (apiLoading.value[fieldName]) return;
 
   const currentPage = apiPage.value[fieldName] || 1;
-  const pageSize = column.pageSize || 10;
+  const pageSize = column.pageSize || column.searchable?.pageSize || 10;
   const total = apiTotal.value[fieldName] || 0;
 
   // 检查是否还有更多数据
@@ -392,8 +401,14 @@ const handleLoadMore = (column) => {
 
 // 判断是否有更多数据
 const hasMoreData = (fieldName) => {
+  return currentPage * pageSize < total;
+};
+
+// 判断是否有更多数据
+const hasMoreDataByColumn = (column) => {
+  const fieldName = column.searchable?.fieldName || column.fieldName;
   const currentPage = apiPage.value[fieldName] || 1;
-  const pageSize = 10;
+  const pageSize = column.pageSize || 10;
   const total = apiTotal.value[fieldName] || 0;
   return currentPage * pageSize < total;
 };

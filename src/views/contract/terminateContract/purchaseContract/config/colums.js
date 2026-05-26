@@ -29,17 +29,18 @@ export const columns = [
   },
   {
     fieldName: 'cateName',
-    label: '合同类型',
+    label: '合同类别',
     width: 120,
     minWidth: 100,
     searchable: {
       type: 'selectApi',
+      searchParam: 'title', 
       api: getClassifyPageList,
       optionValue: 'id',
       optionLabel: 'title',
       fieldName: 'cateId',
-      placeholder: '请选择合同类型',
-      label: '合同类型',
+      placeholder: '请选择合同类别',
+      label: '合同类别',
       order: 3,
     },
   },
@@ -86,6 +87,7 @@ export const columns = [
     minWidth: 80,
     searchable: {
       type: 'selectApi',
+      searchParam: 'nickName',  // ← 指定搜索参数名
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',

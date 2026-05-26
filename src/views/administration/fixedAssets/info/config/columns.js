@@ -39,6 +39,7 @@ export const columns = [
     minWidth: 80,
     searchable: {
       type: 'selectApi',
+      searchParam: 'title',  // ← 指定搜索参数名
       fieldName: 'brandId',
       label: '资产品牌',
       api: getPageList,

@@ -34,6 +34,7 @@ export const columns = [
     minWidth: 100,
     searchable: {
       type: 'selectApi',
+      searchParam: 'title', 
       api: getClassifyPageList,
       optionValue: 'id',
       optionLabel: 'title',
@@ -86,6 +87,7 @@ export const columns = [
     minWidth: 80,
     searchable: {
       type: 'selectApi',
+      searchParam: 'nickName',  // ← 指定搜索参数名
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',

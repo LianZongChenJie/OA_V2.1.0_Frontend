@@ -62,6 +62,7 @@ export const columns = [
     show: false,
     searchable: {
       type: 'selectApi',
+      searchParam: 'nickName',  // ← 指定搜索参数名
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',

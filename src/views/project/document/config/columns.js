@@ -36,6 +36,7 @@ export const columns = [
     align: 'center',
     searchable: {
       type: 'selectApi',
+      searchParam: 'keywords',  // ← 指定搜索参数名
       api: getPageList,
       optionValue: 'id',       
       optionLabel: 'title',
@@ -53,6 +54,7 @@ export const columns = [
     align: 'center',
     searchable: {
       type: 'selectApi',
+      searchParam: 'nickName',  // ← 指定搜索参数名
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',

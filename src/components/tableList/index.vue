@@ -411,7 +411,8 @@ const searchableColumns = computed(() => {
   return props.columns
     .filter((column) => column.searchable)
     .map((column) => ({
-      ...column.searchable,
+      ...column,                    // 保留原始列的所有属性
+      ...column.searchable,          // searchable 配置覆盖同名属性
       fieldName: column.searchable.fieldName || column.fieldName,
     }));
 });

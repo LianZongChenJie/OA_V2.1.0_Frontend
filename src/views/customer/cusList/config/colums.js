@@ -18,6 +18,7 @@ export const columns = [
     align: 'center',
     searchable: {
       type: 'selectApi',
+      searchParam: 'keywords',
       api: getCustomerLevelList,
       optionValue: 'id',
       optionLabel: 'title',
@@ -120,6 +121,7 @@ export const columns = [
     minWidth: 100,
     searchable: {
       type: 'selectApi',
+      searchParam: 'keywords',
       api: getChannelPageList,
       optionValue: 'id',
       optionLabel: 'title',
@@ -136,6 +138,7 @@ export const columns = [
     minWidth: 120,
     searchable: {
       type: 'selectApi',
+      searchParam: 'keywords',
       api: getIndustryTypePageList,
       optionValue: 'id',
       optionLabel: 'title',
