@@ -84,18 +84,6 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="相关附件">
-        <el-upload
-          :action="uploadUrl"
-          :file-list="attachFileList"
-          :on-success="handleAttachUploadSuccess"
-          :before-upload="beforeUpload"
-          :disabled="isView"
-          multiple
-        >
-          <el-button type="primary" :icon="Plus">上传附件</el-button>
-        </el-upload>
-      </el-form-item>
 
       <el-form-item label="维修内容" prop="content" required>
         <el-input
