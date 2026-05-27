@@ -821,7 +821,7 @@ const handleSubmit = () => {
       })
       .catch((e) => {
         console.error("提交失败", e);
-        ElMessage.error(e.msg || "提交失败");
+
       })
       .finally(() => {
         submitLoading.value = false;
