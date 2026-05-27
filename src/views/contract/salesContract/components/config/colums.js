@@ -114,6 +114,14 @@ export const columns = [
     label: '结束时间',
     width: 120,
     minWidth: 100,
+    searchable: {
+      type: 'dateRange',
+      fieldName: 'rewardDate',
+      searchKey: ['startTime','endTime'],
+      label: '结束时间',
+      placeholder: '请选择',
+      order: 7
+    },
   },
   {
     fieldName: 'cost',
