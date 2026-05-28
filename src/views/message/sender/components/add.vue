@@ -137,42 +137,7 @@
           style="width:100%"
         />
       </el-form-item>
-
-      <!-- 附件上传 -->
-      <el-form-item label="附件" v-if="!isView">
-        <el-upload
-          :auto-upload="false"
-          :on-change="handleFileChange"
-          :on-remove="handleFileRemove"
-          :file-list="uploadFiles"
-          multiple
-          :limit="5"
-        >
-          <el-button type="primary">上传附件</el-button>
-          <template #tip>
-            <div class="el-upload__tip">
-              支持任意格式文件，单个文件不超过10MB，最多上传5个
-            </div>
-          </template>
-        </el-upload>
-        <!-- 查看模式下显示附件列表 -->
-        <div v-if="isView && form.fileNames && form.fileNames.length" class="file-list">
-          <div v-for="(fileName, index) in form.fileNames" :key="index" class="file-item">
-            <el-icon><Document /></el-icon>
-            <span>{{ fileName }}</span>
-          </div>
-        </div>
-      </el-form-item>
-
-      <el-form-item v-else-if="isView && form.fileNames && form.fileNames.length" label="附件">
-        <div class="file-list">
-          <div v-for="(fileName, index) in form.fileNames" :key="index" class="file-item">
-            <el-icon><Document /></el-icon>
-            <span>{{ fileName }}</span>
-          </div>
-        </div>
-      </el-form-item>
-
+    
     </el-form>
 
     <template #footer>

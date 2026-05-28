@@ -24,7 +24,7 @@ export const columns = [
       fieldName: 'checkStatus',
       placeholder: '请选择审批状态',
       label: '审批状态',
-      order: 1,
+      order: 2,
     },
   },
   {
@@ -37,7 +37,7 @@ export const columns = [
       fieldName: 'keywords',
       placeholder: '请输入合同编号',
       label: '合同编号',
-      order: 2,
+      order: 3,
     },
   },
   {
@@ -59,7 +59,7 @@ export const columns = [
       fieldName: 'types',
       placeholder: '请选择合同性质',
       label: '合同性质',
-      order: 3,
+      order: 4,
     },
   },
   {
@@ -82,7 +82,7 @@ export const columns = [
       fieldName: 'cateId',
       placeholder: '请选择合同类别',
       label: '合同类别',
-      order: 5,
+      order: 6,
     },
   },
   {
@@ -119,8 +119,8 @@ export const columns = [
       fieldName: 'rewardDate',
       searchKey: ['startTime','endTime'],
       label: '结束时间',
-      placeholder: '请选择',
-      order: 7
+      placeholder: '结束时间',
+      order: 5
     },
   },
   {
@@ -144,7 +144,7 @@ export const columns = [
       fieldName: 'signUid',
       placeholder: '请选择签订人',
       label: '签订人',
-      order: 6,
+      order: 7,
     },
   },
   {
@@ -163,7 +163,7 @@ export const columns = [
       fieldName: 'signTimeRange',
       placeholder: '签订日期',
       label: '签订日期',
-      order: 4,
+      order: 1,
       searchKey: ['signTimeStart', 'signTimeEnd'],
     },
   },
