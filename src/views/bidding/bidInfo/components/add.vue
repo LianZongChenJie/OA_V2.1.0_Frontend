@@ -195,6 +195,23 @@
         </el-col>
       </el-row>
 
+      <!-- 备注字段 -->
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item label="备注" prop="remark">
+            <el-input
+              v-model="form.remark"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入备注信息"
+              :disabled="isView"
+              maxlength="500"
+              show-word-limit
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
       <!-- 未投原因（单独一行，当是否投标为否时显示） -->
       <el-row :gutter="20" v-if="form.isTenderSubmitted === '否'">
         <el-col :span="12">
@@ -464,6 +481,7 @@ const form = reactive({
   isTenderSubmitted: "",
   nonTenderReason: "",
   sort: 0,
+  remark: "", // 新增备注字段
   // 投标信息 - 标书
   tenderDocumentFee: undefined,
   hasTenderInvoice: "",
@@ -478,6 +496,8 @@ const form = reactive({
   // 投标信息 - 投标结果
   bidResult: "待开标",
   bidServiceFee: 0,
+  // 附件
+  attachments: [],
   // 时间字段
   createTime: "",
   updateTime: "",
@@ -520,6 +540,9 @@ const rules = {
   ],
   isDepositPaid: [
     { required: true, message: "请选择是否缴纳保证金", trigger: "change" },
+  ],
+  remark: [
+    { max: 500, message: "备注不能超过500个字符", trigger: "blur" }
   ],
 };
 
@@ -571,6 +594,7 @@ function reset() {
   form.isTenderSubmitted = "是";
   form.nonTenderReason = "";
   form.sort = 0;
+  form.remark = ""; // 清空备注
   form.tenderDocumentFee = undefined;
   form.hasTenderInvoice = "否";
   form.isDepositPaid = "是";
@@ -583,6 +607,8 @@ function reset() {
   form.bidResult = "待开标";
   form.bidServiceFee = 0;
   form.attachments = [];
+  form.createTime = "";
+  form.updateTime = "";
 
   isEdit.value = false;
   isView.value = false;
@@ -634,6 +660,7 @@ function fillForm(data) {
   form.isTenderSubmitted = data.isTenderSubmitted || "";
   form.nonTenderReason = data.nonTenderReason || "";
   form.sort = data.sort ?? 0;
+  form.remark = data.remark || ""; // 新增备注赋值
   form.tenderDocumentFee = data.tenderDocumentFee;
   form.hasTenderInvoice = data.hasTenderInvoice || "";
   form.isDepositPaid = data.isDepositPaid || "";
