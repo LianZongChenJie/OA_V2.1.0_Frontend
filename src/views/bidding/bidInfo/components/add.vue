@@ -154,13 +154,10 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="入围家数" prop="shortlistedCountries">
-            <el-input-number
+            <el-input
               v-model="form.shortlistedCountries"
-              :min="0"
-              :precision="0"
               placeholder="请输入入围家数"
               :disabled="isView"
-              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -475,7 +472,7 @@ const form = reactive({
   tenderAgency: "",
   projectCycle: undefined,
   projectCycleNum: undefined,
-  shortlistedCountries: undefined,
+  shortlistedCountries: "",
   budgetAmount: undefined,
   bidOpeningDate: "",
   isTenderSubmitted: "",
@@ -588,7 +585,7 @@ function reset() {
   form.tenderAgency = "";
   form.projectCycle = undefined;
   form.projectCycleNum = undefined;
-  form.shortlistedCountries = undefined;
+  form.shortlistedCountries = "";
   form.budgetAmount = undefined;
   form.bidOpeningDate = "";
   form.isTenderSubmitted = "是";
@@ -654,7 +651,7 @@ function fillForm(data) {
   form.tenderAgency = data.tenderAgency || "";
   form.projectCycleNum = data.projectCycleNum;
   form.projectCycle = data.projectCycle;
-  form.shortlistedCountries = data.shortlistedCountries;
+  form.shortlistedCountries = data.shortlistedCountries || "";
   form.budgetAmount = data.budgetAmount;
   form.bidOpeningDate = data.bidOpeningDate || "";
   form.isTenderSubmitted = data.isTenderSubmitted || "";
