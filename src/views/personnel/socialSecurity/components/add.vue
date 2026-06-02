@@ -4,7 +4,7 @@
     <AddEdit ref="addEditRef" @success="handleSuccess" />
 
     <!-- 详情弹窗 -->
-    <Detail ref="detailRef" @success="handleSuccess" />
+    <Detail ref="detailRef" />
   </div>
 </template>
 

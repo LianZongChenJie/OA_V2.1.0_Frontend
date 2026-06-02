@@ -1,217 +1,126 @@
 <template>
   <el-dialog
-    title="查看社保"
+    title="查看社保管理"
     v-model="dialogVisible"
     width="50%"
     append-to-body
     class="social-security-detail-dialog"
     @close="handleClose"
+    @opened="handleOpened"
   >
     <div>
-      <!-- 基础信息 -->
       <div class="form-section-title">基础信息</div>
-      <el-form
-        ref="formRef"
-        :model="form"
-        label-width="120px"
-      >
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="所属城市">
-              <el-input v-model="form.city" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="所在项目">
-              <el-input v-model="form.projectName" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="12">
-            <el-form-item label="社保结算时间">
-              <el-input v-model="form.socialDate" disabled />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="负责人">
-              <el-input v-model="form.manager" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item label="关联人员">
-              <el-input v-model="form.relatedUsers" disabled />
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row :gutter="20">
-          <el-col :span="24">
-            <el-form-item label="备注说明">
-              <el-input v-model="form.remark" disabled type="textarea" :rows="3" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-      </el-form>
-
-      <!-- 审批流程信息 -->
-      <div class="form-section-title">审批流程信息</div>
-
-      <!-- 审批中/审批完结状态：显示审批节点时间轴 -->
-      <div v-if="!isApprovalFlowEditable">
-        <ApprovalNodes :nodes="flowNodes" :currentStepSort="currentCheckStepSort" />
-      </div>
-
-      <!-- 其他状态：显示审批流程选择组件 -->
-      <ApprovalFlow
-        v-else
-        ref="approvalFlowRef"
-        :flowId="currentData?.checkFlowId"
-        :actionId="currentData?.id"
-        :disabled="!isApprovalFlowEditable"
-        flow-title="社保"
-      />
-
-      <!-- 审批记录 -->
-      <RecordSteps
-        v-if="currentData?.records?.length"
-        :records="currentData.records"
+      <SocialSecurityForm
+        ref="formCompRef"
+        v-model="form"
+        :user-options="userOptions"
+        disabled
       />
     </div>
 
     <template #footer>
       <div class="dialog-footer">
-        <ApprovalButtons
-          :current-data="currentData"
-          :approval-flow-ref="approvalFlowRef"
-          @success="handleSuccess"
-          @close-dialog="dialogVisible = false"
-        />
-        <el-button style="margin-left: 20px" @click="dialogVisible = false">
-          关 闭
-        </el-button>
+        <el-button @click="dialogVisible = false">关 闭</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script setup name="SocialSecurityDetail">
-import { ref, computed, nextTick } from "vue";
-import ApprovalFlow from "@/components/ApprovalFlow/index.vue";
-import ApprovalButtons from "@/components/ApprovalFlow/ApprovalButtons.vue";
-import ApprovalNodes from "@/components/ApprovalFlow/ApprovalNodes.vue";
-import RecordSteps from "@/components/RecordSteps/index.vue";
-import { getFlowNodes } from "@/api/common/approval";
+import { ref, onMounted } from "vue";
+import { listUser } from "@/api/system/user.js";
+import SocialSecurityForm from "./socialSecurityForm.vue";
 
 const dialogVisible = ref(false);
-const formRef = ref(null);
-const approvalFlowRef = ref(null);
-const flowNodes = ref([]);
-const currentCheckStepSort = ref(null);
-const currentData = ref(null);
+const formCompRef = ref(null);
+
+// 用户列表（供禁用状态的 select 显示文本）
+const userOptions = ref([]);
 
 const form = ref({
   id: undefined,
+  cityId: [],
   city: "",
   projectName: "",
-  socialDate: "",
-  manager: "",       // 负责人名称（字符串）
-  managerId: undefined, // 负责人ID（数字）
-  relatedUsers: "",
+  socialDate: 15,
+  manager: undefined,
+  relatedUsers: [],
   remark: "",
 });
 
-const isApprovalFlowEditable = computed(() => {
-  return [0, 3, 4].includes(Number(currentData.value?.checkStatus));
+/** 加载用户列表 */
+function loadUserOptions() {
+  listUser({ pageSize: 1000 }).then((response) => {
+    userOptions.value = response.rows || [];
+  });
+}
+
+onMounted(() => {
+  loadUserOptions();
 });
+
+/** 弹窗打开后设置级联回显 */
+function handleOpened() {
+  formCompRef.value?.handleOpened();
+}
 
 /** 关闭弹窗 */
 function handleClose() {
-  formRef.value?.resetFields();
-  // 清空审批节点数据
-  flowNodes.value = [];
-  currentCheckStepSort.value = null;
-  // 清空数据
-  currentData.value = null;
   form.value = {
     id: undefined,
+    cityId: [],
     city: "",
     projectName: "",
-    socialDate: "",
-    manager: "",
-    managerId: undefined,
-    relatedUsers: "",
+    socialDate: 15,
+    manager: undefined,
+    relatedUsers: [],
     remark: "",
   };
 }
 
 /** 显示弹窗 - 查看模式 */
-async function openView(data) {
-  // 保存原始数据用于权限判断
-  currentData.value = data;
+function openView(data) {
+  // 解析城市 ID
+  const cityId = data.cityId
+    ? String(data.cityId).split(",").map(Number)
+    : [];
 
-  // 设置表单数据
+  // 解析负责人 ID（兼容多种数据格式）
+  let manager = data.managerId ? String(data.managerId) : undefined;
+
+  // 如果没有 managerId，尝试从名称反向查找对应的 ID
+  if (!manager) {
+    const name = data.manager || data.managerName || "";
+    if (name) {
+      const found = userOptions.value.find((u) => u.nickName === name);
+      if (found) {
+        manager = String(found.userId);
+      }
+    }
+  }
+
+  // 解析关联人员 ID 数组
+  const relatedUsers = data.relatedUsers
+    ? String(data.relatedUsers).split(",").filter(Boolean)
+    : data.users && data.users.length > 0
+      ? data.users.map((u) => String(u.userId))
+      : [];
+
+  // 设置待回显的 cityId（级联懒加载需要）
+  formCompRef.value?.setPendingCityId(cityId);
+
   form.value = {
     id: data.id,
+    cityId,
     city: data.city || "",
     projectName: data.projectName || "",
-    socialDate: data.socialDate || "",
-    manager: data.manager || data.managerName || "",
-    managerId: data.managerId ? Number(data.managerId) : undefined,
-    relatedUsers: data.relatedUsers || "",
+    socialDate: data.socialDate || 15,
+    manager,
+    relatedUsers,
     remark: data.remark || "",
   };
 
   dialogVisible.value = true;
-
-  // 等待 DOM 更新后设置审批数据
-  await nextTick();
-
-  // 设置审批流程数据
-  if (data.checkFlowId) {
-    approvalFlowRef.value?.setFlowId(data.checkFlowId);
-  }
-
-  if (data.checkCopyUids) {
-    const copyUids = Array.isArray(data.checkCopyUids)
-      ? data.checkCopyUids
-      : data.checkCopyUids.split(",");
-    approvalFlowRef.value?.setCopyUids(copyUids);
-  }
-
-  // 如果是审批中或审批完结状态，获取审批节点信息
-  if (!isApprovalFlowEditable.value && data.checkFlowId && data.id) {
-    try {
-      const result = await getFlowNodes({
-        flowId: data.checkFlowId,
-        actionId: data.id
-      });
-
-      const stepSort = result.data?.checkStepSort ?? result.data?.step?.sort ?? 0;
-      const nodesData = result.data?.nodes.map(item => ({
-        ...item,
-        isFinished: 0,
-        stepName: '步骤 ' + (Number(item.sort) + 1)
-      })) || [];
-
-      if (nodesData.length > 0) {
-        flowNodes.value = data.checkStatus === 1
-          ? nodesData
-          : [...nodesData, { stepName: '完结', sort: nodesData.length, isFinished: 1 }];
-        currentCheckStepSort.value = stepSort;
-      }
-    } catch (error) {
-      console.error("获取审批节点失败:", error);
-    }
-  }
-}
-
-const emit = defineEmits(["success"]);
-
-/** 审批操作成功回调 - 刷新列表 */
-function handleSuccess() {
-  emit("success");
 }
 
 defineExpose({

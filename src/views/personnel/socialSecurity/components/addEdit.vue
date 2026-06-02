@@ -8,102 +8,12 @@
     @close="handleClose"
     @opened="handleOpened"
   >
-    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="所属城市" prop="cityId">
-            <el-cascader
-              ref="cascaderRef"
-              v-model="form.cityId"
-              :props="cascaderProps"
-              placeholder="请选择所属城市"
-              clearable
-              style="width: 100%"
-              @change="handleCityChange"
-            />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="项目名称" prop="projectName">
-            <el-input
-              v-model="form.projectName"
-              placeholder="请输入项目名称"
-              clearable
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="社保结算时间" prop="socialDate">
-            <el-input
-              v-model.number="form.socialDate"
-              placeholder="请输入"
-              style="width: 100%"
-            >
-              <template #prepend>每月</template>
-              <template #append>日</template>
-            </el-input>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="负责人" prop="manager">
-            <el-select
-              v-model="form.manager"
-              placeholder="请选择负责人"
-              filterable
-              clearable
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.nickName"
-                :value="String(item.userId)"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <el-form-item label="关联人员">
-            <el-select
-              v-model="form.relatedUsers"
-              placeholder="请选择关联人员"
-              multiple
-              collapse-tags-tooltip
-              filterable
-              :close-on-select="false"
-              style="width: 100%"
-            >
-              <el-option
-                v-for="item in userOptions"
-                :key="item.userId"
-                :label="item.nickName"
-                :value="String(item.userId)"
-              />
-            </el-select>
-          </el-form-item>
-        </el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="24">
-          <el-form-item label="备注说明" prop="remark">
-            <el-input
-              v-model="form.remark"
-              type="textarea"
-              :rows="3"
-              maxlength="300"
-              show-word-limit
-              placeholder="请输入备注说明（最多300字）"
-              style="width: 100%"
-            />
-          </el-form-item>
-        </el-col>
-      </el-row>
-    </el-form>
+    <SocialSecurityForm
+      ref="formCompRef"
+      v-model="form"
+      :user-options="userOptions"
+      :rules="rules"
+    />
 
     <template #footer>
       <div class="dialog-footer">
@@ -126,40 +36,18 @@ import {
 } from "vue";
 import { add, update } from "@/api/personnel/socialSecurity";
 import { listUser } from "@/api/system/user.js";
-import { getThreeList } from "@/api/base/common/division";
 import useUserStore from "@/store/modules/user";
+import SocialSecurityForm from "./socialSecurityForm.vue";
 
 const { proxy } = getCurrentInstance();
 const userStore = useUserStore();
 
 const dialogVisible = ref(false);
-const formRef = ref(null);
-const cascaderRef = ref(null);
+const formCompRef = ref(null);
 const isEdit = ref(false);
-let pendingCityId = null;
 
 // 人员下拉选项
 const userOptions = ref([]);
-
-// 地区级联配置（远程懒加载）
-const cascaderProps = {
-  value: "id",
-  label: "name",
-  children: "children",
-  checkStrictly: true,
-  emitPath: true,
-  lazy: true,
-  lazyLoad(node, resolve) {
-    const params = node.level === 0 ? { pid: 0 } : { pid: node.data.id };
-    getThreeList(params).then((res) => {
-      const nodes = (res.data || []).map((item) => ({
-        ...item,
-        leaf: item.hasChildren === false || item.level >= 3,
-      }));
-      resolve(nodes);
-    });
-  },
-};
 
 const data = reactive({
   form: {
@@ -178,7 +66,7 @@ const { form } = toRefs(data);
 
 // 根据模式动态显示标题
 const dialogTitle = computed(() => {
-  return isEdit.value ? "编辑社保" : "新增社保";
+  return isEdit.value ? "编辑社保管理" : "新增社保管理";
 });
 
 const rules = {
@@ -208,24 +96,9 @@ onMounted(() => {
   getUserOptions();
 });
 
-/** 城市选择变更：保存完整路径名称到 form.city */
-function handleCityChange(value) {
-  const nodes = cascaderRef.value?.getCheckedNodes();
-  if (nodes && nodes.length > 0) {
-    const node = nodes[0];
-    form.value.city = node.pathLabels ? node.pathLabels.join(",") : node.label || "";
-  } else {
-    form.value.city = "";
-    form.value.cityId = [];
-  }
-}
-
 /** 弹窗打开动画完成后，设置城市级联器回显值 */
 function handleOpened() {
-  if (pendingCityId) {
-    form.value.cityId = pendingCityId;
-    pendingCityId = null;
-  }
+  formCompRef.value?.handleOpened();
 }
 
 /** 表单重置 */
@@ -240,8 +113,7 @@ function reset() {
   form.value.remark = "";
 
   isEdit.value = false;
-  pendingCityId = null;
-  formRef.value?.clearValidate();
+  formCompRef.value?.formRef?.clearValidate();
 }
 
 /** 关闭弹窗 */
@@ -262,31 +134,54 @@ function open() {
 function openEdit(editData) {
   isEdit.value = true;
   dialogVisible.value = true;
-  pendingCityId = editData.cityId ? editData.cityId.split(",") : [];
+  const pendingCityId = editData.cityId ? editData.cityId.split(",").map(Number) : [];
+  formCompRef.value?.setPendingCityId(pendingCityId);
   nextTick(() => {
     form.value.id = editData.id;
     form.value.city = editData.city || "";
     form.value.projectName = editData.projectName || "";
     form.value.socialDate = editData.socialDate || 15;
-    form.value.manager = editData.manager;
+    form.value.manager = editData.managerId
+      ? String(editData.managerId)
+      : (() => {
+          const name = editData.manager || editData.managerName || "";
+          if (name) {
+            const found = userOptions.value.find((u) => u.nickName === name);
+            if (found) return String(found.userId);
+          }
+          return undefined;
+        })();
     form.value.relatedUsers = editData.relatedUsers
       ? editData.relatedUsers.split(",")
-      : [];
+      : editData.users && editData.users.length > 0
+        ? editData.users.map(u => String(u.userId))
+        : [];
     form.value.remark = editData.remark || "";
   });
 }
 
 /** 提交表单 */
 function handleSubmit() {
-  formRef.value.validate((valid) => {
+  formCompRef.value?.formRef.validate((valid) => {
     if (valid) {
       // 关联人员 userId 数组转逗号分隔字符串
       const selectedUserIds = form.value.relatedUsers.join(",");
+
+      // 查找负责人名称
+      let managerName = "";
+      if (form.value.manager) {
+        const found = userOptions.value.find(
+          (u) => String(u.userId) === form.value.manager,
+        );
+        if (found) managerName = found.nickName;
+      }
 
       const submitData = {
         ...form.value,
         cityId: Array.isArray(form.value.cityId) ? form.value.cityId.join(",") : form.value.cityId,
         relatedUsers: selectedUserIds,
+        managerId: form.value.manager,
+        manager: managerName,
       };
 
       const apiMethod = isEdit.value ? update : add;
