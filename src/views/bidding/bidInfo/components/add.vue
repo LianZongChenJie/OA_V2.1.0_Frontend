@@ -154,13 +154,10 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="入围家数" prop="shortlistedCountries">
-            <el-input-number
+            <el-input
               v-model="form.shortlistedCountries"
-              :min="0"
-              :precision="0"
               placeholder="请输入入围家数"
               :disabled="isView"
-              style="width: 100%"
             />
           </el-form-item>
         </el-col>
@@ -190,6 +187,23 @@
               placeholder="请输入排序"
               :disabled="isView"
               style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
+
+      <!-- 备注字段 -->
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item label="备注" prop="remark">
+            <el-input
+              v-model="form.remark"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入备注信息"
+              :disabled="isView"
+              maxlength="500"
+              show-word-limit
             />
           </el-form-item>
         </el-col>
@@ -458,12 +472,13 @@ const form = reactive({
   tenderAgency: "",
   projectCycle: undefined,
   projectCycleNum: undefined,
-  shortlistedCountries: undefined,
+  shortlistedCountries: "",
   budgetAmount: undefined,
   bidOpeningDate: "",
   isTenderSubmitted: "",
   nonTenderReason: "",
   sort: 0,
+  remark: "", // 新增备注字段
   // 投标信息 - 标书
   tenderDocumentFee: undefined,
   hasTenderInvoice: "",
@@ -478,6 +493,8 @@ const form = reactive({
   // 投标信息 - 投标结果
   bidResult: "待开标",
   bidServiceFee: 0,
+  // 附件
+  attachments: [],
   // 时间字段
   createTime: "",
   updateTime: "",
@@ -520,6 +537,9 @@ const rules = {
   ],
   isDepositPaid: [
     { required: true, message: "请选择是否缴纳保证金", trigger: "change" },
+  ],
+  remark: [
+    { max: 500, message: "备注不能超过500个字符", trigger: "blur" }
   ],
 };
 
@@ -565,12 +585,13 @@ function reset() {
   form.tenderAgency = "";
   form.projectCycle = undefined;
   form.projectCycleNum = undefined;
-  form.shortlistedCountries = undefined;
+  form.shortlistedCountries = "";
   form.budgetAmount = undefined;
   form.bidOpeningDate = "";
   form.isTenderSubmitted = "是";
   form.nonTenderReason = "";
   form.sort = 0;
+  form.remark = ""; // 清空备注
   form.tenderDocumentFee = undefined;
   form.hasTenderInvoice = "否";
   form.isDepositPaid = "是";
@@ -583,6 +604,8 @@ function reset() {
   form.bidResult = "待开标";
   form.bidServiceFee = 0;
   form.attachments = [];
+  form.createTime = "";
+  form.updateTime = "";
 
   isEdit.value = false;
   isView.value = false;
@@ -628,12 +651,13 @@ function fillForm(data) {
   form.tenderAgency = data.tenderAgency || "";
   form.projectCycleNum = data.projectCycleNum;
   form.projectCycle = data.projectCycle;
-  form.shortlistedCountries = data.shortlistedCountries;
+  form.shortlistedCountries = data.shortlistedCountries || "";
   form.budgetAmount = data.budgetAmount;
   form.bidOpeningDate = data.bidOpeningDate || "";
   form.isTenderSubmitted = data.isTenderSubmitted || "";
   form.nonTenderReason = data.nonTenderReason || "";
   form.sort = data.sort ?? 0;
+  form.remark = data.remark || ""; // 新增备注赋值
   form.tenderDocumentFee = data.tenderDocumentFee;
   form.hasTenderInvoice = data.hasTenderInvoice || "";
   form.isDepositPaid = data.isDepositPaid || "";
