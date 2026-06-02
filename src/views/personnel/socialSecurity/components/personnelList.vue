@@ -113,6 +113,7 @@ const addTableRef = ref(null);
 // 关联人员表格参数
 const tableParams = computed(() => ({
   socialId: currentId.value,
+  status: 1,
 }));
 
 // 关联人员列配置
