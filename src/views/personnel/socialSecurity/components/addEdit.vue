@@ -135,8 +135,8 @@ function openEdit(editData) {
   isEdit.value = true;
   dialogVisible.value = true;
   const pendingCityId = editData.cityId ? editData.cityId.split(",").map(Number) : [];
-  formCompRef.value?.setPendingCityId(pendingCityId);
   nextTick(() => {
+    formCompRef.value?.setPendingCityId(pendingCityId);
     form.value.id = editData.id;
     form.value.city = editData.city || "";
     form.value.projectName = editData.projectName || "";
