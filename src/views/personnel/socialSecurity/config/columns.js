@@ -52,11 +52,12 @@ export const columns = [
     align: 'center',
     searchable: {
       type: 'selectApi',
+      searchParam: 'managerId',
       searchParam: 'nickName',
       api: listUser,
       optionValue: 'userId',
       optionLabel: 'nickName',
-      fieldName: 'manager',
+      fieldName: 'managerId',
       placeholder: '请选择负责人',
       label: '负责人',
       order: 2,
