@@ -6,22 +6,20 @@
     append-to-body
     class="social-security-dialog"
     @close="handleClose"
+    @opened="handleOpened"
   >
-    <el-form
-      ref="formRef"
-      :model="form"
-      :rules="rules"
-      label-width="120px"
-    >
+    <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="所属城市" prop="city">
+          <el-form-item label="所属城市" prop="cityId">
             <el-cascader
-              v-model="form.city"
+              ref="cascaderRef"
+              v-model="form.cityId"
               :props="cascaderProps"
               placeholder="请选择所属城市"
               clearable
               style="width: 100%"
+              @change="handleCityChange"
             />
           </el-form-item>
         </el-col>
@@ -38,9 +36,9 @@
       </el-row>
       <el-row :gutter="20">
         <el-col :span="12">
-          <el-form-item label="社保结算时间" prop="settlementDay">
+          <el-form-item label="社保结算时间" prop="socialDate">
             <el-input
-              v-model.number="form.settlementDay"
+              v-model.number="form.socialDate"
               placeholder="请输入"
               style="width: 100%"
             >
@@ -62,7 +60,7 @@
                 v-for="item in userOptions"
                 :key="item.userId"
                 :label="item.nickName"
-                :value="item.userId"
+                :value="String(item.userId)"
               />
             </el-select>
           </el-form-item>
@@ -75,8 +73,8 @@
               v-model="form.relatedUsers"
               placeholder="请选择关联人员"
               multiple
-              collapse-tags
               collapse-tags-tooltip
+              filterable
               :close-on-select="false"
               style="width: 100%"
             >
@@ -84,9 +82,24 @@
                 v-for="item in userOptions"
                 :key="item.userId"
                 :label="item.nickName"
-                :value="item.userId"
+                :value="String(item.userId)"
               />
             </el-select>
+          </el-form-item>
+        </el-col>
+      </el-row>
+      <el-row :gutter="20">
+        <el-col :span="24">
+          <el-form-item label="备注说明" prop="remark">
+            <el-input
+              v-model="form.remark"
+              type="textarea"
+              :rows="3"
+              maxlength="300"
+              show-word-limit
+              placeholder="请输入备注说明（最多300字）"
+              style="width: 100%"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -102,11 +115,16 @@
 </template>
 
 <script setup name="SocialSecurityAddEdit">
-import { ref, reactive, toRefs, computed, getCurrentInstance, onMounted, nextTick } from "vue";
 import {
-  add,
-  update,
-} from "@/api/personnel/socialSecurity";
+  ref,
+  reactive,
+  toRefs,
+  computed,
+  getCurrentInstance,
+  onMounted,
+  nextTick,
+} from "vue";
+import { add, update } from "@/api/personnel/socialSecurity";
 import { listUser } from "@/api/system/user.js";
 import { getThreeList } from "@/api/base/common/division";
 import useUserStore from "@/store/modules/user";
@@ -116,18 +134,20 @@ const userStore = useUserStore();
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
+const cascaderRef = ref(null);
 const isEdit = ref(false);
+let pendingCityId = null;
 
 // 人员下拉选项
 const userOptions = ref([]);
 
 // 地区级联配置（远程懒加载）
 const cascaderProps = {
-  value: 'id',
-  label: 'name',
-  children: 'children',
+  value: "id",
+  label: "name",
+  children: "children",
   checkStrictly: true,
-  emitPath: false,
+  emitPath: true,
   lazy: true,
   lazyLoad(node, resolve) {
     const params = node.level === 0 ? { pid: 0 } : { pid: node.data.id };
@@ -144,11 +164,13 @@ const cascaderProps = {
 const data = reactive({
   form: {
     id: undefined,
-    city: undefined,
+    cityId: [],
+    city: "",
     projectName: "",
-    settlementDay: 15,
+    socialDate: 15,
     manager: undefined,
     relatedUsers: [],
+    remark: "",
   },
 });
 
@@ -160,11 +182,17 @@ const dialogTitle = computed(() => {
 });
 
 const rules = {
-  city: [{ required: true, message: "请选择所属城市", trigger: "change" }],
+  cityId: [{ required: true, message: "请选择所属城市", trigger: "change" }],
   projectName: [],
-  settlementDay: [
+  socialDate: [
     { required: true, message: "请输入社保结算时间", trigger: "blur" },
-    { type: "number", min: 1, max: 31, message: "请输入1-31之间的数字", trigger: "blur" },
+    {
+      type: "number",
+      min: 1,
+      max: 31,
+      message: "请输入1-31之间的数字",
+      trigger: "blur",
+    },
   ],
   manager: [{ required: true, message: "请选择负责人", trigger: "change" }],
 };
@@ -180,16 +208,39 @@ onMounted(() => {
   getUserOptions();
 });
 
+/** 城市选择变更：保存完整路径名称到 form.city */
+function handleCityChange(value) {
+  const nodes = cascaderRef.value?.getCheckedNodes();
+  if (nodes && nodes.length > 0) {
+    const node = nodes[0];
+    form.value.city = node.pathLabels ? node.pathLabels.join(",") : node.label || "";
+  } else {
+    form.value.city = "";
+    form.value.cityId = [];
+  }
+}
+
+/** 弹窗打开动画完成后，设置城市级联器回显值 */
+function handleOpened() {
+  if (pendingCityId) {
+    form.value.cityId = pendingCityId;
+    pendingCityId = null;
+  }
+}
+
 /** 表单重置 */
 function reset() {
   form.value.id = undefined;
-  form.value.city = undefined;
+  form.value.cityId = [];
+  form.value.city = "";
   form.value.projectName = "";
-  form.value.settlementDay = 15;
-  form.value.manager = userStore.id;
+  form.value.socialDate = 15;
+  form.value.manager = String(userStore.id);
   form.value.relatedUsers = [];
+  form.value.remark = "";
 
   isEdit.value = false;
+  pendingCityId = null;
   formRef.value?.clearValidate();
 }
 
@@ -211,13 +262,17 @@ function open() {
 function openEdit(editData) {
   isEdit.value = true;
   dialogVisible.value = true;
+  pendingCityId = editData.cityId ? editData.cityId.split(",") : [];
   nextTick(() => {
     form.value.id = editData.id;
-    form.value.city = editData.city || undefined;
+    form.value.city = editData.city || "";
     form.value.projectName = editData.projectName || "";
-    form.value.settlementDay = editData.settlementDay || 15;
+    form.value.socialDate = editData.socialDate || 15;
     form.value.manager = editData.manager;
-    form.value.relatedUsers = editData.relatedUsers ? editData.relatedUsers.split(",") : [];
+    form.value.relatedUsers = editData.relatedUsers
+      ? editData.relatedUsers.split(",")
+      : [];
+    form.value.remark = editData.remark || "";
   });
 }
 
@@ -225,15 +280,13 @@ function openEdit(editData) {
 function handleSubmit() {
   formRef.value.validate((valid) => {
     if (valid) {
-      // 将关联人员 userId 数组转换为以逗号分隔的用户名
-      const selectedUsers = form.value.relatedUsers
-        .map(id => userOptions.value.find(u => u.userId === id)?.nickName)
-        .filter(Boolean)
-        .join(",");
+      // 关联人员 userId 数组转逗号分隔字符串
+      const selectedUserIds = form.value.relatedUsers.join(",");
 
       const submitData = {
         ...form.value,
-        relatedUsers: selectedUsers,
+        cityId: Array.isArray(form.value.cityId) ? form.value.cityId.join(",") : form.value.cityId,
+        relatedUsers: selectedUserIds,
       };
 
       const apiMethod = isEdit.value ? update : add;
@@ -256,8 +309,7 @@ defineExpose({
 });
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
 
 <style>
 /* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */

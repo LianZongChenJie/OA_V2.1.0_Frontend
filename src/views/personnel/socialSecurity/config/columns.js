@@ -6,14 +6,21 @@ export const columns = [
   {
     fieldName: 'city',
     label: '所属城市',
-    width: "10%",
+    width: "20%",
     minWidth: 100,
     align: 'center',
+    format: (val) => (val || '').replace(/,/g, '/'),
+    searchable: {
+      type: 'input',
+      placeholder: '请输入城市',
+      label: '所属城市',
+      order: 0,
+    },
   },
   {
     fieldName: 'projectName',
     label: '所在项目',
-    width: "15%",
+    width: "25%",
     minWidth: 120,
     align: 'center',
     searchable: {
@@ -30,21 +37,20 @@ export const columns = [
   },
   {
     fieldName: 'socialDate',
-    label: '社保日期',
-    width: "10%",
+    label: '社保结算时间',
+    width: "20%",
     minWidth: 100,
     align: 'center',
-    formatter: (row) => formatDate(row.socialDate),
   },
   {
     fieldName: 'relatedUsers',
     label: '关联人员',
-    width: "20%",
+    width: "10%",
     minWidth: 160,
     align: 'center',
   },
   {
-    fieldName: 'managerName',
+    fieldName: 'manager',
     label: '负责人',
     width: "10%",
     minWidth: 100,
@@ -68,20 +74,29 @@ export const columns = [
     minWidth: 100,
     align: 'center',
     formatter: (row) => formatDate(row.createTime),
-  },
+  }
 ];
 
 export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onPersonnel) => {
+export const getOperationColumn = (onEdit, onView) => {
   return {
     label: '操作',
     width: 170,
     fixed: 'right',
     show: true,
     actions: [
+      {
+        label: '查看',
+        type: 'primary',
+        size: 'small',
+        onClick: (row) => {
+          onView && onView(row);
+        },
+        icon: 'eye-open',
+      },
       {
         label: '编辑',
         type: 'success',
@@ -90,16 +105,7 @@ export const getOperationColumn = (onEdit, onPersonnel) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
-      },
-      {
-        label: '人员',
-        type: 'primary',
-        size: 'small',
-        onClick: (row) => {
-          onPersonnel && onPersonnel(row);
-        },
-        icon: 'user',
-      },
+      }
     ],
   };
 };

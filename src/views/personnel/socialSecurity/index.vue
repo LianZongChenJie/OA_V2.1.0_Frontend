@@ -8,9 +8,13 @@
       row-key="id"
       ref="tableList"
     >
+      <template #socialDate="{ row }">
+        <span v-if="row.socialDate">{{ "每月" + row.socialDate + "号" }}</span>
+      </template>
       <template #relatedUsers="{ row }">
-        <span v-if="row.relatedUsers">{{ row.relatedUsers }}</span>
-        <span v-else>-</span>
+        <el-button type="primary" size="small" icon="user" @click="handlePersonnel(row)"
+          >查看人员</el-button
+        >
       </template>
     </TableList>
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
@@ -20,10 +24,7 @@
 <script setup>
 import { ref } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import {
-  getPageList,
-  getDetail,
-} from "@/api/personnel/socialSecurity";
+import { getPageList, getDetail } from "@/api/personnel/socialSecurity";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import PersonnelListDialog from "./components/personnelList.vue";
@@ -45,6 +46,14 @@ async function handleEdit(row) {
   }
 }
 
+/** 查看按钮操作 */
+async function handleView(row) {
+  const res = await getDetail(row.id);
+  if (res) {
+    addDialogRef.value.openView(res.data || res);
+  }
+}
+
 /** 人员按钮操作 */
 function handlePersonnel(row) {
   personnelListRef.value.open(row);
@@ -56,9 +65,6 @@ function handleSuccess() {
 }
 
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(
-  handleEdit,
-  handlePersonnel,
-);
+const operationColumn = getOperationColumn(handleEdit, handleView);
 </script>
 <style lang="scss" scoped></style>

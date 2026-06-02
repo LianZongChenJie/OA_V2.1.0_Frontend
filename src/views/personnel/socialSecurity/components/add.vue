@@ -26,6 +26,11 @@ function openEdit(data) {
   addEditRef.value?.openEdit(data);
 }
 
+/** 显示弹窗 - 查看模式 */
+function openView(data) {
+  detailRef.value?.openView(data);
+}
+
 /** 处理成功事件 */
 function handleSuccess() {
   emit("success");
@@ -36,5 +41,6 @@ const emit = defineEmits(["success"]);
 defineExpose({
   open,
   openEdit,
+  openView,
 });
 </script>

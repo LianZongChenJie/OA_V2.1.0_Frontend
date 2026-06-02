@@ -29,13 +29,13 @@
         </el-row>
         <el-row :gutter="20">
           <el-col :span="12">
-            <el-form-item label="社保日期">
+            <el-form-item label="社保结算时间">
               <el-input v-model="form.socialDate" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="负责人">
-              <el-input v-model="form.managerName" disabled />
+              <el-input v-model="form.manager" disabled />
             </el-form-item>
           </el-col>
         </el-row>
@@ -43,6 +43,13 @@
           <el-col :span="24">
             <el-form-item label="关联人员">
               <el-input v-model="form.relatedUsers" disabled />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <el-form-item label="备注说明">
+              <el-input v-model="form.remark" disabled type="textarea" :rows="3" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -109,8 +116,10 @@ const form = ref({
   city: "",
   projectName: "",
   socialDate: "",
-  managerName: "",
+  manager: "",       // 负责人名称（字符串）
+  managerId: undefined, // 负责人ID（数字）
   relatedUsers: "",
+  remark: "",
 });
 
 const isApprovalFlowEditable = computed(() => {
@@ -130,8 +139,10 @@ function handleClose() {
     city: "",
     projectName: "",
     socialDate: "",
-    managerName: "",
+    manager: "",
+    managerId: undefined,
     relatedUsers: "",
+    remark: "",
   };
 }
 
@@ -146,8 +157,10 @@ async function openView(data) {
     city: data.city || "",
     projectName: data.projectName || "",
     socialDate: data.socialDate || "",
-    managerName: data.managerName || "",
+    manager: data.manager || data.managerName || "",
+    managerId: data.managerId ? Number(data.managerId) : undefined,
     relatedUsers: data.relatedUsers || "",
+    remark: data.remark || "",
   };
 
   dialogVisible.value = true;
@@ -221,6 +234,7 @@ defineExpose({
 /* dialog 使用 append-to-body 后会挂载到 body 下，scoped 样式无法穿透，需要使用非 scoped 样式 */
 .social-security-detail-dialog .el-dialog {
   max-height: 88vh;
+  min-height: 60vh;
   display: flex;
   flex-direction: column;
 }
