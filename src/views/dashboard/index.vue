@@ -1,6 +1,6 @@
 <template>
   <div>
-    <AConfigProvider
+    <a-config-provider
       :theme="{
         algorithm: settingsStore.isDark
           ? theme.darkAlgorithm
@@ -30,12 +30,14 @@
           <UrgentList />
         </div>
         <div class="rightPanel">
+          <SocialSecuritySettlement />
+          <div style="height: 20px"></div>
           <NoticeList />
           <div style="height: 20px"></div>
           <NewsList />
         </div>
       </div>
-    </AConfigProvider>
+    </a-config-provider>
   </div>
 </template>
 
@@ -46,6 +48,7 @@ import UrgentList from "./components/UrgentList.vue";
 import TodoList from "./components/TodoList.vue";
 import StatCount from "./components/StatCount.vue";
 import NoticeList from "./components/NoticeList.vue";
+import SocialSecuritySettlement from "./components/SocialSecuritySettlement.vue";
 import NewsList from "./components/NewsList.vue";
 import useSettingsStore from "@/store/modules/settings";
 import useUserStore from "@/store/modules/user";

@@ -68,3 +68,11 @@ export function delUser(data) {
     data: data
   })
 }
+//计算快到期的社保管理信息
+export function getExpireList(query) {
+  return request({
+    url: '/personnel/social_security/reminder/expiring',
+    method: 'get',
+    params: query
+  })
+}
