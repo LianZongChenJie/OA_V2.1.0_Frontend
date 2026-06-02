@@ -1,6 +1,5 @@
 import { formatDate } from '@/utils/index'
 import { listUser } from '@/api/system/user.js'
-import { getPageList as getProjectList } from '@/api/project/itemList/index.js'
 
 export const columns = [
   {
@@ -24,13 +23,9 @@ export const columns = [
     minWidth: 120,
     align: 'center',
     searchable: {
-      type: 'selectApi',
+      type: 'input',
       searchParam: 'projectName',
-      api: getProjectList,
-      optionValue: 'id',
-      optionLabel: 'projectName',
-      fieldName: 'projectId',
-      placeholder: '请选择项目',
+      placeholder: '请输入项目名称',
       label: '所在项目',
       order: 1,
     },
