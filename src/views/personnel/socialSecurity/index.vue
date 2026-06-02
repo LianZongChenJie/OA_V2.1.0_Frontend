@@ -22,9 +22,9 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail } from "@/api/personnel/socialSecurity";
+import { getPageList, getDetail, del } from "@/api/personnel/socialSecurity";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import PersonnelListDialog from "./components/personnelList.vue";
@@ -64,7 +64,23 @@ function handleSuccess() {
   tableList.value.refresh();
 }
 
+/** 删除按钮操作 */
+function handleDelete(row) {
+  proxy.$modal
+    .confirm("确认删除该社保信息吗？")
+    .then(async () => {
+      const res = await del(row.id);
+      if (res) {
+        proxy.$modal.msgSuccess("删除成功");
+        tableList.value.refresh();
+      }
+    })
+    .catch(() => {});
+}
+
+const { proxy } = getCurrentInstance();
+
 const headerButs = getHeaderButs(handleAdd);
-const operationColumn = getOperationColumn(handleEdit, handleView);
+const operationColumn = getOperationColumn(handleEdit, handleView, handleDelete);
 </script>
 <style lang="scss" scoped></style>

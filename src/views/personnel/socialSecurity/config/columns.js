@@ -81,10 +81,10 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView) => {
+export const getOperationColumn = (onEdit, onView, onDelete) => {
   return {
     label: '操作',
-    width: 170,
+    width: 240,
     fixed: 'right',
     show: true,
     actions: [
@@ -105,6 +105,15 @@ export const getOperationColumn = (onEdit, onView) => {
           onEdit && onEdit(row);
         },
         icon: 'edit',
+      },
+      {
+        label: '删除',
+        type: 'danger',
+        size: 'small',
+        onClick: (row) => {
+          onDelete && onDelete(row);
+        },
+        icon: 'delete',
       }
     ],
   };

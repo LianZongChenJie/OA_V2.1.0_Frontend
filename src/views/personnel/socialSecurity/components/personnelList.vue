@@ -119,21 +119,35 @@ const tableParams = computed(() => ({
 // 关联人员列配置
 const personnelColumns = [
   {
-    fieldName: "nickName",
-    width: "30%",
+    fieldName: "userId",
+    width: "10%",
+    label: "用户ID",
+    minWidth: 120,
+    align: "center",
+  },
+  {
+    fieldName: "userName",
+    width: "20%",
     label: "姓名",
     minWidth: 120,
     align: "center",
   },
   {
-    fieldName: "dept",
+    fieldName: "departmentName",
     width: "30%",
     label: "部门",
     minWidth: 150,
     align: "center",
   },
   {
-    fieldName: "createTime",
+    fieldName: "projectName",
+    width: "30%",
+    label: "所在项目",
+    minWidth: 150,
+    align: "center",
+  },
+  {
+    fieldName: "entryTimeStr",
     width: "10%",
     label: "入职时间",
     minWidth: 130,
@@ -207,7 +221,7 @@ async function handleConfirmAdd() {
   try {
     const res = await addUser({
       socialId: currentId.value,
-      uids: addSelectedIds.value,
+      userId: addSelectedIds.value.join(","),
     });
     if (res) {
       proxy.$modal.msgSuccess("添加成功");
@@ -236,7 +250,7 @@ async function handleRemovePersonnel() {
       try {
         const res = await delUser({
           socialId: currentId.value,
-          uids: selectedIds.value,
+          userIds: selectedIds.value.join(","),
         });
         if (res) {
           proxy.$modal.msgSuccess("移除成功");
@@ -272,5 +286,8 @@ defineExpose({
 <style>
 .personnel-choose-list-dialog {
   background-color: #f5f7fa;
+}
+.el-dialog__footer{
+  margin-top: 40px;
 }
 </style>
