@@ -1,6 +1,6 @@
 <template>
   <div class="search-bar">
-    <el-form :model="searchParams" :inline="true" label-position="top">
+    <el-form :model="searchParams" :inline="true" label-position="top" @submit.prevent>
       <div class="search-box">
         <div class="search-conditions-wrapper">
           <div class="search-conditions" :class="{ collapsed: !showMore }">
@@ -19,6 +19,7 @@
                   `请输入${column.label || column.fieldName}`
                 "
                 clearable
+                @keydown.enter.stop="handleSearch"
               />
               <el-select
                 v-else-if="column.type === 'select'"

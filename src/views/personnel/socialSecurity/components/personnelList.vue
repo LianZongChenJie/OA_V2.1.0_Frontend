@@ -164,7 +164,7 @@ const addUserColumns = [
   {
     fieldName: "nickName",
     label: "姓名",
-    width: "30%",
+    width: "10%",
     minWidth: 120,
     align: "center",
     searchable: {
@@ -180,6 +180,13 @@ const addUserColumns = [
     width: "30%",
     label: "部门",
     minWidth: 150,
+    align: "center",
+  },
+  {
+    fieldName: "city",
+    width: "30%",
+    label: "所在城市",
+    minWidth: 130,
     align: "center",
   },
   {
