@@ -221,8 +221,10 @@
                 width="100"
               >
                 <template #default="scope">
-                  <el-tag :type="scope.row.isLeader === true ? 'success' : 'info'">
-                    {{ scope.row.isLeader === true ? '是' : '否' }}
+                  <el-tag
+                    :type="scope.row.isLeader === true ? 'success' : 'info'"
+                  >
+                    {{ scope.row.isLeader === true ? "是" : "否" }}
                   </el-tag>
                 </template>
               </el-table-column>
@@ -312,7 +314,14 @@
     </el-row>
 
     <!-- 添加或修改用户配置对话框 -->
-    <el-dialog :title="title" v-model="open" width="60%" minWidth="600px" append-to-body>
+    <el-dialog
+      :title="title"
+      v-model="open"
+      width="60%"
+      minWidth="600px"
+      append-to-body
+      @opened="handleDialogOpened"
+    >
       <el-form :model="form" :rules="rules" ref="userRef" label-width="140px">
         <el-row>
           <el-col :span="12">
@@ -417,6 +426,15 @@
                   >{{ dict.label }}</el-radio
                 >
               </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="所在城市" prop="cityId">
+              <CityCascader
+                ref="cityCascaderRef"
+                v-model="form.cityId"
+                @city-change="handleCityChange"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -535,13 +553,14 @@ import {
 import { Splitpanes, Pane } from "splitpanes";
 import "splitpanes/dist/splitpanes.css";
 import DeptCascader from "@/components/DeptCascader/index.vue";
+import CityCascader from "@/components/CityCascader/index.vue";
 
 const router = useRouter();
 const appStore = useAppStore();
 const { proxy } = getCurrentInstance();
 const { sys_normal_disable, sys_user_sex } = proxy.useDict(
   "sys_normal_disable",
-  "sys_user_sex"
+  "sys_user_sex",
 );
 
 const userList = ref([]);
@@ -560,6 +579,7 @@ const enabledDeptOptions = ref(undefined);
 const initPassword = ref(undefined);
 const postOptions = ref([]);
 const roleOptions = ref([]);
+const cityCascaderRef = ref(null);
 /*** 用户导入参数 */
 const upload = reactive({
   // 是否显示弹出层（用户导入）
@@ -661,7 +681,7 @@ function getList() {
       loading.value = false;
       userList.value = res.rows;
       total.value = res.total;
-    }
+    },
   );
 }
 /** 查询部门下拉树结构 */
@@ -669,7 +689,7 @@ function getDeptTree() {
   deptTreeSelect().then((response) => {
     deptOptions.value = response.data;
     enabledDeptOptions.value = filterDisabledDept(
-      JSON.parse(JSON.stringify(response.data))
+      JSON.parse(JSON.stringify(response.data)),
     );
   });
 }
@@ -724,7 +744,7 @@ function handleExport() {
     {
       ...queryParams.value,
     },
-    `user_${new Date().getTime()}.xlsx`
+    `user_${new Date().getTime()}.xlsx`,
   );
 }
 /** 用户状态修改  */
@@ -799,7 +819,7 @@ function importTemplate() {
   proxy.download(
     "system/user/importTemplate",
     {},
-    `user_template_${new Date().getTime()}.xlsx`
+    `user_template_${new Date().getTime()}.xlsx`,
   );
 }
 /**文件上传中处理 */
@@ -824,7 +844,7 @@ const handleFileSuccess = (response, file, fileList) => {
       response.msg +
       "</div>",
     "导入结果",
-    { dangerouslyUseHTMLString: true }
+    { dangerouslyUseHTMLString: true },
   );
   getList();
 };
@@ -858,6 +878,8 @@ function reset() {
     remark: undefined,
     postIds: [],
     roleIds: [],
+    city: undefined,
+    cityId: [],
   };
   proxy.resetForm("userRef");
 }
@@ -890,15 +912,19 @@ function handleUpdate(row) {
     if (form.value.isLeader === undefined) {
       form.value.isLeader = false;
     }
-    open.value = true;
     title.value = "修改用户";
     form.value.password = undefined;
+    open.value = true;
   });
 }
 /** 提交按钮 */
 function submitForm() {
   proxy.$refs["userRef"].validate((valid) => {
     if (valid) {
+      // 提交时将 cityId 数组转回逗号分隔字符串
+      if (Array.isArray(form.value.cityId)) {
+        form.value.cityId = form.value.cityId.join(',');
+      }
       if (form.value.userId != undefined) {
         updateUser(form.value).then((response) => {
           proxy.$modal.msgSuccess("修改成功");
@@ -914,6 +940,21 @@ function submitForm() {
       }
     }
   });
+}
+
+/** 城市选择变更：保存完整路径名称 */
+function handleCityChange(cityName) {
+  form.value.city = cityName;
+}
+
+/** 弹窗动画完成后，回显城市级联值 */
+function handleDialogOpened() {
+  const cityId = form.value.cityId;
+  if (cityId) {
+    const idArray = String(cityId).split(',').map(Number);
+    cityCascaderRef.value?.setPendingCityId(idArray);
+    cityCascaderRef.value?.handleOpened();
+  }
 }
 
 onMounted(() => {
