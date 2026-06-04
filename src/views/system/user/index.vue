@@ -409,8 +409,8 @@
           <el-col :span="12">
             <el-form-item label="部门负责人">
               <el-radio-group v-model="form.isLeader">
-                <el-radio :label="false">否</el-radio>
-                <el-radio :label="true">是</el-radio>
+                <el-radio :value="false">否</el-radio>
+                <el-radio :value="true">是</el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -422,7 +422,7 @@
                 <el-radio
                   v-for="dict in sys_normal_disable"
                   :key="dict.value"
-                  :label="dict.value"
+                  :value="dict.value"
                   >{{ dict.label }}</el-radio
                 >
               </el-radio-group>
@@ -575,7 +575,6 @@ const title = ref("");
 const dateRange = ref([]);
 const deptName = ref("");
 const deptOptions = ref(undefined);
-const enabledDeptOptions = ref(undefined);
 const initPassword = ref(undefined);
 const postOptions = ref([]);
 const roleOptions = ref([]);
@@ -688,21 +687,6 @@ function getList() {
 function getDeptTree() {
   deptTreeSelect().then((response) => {
     deptOptions.value = response.data;
-    enabledDeptOptions.value = filterDisabledDept(
-      JSON.parse(JSON.stringify(response.data)),
-    );
-  });
-}
-/** 过滤禁用的部门 */
-function filterDisabledDept(deptList) {
-  return deptList.filter((dept) => {
-    if (dept.disabled) {
-      return false;
-    }
-    if (dept.children && dept.children.length) {
-      dept.children = filterDisabledDept(dept.children);
-    }
-    return true;
   });
 }
 /** 节点单击事件 */
@@ -761,19 +745,6 @@ function handleStatusChange(row) {
     .catch(function () {
       row.status = row.status === "0" ? "1" : "0";
     });
-}
-/** 更多操作 */
-function handleCommand(command, row) {
-  switch (command) {
-    case "handleResetPwd":
-      handleResetPwd(row);
-      break;
-    case "handleAuthRole":
-      handleAuthRole(row);
-      break;
-    default:
-      break;
-  }
 }
 /** 跳转角色分配 */
 function handleAuthRole(row) {
@@ -905,6 +876,10 @@ function handleUpdate(row) {
   const userId = row.userId || ids.value;
   getUser(userId).then((response) => {
     form.value = response.data;
+    // 后端返回的 cityId 可能为逗号分隔字符串，转为数组
+    if (form.value.cityId && typeof form.value.cityId === 'string') {
+      form.value.cityId = form.value.cityId.split(',').map(Number);
+    }
     postOptions.value = response.posts;
     roleOptions.value = response.roles;
     form.value.postIds = response.postIds;
@@ -921,18 +896,19 @@ function handleUpdate(row) {
 function submitForm() {
   proxy.$refs["userRef"].validate((valid) => {
     if (valid) {
+      const formData = { ...form.value };
       // 提交时将 cityId 数组转回逗号分隔字符串
-      if (Array.isArray(form.value.cityId)) {
-        form.value.cityId = form.value.cityId.join(',');
+      if (Array.isArray(formData.cityId)) {
+        formData.cityId = formData.cityId.join(',');
       }
-      if (form.value.userId != undefined) {
-        updateUser(form.value).then((response) => {
+      if (formData.userId != undefined) {
+        updateUser(formData).then((response) => {
           proxy.$modal.msgSuccess("修改成功");
           open.value = false;
           getList();
         });
       } else {
-        addUser(form.value).then((response) => {
+        addUser(formData).then((response) => {
           proxy.$modal.msgSuccess("新增成功");
           open.value = false;
           getList();
