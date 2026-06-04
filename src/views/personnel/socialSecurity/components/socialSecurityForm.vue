@@ -3,15 +3,11 @@
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="所属城市" prop="cityId">
-          <el-cascader
-            ref="cascaderRef"
+          <CityCascader
+            ref="cityCascaderRef"
             v-model="localForm.cityId"
-            :props="cascaderProps"
             :disabled="disabled"
-            placeholder="请选择所属城市"
-            clearable
-            style="width: 100%"
-            @change="handleCityChange"
+            @city-change="handleCityChange"
           />
         </el-form-item>
       </el-col>
@@ -105,7 +101,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from "vue";
-import { getThreeList } from "@/api/base/common/division";
+import CityCascader from "@/components/CityCascader/index.vue";
 
 const props = defineProps({
   modelValue: { type: Object, required: true },
@@ -117,8 +113,7 @@ const props = defineProps({
 const emit = defineEmits(["update:modelValue", "city-change"]);
 
 const formRef = ref(null);
-const cascaderRef = ref(null);
-let pendingCityId = null;
+const cityCascaderRef = ref(null);
 let syncing = false;
 
 // 本地表单数据，与父组件同步
@@ -153,55 +148,25 @@ const computedRules = computed(() => {
   return props.disabled ? {} : props.rules;
 });
 
-// 地区级联配置（远程懒加载）
-const cascaderProps = {
-  value: "id",
-  label: "name",
-  children: "children",
-  checkStrictly: true,
-  emitPath: true,
-  lazy: true,
-  lazyLoad(node, resolve) {
-    const params = node.level === 0 ? { pid: 0 } : { pid: node.data.id };
-    getThreeList(params).then((res) => {
-      const nodes = (res.data || []).map((item) => ({
-        ...item,
-        leaf: item.hasChildren === false || item.level >= 3,
-      }));
-      resolve(nodes);
-    });
-  },
-};
-
 /** 城市选择变更：保存完整路径名称到 localForm.city */
-function handleCityChange(value) {
-  const nodes = cascaderRef.value?.getCheckedNodes();
-  if (nodes && nodes.length > 0) {
-    const node = nodes[0];
-    localForm.city = node.pathLabels ? node.pathLabels.join(",") : node.label || "";
-  } else {
-    localForm.city = "";
-  }
+function handleCityChange(cityName) {
+  localForm.city = cityName;
 }
 
 /** 弹窗打开后设置级联值 */
 function handleOpened() {
-  if (pendingCityId) {
-    localForm.cityId = pendingCityId;
-    pendingCityId = null;
-  }
+  cityCascaderRef.value?.handleOpened();
 }
 
 /** 设置待处理的 cityId（用于编辑回显） */
 function setPendingCityId(cityIdArray) {
-  pendingCityId = cityIdArray;
+  cityCascaderRef.value?.setPendingCityId(cityIdArray);
 }
 
 /** 重置本地表单 */
 function resetForm(defaultForm) {
   syncing = true;
   Object.assign(localForm, defaultForm);
-  pendingCityId = null;
   syncing = false;
 }
 
