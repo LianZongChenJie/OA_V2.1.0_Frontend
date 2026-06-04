@@ -72,7 +72,7 @@
         @selection-change="handleAddSelectionChange"
       >
         <template #dept="{ row }">
-          <span>{{ row.dept.deptName || "-" }}</span>
+          <span>{{ row.dept?.deptName || "-" }}</span>
         </template>
       </TableList>
 
