@@ -101,6 +101,7 @@ import {
   delUser,
 } from "@/api/personnel/socialSecurity";
 import { listUser } from "@/api/system/user.js";
+import CityCascader from "@/components/CityCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
 
@@ -188,6 +189,15 @@ const addUserColumns = [
     label: "所在城市",
     minWidth: 130,
     align: "center",
+    searchable: {
+      type: "cascader",
+      component: CityCascader,
+      fieldName: "division",
+      label: "所在城市",
+      order: 2,
+      searchKey: ["provincialId", "municipalityId", "areaId"],
+      searchKeyStr: "cityId",
+    },
   },
   {
     fieldName: "createTime",
