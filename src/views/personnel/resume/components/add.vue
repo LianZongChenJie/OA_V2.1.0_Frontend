@@ -52,46 +52,34 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="所在城市" prop="city">
-            <el-cascader
+            <CityCascader
               ref="cascaderRef"
               v-model="cityCascaderValue"
-              :props="cascaderProps"
               :disabled="isView"
-              placeholder="请选择所在城市"
-              clearable
-              style="width: 100%"
-              @change="handleCityChange"
+              @city-change="handleCityChange"
             />
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="归属部门" prop="deptId">
-            <el-cascader
-              v-model="form.deptId"
-              :disabled="isView"
-              placeholder="请选择归属部门"
-              clearable
-              style="width: 100%"
-              :props="deptProps"
-            />
+          <el-form-item label="最高学历" prop="education">
+            <el-select v-model="form.education" :disabled="isView" placeholder="请选择最高学历" clearable style="width: 100%">
+              <el-option
+                v-for="dict in highest_degree"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
+            </el-select>
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="最高学历" prop="education">
-            <el-input v-model="form.education" :disabled="isView" placeholder="请输入最高学历" />
-          </el-form-item>
-        </el-col>
         <el-col :span="12">
           <el-form-item label="毕业院校" prop="graduateSchool">
             <el-input v-model="form.graduateSchool" :disabled="isView" placeholder="请输入毕业院校" />
           </el-form-item>
         </el-col>
-      </el-row>
-
-      <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="毕业年份" prop="graduateYear">
             <el-date-picker
@@ -104,10 +92,15 @@
             />
           </el-form-item>
         </el-col>
+      </el-row>
+
+      <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="入职项目" prop="entryProjectName">
             <el-input v-model="form.entryProjectName" :disabled="isView" placeholder="请输入入职项目" />
           </el-form-item>
+        </el-col>
+        <el-col :span="12">
         </el-col>
       </el-row>
 
@@ -143,16 +136,16 @@
 </template>
 
 <script setup name="AddResumeDialog">
-import { ref, reactive, computed, watch, nextTick } from "vue";
+import { ref, reactive, computed, nextTick } from "vue";
 import { ElMessage } from "element-plus";
-import { getThreeList } from "@/api/base/common/division";
 import { add, update } from "@/api/personnel/resume/index.js";
 import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
 import { downloadFile } from "@/utils/download";
 import { getCurrentInstance } from "vue";
-import { listDept } from "@/api/system/dept.js";
+import CityCascader from "@/components/CityCascader/index.vue";
 
 const { proxy } = getCurrentInstance();
+const { highest_degree } = proxy.useDict("highest_degree");
 const emit = defineEmits(["success"]);
 
 const dialogVisible = ref(false);
@@ -164,9 +157,6 @@ const isView = ref(false);
 // 城市级联选择器的值（数组格式）
 const cityCascaderValue = ref([]);
 
-// 部门选项
-const deptOptions = ref([]);
-
 const form = reactive({
   id: undefined,
   name: "",
@@ -175,7 +165,7 @@ const form = reactive({
   idcard: "",
   email: "",
   city: "",  // 存储城市名称字符串，如 "北京市,北京市,西城区"
-  deptId: "", // 归属部门ID
+  cityId: "",
   age: "",
   entryProjectName: "",
   education: "",
@@ -188,27 +178,6 @@ const form = reactive({
 const dialogTitle = computed(() => {
   return isView.value ? "查看简历" : isEdit.value ? "编辑简历" : "新增简历";
 });
-
-// 部门级联配置
-const deptProps = {
-  value: "id",
-  label: "label",
-  children: "children",
-  checkStrictly: true,
-  emitPath: false  // 只返回最后一级的ID
-};
-
-// 加载部门树
-async function loadDeptTree() {
-  try {
-    const res = await listDept();
-    if (res.code === 200) {
-      deptOptions.value = res.data || [];
-    }
-  } catch (error) {
-    console.error("加载部门失败:", error);
-  }
-}
 
 // 手机号校验规则
 const validatePhone = (rule, value, callback) => {
@@ -241,7 +210,10 @@ const rules = {
     { required: true, validator: validateIdCard, trigger: "blur" }
   ],
   city: [{ required: true, message: "请选择所在城市", trigger: "change" }],
-  deptId: [{ required: true, message: "请选择归属部门", trigger: "change" }],
+  age: [{ required: true, message: "请输入年龄", trigger: "blur" }],
+  education: [{ required: true, message: "请选择最高学历", trigger: "change" }],
+  graduateSchool: [{ required: true, message: "请输入毕业院校", trigger: "blur" }],
+  graduateYear: [{ required: true, message: "请选择毕业年份", trigger: "change" }],
   email: [
     { type: "email", message: "请输入正确的邮箱格式", trigger: "blur" }
   ]
@@ -268,15 +240,12 @@ const cascaderProps = {
 };
 
 // 城市选择变化
-function handleCityChange(values) {
-  const nodes = cascaderRef.value?.getCheckedNodes();
-  if (nodes && nodes.length > 0) {
-    const node = nodes[0];
-    // 存储完整路径名称，用逗号分隔
-    form.city = node.pathLabels ? node.pathLabels.join(",") : node.label || "";
-  } else {
-    form.city = "";
-  }
+function handleCityChange(cityName) {
+  // cityName 来自 CityCascader 组件的 @city-change 事件，格式为 "省,市,区"
+  form.city = cityName;
+  // cityId 保存省市区所有 ID，逗号隔开
+  const val = cityCascaderValue.value;
+  form.cityId = val && val.length > 0 ? val.join(",") : "";
 }
 
 // 重置表单
@@ -288,7 +257,7 @@ function reset() {
   form.idcard = "";
   form.email = "";
   form.city = "";
-  form.deptId = "";
+  form.cityId = "";
   form.age = "";
   form.entryProjectName = "";
   form.education = "";
@@ -314,15 +283,6 @@ function open() {
   dialogVisible.value = true;
 }
 
-// 字符串转数组（用于城市回显）
-function parseCityToArray(cityStr) {
-  if (!cityStr) return [];
-  if (typeof cityStr === "string" && cityStr.includes(",")) {
-    return cityStr.split(",");
-  }
-  return cityStr ? [cityStr] : [];
-}
-
 // 编辑
 async function openEdit(data) {
   reset();
@@ -336,24 +296,22 @@ async function openEdit(data) {
     idcard: data.idcard || "",
     email: data.email || "",
     city: data.city || "",
-    deptId: data.deptId || "",
+    cityId: data.cityId || "",
     age: data.age || "",
     entryProjectName: data.entryProjectName || "",
     education: data.education || "",
     graduateSchool: data.graduateSchool || "",
-    graduateYear: data.graduateYear || "",
+    graduateYear: data.graduateYear ? String(data.graduateYear) : "",
     remark: data.remark || "",
     attachments: data.attachments || []
   });
-  
-  // 设置城市级联选择器的值（需要数组格式）
-  cityCascaderValue.value = parseCityToArray(data.city);
-  
+
   isEdit.value = true;
   dialogVisible.value = true;
   
-  // 等待弹窗渲染完成后刷新级联组件
   await nextTick();
+  // 回显城市级联
+  setCityCascaderValue();
 }
 
 // 查看
@@ -368,22 +326,31 @@ async function openView(data) {
     idcard: data.idcard || "",
     email: data.email || "",
     city: data.city || "",
-    deptId: data.deptId || "",
+    cityId: data.cityId || "",
     age: data.age || "",
     entryProjectName: data.entryProjectName || "",
     education: data.education || "",
     graduateSchool: data.graduateSchool || "",
-    graduateYear: data.graduateYear || "",
+    graduateYear: data.graduateYear ? String(data.graduateYear) : "",
     remark: data.remark || "",
     attachments: data.attachments || []
   });
-  
-  cityCascaderValue.value = parseCityToArray(data.city);
-  
+
   isView.value = true;
   dialogVisible.value = true;
   
   await nextTick();
+  // 回显城市级联
+  setCityCascaderValue();
+}
+
+/** 设置城市级联选择器的回显值 */
+function setCityCascaderValue() {
+  if (form.cityId) {
+    const idArray = String(form.cityId).split(",").map(Number);
+    cascaderRef.value?.setPendingCityId(idArray);
+    cascaderRef.value?.handleOpened();
+  }
 }
 
 // 提交
@@ -399,7 +366,7 @@ async function handleSubmit() {
     idcard: form.idcard,
     email: form.email || "",
     city: form.city,
-    deptId: form.deptId,
+    cityId: form.cityId,
     age: form.age || "",
     entryProjectName: form.entryProjectName || "",
     education: form.education || "",
@@ -443,9 +410,6 @@ const downFiles = (file) => {
     proxy.$modal.msgError("下载失败");
   });
 };
-
-// 加载部门树
-loadDeptTree();
 
 defineExpose({ open, openEdit, openView });
 </script>

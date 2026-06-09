@@ -23,10 +23,15 @@
         </el-button>
         <span v-else style="color:#999">无附件</span>
       </template>
+
+      <template #sex="{ row }">
+        <dict-tag :options="sys_user_sex" :value="row.sex" />
+      </template>
     </TableList>
 
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
     <EntryDialog ref="entryDialogRef" @success="handleSuccess" />
+    <InterviewResultDialog ref="interviewResultDialogRef" @success="handleSuccess" />
   </div>
 </template>
 
@@ -34,18 +39,19 @@
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
 import { getPageList, getDetail, del } from "@/api/personnel/resume/index.js";
-import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
+import { columns, basicSearchFields, advancedSearchFields, queryForm, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import EntryDialog from "./components/EntryDialog.vue";
+import InterviewResultDialog from "./components/InterviewResultDialog.vue";
 import { downloadFile } from "@/utils/download";
-import request from "@/utils/request";
 
 const { proxy } = getCurrentInstance();
-const { supplier_status } = proxy.useDict("supplier_status");
+const { sys_user_sex } = proxy.useDict("sys_user_sex");
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
 const entryDialogRef = ref(null);
+const interviewResultDialogRef = ref(null);
 
 // 新增
 function handleAdd() {
@@ -74,34 +80,8 @@ async function handleDelete(row) {
 }
 
 // ====================== 面试结果 ======================
-async function handlePass(row) {
-  try {
-    await proxy.$modal.confirm("确认面试【已通过】？");
-    await request({
-      url: "/resume/interview",
-      method: "POST",
-      data: { resumeId: row.id, result: "已通过" }
-    });
-    proxy.$modal.msgSuccess("操作成功");
-    tableList.value.refresh();
-  } catch (err) {
-    console.error("失败", err);
-  }
-}
-
-async function handleReject(row) {
-  try {
-    await proxy.$modal.confirm("确认面试【未通过】？");
-    await request({
-      url: "/resume/interview",
-      method: "POST",
-      data: { resumeId: row.id, result: "未通过" }
-    });
-    proxy.$modal.msgSuccess("操作成功");
-    tableList.value.refresh();
-  } catch (err) {
-    console.error("失败", err);
-  }
+function handleInterviewResult(row) {
+  interviewResultDialogRef.value.open(row);
 }
 
 // ====================== 确认入职（打开弹窗） ======================
@@ -133,8 +113,7 @@ const operationColumn = getOperationColumn(
   handleEdit,
   handleView,
   handleDelete,
-  handlePass,
-  handleReject,
+  handleInterviewResult,
   handleEntry
 );
 </script>

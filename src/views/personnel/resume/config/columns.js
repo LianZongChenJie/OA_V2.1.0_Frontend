@@ -58,7 +58,7 @@ export const columns = [
     fieldName: 'city',
     label: '所在城市',
     width: "auto",
-    minWidth: 140,
+    minWidth: 180,
     align: 'center',
     searchable: {
       type: 'input',
@@ -103,6 +103,13 @@ export const columns = [
     minWidth: 100,
     align: 'center',
   },
+  {
+    fieldName: 'remark',
+    label: '备注',
+    width: "8%",
+    minWidth: 100,
+    align: 'center',
+  },
 ];
 
 // 头部按钮
@@ -117,7 +124,7 @@ export const getHeaderButs = (onAdd) => [
 ];
 
 // 操作列生成函数
-export const getOperationColumn = (onEdit, onView, onDelete, onPass, onReject, onEntry) => ({
+export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry) => ({
   label: '操作',
   width: 290,
   fixed: 'right',
@@ -148,7 +155,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onPass, onReject, o
       label: '面试结果',
       type: 'warning',
       size: 'small',
-      onClick: row => onPass?.(row),
+      onClick: row => onInterviewResult?.(row),
       icon: 'pass'
     },
     {
