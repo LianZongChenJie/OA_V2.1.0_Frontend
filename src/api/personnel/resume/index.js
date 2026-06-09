@@ -18,7 +18,7 @@ export function getDetail(id) {
 }
 
 // 新增简历
-export function addDeptChange(data) {
+export function add(data) {
   return request({
     url: '/resume/add',
     method: 'post',
@@ -27,7 +27,7 @@ export function addDeptChange(data) {
 }
 
 // 修改简历
-export function updateDeptChange(data) {
+export function update(data) {
   return request({
     url: '/resume/upd',
     method: 'post',
@@ -36,7 +36,7 @@ export function updateDeptChange(data) {
 }
 
 // 删除简历
-export function deleteDeptChange(id) {
+export function del(id) {
   return request({
     url: '/resume/' + id,
     method: 'delete'

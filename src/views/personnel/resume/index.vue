@@ -33,7 +33,7 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, deleteDeptChange } from "@/api/personnel/resume/index.js";
+import { getPageList, getDetail, del } from "@/api/personnel/resume/index.js";
 import { columns, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import EntryDialog from "./components/EntryDialog.vue";
@@ -67,7 +67,7 @@ async function handleView(row) {
 // 删除
 async function handleDelete(row) {
   proxy.$modal.confirm("确定要删除该简历信息吗？").then(async () => {
-    await deleteDeptChange(row.id);
+    await del(row.id);
     proxy.$modal.msgSuccess("删除成功");
     tableList.value.refresh();
   }).catch(() => {});

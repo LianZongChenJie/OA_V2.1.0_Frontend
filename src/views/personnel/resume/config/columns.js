@@ -2,7 +2,7 @@ import { listUser } from '@/api/system/user.js';
 import { getPageList } from '@/api/base/hr/careProgram/index.js';
 
 // 搜索表单
-export const queryForm = {  
+export const queryForm = {
   rewardType: '',
   rewardItem: '',
   rewardEmp: '',
@@ -68,23 +68,42 @@ export const columns = [
       order: 1,
     },
   },
+  {
+    fieldName: 'age',
+    label: '年龄',
+    width: "6%",
+    minWidth: 80,
+    align: 'center',
+  },
+  {
+    fieldName: 'entryProjectName',
+    label: '入职项目',
+    width: "10%",
+    minWidth: 120,
+    align: 'center',
+  },
+  {
+    fieldName: 'education',
+    label: '最高学历',
+    width: "8%",
+    minWidth: 100,
+    align: 'center',
+  },
+  {
+    fieldName: 'graduateSchool',
+    label: '毕业院校',
+    width: "10%",
+    minWidth: 120,
+    align: 'center',
+  },
+  {
+    fieldName: 'graduateYear',
+    label: '毕业年份',
+    width: "8%",
+    minWidth: 100,
+    align: 'center',
+  },
 ];
-
-// 操作列
-export const operationColumn = {
-  label: '操作',
-  width: 280, 
-  fixed: 'right',
-  show: true,
-  actions: [
-    { label: '编辑', type: 'success', size: 'small', icon: 'edit' },
-    { label: '查看', type: 'primary', size: 'small', icon: 'eye-open' },
-    { label: '已通过', type: 'warning', size: 'small', icon: 'check' },
-    { label: '未通过', type: 'danger', size: 'small', icon: 'close' },
-    { label: '入职', type: 'success', size: 'small', icon: 'user-check' },
-    { label: '删除', type: 'danger', size: 'small', icon: 'delete' }
-  ]
-};
 
 // 头部按钮
 export const getHeaderButs = (onAdd) => [
@@ -100,51 +119,44 @@ export const getHeaderButs = (onAdd) => [
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete, onPass, onReject, onEntry) => ({
   label: '操作',
-  width: 280,
+  width: 290,
   fixed: 'right',
   show: true,
   actions: [
     {
-      label: '编辑',
+      label: '简历编辑',
       type: 'success',
       size: 'small',
       onClick: row => onEdit?.(row),
       icon: 'edit'
     },
     {
-      label: '查看',
+      label: '简历查看',
       type: 'primary',
       size: 'small',
       onClick: row => onView?.(row),
       icon: 'eye-open'
     },
     {
-      label: '确认入职',
-      type: 'success',
-      size: 'small',
-      onClick: row => onEntry?.(row),
-      icon: 'user-check'
-    },
-    {
       label: '删除',
-      type: 'danger',
+      type: 'info',
       size: 'small',
       onClick: row => onDelete?.(row),
       icon: 'delete'
     },
     {
-      label: '已通过',
+      label: '面试结果',
       type: 'warning',
       size: 'small',
       onClick: row => onPass?.(row),
-      icon: 'check'
+      icon: 'pass'
     },
     {
-      label: '未通过',
+      label: '正式入场',
       type: 'danger',
       size: 'small',
-      onClick: row => onReject?.(row),
-      icon: 'close'
+      onClick: row => onEntry?.(row),
+      icon: 'onboarding'
     },
   ]
 });
@@ -175,7 +187,6 @@ export const allSearchFields = columns
 
 export default {
   columns,
-  operationColumn,
   getHeaderButs,
   getOperationColumn,
   basicSearchFields,

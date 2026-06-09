@@ -2,69 +2,114 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="700px"
+    width="60%"
     append-to-body
     @close="handleClose"
   >
     <el-form ref="formRef" :model="form" :rules="rules" label-width="120px">
-      <el-form-item label="姓名" prop="name">
-        <el-input v-model="form.name" :disabled="isView" placeholder="请输入姓名" style="width: 100%" />
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="姓名" prop="name">
+            <el-input v-model="form.name" :disabled="isView" placeholder="请输入姓名" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="年龄" prop="age">
+            <el-input v-model="form.age" :disabled="isView" placeholder="请输入年龄" />
+          </el-form-item>
+        </el-col>
+      </el-row>
 
-      <el-form-item label="性别">
-        <el-radio-group v-model="form.sex">
-          <el-radio :label="'0'">男</el-radio>
-          <el-radio :label="'1'">女</el-radio>
-        </el-radio-group>
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="性别">
+            <el-radio-group v-model="form.sex">
+              <el-radio :label="'0'">男</el-radio>
+              <el-radio :label="'1'">女</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="手机号" prop="phone">
+            <el-input v-model="form.phone" :disabled="isView" placeholder="请输入11位手机号" maxlength="11" />
+          </el-form-item>
+        </el-col>
+      </el-row>
 
-      <el-form-item label="所在城市" prop="city">
-        <el-cascader
-          ref="cascaderRef"
-          v-model="cityCascaderValue"
-          :props="cascaderProps"
-          :disabled="isView"
-          placeholder="请选择所在城市"
-          clearable
-          style="width: 100%"
-          @change="handleCityChange"
-        />
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="身份证号" prop="idcard">
+            <el-input v-model="form.idcard" :disabled="isView" placeholder="请输入18位身份证号" maxlength="18" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="邮箱" prop="email">
+            <el-input v-model="form.email" :disabled="isView" placeholder="请输入邮箱" />
+          </el-form-item>
+        </el-col>
+      </el-row>
 
-      <el-form-item label="手机号" prop="phone">
-        <el-input 
-          v-model="form.phone" 
-          :disabled="isView" 
-          placeholder="请输入11位手机号" 
-          maxlength="11"
-          style="width: 100%" 
-        />
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="所在城市" prop="city">
+            <el-cascader
+              ref="cascaderRef"
+              v-model="cityCascaderValue"
+              :props="cascaderProps"
+              :disabled="isView"
+              placeholder="请选择所在城市"
+              clearable
+              style="width: 100%"
+              @change="handleCityChange"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="归属部门" prop="deptId">
+            <el-cascader
+              v-model="form.deptId"
+              :disabled="isView"
+              placeholder="请选择归属部门"
+              clearable
+              style="width: 100%"
+              :props="deptProps"
+            />
+          </el-form-item>
+        </el-col>
+      </el-row>
 
-      <el-form-item label="身份证号" prop="idcard">
-        <el-input 
-          v-model="form.idcard" 
-          :disabled="isView" 
-          placeholder="请输入18位身份证号" 
-          maxlength="18"
-          style="width: 100%" 
-        />
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="最高学历" prop="education">
+            <el-input v-model="form.education" :disabled="isView" placeholder="请输入最高学历" />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="毕业院校" prop="graduateSchool">
+            <el-input v-model="form.graduateSchool" :disabled="isView" placeholder="请输入毕业院校" />
+          </el-form-item>
+        </el-col>
+      </el-row>
 
-      <el-form-item label="邮箱" prop="email">
-        <el-input v-model="form.email" :disabled="isView" placeholder="请输入邮箱" style="width: 100%" />
-      </el-form-item>
-
-      <el-form-item label="归属部门" prop="deptId">
-        <el-cascader
-          v-model="form.deptId"
-          :disabled="isView"
-          placeholder="请选择归属部门"
-          clearable
-          style="width: 100%"
-          :props="deptProps"
-        />
-      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="毕业年份" prop="graduateYear">
+            <el-date-picker
+              v-model="form.graduateYear"
+              :disabled="isView"
+              type="year"
+              placeholder="选择毕业年份"
+              value-format="YYYY"
+              style="width: 100%"
+            />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="入职项目" prop="entryProjectName">
+            <el-input v-model="form.entryProjectName" :disabled="isView" placeholder="请输入入职项目" />
+          </el-form-item>
+        </el-col>
+      </el-row>
 
       <el-form-item label="简历附件" prop="attachments">
         <UploadAttachmentList
@@ -101,7 +146,7 @@
 import { ref, reactive, computed, watch, nextTick } from "vue";
 import { ElMessage } from "element-plus";
 import { getThreeList } from "@/api/base/common/division";
-import { addDeptChange, updateDeptChange } from "@/api/personnel/resume/index.js";
+import { add, update } from "@/api/personnel/resume/index.js";
 import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
 import { downloadFile } from "@/utils/download";
 import { getCurrentInstance } from "vue";
@@ -131,6 +176,11 @@ const form = reactive({
   email: "",
   city: "",  // 存储城市名称字符串，如 "北京市,北京市,西城区"
   deptId: "", // 归属部门ID
+  age: "",
+  entryProjectName: "",
+  education: "",
+  graduateSchool: "",
+  graduateYear: "",
   remark: "",
   attachments: [],
 });
@@ -239,6 +289,11 @@ function reset() {
   form.email = "";
   form.city = "";
   form.deptId = "";
+  form.age = "";
+  form.entryProjectName = "";
+  form.education = "";
+  form.graduateSchool = "";
+  form.graduateYear = "";
   form.remark = "";
   form.attachments = [];
   cityCascaderValue.value = [];
@@ -282,6 +337,11 @@ async function openEdit(data) {
     email: data.email || "",
     city: data.city || "",
     deptId: data.deptId || "",
+    age: data.age || "",
+    entryProjectName: data.entryProjectName || "",
+    education: data.education || "",
+    graduateSchool: data.graduateSchool || "",
+    graduateYear: data.graduateYear || "",
     remark: data.remark || "",
     attachments: data.attachments || []
   });
@@ -309,6 +369,11 @@ async function openView(data) {
     email: data.email || "",
     city: data.city || "",
     deptId: data.deptId || "",
+    age: data.age || "",
+    entryProjectName: data.entryProjectName || "",
+    education: data.education || "",
+    graduateSchool: data.graduateSchool || "",
+    graduateYear: data.graduateYear || "",
     remark: data.remark || "",
     attachments: data.attachments || []
   });
@@ -335,6 +400,11 @@ async function handleSubmit() {
     email: form.email || "",
     city: form.city,
     deptId: form.deptId,
+    age: form.age || "",
+    entryProjectName: form.entryProjectName || "",
+    education: form.education || "",
+    graduateSchool: form.graduateSchool || "",
+    graduateYear: form.graduateYear || "",
     remark: form.remark || "",
     attachments: form.attachments || []
   };
@@ -348,9 +418,9 @@ async function handleSubmit() {
 
   try {
     if (isEdit.value) {
-      await updateDeptChange(submitData);
+      await update(submitData);
     } else {
-      await addDeptChange(submitData);
+      await add(submitData);
     }
     ElMessage.success(isEdit.value ? "编辑成功" : "新增成功");
     dialogVisible.value = false;
