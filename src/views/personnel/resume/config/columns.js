@@ -130,7 +130,7 @@ const showRecommendBtn = (row) => [0, 3, 5].includes(Number(row.status));
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry, onRecommend, onRelease) => ({
   label: '操作',
-  width: 340,
+  width: 320,
   fixed: 'right',
   show: true,
   actions: [

@@ -429,8 +429,8 @@ const downFiles = (file) => {
     return;
   }
   const baseUrl = import.meta.env.VITE_APP_BASE_API || "";
-  const url = baseUrl + `/employee/care/download/${file.id}`;
-  downloadFile(url, file.fileName || file.name || "简历文件").catch(() => {
+  const url = baseUrl + `/resume/attachment/download/${file.id}`;
+  downloadFile(url, file.fileName || file.name || "下载文件").catch(() => {
     proxy.$modal.msgError("下载失败");
   });
 };
