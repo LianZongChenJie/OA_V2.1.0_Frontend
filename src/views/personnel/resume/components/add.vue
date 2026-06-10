@@ -140,6 +140,7 @@
           v-model="form.attachments"
           :disabled="isView"
           :limit="5"
+          accept=".pdf,.doc,.docx"
           action="tender/attachment/upload"
           @downloadApi="downFiles"
         />

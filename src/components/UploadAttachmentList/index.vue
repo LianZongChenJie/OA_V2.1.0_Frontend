@@ -23,7 +23,7 @@
         </el-button>
         <template #tip>
           <div class="el-upload__tip">
-            支持上传jpg/png/pdf/doc/docx等格式文件，单个文件不超过{{
+            支持上传{{ acceptFileTypes }}格式文件，单个文件不超过{{
               limitSize
             }}MB
           </div>
@@ -101,6 +101,15 @@ const { proxy } = getCurrentInstance();
 const uploadUrl = computed(() => {
   const baseUrl = import.meta.env.VITE_APP_BASE_API || "";
   return baseUrl + "/" + props.action;
+});
+
+// 根据 accept 属性生成文件格式提示
+const acceptFileTypes = computed(() => {
+  if (!props.accept) return "";
+  return props.accept
+    .split(",")
+    .map((ext) => ext.replace(".", "").toUpperCase())
+    .join("、");
 });
 
 // 请求头
