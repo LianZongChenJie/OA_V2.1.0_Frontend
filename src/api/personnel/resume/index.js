@@ -60,3 +60,12 @@ export function resumeEntry(data) {
     data
   })
 }
+
+// 推荐简历
+export function recommendResume(data) {
+  return request({
+    url: '/resume/recommend',
+    method: 'POST',
+    data
+  })
+}

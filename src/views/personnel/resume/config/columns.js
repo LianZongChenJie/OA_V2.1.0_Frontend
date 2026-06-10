@@ -42,10 +42,11 @@ export const columns = [
   },
   {
     fieldName: 'status',
-    label: '状态',
+    label: '面试结果',
     width: "6%",
     minWidth: 140,
     align: 'center',
+    slot: 'status',
   },
   {
     fieldName: 'phone',
@@ -123,10 +124,13 @@ export const getHeaderButs = (onAdd) => [
   }
 ];
 
+// 推荐简历按钮显示条件（status 在 [0, 3, 5] 时显示）
+const showRecommendBtn = (row) => [0, 3, 5].includes(Number(row.status));
+
 // 操作列生成函数
-export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry) => ({
+export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry, onRecommend) => ({
   label: '操作',
-  width: 290,
+  width: 340,
   fixed: 'right',
   show: true,
   actions: [
@@ -145,9 +149,10 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       icon: 'eye-open'
     },
     {
-      label: '删除',
+      label: '删除简历',
       type: 'info',
       size: 'small',
+      isShow: row => showRecommendBtn(row),
       onClick: row => onDelete?.(row),
       icon: 'delete'
     },
@@ -155,6 +160,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       label: '面试结果',
       type: 'warning',
       size: 'small',
+      isShow: row => row.status == 1,
       onClick: row => onInterviewResult?.(row),
       icon: 'pass'
     },
@@ -164,6 +170,14 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       size: 'small',
       onClick: row => onEntry?.(row),
       icon: 'onboarding'
+    },
+    {
+      label: '推荐简历',
+      type: 'success',
+      size: 'small',
+      isShow: row => showRecommendBtn(row),
+      onClick: row => onRecommend?.(row),
+      icon: 'recommend'
     },
   ]
 });

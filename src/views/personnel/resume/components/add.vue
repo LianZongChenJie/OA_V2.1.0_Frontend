@@ -10,12 +10,20 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="姓名" prop="name">
-            <el-input v-model="form.name" :disabled="isView" placeholder="请输入姓名" />
+            <el-input
+              v-model="form.name"
+              :disabled="isView"
+              placeholder="请输入姓名"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="年龄" prop="age">
-            <el-input v-model="form.age" :disabled="isView" placeholder="请输入年龄" />
+            <el-input
+              v-model="form.age"
+              :disabled="isView"
+              placeholder="请输入年龄"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -31,7 +39,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="手机号" prop="phone">
-            <el-input v-model="form.phone" :disabled="isView" placeholder="请输入11位手机号" maxlength="11" />
+            <el-input
+              v-model="form.phone"
+              :disabled="isView"
+              placeholder="请输入11位手机号"
+              maxlength="11"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -39,12 +52,21 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="身份证号" prop="idcard">
-            <el-input v-model="form.idcard" :disabled="isView" placeholder="请输入18位身份证号" maxlength="18" />
+            <el-input
+              v-model="form.idcard"
+              :disabled="isView"
+              placeholder="请输入18位身份证号"
+              maxlength="18"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
           <el-form-item label="邮箱" prop="email">
-            <el-input v-model="form.email" :disabled="isView" placeholder="请输入邮箱" />
+            <el-input
+              v-model="form.email"
+              :disabled="isView"
+              placeholder="请输入邮箱"
+            />
           </el-form-item>
         </el-col>
       </el-row>
@@ -62,7 +84,13 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="最高学历" prop="education">
-            <el-select v-model="form.education" :disabled="isView" placeholder="请选择最高学历" clearable style="width: 100%">
+            <el-select
+              v-model="form.education"
+              :disabled="isView"
+              placeholder="请选择最高学历"
+              clearable
+              style="width: 100%"
+            >
               <el-option
                 v-for="dict in highest_degree"
                 :key="dict.value"
@@ -77,7 +105,11 @@
       <el-row :gutter="20">
         <el-col :span="12">
           <el-form-item label="毕业院校" prop="graduateSchool">
-            <el-input v-model="form.graduateSchool" :disabled="isView" placeholder="请输入毕业院校" />
+            <el-input
+              v-model="form.graduateSchool"
+              :disabled="isView"
+              placeholder="请输入毕业院校"
+            />
           </el-form-item>
         </el-col>
         <el-col :span="12">
@@ -93,27 +125,6 @@
           </el-form-item>
         </el-col>
       </el-row>
-
-      <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="入职项目" prop="entryProjectName">
-            <el-input v-model="form.entryProjectName" :disabled="isView" placeholder="请输入入职项目" />
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-        </el-col>
-      </el-row>
-
-      <el-form-item label="简历附件" prop="attachments">
-        <UploadAttachmentList
-          v-model="form.attachments"
-          :disabled="isView"
-          :limit="5"
-          action="employee/care/upload"
-          @downloadApi="downFiles"
-        />
-      </el-form-item>
-
       <el-form-item label="备注" prop="remark">
         <el-input
           v-model="form.remark"
@@ -124,11 +135,22 @@
           style="width: 100%"
         />
       </el-form-item>
+      <el-form-item label="简历附件" prop="attachments">
+        <UploadAttachmentList
+          v-model="form.attachments"
+          :disabled="isView"
+          :limit="5"
+          action="tender/attachment/upload"
+          @downloadApi="downFiles"
+        />
+      </el-form-item>
     </el-form>
 
     <template #footer>
-      <div class="dialog-footer" style="text-align:right">
-        <el-button v-if="!isView" type="primary" @click="handleSubmit">立即提交</el-button>
+      <div class="dialog-footer" style="text-align: right">
+        <el-button v-if="!isView" type="primary" @click="handleSubmit"
+          >立即提交</el-button
+        >
         <el-button @click="handleClose">关闭</el-button>
       </div>
     </template>
@@ -164,7 +186,7 @@ const form = reactive({
   phone: "",
   idcard: "",
   email: "",
-  city: "",  // 存储城市名称字符串，如 "北京市,北京市,西城区"
+  city: "", // 存储城市名称字符串，如 "北京市,北京市,西城区"
   cityId: "",
   age: "",
   entryProjectName: "",
@@ -194,7 +216,11 @@ const validatePhone = (rule, value, callback) => {
 const validateIdCard = (rule, value, callback) => {
   if (!value) {
     callback(new Error("请输入身份证号"));
-  } else if (!/^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(value)) {
+  } else if (
+    !/^[1-9]\d{5}(18|19|20)\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$/.test(
+      value,
+    )
+  ) {
     callback(new Error("请输入正确的18位身份证号码"));
   } else {
     callback();
@@ -203,20 +229,18 @@ const validateIdCard = (rule, value, callback) => {
 
 const rules = {
   name: [{ required: true, message: "请输入姓名", trigger: "blur" }],
-  phone: [
-    { required: true, validator: validatePhone, trigger: "blur" }
-  ],
-  idcard: [
-    { required: true, validator: validateIdCard, trigger: "blur" }
-  ],
+  phone: [{ required: true, validator: validatePhone, trigger: "blur" }],
+  idcard: [{ required: true, validator: validateIdCard, trigger: "blur" }],
   city: [{ required: true, message: "请选择所在城市", trigger: "change" }],
   age: [{ required: true, message: "请输入年龄", trigger: "blur" }],
   education: [{ required: true, message: "请选择最高学历", trigger: "change" }],
-  graduateSchool: [{ required: true, message: "请输入毕业院校", trigger: "blur" }],
-  graduateYear: [{ required: true, message: "请选择毕业年份", trigger: "change" }],
-  email: [
-    { type: "email", message: "请输入正确的邮箱格式", trigger: "blur" }
-  ]
+  graduateSchool: [
+    { required: true, message: "请输入毕业院校", trigger: "blur" },
+  ],
+  graduateYear: [
+    { required: true, message: "请选择毕业年份", trigger: "change" },
+  ],
+  email: [{ type: "email", message: "请输入正确的邮箱格式", trigger: "blur" }],
 };
 
 // 城市级联配置
@@ -229,8 +253,8 @@ const cascaderProps = {
   lazy: true,
   lazyLoad(node, resolve) {
     const params = node.level === 0 ? { pid: 0 } : { pid: node.data.id };
-    getThreeList(params).then(res => {
-      const nodes = (res.data || []).map(item => ({
+    getThreeList(params).then((res) => {
+      const nodes = (res.data || []).map((item) => ({
         ...item,
         leaf: item.hasChildren === false || item.level >= 3,
       }));
@@ -286,7 +310,7 @@ function open() {
 // 编辑
 async function openEdit(data) {
   reset();
-  
+
   // 复制数据
   Object.assign(form, {
     id: data.id,
@@ -303,12 +327,12 @@ async function openEdit(data) {
     graduateSchool: data.graduateSchool || "",
     graduateYear: data.graduateYear ? String(data.graduateYear) : "",
     remark: data.remark || "",
-    attachments: data.attachments || []
+    attachments: data.attachments || [],
   });
 
   isEdit.value = true;
   dialogVisible.value = true;
-  
+
   await nextTick();
   // 回显城市级联
   setCityCascaderValue();
@@ -317,7 +341,7 @@ async function openEdit(data) {
 // 查看
 async function openView(data) {
   reset();
-  
+
   Object.assign(form, {
     id: data.id,
     name: data.name || "",
@@ -333,12 +357,12 @@ async function openView(data) {
     graduateSchool: data.graduateSchool || "",
     graduateYear: data.graduateYear ? String(data.graduateYear) : "",
     remark: data.remark || "",
-    attachments: data.attachments || []
+    attachments: data.attachments || [],
   });
 
   isView.value = true;
   dialogVisible.value = true;
-  
+
   await nextTick();
   // 回显城市级联
   setCityCascaderValue();
@@ -373,7 +397,7 @@ async function handleSubmit() {
     graduateSchool: form.graduateSchool || "",
     graduateYear: form.graduateYear || "",
     remark: form.remark || "",
-    attachments: form.attachments || []
+    attachments: form.attachments || [],
   };
 
   // 编辑时加上 id

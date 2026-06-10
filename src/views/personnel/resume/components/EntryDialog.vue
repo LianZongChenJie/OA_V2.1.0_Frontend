@@ -77,6 +77,33 @@
             </el-select>
           </el-form-item>
         </el-col>
+
+        <!-- 昵称：从简历读取，只读展示 -->
+        <el-col :span="24">
+          <el-form-item label="昵称">
+            <el-input v-model="form.nickName" placeholder="自动从简历获取" disabled style="width: 100%" />
+          </el-form-item>
+        </el-col>
+
+        <!-- 邮箱：从简历读取，只读展示 -->
+        <el-col :span="24">
+          <el-form-item label="邮箱">
+            <el-input v-model="form.email" placeholder="自动从简历获取" disabled style="width: 100%" />
+          </el-form-item>
+        </el-col>
+
+        <!-- 入职时间 -->
+        <el-col :span="24">
+          <el-form-item label="入职时间" prop="entryTime" required>
+            <el-date-picker
+              v-model="form.entryTime"
+              type="date"
+              placeholder="请选择入职时间"
+              style="width: 100%"
+              value-format="YYYY-MM-DD"
+            />
+          </el-form-item>
+        </el-col>
       </el-row>
     </el-form>
 
@@ -92,8 +119,8 @@
 <script setup>
 import { ref, reactive, defineEmits, defineExpose, onMounted, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
-import request from '@/utils/request'
 import DeptCascader from '@/components/DeptCascader/index.vue'
+import { resumeEntry } from '@/api/personnel/resume/index.js'
 
 // 接口（按你系统通用写法）
 import { listPost } from '@/api/system/post.js'
@@ -116,6 +143,12 @@ const getInitialForm = () => ({
   deptId: '',
   postId: '',
   roleIds: [],
+  positionId: '',
+  nickName: '',
+  email: '',
+  entryTime: null,
+  isStaff: '1',
+  userType: '01',
 })
 
 // 表单
@@ -128,6 +161,7 @@ const rules = {
   deptId: [{ required: true, message: '请选择部门', trigger: 'change' }],
   postId: [{ required: true, message: '请选择岗位', trigger: 'change' }],
   roleIds: [{ required: true, message: '请选择角色', trigger: 'change' }],
+  entryTime: [{ required: true, message: '请选择入职时间', trigger: 'change' }],
 }
 
 // 重置表单（完全重置）
@@ -211,6 +245,14 @@ async function open(row) {
   form.deptId = ''
   form.postId = ''
   form.roleIds = []
+  form.positionId = ''
+  form.entryTime = null
+  // 从简历数据中读取昵称和邮箱
+  form.nickName = row?.name || ''
+  form.email = row?.email || ''
+  // 设置默认值
+  form.isStaff = '1'
+  form.userType = '01'
   
   // 清除验证
   formRef.value?.clearValidate()
@@ -250,20 +292,22 @@ async function submit() {
     loading.value = true
     const params = {
       resumeId: form.resumeId,
-      username: form.username,
+      userName: form.username,
       password: form.password,
       deptId: Number(form.deptId),
       postId: Number(form.postId),
       roleIds: form.roleIds.map(Number),
+      positionId: form.positionId ? Number(form.positionId) : 0,
+      nickName: form.nickName,
+      email: form.email,
+      entryTime: form.entryTime,
+      isStaff: form.isStaff,
+      userType: form.userType,
     }
 
     console.log('提交参数：', params)
 
-    const res = await request({
-      url: '/resume/entry',
-      method: 'POST',
-      data: params
-    })
+    const res = await resumeEntry(params)
 
     if (res.code === 200) {
       ElMessage.success('入职成功')

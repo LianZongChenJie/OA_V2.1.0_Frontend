@@ -27,11 +27,16 @@
       <template #sex="{ row }">
         <dict-tag :options="sys_user_sex" :value="row.sex" />
       </template>
+
+      <template #status="{ row }">
+        <dict-tag :options="resume_status" :value="row.status" />
+      </template>
     </TableList>
 
     <AddDialog ref="addDialogRef" @success="handleSuccess" />
     <EntryDialog ref="entryDialogRef" @success="handleSuccess" />
     <InterviewResultDialog ref="interviewResultDialogRef" @success="handleSuccess" />
+    <RecommendDialog ref="recommendDialogRef" @success="handleSuccess" />
   </div>
 </template>
 
@@ -43,15 +48,18 @@ import { columns, basicSearchFields, advancedSearchFields, queryForm, getHeaderB
 import AddDialog from "./components/add.vue";
 import EntryDialog from "./components/EntryDialog.vue";
 import InterviewResultDialog from "./components/InterviewResultDialog.vue";
+import RecommendDialog from "./components/RecommendDialog.vue";
 import { downloadFile } from "@/utils/download";
 
 const { proxy } = getCurrentInstance();
 const { sys_user_sex } = proxy.useDict("sys_user_sex");
+const { resume_status } = proxy.useDict("resume_status");
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
 const entryDialogRef = ref(null);
 const interviewResultDialogRef = ref(null);
+const recommendDialogRef = ref(null);
 
 // 新增
 function handleAdd() {
@@ -89,6 +97,11 @@ function handleEntry(row) {
   entryDialogRef.value.open(row);
 }
 
+// ====================== 推荐简历 ======================
+function handleRecommend(row) {
+  recommendDialogRef.value.open(row);
+}
+
 // 下载附件
 async function handleDownloadResume(row) {
   const res = await getDetail(row.id);
@@ -114,7 +127,8 @@ const operationColumn = getOperationColumn(
   handleView,
   handleDelete,
   handleInterviewResult,
-  handleEntry
+  handleEntry,
+  handleRecommend
 );
 </script>
 
