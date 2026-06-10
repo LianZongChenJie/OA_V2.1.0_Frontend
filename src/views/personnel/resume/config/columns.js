@@ -128,7 +128,7 @@ export const getHeaderButs = (onAdd) => [
 const showRecommendBtn = (row) => [0, 3, 5].includes(Number(row.status));
 
 // 操作列生成函数
-export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry, onRecommend) => ({
+export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry, onRecommend, onRelease) => ({
   label: '操作',
   width: 340,
   fixed: 'right',
@@ -168,6 +168,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       label: '正式入场',
       type: 'danger',
       size: 'small',
+      isShow: row => row.status == 2,
       onClick: row => onEntry?.(row),
       icon: 'onboarding'
     },
@@ -178,6 +179,14 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       isShow: row => showRecommendBtn(row),
       onClick: row => onRecommend?.(row),
       icon: 'recommend'
+    },
+    {
+      label: '释放简历',
+      type: 'warning',
+      size: 'small',
+      isShow: row => row.status == 4,
+      onClick: row => onRelease?.(row),
+      icon: 'component'
     },
   ]
 });

@@ -43,7 +43,7 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/personnel/resume/index.js";
+import { getPageList, getDetail, del, releaseResume } from "@/api/personnel/resume/index.js";
 import { columns, basicSearchFields, advancedSearchFields, queryForm, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import EntryDialog from "./components/EntryDialog.vue";
@@ -102,6 +102,15 @@ function handleRecommend(row) {
   recommendDialogRef.value.open(row);
 }
 
+// ====================== 释放简历 ======================
+async function handleRelease(row) {
+  proxy.$modal.confirm("确定要释放该简历吗？").then(async () => {
+    await releaseResume({ resumeId: row.id, status: "5" });
+    proxy.$modal.msgSuccess("释放成功");
+    tableList.value.refresh();
+  }).catch(() => {});
+}
+
 // 下载附件
 async function handleDownloadResume(row) {
   const res = await getDetail(row.id);
@@ -128,7 +137,8 @@ const operationColumn = getOperationColumn(
   handleDelete,
   handleInterviewResult,
   handleEntry,
-  handleRecommend
+  handleRecommend,
+  handleRelease
 );
 </script>
 

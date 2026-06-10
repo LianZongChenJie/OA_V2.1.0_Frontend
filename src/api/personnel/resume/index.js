@@ -69,3 +69,11 @@ export function recommendResume(data) {
     data
   })
 }
+// 释放简历
+export function releaseResume(data) {
+  return request({
+    url: '/resume/release',
+    method: 'POST',
+    data
+  })
+}
