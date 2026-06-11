@@ -91,21 +91,35 @@
                 range-separator="至"
                 clearable
               />
+              <el-date-picker
+                v-else-if="column.type === 'yearrange'"
+                v-model="searchParams[column.fieldName]"
+                type="yearrange"
+                :start-placeholder="column.placeholder || '开始年份'"
+                :end-placeholder="column.placeholder || '结束年份'"
+                :value-format="column.dateFormat || 'YYYY'"
+                range-separator="至"
+                clearable
+              />
               <div
                 v-else-if="column.type === 'numberRange'"
                 class="number-range"
                 :style="{ minWidth: column.minWidth || 'auto' }"
               >
-                <el-input-number
-                  v-model="searchParams[column.fieldName]"
-                  placeholder="最小值"
-                  :controls="false"
+                <el-input
+                  v-model="searchParams[column.fieldName + '_min']"
+                  type="number"
+                  :placeholder="column.placeholder?.[0] || '最小值'"
+                  clearable
+                  @keydown.enter.stop="handleSearch"
                 />
                 <span class="range-separator">至</span>
-                <el-input-number
-                  v-model="searchParams[column.fieldName]"
-                  placeholder="最大值"
-                  :controls="false"
+                <el-input
+                  v-model="searchParams[column.fieldName + '_max']"
+                  type="number"
+                  :placeholder="column.placeholder?.[1] || '最大值'"
+                  clearable
+                  @keydown.enter.stop="handleSearch"
                 />
               </div>
               <component
@@ -284,7 +298,24 @@ const getFilteredOptions = (options, excludeValues) => {
 
 // 处理搜索
 const handleSearch = () => {
-  emit("search", { ...searchParams.value });
+  const params = { ...searchParams.value };
+  
+  // 处理 numberRange 类型：将 _min/_max 合并为数组
+  searchableColumns.value.forEach((column) => {
+    if (column.type === 'numberRange' && column.fieldName) {
+      const minVal = params[column.fieldName + '_min'];
+      const maxVal = params[column.fieldName + '_max'];
+      const minNum = minVal !== '' && minVal !== undefined ? Number(minVal) : undefined;
+      const maxNum = maxVal !== '' && maxVal !== undefined ? Number(maxVal) : undefined;
+      if (minNum !== undefined || maxNum !== undefined) {
+        params[column.fieldName] = [minNum, maxNum];
+      }
+      delete params[column.fieldName + '_min'];
+      delete params[column.fieldName + '_max'];
+    }
+  });
+  
+  emit("search", params);
 };
 
 // 重置搜索
@@ -504,7 +535,7 @@ const hasMoreDataByColumn = (column) => {
   width: 100% !important;
 }
 
-:deep(.el-input-number) {
+:deep(.number-range .el-input) {
   width: 100% !important;
 }
 :deep(.el-date-editor.el-input, .el-date-editor.el-input__wrapper) {

@@ -77,3 +77,11 @@ export function releaseResume(data) {
     data
   })
 }
+// 下载简历模版
+export function downloadResumeTemplate() {
+  return request({
+    url: '/resume/template/download',
+    method: 'get',
+    responseType: 'blob'
+  })
+}

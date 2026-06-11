@@ -43,13 +43,15 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del, releaseResume } from "@/api/personnel/resume/index.js";
+import { getPageList, getDetail, del, releaseResume, downloadResumeTemplate } from "@/api/personnel/resume/index.js";
 import { columns, basicSearchFields, advancedSearchFields, queryForm, getHeaderButs, getOperationColumn } from "./config/columns";
 import AddDialog from "./components/add.vue";
 import EntryDialog from "./components/EntryDialog.vue";
 import InterviewResultDialog from "./components/InterviewResultDialog.vue";
 import RecommendDialog from "./components/RecommendDialog.vue";
 import { downloadFile } from "@/utils/download";
+import { blobValidate } from "@/utils/ruoyi";
+import { saveAs } from "file-saver";
 
 const { proxy } = getCurrentInstance();
 const { sys_user_sex } = proxy.useDict("sys_user_sex");
@@ -125,12 +127,28 @@ async function handleDownloadResume(row) {
   downloadFile(url, file.fileName || "简历");
 }
 
+// 下载简历模版
+async function handleDownloadTemplate() {
+  try {
+    const res = await downloadResumeTemplate();
+    const isBlob = blobValidate(res);
+    if (isBlob) {
+      const blob = new Blob([res]);
+      saveAs(blob, '简历模版.docx');
+    } else {
+      proxy.$modal.msgError('下载模板失败');
+    }
+  } catch (err) {
+    proxy.$modal.msgError('下载模板失败');
+  }
+}
+
 // 刷新
 function handleSuccess() {
   tableList.value.refresh();
 }
 
-const headerButs = getHeaderButs(handleAdd);
+const headerButs = getHeaderButs(handleAdd, handleDownloadTemplate);
 const operationColumn = getOperationColumn(
   handleEdit,
   handleView,
