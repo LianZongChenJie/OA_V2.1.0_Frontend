@@ -46,7 +46,7 @@
 
         <!-- 客户邮箱 -->
         <el-col :span="24">
-          <el-form-item label="客户邮箱" prop="emailUrl">
+          <el-form-item label="客户邮箱" prop="emailUrl" required>
             <el-input
               v-model="form.emailUrl"
               placeholder="请输入客户邮箱"
@@ -57,7 +57,7 @@
 
         <!-- 选择附件简历 -->
         <el-col :span="24" v-if="attachmentOptions.length > 0">
-          <el-form-item label="选择附件" prop="filePath">
+          <el-form-item label="选择附件" prop="filePath" required>
             <el-select
               v-model="form.filePath"
               placeholder="请选择附件简历"
@@ -148,6 +148,8 @@ const form = reactive(getInitialForm());
 // 校验规则
 const rules = {
   customerId: [{ required: true, message: "请选择客户", trigger: "change" }],
+  emailUrl: [{ required: true, message: "请输入客户邮箱", trigger: "blur" }],
+  filePath: [{ required: true, message: "请选择附件简历", trigger: "change" }],
 };
 
 // 加载客户列表（支持搜索关键词）

@@ -174,7 +174,7 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
     },
     {
       label: '推荐简历',
-      type: 'success',
+      type: 'primary',
       size: 'small',
       isShow: row => showRecommendBtn(row),
       onClick: row => onRecommend?.(row),
