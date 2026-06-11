@@ -76,9 +76,9 @@
 
         <!-- 项目名称 -->
         <el-col :span="24">
-          <el-form-item label="项目名称" prop="projectName">
+          <el-form-item label="项目名称" prop="entryProjectName">
             <el-input
-              v-model="form.projectName"
+              v-model="form.entryProjectName"
               placeholder="请输入项目名称"
               style="width: 100%"
             />
@@ -137,7 +137,7 @@ const getInitialForm = () => ({
   customerName: "",
   emailUrl: "",
   filePath: "",
-  projectName: "",
+  entryProjectName: "",
   status: "1",
   remark: "",
 });
@@ -268,7 +268,7 @@ async function submit() {
       customerName: form.customerName,
       emailUrl: form.emailUrl || "",
       filePath: form.filePath || "",
-      projectName: form.projectName || "",
+      entryProjectName: form.entryProjectName || "",
       status: form.status,
       remark: form.remark || "",
     };

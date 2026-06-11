@@ -38,14 +38,14 @@ export const columns = [
     fieldName: 'sex',
     label: '性别',
     width: "6%",
-    minWidth: 140,
+    minWidth: 80,
     align: 'center',
   },
   {
     fieldName: 'status',
     label: '面试结果',
     width: "6%",
-    minWidth: 140,
+    minWidth: 100,
     align: 'center',
     slot: 'status',
     searchable: {
@@ -55,6 +55,27 @@ export const columns = [
       label: '简历状态',
       order: 2,
     },
+  },
+  {
+    fieldName: 'customerName',
+    label: '客户名称',
+    width: "10%",
+    minWidth: 180,
+    align: 'center',
+  },
+  {
+    fieldName: 'entryProjectName',
+    label: '项目名称',
+    width: "10%",
+    minWidth: 180,
+    align: 'center',
+  },
+  {
+    fieldName: 'recommenderName',
+    label: '推荐人',
+    width: "10%",
+    minWidth: 120,
+    align: 'center',
   },
   {
     fieldName: 'phone',
@@ -85,13 +106,7 @@ export const columns = [
       order: 3,
     },
   },
-  {
-    fieldName: 'entryProjectName',
-    label: '入职项目',
-    width: "10%",
-    minWidth: 120,
-    align: 'center',
-  },
+  
   {
     fieldName: 'education',
     label: '最高学历',
