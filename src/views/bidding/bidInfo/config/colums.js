@@ -232,11 +232,29 @@ export const columns = [
     minWidth: 160,
     formatter: (row) => formatDate(row.updateTime),
   },
+  // 排序条件（仅搜索栏显示，不在表格中展示）
+  {
+    fieldName: 'sortOrder',
+    label: '排序',
+    searchableOnly: true,
+    searchable: {
+      type: 'select',
+      fieldName: 'orderDirection',
+      placeholder: '请选择排序',
+      label: '排序',
+      options: [
+        { label: '正序', value: 'asc' },
+        { label: '倒序', value: 'desc' },
+      ],
+      order: 6,
+    },
+  },
 ];
 
-export const getHeaderButs = (onAdd, onImport) => [
+export const getHeaderButs = (onAdd, onImport, onExport) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
   { label: '导入', type: 'success', icon: 'upload', size: 'default', onClick: onImport },
+  { label: '导出', type: 'warning', icon: 'Download', size: 'default', onClick: onExport },
 ];
 
 export const getOperationColumn = (onEdit, onView, onDelete) => {

@@ -35,10 +35,11 @@
 import { reactive, ref, getCurrentInstance } from "vue";
 import { useRoute } from "vue-router";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del, importData } from "@/api/bidding/bidInfo";
+import { getPageList, getDetail, del, importData, exportData } from "@/api/bidding/bidInfo";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 import ImportDialog from "./components/importDialog.vue";
+import { downloadFile } from "@/utils/download";
 
 const { proxy } = getCurrentInstance();
 const { s_f_c, bid_result } = proxy.useDict("s_f_c", "bid_result");
@@ -99,7 +100,21 @@ async function handleDelete(row) {
   }
 }
 
-const headerButs = getHeaderButs(handleAdd, handleImport);
+/** 导出按钮操作 */
+async function handleExport() {
+  const queryParams = tableList.value.getQueryParams();
+  try {
+    const res = await exportData(queryParams);
+    downloadFile(
+      window.URL.createObjectURL(new Blob([res])),
+      `招标信息导出_${proxy.parseTime(new Date(), '{y}-{m}-{d}')}.xlsx`
+    );
+  } catch (e) {
+    proxy.$modal.msgError("导出失败");
+  }
+}
+
+const headerButs = getHeaderButs(handleAdd, handleImport, handleExport);
 const operationColumn = getOperationColumn(
   handleEdit,
   handleView,

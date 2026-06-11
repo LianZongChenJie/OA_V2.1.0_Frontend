@@ -453,11 +453,16 @@ const calculateColumnWidth = (width, availableWidth) => {
 const processedColumns = computed(() => {
   if (props.columns.length === 0) return [];
 
+  // 过滤掉 searchableOnly 的列（只在搜索栏显示，不在表格中显示）
+  const displayColumns = props.columns.filter((column) => !column.searchableOnly);
+
+  if (displayColumns.length === 0) return [];
+
   const availableWidth = getAvailableWidth();
 
   // 计算所有百分比宽度列的总百分比
   let totalPercentage = 0;
-  props.columns.forEach((column) => {
+  displayColumns.forEach((column) => {
     if (typeof column.width === "string" && column.width.endsWith("%")) {
       totalPercentage += parseFloat(column.width);
     }
@@ -467,8 +472,8 @@ const processedColumns = computed(() => {
   const remainingPercentage = totalPercentage < 100 ? 100 - totalPercentage : 0;
 
   // 处理列配置
-  return props.columns.map((column, index) => {
-    const isLastColumn = index === props.columns.length - 1;
+  return displayColumns.map((column, index) => {
+    const isLastColumn = index === displayColumns.length - 1;
     let width = column.width;
 
     // 如果是最后一列且总百分比小于100%，且该列没有设置固定宽度（数字）

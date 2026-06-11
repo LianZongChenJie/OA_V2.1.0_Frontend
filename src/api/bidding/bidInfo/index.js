@@ -62,9 +62,11 @@ export function exportData(query) {
   return request({
     url: `/tender/export`,
     method: 'get',
-    params: query
+    params: query,
+    responseType: 'blob'
   })
 }
+
 //下载投标附件接口
 export function downloadFile(id) {
   return request({
