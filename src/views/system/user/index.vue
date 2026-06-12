@@ -51,6 +51,26 @@
                   @keyup.enter="handleQuery"
                 />
               </el-form-item>
+              <el-form-item label="员工姓名" prop="nickName">
+                <el-input
+                  v-model="queryParams.nickName"
+                  placeholder="请输入员工姓名"
+                  clearable
+                  style="width: 240px"
+                  @keyup.enter="handleQuery"
+                />
+              </el-form-item>
+              <el-form-item label="排序" prop="orderType">
+                <el-select
+                  v-model="queryParams.orderType"
+                  placeholder="排序方式"
+                  clearable
+                  style="width: 240px"
+                >
+                  <el-option label="正序" value="asc" />
+                  <el-option label="倒序" value="desc" />
+                </el-select>
+              </el-form-item>
               <el-form-item label="手机号码" prop="phonenumber">
                 <el-input
                   v-model="queryParams.phonenumber"
@@ -214,7 +234,7 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="部门负责人"
+                label="部门负责人1"
                 align="center"
                 key="isLeader"
                 v-if="columns.isLeader.visible"
@@ -613,9 +633,11 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     userName: undefined,
+    nickName: undefined,
     phonenumber: undefined,
     status: undefined,
     deptId: undefined,
+    orderType: undefined,
   },
   rules: {
     userName: [
