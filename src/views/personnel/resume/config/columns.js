@@ -177,7 +177,7 @@ const showRecommendBtn = (row) => [0, 3, 5].includes(Number(row.status));
 // 操作列生成函数
 export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, onEntry, onRecommend, onRelease) => ({
   label: '操作',
-  width: 320,
+  width: 220,
   fixed: 'right',
   show: true,
   actions: [
@@ -194,6 +194,14 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       size: 'small',
       onClick: row => onView?.(row),
       icon: 'eye-open'
+    },
+    {
+      label: '推荐简历',
+      type: 'primary',
+      size: 'small',
+      isShow: row => showRecommendBtn(row),
+      onClick: row => onRecommend?.(row),
+      icon: 'recommend'
     },
     {
       label: '删除简历',
@@ -219,19 +227,12 @@ export const getOperationColumn = (onEdit, onView, onDelete, onInterviewResult, 
       onClick: row => onEntry?.(row),
       icon: 'onboarding'
     },
-    {
-      label: '推荐简历',
-      type: 'primary',
-      size: 'small',
-      isShow: row => showRecommendBtn(row),
-      onClick: row => onRecommend?.(row),
-      icon: 'recommend'
-    },
+    
     {
       label: '释放简历',
       type: 'warning',
       size: 'small',
-      isShow: row => row.status == 4,
+      isShow: row => [1, 2, 4].includes(Number(row.status)),
       onClick: row => onRelease?.(row),
       icon: 'component'
     },
