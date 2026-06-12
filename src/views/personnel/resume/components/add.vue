@@ -141,7 +141,7 @@
           :disabled="isView"
           :limit="5"
           accept=".pdf,.doc,.docx"
-          action="tender/attachment/upload"
+          action="resume/parse"
           @downloadApi="downFiles"
         />
       </el-form-item>
