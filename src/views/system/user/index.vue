@@ -223,18 +223,21 @@
                 align="center"
                 key="status"
                 v-if="columns.status.visible"
+                width="120"
               >
                 <template #default="scope">
                   <el-switch
                     v-model="scope.row.status"
                     active-value="0"
                     inactive-value="1"
+                    active-text="在"
+                    inactive-text="离"
                     @change="handleStatusChange(scope.row)"
                   ></el-switch>
                 </template>
               </el-table-column>
               <el-table-column
-                label="部门负责人1"
+                label="部门负责人"
                 align="center"
                 key="isLeader"
                 v-if="columns.isLeader.visible"
@@ -899,8 +902,8 @@ function handleUpdate(row) {
   getUser(userId).then((response) => {
     form.value = response.data;
     // 后端返回的 cityId 可能为逗号分隔字符串，转为数组
-    if (form.value.cityId && typeof form.value.cityId === 'string') {
-      form.value.cityId = form.value.cityId.split(',').map(Number);
+    if (form.value.cityId && typeof form.value.cityId === "string") {
+      form.value.cityId = form.value.cityId.split(",").map(Number);
     }
     postOptions.value = response.posts;
     roleOptions.value = response.roles;
@@ -921,7 +924,7 @@ function submitForm() {
       const formData = { ...form.value };
       // 提交时将 cityId 数组转回逗号分隔字符串
       if (Array.isArray(formData.cityId)) {
-        formData.cityId = formData.cityId.join(',');
+        formData.cityId = formData.cityId.join(",");
       }
       if (formData.userId != undefined) {
         updateUser(formData).then((response) => {
@@ -949,7 +952,7 @@ function handleCityChange(cityName) {
 function handleDialogOpened() {
   const cityId = form.value.cityId;
   if (cityId) {
-    const idArray = String(cityId).split(',').map(Number);
+    const idArray = String(cityId).split(",").map(Number);
     cityCascaderRef.value?.setPendingCityId(idArray);
     cityCascaderRef.value?.handleOpened();
   }
