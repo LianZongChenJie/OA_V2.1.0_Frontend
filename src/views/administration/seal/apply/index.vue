@@ -11,6 +11,9 @@
       <template #checkStatus="{ row }">
         <dict-tag :options="check_status" :value="row.checkStatus" />
       </template>
+       <template #sealStatus="{ row }">
+        <dict-tag :options="seal_status" :value="row.sealStatus" />
+      </template>
        <template #sealCateId="{ row }">
         <dict-tag :options="seal_type" :value="row.sealCateId" />
       </template>
@@ -24,12 +27,12 @@
 <script setup>
 import { ref, getCurrentInstance } from "vue";
 import TableList from "@/components/tableList/index.vue";
-import { getPageList, getDetail, del } from "@/api/administration/seal/apply";
+import { getPageList, getDetail, del, returnSeal } from "@/api/administration/seal/apply";
 import { columns, getHeaderButs, getOperationColumn } from "./config/colums";
 import AddDialog from "./components/add.vue";
 
 const { proxy } = getCurrentInstance();
-const { check_status,seal_type } = proxy.useDict("check_status","seal_type");
+const { check_status,seal_type,seal_status } = proxy.useDict("check_status","seal_type","seal_status");
 
 const tableList = ref(null);
 const addDialogRef = ref(null);
@@ -74,10 +77,23 @@ async function handleDelete(row) {
   }
 }
 
+/** 还章申请按钮操作 */
+async function handleReturnSeal(row) {
+  try {
+    await proxy.$modal.confirm("确认还章吗？");
+    await returnSeal(row.id);
+    proxy.$modal.msgSuccess("还章成功");
+    handleSuccess();
+  } catch (e) {
+    console.error("还章失败", e);
+  }
+}
+
 const headerButs = getHeaderButs(handleAdd);
 const operationColumn = getOperationColumn(
   handleEdit,
   handleView,
   handleDelete,
+  handleReturnSeal,
 );
 </script>

@@ -68,3 +68,10 @@ export function reject(data) {
     data
   })
 }
+// 还章申请
+export function returnSeal(id) {
+  return request({
+    url: '/administrative/seal/return/'+id,
+    method: 'put'
+  })
+}

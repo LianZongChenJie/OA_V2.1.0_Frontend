@@ -63,6 +63,13 @@ export const columns = [
     align: 'center',
   },
   {
+    fieldName: 'sealStatus',
+    label: '用还状态',
+    width: 100,
+    minWidth: 80,
+    align: 'center',
+  },
+  {
     fieldName: 'adminName',
     label: '申请人',
     width: 100,
@@ -80,7 +87,7 @@ export const getHeaderButs = (onAdd) => [
   { label: '新增', type: 'primary', icon: 'plus', size: 'default', onClick: onAdd },
 ];
 
-export const getOperationColumn = (onEdit, onView, onDelete) => {
+export const getOperationColumn = (onEdit, onView, onDelete, onReturnSeal) => {
   return {
     label: '操作',
     width: 170,
@@ -107,6 +114,18 @@ export const getOperationColumn = (onEdit, onView, onDelete) => {
           onView && onView(row);
         },
         icon: 'eye-open',
+      },
+      {
+        label: '还章',
+        type: 'warning',
+        size: 'small',
+        icon: 'tool',
+        onClick: (row) => {
+          onReturnSeal && onReturnSeal(row);
+        },
+        isShow: (row) => {
+          return row.sealStatus === 1;
+        },
       },
       {
         label: '删除',
