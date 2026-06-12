@@ -143,6 +143,7 @@
           accept=".pdf,.doc,.docx"
           action="resume/parse"
           @downloadApi="downFiles"
+          @uploadSuccess="handleUploadSuccess"
         />
       </el-form-item>
     </el-form>
@@ -271,6 +272,16 @@ function handleCityChange(cityName) {
   // cityId 保存省市区所有 ID，逗号隔开
   const val = cityCascaderValue.value;
   form.cityId = val && val.length > 0 ? val.join(",") : "";
+}
+
+// 简历附件上传成功回调，解析返回的简历信息回填表单
+function handleUploadSuccess(data) {
+  if (data.age) form.age = form.age?form.age:data.age;
+  if (data.email) form.email = form.email?form.email:data.email;
+  if (data.graduateSchool) form.graduateSchool =form.graduateSchool?form.graduateSchool:data.graduateSchool;
+  if (data.phone) form.phone = form.phone?form.phone:data.phone;
+  if (data.sex !== undefined && data.sex !== null) form.sex = form.sex?form.sex:String(data.sex);
+  if (data.userName) form.name = form.name?form.name:data.userName;
 }
 
 // 重置表单

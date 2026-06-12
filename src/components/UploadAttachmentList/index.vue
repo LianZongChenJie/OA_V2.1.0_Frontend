@@ -92,7 +92,7 @@ const props = defineProps({
 
 });
 
-const emit = defineEmits(["update:modelValue", "change", "downloadApi"]);
+const emit = defineEmits(["update:modelValue", "change", "downloadApi", "uploadSuccess"]);
 
 // 获取全局实例
 const { proxy } = getCurrentInstance();
@@ -146,6 +146,7 @@ function handleSuccess(response, file, fileListData) {
     fileData.sort = fileList.value.length + 1;
     fileList.value.push(fileData);
     emitFileList(fileList.value);
+    emit("uploadSuccess", response.data);
     proxy.$modal.msgSuccess("上传成功");
   } else {
     proxy.$modal.msgError(response.msg || "上传失败");
