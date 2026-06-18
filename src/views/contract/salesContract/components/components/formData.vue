@@ -315,6 +315,21 @@
         </el-form-item>
       </el-col>
     </el-row>
+
+    <!-- 附件上传 -->
+    <el-row :gutter="20">
+      <el-col :span="24">
+        <el-form-item label="附件列表">
+          <UploadAttachmentList
+            v-model="form.attachments"
+            :disabled="readonly"
+            :limit="10"
+            action="tender/attachment/upload"
+            @downloadApi="downFiles"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
   </el-form>
 </template>
 
@@ -325,6 +340,8 @@ import { listUser } from "@/api/system/user.js";
 import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
 import { getPageList as getClassifyPageList } from "@/api/base/contract/classify/index.js";
 import DeptCascader from "@/components/DeptCascader/index.vue";
+import UploadAttachmentList from "@/components/UploadAttachmentList/index.vue";
+import { downloadFile } from "@/utils/download";
 
 const { proxy } = getCurrentInstance();
 const { seal_contract_types } = proxy.useDict("seal_contract_types");
@@ -377,6 +394,8 @@ const form = reactive({
   shareIds: [],
   // 其他信息
   remark: "",
+  // 附件列表
+  attachments: [],
   // 审批状态
   checkStatus: undefined,
 });
@@ -455,6 +474,19 @@ function handleCustomerChange(customerId) {
   }
 }
 
+/** 文件下载 */
+const downFiles = (file) => {
+  if (!file.id) {
+    proxy.$modal.msgWarning("文件ID不存在");
+    return;
+  }
+  const baseUrl = import.meta.env.VITE_APP_BASE_API || "";
+  const url = baseUrl + `/system/contract/attachment/download/${file.id}`;
+  downloadFile(url, file.fileName || file.name || "下载文件").catch(() => {
+    proxy.$modal.msgError("下载失败");
+  });
+};
+
 /** 重置表单 */
 function resetForm() {
   form.id = undefined;
@@ -480,6 +512,8 @@ function resetForm() {
   form.shareIds = [];
   // 其他信息
   form.remark = "";
+  // 附件列表
+  form.attachments = [];
   // 审批状态
   form.checkStatus = undefined;
   formRef.value?.clearValidate();
@@ -531,6 +565,8 @@ function setFormData(data) {
     : [];
   // 其他信息
   form.remark = data.remark || "";
+  // 附件列表
+  form.attachments = data.attachments || [];
   // 审批状态
   form.checkStatus = data.checkStatus;
 }
