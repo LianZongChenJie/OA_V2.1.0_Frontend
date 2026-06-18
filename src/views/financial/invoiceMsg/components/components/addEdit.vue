@@ -2,7 +2,7 @@
   <el-dialog
     :title="dialogTitle"
     v-model="dialogVisible"
-    width="50%"
+    width="60%"
     append-to-body
     class="documents-dialog"
     @close="handleClose"
@@ -123,7 +123,7 @@ defineExpose({
 
 .documents-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
-  overflow-y: auto;
+  overflow: hidden auto;
 }
 
 .form-section-title {

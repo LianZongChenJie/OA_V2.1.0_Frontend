@@ -5,35 +5,17 @@
     :rules="readonly ? {} : rules"
     label-width="120px"
   >
-    <!-- 发票信息 -->
-    <div class="form-section-title">发票信息</div>
+    <!-- 基础信息 -->
+    <div class="form-section-title">基础信息</div>
 
-    <!-- 第一行：抬头类型 + 开票类型 -->
+    <!-- 第一行：发票类型 + 主体类型 -->
     <el-row :gutter="20">
       <el-col :span="12">
-        <el-form-item label="抬头类型" prop="types">
-          <el-select
-            v-model="form.types"
-            :disabled="readonly"
-            placeholder="请选择抬头类型"
-            clearable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="dict in invoice_title_type"
-              :key="dict.value"
-              :label="dict.label"
-              :value="dict.value"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item label="开票类型" prop="invoiceType">
+        <el-form-item label="发票类型" prop="invoiceType">
           <el-select
             v-model="form.invoiceType"
             :disabled="readonly"
-            placeholder="请选择开票类型"
+            placeholder="请选择发票类型"
             clearable
             style="width: 100%"
           >
@@ -46,9 +28,53 @@
           </el-select>
         </el-form-item>
       </el-col>
+      <el-col :span="12">
+        <el-form-item label="主体类型" prop="types">
+          <el-select
+            v-model="form.types"
+            :disabled="readonly"
+            placeholder="请选择主体类型"
+            clearable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="dict in invoice_title_type"
+              :key="dict.value"
+              :label="dict.label"
+              :value="dict.value"
+            />
+          </el-select>
+        </el-form-item>
+      </el-col>
     </el-row>
 
-    <!-- 第二行：发票抬头 + 纳税人识别号 -->
+    <!-- 第二行：企业主体 -->
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="企业主体" prop="invoiceSubject">
+          <el-select
+            v-model="form.invoiceSubject"
+            :disabled="readonly"
+            placeholder="请选择企业主体"
+            clearable
+            filterable
+            style="width: 100%"
+          >
+            <el-option
+              v-for="item in enterpriseOptions"
+              :key="item.id"
+              :label="item.title"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+      </el-col>
+    </el-row>
+
+    <!-- 发票信息 -->
+    <div class="form-section-title">发票信息</div>
+
+    <!-- 第三行：发票抬头 + 纳税人识别号 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="发票抬头" prop="invoiceTitle">
@@ -70,52 +96,8 @@
       </el-col>
     </el-row>
 
-    <!-- 第三行：发票金额 + 开票主体 -->
+    <!-- 第四行：地址 + 电话 -->
     <el-row :gutter="20">
-      <el-col :span="12">
-        <el-form-item label="发票金额(元)" prop="amount">
-          <el-input-number
-            v-model="form.amount"
-            :min="0"
-            :precision="2"
-            placeholder="请输入发票金额"
-            :disabled="readonly"
-            style="width: 100%; padding-right: 30px"
-          />
-        </el-form-item>
-      </el-col>
-      <el-col :span="12">
-        <el-form-item label="开票主体" prop="invoiceSubject">
-          <el-select
-            v-model="form.invoiceSubject"
-            :disabled="readonly"
-            placeholder="请选择开票主体"
-            clearable
-            filterable
-            style="width: 100%"
-          >
-            <el-option
-              v-for="item in enterpriseOptions"
-              :key="item.id"
-              :label="item.title"
-              :value="item.id"
-            />
-          </el-select>
-        </el-form-item>
-      </el-col>
-    </el-row>
-
-    <!-- 第四行：电话号码 + 地址 -->
-    <el-row :gutter="20">
-      <el-col :span="12">
-        <el-form-item label="电话号码" prop="invoicePhone">
-          <el-input
-            v-model="form.invoicePhone"
-            placeholder="请输入电话号码"
-            :disabled="readonly"
-          />
-        </el-form-item>
-      </el-col>
       <el-col :span="12">
         <el-form-item label="地址" prop="invoiceAddress">
           <el-input
@@ -125,12 +107,34 @@
           />
         </el-form-item>
       </el-col>
+      <el-col :span="12">
+        <el-form-item label="电话" prop="invoicePhone">
+          <el-input
+            v-model="form.invoicePhone"
+            placeholder="请输入电话号码"
+            :disabled="readonly"
+          />
+        </el-form-item>
+      </el-col>
     </el-row>
 
-    <!-- 开户行信息 -->
-    <div class="form-section-title">开户行信息</div>
+    <!-- 第五行：发票金额 -->
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="发票金额(元)" prop="amount">
+          <el-input-number
+            v-model="form.amount"
+            :min="0"
+            :precision="2"
+            placeholder="请输入发票金额"
+            :disabled="readonly"
+            style="width: 100%"
+          />
+        </el-form-item>
+      </el-col>
+    </el-row>
 
-    <!-- 第五行：开户行 + 银行账户 -->
+    <!-- 第六行：开户行 + 银行账户 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="开户行" prop="invoiceBank">
@@ -152,7 +156,7 @@
       </el-col>
     </el-row>
 
-    <!-- 第六行：银行营业网点 -->
+    <!-- 第七行：银行营业网点 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="银行营业网点" prop="invoiceBanking">
@@ -168,7 +172,7 @@
     <!-- 其他信息 -->
     <div class="form-section-title">其他信息</div>
 
-    <!-- 第八行：关联合同 + 关联项目 -->
+    <!-- 第八行：关联合同 + 管理项目 -->
     <el-row :gutter="20">
       <el-col :span="12">
         <el-form-item label="关联合同" prop="contractId">
@@ -190,11 +194,11 @@
         </el-form-item>
       </el-col>
       <el-col :span="12">
-        <el-form-item label="关联项目" prop="projectId">
+        <el-form-item label="管理项目" prop="projectId">
           <el-select
             v-model="form.projectId"
             :disabled="readonly"
-            placeholder="请选择关联项目"
+            placeholder="请选择管理项目"
             clearable
             filterable
             style="width: 100%"
@@ -210,7 +214,7 @@
       </el-col>
     </el-row>
 
-    <!-- 第八行：备注信息 -->
+    <!-- 第九行：备注信息 -->
     <el-row :gutter="20">
       <el-col :span="24">
         <el-form-item label="备注信息" prop="remark">
@@ -228,10 +232,10 @@
 </template>
 
 <script setup name="InvoiceFormData">
-import { ref, reactive, getCurrentInstance, onMounted } from "vue";
+import { ref, reactive, watch, getCurrentInstance, onMounted } from "vue";
 import { getPageList as getContractPageList } from "@/api/contract/salesContract";
 import { getPageList as getProjectPageList } from "@/api/project/itemList";
-import { getPageList as getEnterprisePageList } from "@/api/base/common/businessEntity/index.js";
+import { getPageList as getEnterprisePageList, getDetail as getEnterpriseDetail } from "@/api/base/common/businessEntity/index.js";
 import { deptTreeSelect } from "@/api/system/user.js";
 import useUserStore from "@/store/modules/user";
 
@@ -293,19 +297,31 @@ const form = reactive({
 });
 
 // 验证规则
-  const rules = {
-    types: [{ required: true, message: "请选择抬头类型", trigger: "change" }],
-    invoiceType: [{ required: true, message: "请选择开票类型", trigger: "change" }],
-    invoiceTitle: [{ required: true, message: "请输入发票抬头", trigger: "blur" }],
-    invoiceTax: [{ required: true, message: "请输入纳税人识别号", trigger: "blur" }],
-    amount: [{ required: true, message: "请输入发票金额", trigger: "blur" }],
-    invoiceSubject: [{ required: true, message: "请选择开票主体", trigger: "change" }],
-    invoicePhone: [{ required: true, message: "请输入电话号码", trigger: "blur" }],
-    invoiceAddress: [{ required: true, message: "请输入地址", trigger: "blur" }],
-    invoiceBank: [{ required: true, message: "请输入开户行", trigger: "blur" }],
-    invoiceAccount: [{ required: true, message: "请输入银行账户", trigger: "blur" }],
-    invoiceBanking: [{ required: true, message: "请输入银行营业网点", trigger: "blur" }],
-  };
+const rules = {
+  invoiceTitle: [{ required: true, message: "请输入发票抬头", trigger: "blur" }],
+  invoiceTax: [{ required: true, message: "请输入纳税人识别号", trigger: "blur" }],
+  amount: [{ required: true, message: "请输入发票金额", trigger: "blur" }],
+};
+
+// 监听企业主体选择，自动回填发票信息
+watch(() => form.invoiceSubject, (newVal) => {
+  if (newVal) {
+    getEnterpriseDetail(newVal).then((res) => {
+      const data = res.data;
+      form.invoiceTitle = data.title || "";
+      form.invoiceTax = data.taxNum || "";
+      form.invoiceAddress = data.address || "";
+      form.invoiceBank = data.bank || "";
+      form.invoiceAccount = data.bankSn || "";
+    });
+  } else {
+    form.invoiceTitle = "";
+    form.invoiceTax = "";
+    form.invoiceAddress = "";
+    form.invoiceBank = "";
+    form.invoiceAccount = "";
+  }
+});
 
 /** 获取合同列表 */
 function getContractList() {

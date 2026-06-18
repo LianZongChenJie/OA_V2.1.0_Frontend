@@ -167,7 +167,7 @@ defineExpose({
 
 .documents-dialog .el-dialog__body {
   max-height: calc(88vh - 120px);
-  overflow-y: auto;
+  overflow: hidden auto;
 }
 .dialog-footer {
   display: flex;
