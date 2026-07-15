@@ -22,6 +22,10 @@ const service = axios.create({
 
 // request拦截器
 service.interceptors.request.use(config => {
+  // FormData请求时清除默认的Content-Type，让浏览器自动设置multipart/form-data及boundary
+  if (config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
   // 是否需要设置 token
   const isToken = (config.headers || {}).isToken === false
   // 是否需要防止数据重复提交
@@ -38,7 +42,7 @@ service.interceptors.request.use(config => {
     config.params = {};
     config.url = url;
   }
-  if (!isRepeatSubmit && (config.method === 'post' || config.method === 'put')) {
+  if (!isRepeatSubmit && !(config.data instanceof FormData) && (config.method === 'post' || config.method === 'put')) {
     const requestObj = {
       url: config.url,
       data: typeof config.data === 'object' ? JSON.stringify(config.data) : config.data,
