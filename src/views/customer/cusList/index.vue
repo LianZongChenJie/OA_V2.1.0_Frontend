@@ -5,6 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
+      :params="{ tab: 1 }"
       row-key="name"
       ref="tableList"
     >

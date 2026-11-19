@@ -134,9 +134,9 @@
         </el-col>
       </el-row>
 
-      <!-- 第五行：共享员工 -->
+      <!-- 第五行：共享员工 + 客户状态 -->
       <el-row :gutter="20">
-        <el-col :span="24">
+        <el-col :span="12">
           <el-form-item label="共享员工" prop="shareIds">
             <el-select
               v-model="form.shareIds"
@@ -152,6 +152,24 @@
                 :key="item.userId"
                 :label="item.nickName"
                 :value="item.userId"
+              />
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="客户状态" prop="customerStatus">
+            <el-select
+              v-model="form.customerStatus"
+              :disabled="isView"
+              placeholder="请选择客户状态"
+              clearable
+              style="width: 100%"
+            >
+              <el-option
+                v-for="item in customer_status"
+                :key="item.value"
+                :label="item.label"
+                :value="Number(item.value)"
               />
             </el-select>
           </el-form-item>
@@ -316,6 +334,18 @@
           </el-form-item>
         </el-col>
       </el-row>
+
+      <!-- 跟进记录（仅编辑/查看模式展示，新增模式不展示） -->
+      <template v-if="form.id">
+        <el-row :gutter="20">
+          <el-col :span="24">
+            <TraceList
+              :customer-id="form.id"
+              :disabled="isView"
+            />
+          </el-col>
+        </el-row>
+      </template>
     </el-form>
 
     <template #footer>
@@ -340,8 +370,10 @@ import { getPageList as getCustomerLevelList } from "@/api/base/customer/level";
 import { getPageList as getChannelPageList } from "@/api/base/customer/channel";
 import { getPageList as getIndustryTypePageList } from "@/api/base/customer/industryType";
 import DeptCascader from "@/components/DeptCascader/index.vue";
+import TraceList from "./traceList.vue";
 
 const { proxy } = getCurrentInstance();
+const { customer_status } = proxy.useDict("customer_status");
 
 const dialogVisible = ref(false);
 const formRef = ref(null);
@@ -520,7 +552,6 @@ function openEdit(formData) {
   const data = formData?.info || formData;
   reset();
   isEdit.value = true; // 先设置为编辑模式
-
   // 使用 nextTick 确保表单状态更新后再设置数据
   nextTick(() => {
     form.id = data.id;
@@ -539,6 +570,7 @@ function openEdit(formData) {
       : [];
     form.content = data.content || "";
     form.remark = data.remark || "";
+    form.customerStatus = data.customerStatus != null ? Number(data.customerStatus) : 1;
     if (data.contactInfo) {
       form.contactInfo = {
         name: data.contactInfo.name || "",
@@ -565,7 +597,6 @@ function openView(formData) {
   const data = formData?.info || formData;
   reset();
   isView.value = true; // 先设置为查看模式
-
   // 使用 nextTick 确保表单状态更新后再设置数据
   nextTick(() => {
     form.id = data.id;
@@ -584,6 +615,7 @@ function openView(formData) {
       : [];
     form.content = data.content || "";
     form.remark = data.remark || "";
+    form.customerStatus = data.customerStatus != null ? Number(data.customerStatus) : 1;
     if (data.contactInfo) {
       form.contactInfo = {
         name: data.contactInfo.name || "",
