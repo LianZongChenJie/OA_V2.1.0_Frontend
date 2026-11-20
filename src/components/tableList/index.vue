@@ -155,6 +155,7 @@ import {
   onMounted,
   onBeforeUnmount,
   nextTick,
+  useSlots,
 } from "vue";
 import { RefreshRight } from "@element-plus/icons-vue";
 import SearchBar from "./SearchBar.vue";
@@ -343,6 +344,7 @@ const remoteData = ref([]);
 const total = ref(0);
 const currentPage = ref(props.pageNum);
 const currentPageSize = ref(props.pageSize);
+let latestFetchId = 0;
 
 // 判断是否为 API 模式
 const isApiMode = computed(() => !!props.api);
@@ -398,9 +400,13 @@ const operationColumnConfig = computed(() => {
 });
 
 // 是否显示操作列
+const slots = useSlots();
 const showOperationColumn = computed(() => {
-  return (
-    operationColumnConfig.value.show &&
+  if (!operationColumnConfig.value.show) return false;
+  // 页面提供了自定义操作列插槽时（无论 actions 是否为空），渲染操作列，由插槽内容自行控制
+  const slotName = operationColumnConfig.value.slotName || "actions";
+  if (slots[slotName]) return true;
+  return !!(
     operationColumnConfig.value.actions &&
     operationColumnConfig.value.actions.length > 0
   );
@@ -535,6 +541,7 @@ const handleToggleExpand = (expanded) => {
 const fetchRemoteData = async () => {
   if (!props.api) return;
 
+  const currentFetchId = ++latestFetchId;
   loading.value = true;
   try {
     const params = {
@@ -545,6 +552,7 @@ const fetchRemoteData = async () => {
     };
 
     const res = await props.api(params);
+    if (currentFetchId !== latestFetchId) return;
 
     // 处理返回数据
     if (res.code === 200 && res.success) {
@@ -555,11 +563,14 @@ const fetchRemoteData = async () => {
       total.value = 0;
     }
   } catch (error) {
+    if (currentFetchId !== latestFetchId) return;
     console.error("表格数据请求失败:", error);
     remoteData.value = [];
     total.value = 0;
   } finally {
-    loading.value = false;
+    if (currentFetchId === latestFetchId) {
+      loading.value = false;
+    }
   }
 };
 

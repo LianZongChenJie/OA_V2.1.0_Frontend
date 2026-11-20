@@ -3,7 +3,7 @@ import request from '@/utils/request'
 // 上传招标文件
 export function uploadTenderDocument(data, onProgress) {
   return request({
-    url: '/tender/upload',
+    url: '/ai/tender/upload',
     method: 'post',
     data: data,
     timeout: 180000,
@@ -14,7 +14,7 @@ export function uploadTenderDocument(data, onProgress) {
 // 查询招标文件列表
 export function listTenderDocument(query) {
   return request({
-    url: '/tender/list',
+    url: '/ai/tender/list',
     method: 'get',
     params: query,
   })
@@ -23,7 +23,7 @@ export function listTenderDocument(query) {
 // 查询招标文件详情
 export function getTenderDetail(tenderId) {
   return request({
-    url: '/tender/detail/' + tenderId,
+    url: '/ai/tender/detail/' + tenderId,
     method: 'get',
   })
 }
@@ -31,7 +31,7 @@ export function getTenderDetail(tenderId) {
 // 获取结构化招标要求
 export function getTenderRequirements(tenderId) {
   return request({
-    url: '/tender/requirements/' + tenderId,
+    url: '/ai/tender/requirements/' + tenderId,
     method: 'get',
   })
 }
@@ -39,7 +39,7 @@ export function getTenderRequirements(tenderId) {
 // 执行人员匹配推荐
 export function matchPersonnel(tenderId) {
   return request({
-    url: '/tender/match/' + tenderId,
+    url: '/ai/tender/match/' + tenderId,
     method: 'post',
     timeout: 60000,
   })
@@ -48,7 +48,7 @@ export function matchPersonnel(tenderId) {
 // 获取匹配结果列表
 export function getMatchResult(tenderId) {
   return request({
-    url: '/tender/match-result/' + tenderId,
+    url: '/ai/tender/match-result/' + tenderId,
     method: 'get',
   })
 }
@@ -56,7 +56,7 @@ export function getMatchResult(tenderId) {
 // 选择/取消选择人员
 export function selectPersonnel(data) {
   return request({
-    url: '/tender/select-personnel',
+    url: '/ai/tender/select-personnel',
     method: 'post',
     data: data,
   })
@@ -65,7 +65,7 @@ export function selectPersonnel(data) {
 // 生成投标文件
 export function generateBidFile(data) {
   return request({
-    url: '/tender/generate',
+    url: '/ai/tender/generate',
     method: 'post',
     data: data,
     timeout: 120000,
@@ -75,7 +75,7 @@ export function generateBidFile(data) {
 // 下载生成的投标文件
 export function downloadBidFile(tenderId) {
   return request({
-    url: '/tender/download/' + tenderId,
+    url: '/ai/tender/download/' + tenderId,
     method: 'get',
     responseType: 'blob',
   })
@@ -84,7 +84,7 @@ export function downloadBidFile(tenderId) {
 // 删除招标文件
 export function delTenderDocument(tenderId) {
   return request({
-    url: '/tender/delete/' + tenderId,
+    url: '/ai/tender/delete/' + tenderId,
     method: 'delete',
   })
 }

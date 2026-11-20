@@ -36,7 +36,13 @@
 
       <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
         <div class="avatar-wrapper">
-          <img :src="userStore.avatar" class="user-avatar" />
+          <img
+            v-if="showAvatar"
+            :src="userStore.avatar"
+            class="user-avatar"
+            @error="handleAvatarError"
+          />
+          <span v-else class="user-avatar avatar-text">{{ avatarText }}</span>
           <span class="user-nickname"> {{ userStore.nickName }} </span>
         </div>
         <template #dropdown>
@@ -58,7 +64,9 @@
 </template>
 
 <script setup>
+import { computed, ref, watch } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import defAva from '@/assets/images/profile.jpg'
 import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
 import TopBar from './TopBar'
@@ -76,6 +84,25 @@ import useSettingsStore from '@/store/modules/settings'
 const appStore = useAppStore()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
+
+const avatarLoadFailed = ref(false)
+
+watch(() => userStore.avatar, () => {
+  avatarLoadFailed.value = false
+})
+
+const showAvatar = computed(() =>
+  !!userStore.avatar && userStore.avatar !== defAva && !avatarLoadFailed.value
+)
+
+const avatarText = computed(() => {
+  const name = userStore.nickName || userStore.name || '用'
+  return String(name).trim().charAt(0) || '用'
+})
+
+function handleAvatarError() {
+  avatarLoadFailed.value = true
+}
 
 function toggleSideBar() {
   appStore.toggleSideBar()
@@ -268,6 +295,17 @@ async function toggleTheme(event) {
           border-radius: 50%;
           vertical-align: middle;
           border-style: none;
+        }
+
+        .avatar-text {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--el-color-primary);
+          color: #fff;
+          font-size: 14px;
+          font-weight: 600;
+          line-height: 1;
         }
 
         .user-nickname{

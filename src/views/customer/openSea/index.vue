@@ -9,7 +9,8 @@
       ref="tableList"
     >
       <template #customerStatus="{ row }">
-        <dict-tag :options="customer_status" :value="row.customerStatus" />
+        <span v-if="Number(row.customerStatus) === 0">未设置</span>
+        <dict-tag v-else :options="customer_status" :value="row.customerStatus" />
       </template>
       <template #intentStatus="{ row }">
         <dict-tag :options="customer_intent_status" :value="row.intentStatus" />

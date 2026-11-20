@@ -77,18 +77,18 @@ const useUserStore = defineStore(
       },
       // 退出系统
       logOut() {
-        return new Promise((resolve, reject) => {
-          logout(this.token).then(() => {
-            this.token = ''
-            this.roles = []
-            this.permissions = []
-            this.deptId = ''
-            this.deptName = ''
-            removeToken()
-            resolve()
-          }).catch(error => {
-            reject(error)
-          })
+        return new Promise((resolve) => {
+          logout(this.token)
+            .catch(() => {})
+            .finally(() => {
+              this.token = ''
+              this.roles = []
+              this.permissions = []
+              this.deptId = ''
+              this.deptName = ''
+              removeToken()
+              resolve()
+            })
         })
       }
     }

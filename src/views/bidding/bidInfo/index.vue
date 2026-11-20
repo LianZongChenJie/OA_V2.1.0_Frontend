@@ -5,7 +5,7 @@
       :columns="columns"
       :operation-column="operationColumn"
       :toolbar-buttons="headerButs"
-      row-key="name"
+      row-key="id"
       ref="tableList"
       :row-class-name="getRowClassName"
     >

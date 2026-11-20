@@ -17,7 +17,7 @@ const service = axios.create({
   // axios中请求配置有baseURL选项，表示请求URL公共部分
   baseURL: import.meta.env.VITE_APP_BASE_API,
   // 超时
-  timeout: 10000
+  timeout: 20000
 })
 
 // request拦截器
@@ -98,7 +98,9 @@ service.interceptors.response.use(res => {
         isRelogin.show = false;
       });
     }
-      return Promise.reject('无效的会话，或者会话已过期，请重新登录。')
+      return Promise.reject(
+        Object.assign(new Error('无效的会话，或者会话已过期，请重新登录。'), { isAuthError: true })
+      )
     } else if (code === 500) {
       ElMessage({ message: msg, type: 'error' })
       return Promise.reject(new Error(msg))
@@ -114,10 +116,15 @@ service.interceptors.response.use(res => {
   },
   error => {
     console.log('err' + error)
-    let { message } = error;
-    if (message == "Network Error") {
+    let message = error.message || '';
+    if (error.response?.status === 401) {
+      error.isAuthError = true
+      message = '登录状态已过期，请重新登录'
+    } else if (message == "Network Error") {
+      error.isNetworkError = true
       message = "后端接口连接异常";
     } else if (message.includes("timeout")) {
+      error.isTimeout = true
       message = "系统接口请求超时";
     } else if (message.includes("Request failed with status code")) {
       message = "系统接口" + message.slice(-3) + "异常";

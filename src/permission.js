@@ -33,6 +33,7 @@ router.beforeEach((to, from, next) => {
         // 判断当前用户是否已拉取完user_info信息
         useUserStore().getInfo().then(() => {
           isRelogin.show = false
+          sessionStorage.removeItem('getInfoRetry')
           usePermissionStore().generateRoutes().then(accessRoutes => {
             // 根据roles权限生成可访问的路由表
             accessRoutes.forEach(route => {
@@ -42,11 +43,30 @@ router.beforeEach((to, from, next) => {
             })
             next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
           })
-        }).catch(err => {
-          useUserStore().logOut().then(() => {
-            ElMessage.error(err)
-            next({ path: '/' })
-          })
+        }).catch(error => {
+          const isAuthError = error?.isAuthError === true || error?.response?.status === 401
+          if (isAuthError) {
+            useUserStore().logOut().then(() => {
+              ElMessage.error('登录状态已过期，请重新登录')
+              next({ path: '/login' })
+            })
+          } else {
+            if (sessionStorage.getItem('getInfoRetry') !== '1') {
+              sessionStorage.setItem('getInfoRetry', '1')
+              next({ ...to, replace: true })
+              return
+            }
+            sessionStorage.removeItem('getInfoRetry')
+            isRelogin.show = false
+            const message = error?.isTimeout
+              ? '获取用户信息超时，请重试'
+              : error?.isNetworkError
+                ? '网络连接异常，请重试'
+                : error?.message || '获取用户信息失败，请重试'
+            ElMessage.error(message)
+            next(false)
+            NProgress.done()
+          }
         })
       } else {
         next()

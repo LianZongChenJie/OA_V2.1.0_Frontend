@@ -198,6 +198,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  // 外部数据源（废弃客户详情等场景由父组件传入该客户全部跟进记录，传入后不再自行请求）
+  externalList: {
+    type: Array,
+    default: undefined,
+  },
 });
 
 // 跟进记录列表
@@ -375,6 +380,10 @@ function resetForm() {
 watch(
   () => props.customerId,
   (val) => {
+    // 外部数据源模式：列表内容由父组件控制，不自行请求
+    if (props.externalList !== undefined) {
+      return;
+    }
     if (val) {
       loadList();
     } else {
@@ -383,9 +392,22 @@ watch(
   }
 );
 
+// 外部数据源：父组件传入时直接采用（每次更新同步，保证切换客户后不残留旧数据）
+watch(
+  () => props.externalList,
+  (val) => {
+    if (Array.isArray(val)) {
+      traceList.value = val;
+    }
+  },
+  { immediate: true }
+);
+
 onMounted(() => {
   getUserList();
-  if (props.customerId) {
+  if (Array.isArray(props.externalList)) {
+    traceList.value = props.externalList;
+  } else if (props.customerId) {
     loadList();
   }
 });
