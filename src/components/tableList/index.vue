@@ -206,6 +206,8 @@ import SearchBar from "./SearchBar.vue";
  * @property {string} [slotName] - 自定义操作列插槽名称
  */
 
+const emit = defineEmits(['search', 'reset']);
+
 // 接收的属性
 const props = defineProps({
   /** 表格数据（本地数据模式）
@@ -727,6 +729,7 @@ const handleSearch = (params) => {
   });
   
   searchParams.value = processedParams;
+  emit('search', processedParams);
   if (isApiMode.value) {
     currentPage.value = 1;
     fetchRemoteData();
@@ -737,6 +740,7 @@ const handleSearch = (params) => {
 // 重置搜索
 const resetSearch = () => {
   searchParams.value = {};
+  emit('reset', {});
   if (isApiMode.value) {
     currentPage.value = 1;
     fetchRemoteData();
