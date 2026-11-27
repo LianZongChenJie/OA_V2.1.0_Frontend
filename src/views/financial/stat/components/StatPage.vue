@@ -31,6 +31,9 @@
         :fields="config.detailFields"
         :data="detailData"
         :dict-options="detailDictOptions"
+        :show-approval="props.moduleKey === 'loan'"
+        :show-offset="props.moduleKey === 'loan'"
+        @export="handleApprovalExport"
       />
     </div>
   </div>
@@ -48,6 +51,7 @@ import * as statApi from '@/api/financial/stat'
 import statConfig from '../config'
 import StatSummary from './StatSummary.vue'
 import DetailDialog from './DetailDialog.vue'
+import { printLoanApprovalSheet } from '../utils/approvalPrint'
 
 const props = defineProps({
   moduleKey: { type: String, required: true }
@@ -185,13 +189,15 @@ function formatDate(value) {
 }
 
 function returnStatusText(row) {
+  if (Number(row.payStatus || 0) === 0) return ''
   if (Number(row.balanceStatus) === 2) return '无需归还'
   return Number(row.backStatus) === 1 ? '已归还' : '待归还'
 }
 
 function planTimeText(row) {
   const dateText = formatDate(row.planTime) || '-'
-  return `${dateText}（${returnStatusText(row)}）`
+  const statusText = returnStatusText(row)
+  return statusText ? `${dateText}（${statusText}）` : dateText
 }
 
 async function loadSummary() {
@@ -238,6 +244,11 @@ async function handleExport() {
     console.error(error)
     proxy.$modal.msgError('导出失败')
   }
+}
+
+function handleApprovalExport() {
+  const success = printLoanApprovalSheet(detailData.value, userStore.nickName)
+  if (!success) proxy.$modal.msgError('请允许浏览器弹出窗口后再打印')
 }
 
 function handlePay(row) {

@@ -10,24 +10,18 @@
 
     <div class="right-menu">
       <template v-if="appStore.device !== 'mobile'">
-        <header-search id="header-search" class="right-menu-item" />
-
-        <el-tooltip content="源码地址" effect="dark" placement="bottom">
-          <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
-        </el-tooltip>
-
-        <el-tooltip content="文档地址" effect="dark" placement="bottom">
-          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
-        </el-tooltip>
-
-        <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
-        <el-tooltip content="主题模式" effect="dark" placement="bottom">
-          <div class="right-menu-item hover-effect theme-switch-wrapper" @click="toggleTheme">
-            <svg-icon v-if="settingsStore.isDark" icon-class="sunny" />
-            <svg-icon v-if="!settingsStore.isDark" icon-class="moon" />
+        <el-tooltip content="未读消息" effect="dark" placement="bottom">
+          <div class="right-menu-item hover-effect message-wrapper" @click="goMessageReceipt">
+            <el-icon class="message-icon"><Bell /></el-icon>
+            <span v-if="unreadCount > 0" class="message-count">
+              {{ unreadCount > 99 ? '99+' : unreadCount }}
+            </span>
           </div>
         </el-tooltip>
+
+        <header-search id="header-search" class="right-menu-item" />
+
+        <screenfull id="screenfull" class="right-menu-item hover-effect" />
 
         <el-tooltip content="布局大小" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
@@ -64,8 +58,10 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
+import { Bell } from '@element-plus/icons-vue'
 import defAva from '@/assets/images/profile.jpg'
 import Breadcrumb from '@/components/Breadcrumb'
 import TopNav from '@/components/TopNav'
@@ -75,8 +71,7 @@ import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import HeaderSearch from '@/components/HeaderSearch'
-import RuoYiGit from '@/components/RuoYi/Git'
-import RuoYiDoc from '@/components/RuoYi/Doc'
+import { getUnreadCount } from '@/api/message/receipt/index.js'
 import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
 import useSettingsStore from '@/store/modules/settings'
@@ -84,8 +79,39 @@ import useSettingsStore from '@/store/modules/settings'
 const appStore = useAppStore()
 const userStore = useUserStore()
 const settingsStore = useSettingsStore()
+const route = useRoute()
+const router = useRouter()
 
 const avatarLoadFailed = ref(false)
+const unreadCount = ref(0)
+let unreadTimer = null
+
+async function loadUnreadCount() {
+  try {
+    const res = await getUnreadCount()
+    unreadCount.value = Number(res.data || 0)
+  } catch (error) {
+    unreadCount.value = 0
+  }
+}
+
+function goMessageReceipt() {
+  router.push('/message/receipt')
+}
+
+onMounted(() => {
+  loadUnreadCount()
+  unreadTimer = setInterval(loadUnreadCount, 60000)
+})
+
+onBeforeUnmount(() => {
+  if (unreadTimer) {
+    clearInterval(unreadTimer)
+    unreadTimer = null
+  }
+})
+
+watch(() => route.path, loadUnreadCount)
 
 watch(() => userStore.avatar, () => {
   avatarLoadFailed.value = false
@@ -138,45 +164,6 @@ function setLayout() {
   emits('setLayout')
 }
 
-async function toggleTheme(event) {
-  const x = event?.clientX || window.innerWidth / 2
-  const y = event?.clientY || window.innerHeight / 2
-  const wasDark = settingsStore.isDark
-
-  const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  const isSupported = document.startViewTransition && !isReducedMotion
-
-  if (!isSupported) {
-    settingsStore.toggleTheme()
-    return
-  }
-
-  try {
-    const transition = document.startViewTransition(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10))
-      settingsStore.toggleTheme()
-      await nextTick()
-    })
-    await transition.ready
-
-    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
-    const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`]
-    document.documentElement.animate(
-      {
-        clipPath: !wasDark ? [...clipPath].reverse() : clipPath
-      }, {
-        duration: 650,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-        fill: "forwards",
-        pseudoElement: !wasDark ? "::view-transition-old(root)" : "::view-transition-new(root)"
-      }
-    )
-    await transition.finished
-  } catch (error) {
-    console.warn("View transition failed, falling back to immediate toggle:", error)
-    settingsStore.toggleTheme()
-  }
-}
 </script>
 
 <style lang='scss' scoped>
@@ -264,16 +251,31 @@ async function toggleTheme(event) {
         }
       }
 
-      &.theme-switch-wrapper {
+      &.message-wrapper {
+        position: relative;
         display: flex;
         align-items: center;
+        justify-content: center;
 
-        svg {
-          transition: transform 0.3s;
-          
-          &:hover {
-            transform: scale(1.15);
-          }
+        .message-icon {
+          font-size: 22px;
+        }
+
+        .message-count {
+          position: absolute;
+          top: 7px;
+          right: 1px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 14px;
+          height: 14px;
+          padding: 0 3px;
+          border-radius: 7px;
+          background: #f56c6c;
+          color: #fff;
+          font-size: 10px;
+          line-height: 1;
         }
       }
     }

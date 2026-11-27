@@ -259,7 +259,7 @@
                 width="160"
               >
                 <template #default="scope">
-                  <span>{{ parseTime(scope.row.createTime) }}</span>
+                  <span>{{ formatCreateTime(scope.row.createTime) }}</span>
                 </template>
               </el-table-column>
               <el-table-column
@@ -440,6 +440,29 @@
         </el-row>
         <el-row>
           <el-col :span="12">
+            <el-form-item label="身份证号" prop="idcard">
+              <el-input
+                v-model="form.idcard"
+                maxlength="18"
+                placeholder="请输入18位身份证号"
+                @blur="handleIdcardChange"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="出生日期" prop="birthday">
+              <el-date-picker
+                v-model="form.birthday"
+                type="date"
+                value-format="YYYY-MM-DD"
+                placeholder="输入身份证号后自动解析，也可手动选择"
+                style="width:100%"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
             <el-form-item label="状态">
               <el-radio-group v-model="form.status">
                 <el-radio
@@ -602,6 +625,32 @@ const initPassword = ref(undefined);
 const postOptions = ref([]);
 const roleOptions = ref([]);
 const cityCascaderRef = ref(null);
+
+/** 创建时间兜底：仅处理空值，有值则按接口原值展示 */
+function formatCreateTime(time) {
+  return proxy.parseTime(time) || "-";
+}
+
+/** 输入18位身份证号后自动解析出生日期和性别 */
+function handleIdcardChange() {
+  const idcard = String(form.value.idcard || "").trim().toUpperCase();
+  if (!/^\d{17}[\dX]$/.test(idcard)) {
+    return;
+  }
+
+  const year = idcard.slice(6, 10);
+  const month = idcard.slice(10, 12);
+  const day = idcard.slice(12, 14);
+  const monthNumber = Number(month);
+  const dayNumber = Number(day);
+
+  if (monthNumber < 1 || monthNumber > 12 || dayNumber < 1 || dayNumber > 31) {
+    return;
+  }
+
+  form.value.birthday = `${year}-${month}-${day}`;
+  form.value.sex = Number(idcard[16]) % 2 === 1 ? "0" : "1";
+}
 /*** 用户导入参数 */
 const upload = reactive({
   // 是否显示弹出层（用户导入）
@@ -869,6 +918,8 @@ function reset() {
     phonenumber: undefined,
     email: undefined,
     sex: undefined,
+    idcard: undefined,
+    birthday: undefined,
     isLeader: false,
     status: "0",
     remark: undefined,

@@ -3,13 +3,48 @@ import dayjs from 'dayjs'
 
 const DEFAULT_PAGE_SIZE = 10
 
+const defaultApproval = (userName) => ({
+  statusText: '审批通过',
+  currentApprover: '-',
+  copyUser: '-',
+  flowNodes: [
+    { userName, action: '创建' },
+    { userName: '董事长兼总经理', action: '通过' },
+    { userName: '财务经理', action: '通过' }
+  ],
+  records: [
+    { time: '2026-11-18 17:44', userName, action: '提交', opinion: '提交申请。' },
+    { time: '2026-11-18 17:44', userName, action: '审核通过', opinion: '' },
+    { time: '2026-11-18 17:44', userName: '李红娜', action: '审核通过', opinion: '' }
+  ],
+  printRecords: [
+    { time: '2026-11-18 17:44', userName, action: '审核通过', opinion: '' },
+    { time: '2026-11-18 17:44', userName: '李红娜', action: '审核通过', opinion: '' }
+  ]
+})
+
+const defaultOffsetRecords = (balanceCost = 0, options = {}) => {
+  const offsetAmount = Number(balanceCost)
+  if (offsetAmount <= 0) return []
+  const cost = Number(options.cost || offsetAmount)
+  const expenseTime = options.expenseTime || '2026-11-18'
+  return [{
+    cost: cost.toFixed(2),
+    balanceCost: offsetAmount.toFixed(2),
+    payAmount: Math.max(cost - offsetAmount, 0).toFixed(2),
+    code: options.code || `BX20261118${String(offsetAmount).padStart(4, '0')}`,
+    expenseTime,
+    incomeMonth: options.incomeMonth || expenseTime.slice(0, 7)
+  }]
+}
+
 const store = {
   loan: [
-    { id: 1001, cost: 12000, checkStatus: 2, balanceCost: 0, balanceStatus: 0, types: 1, planTime: '2026-12-30', adminName: '张三', deptName: '技术部', title: '项目备用金', content: '项目差旅备用金', payStatus: 0, payName: '', payTime: '', backStatus: 0, createTime: '2026-11-20 10:12:00' },
-    { id: 1002, cost: 8000, checkStatus: 2, balanceCost: 3000, balanceStatus: 1, types: 2, planTime: '2026-12-31', adminName: '李四', deptName: '市场部', title: '客户拜访借款', content: '客户拜访费用', payStatus: 1, payName: '王财务', payTime: '2026-11-21 15:20:00', backStatus: 0, createTime: '2026-11-19 09:30:00' },
-    { id: 1003, cost: 5000, checkStatus: 2, balanceCost: 5000, balanceStatus: 2, types: 1, planTime: '2026-11-30', adminName: '赵六', deptName: '财务部', title: '日常备用金', content: '已全额冲抵', payStatus: 1, payName: '王财务', payTime: '2026-11-18 14:00:00', backStatus: 1, createTime: '2026-11-18 11:00:00' },
-    { id: 1004, cost: 20000, checkStatus: 2, balanceCost: 0, balanceStatus: 0, types: 2, planTime: '2027-01-15', adminName: '钱七', deptName: '项目一部', title: '项目预支款', content: '现场采购预支', payStatus: 1, payName: '王财务', payTime: '2026-11-17 16:40:00', backStatus: 0, createTime: '2026-11-17 10:00:00' },
-    { id: 1005, cost: 3000, checkStatus: 2, balanceCost: 3000, balanceStatus: 2, types: 1, planTime: '2026-11-20', adminName: '孙八', deptName: '行政部', title: '活动借款', content: '已冲抵无需归还', payStatus: 1, payName: '王财务', payTime: '2026-11-16 11:00:00', backStatus: 0, createTime: '2026-11-16 09:00:00' }
+    { id: '4202611181743541', cost: 3, checkStatus: 2, balanceCost: 0, balanceStatus: 0, types: 1, typesText: '日常备用金', planTime: '2026-12-30', adminName: '郭小路', deptName: '管理委员会', companyName: '北京联纵宸捷科技有限公司', title: '3', content: '3', payStatus: 1, payName: '超级员工', payTime: '2026-11-18 17:45:16', backStatus: 1, backName: '超级员工', backTime: '2026-11-18 17:46:55', createTime: '2026-11-18 17:44:21', approval: defaultApproval('郭小路'), offsetRecords: defaultOffsetRecords() },
+    { id: 1002, cost: 8000, checkStatus: 2, balanceCost: 3000, balanceStatus: 1, types: 2, typesText: '项目预支款', planTime: '2026-12-31', adminName: '李四', deptName: '市场部', companyName: '北京联纵宸捷科技有限公司', title: '客户拜访借款', content: '客户拜访费用', payStatus: 1, payName: '王财务', payTime: '2026-11-21 15:20:00', backStatus: 0, backName: '', backTime: '', createTime: '2026-11-19 09:30:00', approval: defaultApproval('李四'), offsetRecords: defaultOffsetRecords(3000, { code: 'BX2026111902', cost: 3500, adminName: '李四', deptName: '市场部', expenseTime: '2026-11-19', createTime: '2026-11-19 09:30:00' }) },
+    { id: 1003, cost: 5000, checkStatus: 2, balanceCost: 5000, balanceStatus: 2, types: 1, typesText: '日常备用金', planTime: '2026-11-30', adminName: '赵六', deptName: '财务部', companyName: '北京联纵宸捷科技有限公司', title: '日常备用金', content: '已全额冲抵', payStatus: 1, payName: '王财务', payTime: '2026-11-18 14:00:00', backStatus: 1, backName: '超级员工', backTime: '2026-11-18 17:46:55', createTime: '2026-11-18 11:00:00', approval: defaultApproval('赵六'), offsetRecords: defaultOffsetRecords(5000, { code: 'BX2026111801', cost: 5000, adminName: '赵六', deptName: '财务部', expenseTime: '2026-11-18', createTime: '2026-11-18 11:00:00' }) },
+    { id: 1004, cost: 20000, checkStatus: 2, balanceCost: 0, balanceStatus: 0, types: 2, typesText: '项目预支款', planTime: '2027-01-15', adminName: '钱七', deptName: '项目一部', companyName: '北京联纵宸捷科技有限公司', title: '项目预支款', content: '现场采购预支', payStatus: 1, payName: '王财务', payTime: '2026-11-17 16:40:00', backStatus: 0, backName: '', backTime: '', createTime: '2026-11-17 10:00:00', approval: defaultApproval('钱七'), offsetRecords: defaultOffsetRecords() },
+    { id: 1005, cost: 3000, checkStatus: 2, balanceCost: 3000, balanceStatus: 2, types: 1, typesText: '日常备用金', planTime: '2026-11-20', adminName: '孙八', deptName: '行政部', companyName: '北京联纵宸捷科技有限公司', title: '活动借款', content: '已冲抵无需归还', payStatus: 1, payName: '王财务', payTime: '2026-11-16 11:00:00', backStatus: 0, backName: '', backTime: '', createTime: '2026-11-16 09:00:00', approval: defaultApproval('孙八'), offsetRecords: defaultOffsetRecords(3000, { code: 'BX2026111601', cost: 3000, adminName: '孙八', deptName: '行政部', expenseTime: '2026-11-16', createTime: '2026-11-16 09:00:00' }) }
   ],
   expense: [
     { id: 2001, cost: 3200, checkStatus: 2, adminName: '张三', deptName: '技术部', code: 'BX2026112001', expenseTime: '2026-11-18', incomeMonth: '2026-11', createTime: '2026-11-20 10:00:00', payStatus: 0, payName: '', payTime: '' },

@@ -63,6 +63,11 @@
         />
       </el-form-item>
 
+      <!-- 消息链接 -->
+      <el-form-item v-if="form.msgLink" label="相关链接">
+        <el-button type="primary" link @click="handleOpenLink">查看员工生日墙</el-button>
+      </el-form-item>
+
     </el-form>
 
     <template #footer>
@@ -89,7 +94,9 @@ const form = reactive({
   typesStr: "",      // 消息类型（系统消息/用户消息）
   fromName: "",      // 发件人
   title: "",         // 消息主题
-  createTime: ""     // 发件时间
+  content: "",       // 消息内容
+  createTime: "",    // 发件时间
+  msgLink: ""        // 消息模板配置的跳转链接
 });
 
 const dialogTitle = computed(() => "查看消息");
@@ -99,7 +106,9 @@ function reset() {
     typesStr: "",
     fromName: "",
     title: "",
-    createTime: ""
+    content: "",
+    createTime: "",
+    msgLink: ""
   });
   currentMessageId.value = null;
 }
@@ -119,6 +128,7 @@ async function openView(data) {
   form.title = data.title || '';
   form.content = data.content || '';
   form.createTime = data.createTime || '';
+  form.msgLink = data.msgLink || '';
   
 
   
@@ -137,6 +147,11 @@ async function openView(data) {
       console.error("标记已读失败:", error);
     }
   }
+}
+
+function handleOpenLink() {
+  if (!form.msgLink) return;
+  proxy.$tab.openPage('员工生日墙', form.msgLink);
 }
 
 // 收件箱不需要编辑和新增

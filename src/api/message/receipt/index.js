@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+// 获取当前用户未读消息数量
+export function getUnreadCount() {
+  return request({
+    url: '/main/message/receive/unread_count',
+    method: 'get'
+  })
+}
+
 // 收件箱分页列表
 export function getPageList(query) {
   return request({

@@ -3,6 +3,8 @@ import { listUser } from '@/api/system/user.js'
 const dateOnly = (value) => value?.split(' ')[0] || ''
 const dateTime = (value) => value || ''
 const money = (value) => (value === null || value === undefined || value === '' ? '' : Number(value).toFixed(2))
+const moneyWithUnit = (value) => (value === null || value === undefined || value === '' ? '' : `${Number(value).toFixed(2)} 元`)
+const adminWithDept = (row) => (row?.adminName ? `${row.adminName}${row.deptName ? `（${row.deptName}）` : ''}` : '-')
 
 const userSearch = (label, order = 1) => ({
   type: 'selectApi',
@@ -42,22 +44,22 @@ export const statConfig = {
       backStatus: 'cash_back_status'
     },
     detailFields: [
-      { label: '借支编号', fieldName: 'id' },
       { label: '借支主题', fieldName: 'title' },
-      { label: '借支金额(元)', fieldName: 'cost', format: money },
-      { label: '借支员工', fieldName: 'adminName' },
-      { label: '借支部门', fieldName: 'deptName' },
-      { label: '借支类型', fieldName: 'types', dictKey: 'cash_advance_types' },
-      { label: '审批状态', fieldName: 'checkStatus', dictKey: 'check_status' },
-      { label: '已冲抵金额(元)', fieldName: 'balanceCost', format: money },
-      { label: '冲抵状态', fieldName: 'balanceStatus', dictKey: 'balance_status' },
-      { label: '计划归还日期', fieldName: 'planTime' },
+      { label: '借支企业主体', fieldName: 'companyName' },
+      { label: '借支金额', fieldName: 'cost', format: moneyWithUnit },
+      { label: '借支员工', fieldName: 'adminName', getValue: adminWithDept },
+      { label: '借支类型', fieldName: 'types', getValue: (row) => row.typesText || row.types },
+      { label: '借支编号', fieldName: 'id' },
+      { label: '预计归还日期', fieldName: 'planTime' },
+      { label: '借支理由', fieldName: 'content', span: 2 },
       { label: '打款状态', fieldName: 'payStatus', dictKey: 'cash_pay_status' },
       { label: '打款人', fieldName: 'payName' },
-      { label: '打款确认时间', fieldName: 'payTime' },
-      { label: '还款状态', fieldName: 'backStatus', dictKey: 'cash_back_status' },
-      { label: '借支理由', fieldName: 'content', span: 2 },
-      { label: '申请时间', fieldName: 'createTime' }
+      { label: '打款时间', fieldName: 'payTime' },
+      { label: '冲抵状态', fieldName: 'balanceStatus', dictKey: 'balance_status' },
+      { label: '已冲抵金额', fieldName: 'balanceCost', format: money },
+      { label: '归还状态', fieldName: 'backStatus', dictKey: 'cash_back_status' },
+      { label: '归还经手人', fieldName: 'backName' },
+      { label: '归还时间', fieldName: 'backTime' }
     ],
     summaryFields: [
       { label: '记录数', fieldName: 'recordCount', type: 'count' },
